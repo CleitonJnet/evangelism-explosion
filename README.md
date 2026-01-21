@@ -24,6 +24,7 @@ Frontend
 - Tailwind CSS 4
 - Vite
 - Axios
+- SwiperJS (carousels)
 
 Dev/Qualidade
 - Pest
