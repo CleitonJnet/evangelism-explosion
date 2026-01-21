@@ -1,0 +1,84 @@
+:root {
+    /* paleta clássica Instagram (ajuste se quiser) */
+    --ig-yellow: #feda75;
+    --ig-orange: #fa7e1e;
+    --ig-magenta: #d62976;
+    --ig-purple: #962fbf;
+    --ig-blue: #4f5bd5;
+
+    /* opacidade da camada escura sobre o gradiente para melhorar legibilidade do texto */
+    /* --overlay-alpha: 0; */
+}
+
+.instagram-bg-full {
+    background-color: var(--ig-magenta); /* fallback sólido */
+    /* linear gradient (mais próximo ao Instagram original) */
+    background-image: linear-gradient(
+        135deg,
+        var(--ig-yellow) 0%,
+        var(--ig-orange) 20%,
+        var(--ig-magenta) 45%,
+        var(--ig-purple) 70%,
+        var(--ig-blue) 100%
+    );
+    background-size: 200% 200%;
+    background-position: center;
+    /* suaviza em dispositivos de baixo desempenho */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* camada semi-transparente para texto legível (coloque dentro do elemento .instagram-bg-full) */
+.instagram-bg-full::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, /*  var(--overlay-alpha) */);
+    pointer-events: none;
+}
+
+/* variação radial (bom para headers ou cards) */
+.instagram-bg-radial {
+    background-color: var(--ig-magenta);
+    background-image: radial-gradient(
+            circle at 20% 20%,
+            var(--ig-blue) 0%,
+            rgba(0, 0, 0, 0) 30%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            var(--ig-yellow) 0%,
+            rgba(0, 0, 0, 0) 30%
+        ),
+        linear-gradient(135deg, var(--ig-orange), var(--ig-magenta));
+    background-blend-mode: screen;
+}
+
+/* variação conic (moderna, dinâmica — bom para efeitos decorativos) */
+.instagram-bg-conic {
+    background-color: var(--ig-magenta);
+    background-image: conic-gradient(
+        from 180deg at 50% 50%,
+        var(--ig-yellow) 0deg 72deg,
+        var(--ig-orange) 72deg 144deg,
+        var(--ig-magenta) 144deg 216deg,
+        var(--ig-purple) 216deg 288deg,
+        var(--ig-blue) 288deg 360deg
+    );
+}
+
+/* animação sutil (opcional) para dar vida ao fundo */
+@keyframes slow-pan {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.instagram-bg-full.animated {
+    animation: slow-pan 4s ease-in-out infinite;
+}

@@ -1,0 +1,3 @@
+<div>
+    {{ $profile->name }}
+</div>

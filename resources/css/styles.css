@@ -1,0 +1,166 @@
+@import url("fonts.css");
+@import url("contact-whatsapp.css");
+@import url("navigation.css");
+@import url("map-brazil.css");
+
+/* ===== Averia Sans (local) ===== */
+@font-face {
+    font-family: "Averia Sans";
+    src: url("./fonts/averia_sans/AveriaSans-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Averia Sans";
+    src: url("./fonts/averia_sans/AveriaSans-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Averia Sans";
+    src: url("./fonts/averia_sans/AveriaSans-Light.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ===== Classes por estilo ===== */
+.font-averia-regular {
+    font-family:
+        "Averia Sans",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.font-averia-bold {
+    font-family:
+        "Averia Sans",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.font-averia-light {
+    font-family:
+        "Averia Sans",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+em {
+    font-style: normal;
+}
+
+.container-fluid {
+    max-width: 96rem;
+    margin: auto;
+    width: 100%;
+}
+
+.max-w-8xl {
+    max-width: 1480px;
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 100%;
+    }
+}
+@media (min-width: 640px) {
+    .container {
+        max-width: 100%;
+    }
+}
+
+.swiper {
+    z-index: 0;
+}
+
+.shadow-h {
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.15);
+}
+.shadow-h-t {
+    box-shadow: 0 -2px 2px 2px rgba(0, 0, 0, 0.15);
+}
+.shadow-h-b {
+    box-shadow: 0 2px 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+.text-shadow-dark {
+    text-shadow: 1px 1px 4px #000;
+}
+.text-shadow-light {
+    text-shadow: 1px 1px 5px #fff;
+}
+
+.shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine::after {
+    content: "";
+    z-index: -1;
+    position: absolute;
+    top: -120%;
+    left: -40%;
+    width: 60%;
+    height: 260%;
+    transform: rotate(18deg);
+    background: rgba(255, 255, 255, 0.18);
+    filter: blur(2px);
+    transition: all 1.1s ease-in-out;
+    opacity: 0;
+}
+
+.shine:hover::after {
+    left: 130%;
+    opacity: 1;
+}
+
+/* Fundo geral do bloco (prata com nuance quente) */
+.ee-metal-section {
+    background:
+        radial-gradient(
+            1200px 700px at 18% 15%,
+            rgba(216, 190, 116, 0.22),
+            transparent 55%
+        ),
+        radial-gradient(
+            900px 600px at 78% 25%,
+            rgba(215, 222, 232, 0.55),
+            transparent 55%
+        ),
+        radial-gradient(
+            900px 600px at 65% 90%,
+            rgba(168, 129, 38, 0.1),
+            transparent 55%
+        ),
+        linear-gradient(180deg, #ffffff 0%, #f7f8fb 45%, #f1f5f9 100%);
+    color: var(--ee-ink);
+}

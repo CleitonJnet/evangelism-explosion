@@ -1,0 +1,373 @@
+/* ===========================
+   WHATSAPP WIDGET - STYLES
+   Ajuste fino por Cleiton
+   =========================== */
+
+.wa-widget {
+    position: fixed;
+    z-index: 99999;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Botão flutuante */
+.wa-widget .wa-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    /* pointer-events: auto; */
+    box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    border-radius: 50%;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.wa-widget .wa-button img {
+    width: 60px;
+    height: 60px;
+    display: block;
+    border-radius: 50%;
+}
+
+.wa-widget .wa-button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 10px 26px rgba(0,0,0,.32);
+}
+
+/* Modal overlay */
+.wa-widget .wa-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .45);
+    pointer-events: auto;
+    padding: 20px;
+}
+
+.wa-widget .wa-modal.is-open {
+    display: block;
+}
+
+/* Panel */
+.wa-widget .wa-modal-panel {
+    background: #0b5345;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 92px;
+    right: 10px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .8);
+    overflow: hidden;
+}
+
+/* Card interior: background + padding */
+.wa-widget .wa-panel-inner {
+    background-color: #0b5345; /* verde topo */
+    color: #fff;
+    padding: 12px;
+}
+
+/* Title area */
+.wa-widget .wa-title {
+    margin: 0;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Close button */
+.wa-widget .wa-close {
+    position: absolute;
+    right: 12px;
+    top: 6px;
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+    color: #fff;
+    padding: 4px;
+}
+
+/* Form container */
+.wa-widget .wa-form {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+/* Detail text */
+.wa-widget .wa-detail {
+    font-size: 0.86rem;
+    padding-bottom: 6px;
+    text-align: center;
+    color: #1d6859;
+    margin-bottom: 2px;
+}
+
+/* Base input */
+.wa-widget .wa-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(11,83,69,.08);
+    box-sizing: border-box;
+    font-size: .95rem;
+    background: #fff;
+    color: #222;
+    transition: box-shadow .12s ease, border-color .12s ease;
+}
+
+/* focus */
+.wa-widget .wa-input:focus {
+    outline: none;
+    box-shadow: 0 4px 16px rgba(11,83,69,.08);
+    border-color: #0b5345;
+}
+
+/* Submit button */
+.wa-widget .wa-submit {
+    background: #0b5345;
+    color: #fff;
+    padding: 10px 12px;
+    width: 100%;
+    border: none;
+    border-radius: 26px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px rgba(11,83,69,.18);
+}
+
+/* small icon inside button */
+.wa-widget .wa-submit .bi {
+    font-size: 1.05rem;
+}
+
+/* Divider decorative */
+.wa-divisor {
+    margin: 12px 0;
+    height: 4px;
+    background-color: #1d6859;
+    border-radius: 50%;
+}
+
+/* ========== fields with icons ========== */
+/* default wrapper */
+.wa-field {
+    position: relative;
+}
+
+/* icon (left) */
+.wa-field .wa-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #0b5345;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
+/* push inputs to the right so icon doesn't overlap */
+.wa-field .wa-input {
+    padding-left: 40px;
+}
+
+/* TELEFONE */
+/* Campo TELEFONE como os demais */
+.wa-phone-field {
+    flex: 1;
+    position: relative;
+}
+
+.wa-phone-field .wa-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #0b5345;
+    pointer-events: none;
+}
+
+/* padding igual aos outros campos */
+.wa-phone-field .wa-phone-visible {
+    padding-left: 34px !important;
+}
+
+/* Selects should display similarly */
+.wa-field select.wa-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+}
+
+/* specialized textarea: icon top-left */
+.wa-textarea-field .wa-icon {
+    top: 10px;
+    transform: none;
+    left: 10px;
+}
+.wa-textarea-field textarea.wa-input {
+    padding-left: 40px;
+    min-height: 92px;
+    resize: vertical;
+}
+
+/* ========== PHONE group ========== */
+.wa-phone-group-wrapper {
+    position: relative;
+}
+
+/* phone group (DDI + phone) layout */
+.wa-phone-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* DDI input */
+.wa-ddi-input {
+    max-width: 72px;
+    flex: 0 0 72px;
+    text-align: center;
+    cursor: pointer;
+    background: #f6f6f6;
+    border: 1px solid rgba(11,83,69,.06);
+    border-radius: 6px;
+    padding: 8px;
+}
+
+/* phone visible wrapper: keep icon inside same box, icon on right */
+.wa-phone-visible-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+/* phone input */
+.wa-phone-visible-wrapper .wa-phone-visible {
+    width: 100%;
+    padding: 8px 44px 8px 12px; /* room on right for icon, keep left padding small */
+    border-radius: 6px;
+    border: 1px solid rgba(11,83,69,.06);
+    background: #fff;
+}
+
+/* phone icon on right, vertically centered */
+.wa-phone-visible-wrapper .wa-icon-phone {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0b5345;
+    font-size: 1rem;
+    opacity: .85;
+    pointer-events: none;
+}
+
+/* DDI dropdown */
+.wa-ddi-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 120000;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    padding: 8px;
+    display: none;
+    width: calc(100% - 0px);
+    max-height: 260px;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    overflow: hidden;
+}
+
+/* If open, show */
+.wa-ddi-dropdown.is-open { display: block; }
+
+/* search inside dropdown */
+.wa-ddi-search {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+
+/* list container inside dropdown */
+.wa-ddi-list {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+/* ddi item */
+.wa-ddi-item {
+    width: 100%;
+    text-align: left;
+    padding: 8px;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .95rem;
+}
+
+/* hover / active states */
+.wa-ddi-item:hover { background: #ccffe2; }
+.wa-ddi-item.is-active { background: #eaf7f1; }
+
+/* small helper styles */
+.wa-field .help {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+/* responsive */
+@media (max-width: 560px) {
+    .wa-widget .wa-modal-panel {
+        margin: 0 12px;
+        width: calc(100% - 24px);
+        max-width: none;
+        bottom: 84px;
+        right: 2px;
+    }
+
+    .wa-widget .wa-button { bottom: 14px; right: 14px; }
+
+    .wa-title { font-size: .9rem; gap: 6px; }
+}
+
+/* Accessibility: focus ring for keyboard users */
+.wa-input:focus-visible, .wa-ddi-item:focus-visible, .wa-button:focus-visible {
+    outline: 3px solid rgba(11,83,69,.12);
+    outline-offset: 2px;
+}

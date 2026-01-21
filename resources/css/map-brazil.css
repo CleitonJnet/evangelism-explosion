@@ -1,0 +1,153 @@
+/*
+    brasil-radar.css
+
+    Estilos para o componente <x-brasil-radar />.
+
+    Responsabilidades:
+      - posicionar o mapa e os cinco pontos de radar;
+      - animar as ondas (efeito radar);
+      - definir cores por região.
+
+    Dica:
+      - Ajuste os valores de top/left em .radar-norte, .radar-nordeste, etc.,
+        usando o Devministry até que os pontos caiam exatamente nos locais desejados.
+*/
+
+/* Container geral */
+.brasil-radar-container {
+    position: relative;
+    margin: 0 auto;
+}
+
+.brasil-radar-map {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Cada ponto de radar (stack de dot + ondas) */
+.radar-spot {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+/*
+    Posições aproximadas das regiões no mapa.
+
+    OBS: Estes valores assumem um mapa vertical típico do Brasil.
+    Ajuste conforme o mapa que você estiver usando.
+*/
+.radar-norte {
+    top: 25%;
+    left: 35%;
+}
+
+.radar-nordeste {
+    top: 40%;
+    left: 75%;
+}
+
+.radar-centro-oeste {
+    top: 52%;
+    left: 45%;
+}
+
+.radar-sudeste {
+    top: 65%;
+    left: 67%;
+}
+
+.radar-sul {
+    top: 85%;
+    left: 50%;
+}
+
+/* Pontinho central de cada radar */
+.radar-dot {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Cores por região (hex equivalentes ao Tailwind aproximado) */
+.radar-dot-norte {
+    background-color: #034935;
+} /* emerald-700 */
+.radar-dot-nordeste {
+    background-color: #7b3907;
+} /* amber-700  */
+.radar-dot-centro-oeste {
+    background-color: #945907;
+} /* yellow-700 */
+.radar-dot-sudeste {
+    background-color: #640f0f;
+} /* red-700    */
+.radar-dot-sul {
+    background-color: #023d5d;
+} /* sky-700    }
+
+/* Ondas do radar */
+.radar-wave {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    border-width: 2px;
+    border-style: solid;
+    opacity: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    animation: radarPulseTw 3s infinite;
+}
+
+/* Cores da borda das ondas (casadas com os pontos) */
+.radar-wave-norte {
+    border-color: rgba(4, 120, 87, 0.7);
+} /* emerald-700 */
+.radar-wave-nordeste {
+    border-color: rgba(180, 83, 9, 0.7);
+} /* amber-700   */
+.radar-wave-centro-oeste {
+    border-color: rgba(161, 98, 7, 0.7);
+} /* yellow-700  */
+.radar-wave-sudeste {
+    border-color: rgba(185, 28, 28, 0.7);
+} /* red-700     */
+.radar-wave-sul {
+    border-color: rgba(3, 105, 161, 0.7);
+} /* sky-700     }
+
+/* Delays para criar efeito contínuo em cada região */
+.wave-1 {
+    animation-delay: 0s;
+}
+.wave-2 {
+    animation-delay: 0.8s;
+}
+.wave-3 {
+    animation-delay: 1.6s;
+}
+.wave-4 {
+    animation-delay: 2.4s;
+}
+
+@keyframes radarPulseTw {
+    0% {
+        transform: translate(-50%, -50%) scale(0.1);
+        opacity: 0.9;
+    }
+    60% {
+        opacity: 0.25;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
