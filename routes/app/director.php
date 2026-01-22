@@ -12,7 +12,7 @@ use Livewire\Volt\Volt;
 Route::middleware('can:access-director')->prefix('director')->name('director.')->group(function () {
     Route::view('/', 'pages.app.roles.director.dashboard')->name('dashboard');
 
-    Volt::route('setup', 'director.setup')->name('setup');
+    Volt::route('setup', 'pages.app.director.setup')->name('setup');
     
     Route::prefix('church')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');

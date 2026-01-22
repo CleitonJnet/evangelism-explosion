@@ -10,7 +10,7 @@
 
     </div>
 
-    <form wire:submit="login_event" class="space-y-8 w-full py-6">
+    <form wire:submit="loginEvent" class="space-y-8 w-full py-6">
 
         <div class="flex flex-wrap mt-6 gap-y-8 gap-x-4">
 
@@ -26,7 +26,7 @@
         <div class="pt-2 flex gap-3 justify-end">
             <div class="text-xs -mt-3 -mb-2 text-red-600 w-full">Os campos com <sup>&#10033;</sup> são obrigatórios.
             </div>
-            <div><x-src.btn-gold label="Fazer login" :route="route('web.event.login', $event->id)" class="text-nowrap" /></div>
+            <div><x-src.btn-gold label="Fazer login" type="submit" class="text-nowrap" /></div>
         </div>
 
         <div class="flex justify-between text-sm flex-wrap">

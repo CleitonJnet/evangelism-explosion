@@ -13,6 +13,8 @@
             <flux:sidebar.collapse class="lg:hidden" />
         </flux:sidebar.header>
 
+        <x-src.line-theme />
+
         <flux:sidebar.nav>
             <x-app.desktop-roles-menu class="hidden lg:block" />
 

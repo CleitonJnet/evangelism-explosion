@@ -43,8 +43,7 @@ class SiteController extends Controller
 
     public function events(): View
     {
-        $events = Training::all();
-        return view("pages.web.events.index", compact("events"));
+        return view("pages.web.events.index");
     }
 
     public function details(string $id): View

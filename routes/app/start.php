@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'verified'])->name("app.")->group(function () {
+Route::middleware(['web', 'auth', 'verified'])->name('app.')->group(function () {
     Route::get('start', function () {
-        $user = auth()->user();
+        $user = Auth::user();
         $roleCount = $user->roles()->count();
 
         if ($roleCount === 1) {

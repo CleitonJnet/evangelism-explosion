@@ -43,7 +43,7 @@
 
     <div class="flex gap-6">
 
-        <form wire:submit="register_event" class="space-y-8">
+        <form wire:submit="registerEvent" class="space-y-8">
 
             <div class="flex flex-wrap mt-6 gap-y-8 gap-x-4">
 
@@ -56,8 +56,8 @@
                 <x-src.form.input type="tel" name="mobile" wire:model='mobile' data-no-tel-mask
                     label="Celular &#10023; WhatsApp" width_basic="200" required />
 
-                <x-src.form.input type="email" name="email" wire:model='email' label="E-mail" width_basic="350"
-                    required />
+                <x-src.form.input type="email" name="email" wire:model.blur='email' label="E-mail"
+                    width_basic="350" :note="$emailNotice" required />
 
                 <x-src.form.input type="password" name="password" wire:model='password' label="Informe uma senha"
                     width_basic="300" required />
@@ -77,7 +77,7 @@
                 <div class="text-xs -mt-3 -m-2 text-red-600 w-full">Os campos com <sup>&#10033;</sup> são obrigatórios.
                 </div>
 
-                <div><x-src.btn-gold label="Confirmar inscrição" class="text-nowrap" /></div>
+                <div><x-src.btn-gold label="Confirmar inscrição" type="submit" class="text-nowrap" /></div>
             </div>
 
             <div class="flex justify-between text-sm">
