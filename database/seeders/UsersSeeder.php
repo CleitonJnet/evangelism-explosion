@@ -14,6 +14,7 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
+        $board = Role::firstOrCreate(['name' => 'Board']);
         $director = Role::firstOrCreate(['name' => 'Director']);
         $teacher = Role::firstOrCreate(['name' => 'Teacher']);
         $facilitator = Role::firstOrCreate(['name' => 'Facilitator']);
@@ -24,6 +25,7 @@ class UsersSeeder extends Seeder
             'id' => 1,
             'name' => 'Cleiton dos Santos',
             'email' => 'csilva@eeworks.org',
+            'phone'=> '21972765535',
             'password' => bcrypt('Master@01'),
             'church_id' => 1,
         ]);
@@ -31,15 +33,35 @@ class UsersSeeder extends Seeder
             'id' => 2,
             'name' => 'Jailton Barreto Rangel',
             'email' => 'jailtonbarreto@eeworks.org',
+            'phone'=> '21991046211',
             'password' => bcrypt('Master@01'),
-            'church_id' => 2,
+            'church_id' => 4,
         ]);
         $userThree = User::create([
             'id' => 3,
             'name' => 'Cleverson Rodrigues',
-            'email' => 'cleverson@eeworks.org',
+            'phone'=> '6692603673',
+            'email' => 'cleverson@eebrasil.org.br',
+            'password' => bcrypt('Master@01'),
+            'church_id' => 5,
+        ]);
+
+        $userFour = User::create([
+            'id' => 4,
+            'name' => 'Davdsion Freitas',
+            'phone'=> '21992192082',
+            'email' => 'davidsonfreitas@eebrasil.org.br',
             'password' => bcrypt('Master@01'),
             'church_id' => 3,
+        ]);
+
+        $userFive = User::create([
+            'id' => 5,
+            'name' => 'Robert D. Foster',
+            'phone'=> '6787364150',
+            'email' => 'rfoster@eeworks.org',
+            'password' => bcrypt('Master@01'),
+            'church_id' => 6,
         ]);
 
         $factoryCount = max(0, 5000 - 3);
@@ -48,9 +70,11 @@ class UsersSeeder extends Seeder
             ->count($factoryCount)
             ->create();
 
-        $userOne->roles()->sync([$director->id]);
-        $userTwo->roles()->sync([$teacher->id, $facilitator->id]);
-        $userThree->roles()->sync([$mentor->id, $student->id]);
+        $userOne->roles()->sync([1,2,3,4,5,6]);
+        $userTwo->roles()->sync([1,2,3,4,5,6]);
+        $userThree->roles()->sync([3,4,5,6]);
+        $userFour->roles()->sync([1,3,4,5,6]);
+        $userFive->roles()->sync([1,2,3,4,5,6]);
 
         $roleIds = [$director->id, $teacher->id, $facilitator->id, $mentor->id, $student->id];
 

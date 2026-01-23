@@ -44,7 +44,9 @@
             [
                 'key' => 'mentor',
                 'label' => __('Mentor'),
-                'description' => __('Membro treinado na igreja local para dirigir equipes de STP.'),
+                'description' => __(
+                    'Participante Cresdenciado em Clínica de EE ou membro treinado na igreja local para dirigir equipes de STP.',
+                ),
                 'route' => 'app.mentor.dashboard',
                 'gate' => 'access-mentor',
                 'visibility' => 'progression',

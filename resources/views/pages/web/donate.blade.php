@@ -166,7 +166,7 @@
             </div>
             <div class="rounded-xl border border-slate-200 ee-metal-section px-4 py-4 grow basis-56">
                 <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">PROJETOS <span
-                        class="font-bold">ESPECÍFICO</span>
+                        class="font-bold">ESPECÍFICOS</span>
                 </p>
                 <p class="mt-2 text-sm leading-relaxed text-slate-800">
                     Parcerias estratégicas para projetos regionais, eventos e treinamentos completos.
