@@ -103,7 +103,7 @@
 
             {{-- CTA: Igreja Base --}}
             <div
-                class="mt-10 bg-white overflow-hidden rounded-3xl border border-amber-400/25 ring-1 ring-black/5 shadow-[0_18px_45px_-30px_rgba(2,6,23,.35)]">
+                class="mt-10 bg-white overflow-hidden rounded-3xl border border-amber-400/25 ring-1 ring-black/5 shadow-[0_18px_45px_-30px_rgba(2,6,23,.35)] group">
                 <div class="p-6 sm:p-8">
                     <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
@@ -122,18 +122,17 @@
                             </p>
 
                             <div class="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center">
-                                <a href="{{ route('web.event.clinic-base') }}"
-                                    class="group inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3
-                                               bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]
-                                               text-slate-950 font-bold shadow-md shadow-black/10 hover:brightness-110 transition">
-                                    Quero ser uma Igreja Base de Treinamentos
+
+                                <x-src.btn-gold label="Quero ser uma Igreja Base de Treinamentos" :route="route('web.event.clinic-base')">
                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="w-5 h-5 opacity-70 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:animate-[arrow-pulse_800ms_ease-in-out_infinite]"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        class="w-5 h-5 ml-1.5 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:animate-[arrow-pulse_800ms_ease-in-out_infinite]"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                        style="filter: drop-shadow(0 1px 1px #fff)">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
-                                </a>
+                                </x-src.btn-gold>
+
                             </div>
                         </div>
 

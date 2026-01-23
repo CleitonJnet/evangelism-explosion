@@ -52,7 +52,7 @@
             <p class="mt-4 leading-relaxed text-slate-700">
                 As Clínicas de Evangelismo Eficaz são a evolução da clássica <strong>Clínica de EE</strong>: um evento
                 intensivo
-                em que líderes e futuros <strong>facilitadores</strong> vivenciam o método com ensino e
+                em que líderes e futuros <strong>facilitadores</strong> vivenciam o método com ensino com Aulas e
                 <strong>Saídas de Treinamento Prático (STP)</strong>, recebendo um modelo claro e replicável
                 para reproduzir no contexto da igreja local.
             </p>

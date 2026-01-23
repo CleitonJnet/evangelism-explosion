@@ -45,8 +45,9 @@
                                     class="{{ request()->routeIs('web.ministry.kids-ee') ? '' : 'hidden' }} absolute text-sm text-orange-400 rotate-45 -top-2 -right-4 font-averia-bold">Kids</span>
                             </div>
                             <div
-                                class="hidden min-[345px]:block text-xs font-bold bg-linear-to-r from-[#f5e6a8] via-[#d6b85f] to-[#b89b3c] bg-clip-text text-transparent tracking-wide">
-                                NO BRASIL — Até Que Todos Ouçam!
+                                class="hidden min-[345px]:flex min-[345px]:items-center min-[345px]:gap-1 text-xs font-bold bg-linear-to-r from-[#f5e6a8] via-[#d6b85f] to-[#b89b3c] bg-clip-text text-transparent tracking-wide">
+                                NO BRASIL <span style="font-size: 9px;">&#10023;</span> Até Que
+                                Todos Ouçam!
                             </div>
                         </div>
                     </a>

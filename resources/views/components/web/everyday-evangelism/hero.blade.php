@@ -43,8 +43,8 @@
         }
 
         /* =========================================================
-                                                                                                                                                                                                                                                                           BOTÕES — padrão do menu (dourado forte)
-                                                                                                                                                                                                                                                                           ========================================================= */
+                                                                                                                                                                                                                                                                               BOTÕES — padrão do menu (dourado forte)
+                                                                                                                                                                                                                                                                               ========================================================= */
         .ee-btn-gold {
             position: relative;
             overflow: hidden;

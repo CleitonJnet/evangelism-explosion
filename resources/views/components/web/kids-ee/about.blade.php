@@ -8,7 +8,7 @@
                     style="filter: drop-shadow(0 0 10px #fff)">
 
                 <p class="max-w-2xl text-xl font-extrabold text-center text-white/85 text-shadow-dark">
-                    Este ministério de capacitação ensina as crianças a amar Jesus e a compartilhar Seu amor com os
+                    Este ministério de capacitação ensina as crianças a amar Jesus e a compartilhar Seu amor com
                     outras pessoas.
                 </p>
             </div>

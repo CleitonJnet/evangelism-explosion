@@ -1,7 +1,7 @@
 <?php
 
 test('donate page loads', function () {
-    $compiledPath = sys_get_temp_dir() . '/ee-views';
+    $compiledPath = sys_get_temp_dir().'/ee-views';
 
     if (! is_dir($compiledPath)) {
         mkdir($compiledPath, 0775, true);
@@ -11,5 +11,6 @@ test('donate page loads', function () {
 
     $this->get(route('web.donate'))
         ->assertSuccessful()
-        ->assertSee('Oferta Missionária');
+        ->assertSee('Oferta Missionária')
+        ->assertSee('eebrasil@eebrasil.org.br');
 });

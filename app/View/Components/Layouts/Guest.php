@@ -9,15 +9,25 @@ use Illuminate\View\Component;
 class Guest extends Component
 {
     public ?string $fullTitle = null;
-    public ?string $metaDescription = null;
-    public ?string $metaKeywords = null;
+
+    public ?string $description = null;
+
+    public ?string $keywords = null;
+
     public ?string $canonicalUrl = null;
+
     public ?string $robotsContent = null;
+
     public ?string $ogImg = null;
+
     public ?string $twImg = null;
+
     public ?string $appName = null;
+
     public ?string $ogType = null;
+
     public ?string $locale = null;
+
     public ?string $twCard = null;
 
     public function __construct(
@@ -36,12 +46,12 @@ class Guest extends Component
 
         // Título completo: usa o título passado ou o nome do app
         $pageTitle = $title ? trim($title) : $this->appName;
-        $this->fullTitle = $title ? ($pageTitle . ' 🌎 ' . $this->appName) : $this->appName;
+        $this->fullTitle = $title ? ($pageTitle.' 🌎 '.$this->appName) : $this->appName;
 
         // Metadados com valores padrão
-        $this->metaDescription = $description
+        $this->description = $description
             ?? 'Evangelismo Explosivo (EE) no Brasil: ministério que capacita igrejas a evangelizar através de amizades, discipular novos crentes e multiplicar líderes.';
-        $this->metaKeywords = $keywords ?? 'evangelismo, discipulado, treinamento, evangelismo explosivo';
+        $this->keywords = $keywords ?? 'evangelismo, discipulado, treinamento, evangelismo explosivo';
         $this->canonicalUrl = $canonical ?? url()->current();
         $this->robotsContent = $robots ?? 'index,follow';
 

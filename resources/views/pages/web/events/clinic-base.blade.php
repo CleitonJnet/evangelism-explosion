@@ -355,11 +355,7 @@
                 </p>
 
                 {{-- Botão de WhatsApp: ao clicar neste botão deve acionar a caixa do WhatsApp --}}
-                <button type="button" data-open-wa
-                    class="inline-flex items-center gap-3 px-8 py-4 font-semibold text-white transition rounded shadow bg-amber-500 hover:bg-amber-600"
-                    style="text-shadow: 1px 1px 0 #000">
-                    Falar conosco
-                </button>
+                <x-src.btn-gold label="Fale conosco" data-open-wa />
 
             </div>
         </div>
