@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('training_user', function (Blueprint $table) {
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('training_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('payment_receipt')->nullable();
             $table->tinyInteger('accredited')->default(0);
             $table->tinyInteger('kit')->default(0);
             $table->tinyInteger('payment')->default(0);
-});
+        });
     }
 
     /**

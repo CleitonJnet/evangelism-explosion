@@ -14,8 +14,6 @@ class Register extends Component
 {
     public Training $event;
 
-    public bool $isPaid;
-
     public string $ispastor = 'N';
 
     public string $name = '';
@@ -41,11 +39,6 @@ class Register extends Component
     public function mount(Training $event): void
     {
         $this->event = $event;
-        // ====== Flags do evento (pago x gratuito) ======
-        // converte para float
-        $pay = (float) preg_replace('/\D/', '', (string) $event->payment);
-
-        $this->isPaid = $pay > 0;
     }
 
     /**

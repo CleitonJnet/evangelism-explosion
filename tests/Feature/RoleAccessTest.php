@@ -112,6 +112,8 @@ test('start page shows access buttons only for allowed roles', function () {
     $this->actingAs($user)
         ->get(route('app.start'))
         ->assertOk()
+        ->assertSee('data-test="back-to-site"', false)
+        ->assertSee('data-test="logout"', false)
         ->assertDontSee('data-test="role-card-board"', false)
         ->assertDontSee('data-test="role-card-director"', false)
         ->assertDontSee('data-test="role-card-fieldworker"', false)

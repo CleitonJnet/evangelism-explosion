@@ -19,7 +19,7 @@ class SwiperWrapperEvents extends Component
         $query = Training::query()
             ->with([
                 'course.ministry',
-                'course' => fn ($query) => $query->where('execution',0),
+                'course' => fn ($query) => $query->where('execution', 0),
                 'church',
                 'teacher',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),

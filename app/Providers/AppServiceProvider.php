@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Policies\RoleAccessPolicy;
+use App\Policies\UserPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
 
     protected function configureAccessGates(): void
     {
+        Gate::policy(User::class, UserPolicy::class);
         Gate::define('access-board', [RoleAccessPolicy::class, 'accessBoard']);
         Gate::define('access-director', [RoleAccessPolicy::class, 'accessDirector']);
         Gate::define('access-teacher', [RoleAccessPolicy::class, 'accessTeacher']);

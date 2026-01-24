@@ -32,7 +32,7 @@
  *   - mascara inputs já preenchidos no carregamento (old()/model), respeitando data-no-tel-mask.
  * - Executa em:
  *   - DOMContentLoaded
- *   - livewire:navigated (Livewire v3 / navegação SPA)
+ *   - livewire:load, livewire:init, livewire:navigated, livewire:update (Livewire v2/v3/v4)
  */
 
 (function attachGlobalTelMask() {
@@ -61,24 +61,42 @@
         ); // “válvula de escape”
     }
 
-    // Máscara em tempo real (pega inputs adicionados depois também — Livewire incluso)
-    document.addEventListener("input", (e) => {
-        if (!shouldMask(e.target)) return;
-        e.target.value = formatPhone(e.target.value);
-    });
-
-    // Opcional: aplica máscara ao carregar (para campos já preenchidos por old()/model)
-    function applyOnExisting() {
-        document
-            .querySelectorAll('input[type="tel"]:not(.wa-phone-visible)')
-            .forEach((el) => {
-                if (el.hasAttribute("data-no-tel-mask")) return;
-                el.value = formatPhone(el.value);
-            });
+    function applyMask(input) {
+        if (!shouldMask(input)) return;
+        input.value = formatPhone(input.value);
     }
 
-    document.addEventListener("DOMContentLoaded", applyOnExisting);
+    function init(root) {
+        (root || document)
+            .querySelectorAll('input[type="tel"]:not(.wa-phone-visible)')
+            .forEach(applyMask);
+    }
 
-    // Livewire v3 (quando navega/renderiza via SPA)
-    document.addEventListener("livewire:navigated", applyOnExisting);
+    // Máscara em tempo real (pega inputs adicionados depois também — Livewire incluso)
+    document.addEventListener(
+        "input",
+        (e) => {
+            if (!shouldMask(e.target)) return;
+            e.target.value = formatPhone(e.target.value);
+        },
+        { capture: true }
+    );
+
+    // Opcional: aplica máscara ao carregar (para campos já preenchidos por old()/model)
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => init());
+    } else {
+        init();
+    }
+
+    // Livewire: cobre v2/v3/v4 e re-renderizações
+    document.addEventListener("livewire:load", () => init());
+    document.addEventListener("livewire:init", () => init());
+    document.addEventListener("livewire:navigated", () => init());
+    document.addEventListener("livewire:update", (e) =>
+        init(e.target || document)
+    );
+
+    // Evento manual (se algum componente precisar disparar)
+    document.addEventListener("reapply-tel-mask", () => init());
 })();

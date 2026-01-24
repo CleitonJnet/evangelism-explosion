@@ -1,5 +1,3 @@
-<x-layouts.app-simple :title="__('Profile')">
-
-
-
-</x-layouts.app-simple>
+<x-layouts.app :title="__('Perfil do usuário')">
+    <livewire:pages.app.settings.profile />
+</x-layouts.app>

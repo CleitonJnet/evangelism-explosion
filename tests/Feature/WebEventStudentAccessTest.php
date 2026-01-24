@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Livewire\Livewire;
+use Livewire\Volt\Volt;
 
 test('event registration validates required fields', function () {
     $course = Course::create([
@@ -151,6 +152,7 @@ test('existing user can register for a training with the same email', function (
     $user = User::factory()->create([
         'email' => 'aluno@example.com',
         'password' => 'secret1234',
+        'church_id' => $church->id,
     ]);
 
     Livewire::test(Register::class, ['event' => $training])
@@ -206,6 +208,7 @@ test('registration is blocked when the student is already enrolled in the traini
     $user = User::factory()->create([
         'email' => 'aluno@example.com',
         'password' => 'secret1234',
+        'church_id' => null,
     ]);
 
     $training->students()->syncWithoutDetaching([$user->id => ['accredited' => 0, 'kit' => 0, 'payment' => 0]]);
@@ -256,6 +259,7 @@ test('student can log in after registering for the training', function () {
     $user = User::factory()->create([
         'email' => 'aluno@example.com',
         'password' => 'secret1234',
+        'church_id' => null,
     ]);
 
     $training->students()->syncWithoutDetaching([$user->id => ['accredited' => 0, 'kit' => 0, 'payment' => 0]]);
@@ -305,6 +309,7 @@ test('student can log in and is enrolled when not registered for the training', 
     $user = User::factory()->create([
         'email' => 'aluno2@example.com',
         'password' => 'secret1234',
+        'church_id' => null,
     ]);
 
     Livewire::test(Login::class, ['event' => $training])
@@ -320,4 +325,59 @@ test('student can log in and is enrolled when not registered for the training', 
         'user_id' => $user->id,
         'training_id' => $training->id,
     ]);
+});
+
+test('student can register a temporary church when none is found', function () {
+    $course = Course::create([
+        'name' => 'Treinamento Teste',
+    ]);
+
+    $church = Church::create([
+        'name' => 'Igreja Central',
+        'street' => 'Rua A',
+        'number' => '10',
+        'district' => 'Centro',
+        'city' => 'Sao Paulo',
+        'state' => 'SP',
+    ]);
+
+    $teacher = User::factory()->create();
+
+    $training = Training::create([
+        'course_id' => $course->id,
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'street' => 'Rua A',
+        'number' => '10',
+        'district' => 'Centro',
+        'city' => 'Sao Paulo',
+        'state' => 'SP',
+    ]);
+
+    $user = User::factory()->create([
+        'email' => 'aluno3@example.com',
+        'password' => 'secret1234',
+        'church_id' => null,
+    ]);
+
+    $this->actingAs($user);
+    session(['church_modal_open' => true]);
+
+    Volt::test('shared.church-link-modal')
+        ->assertSet('showChurchModal', true)
+        ->call('startChurchTempRegistration')
+        ->set('churchTempName', 'Igreja Nova Vida')
+        ->set('churchTempCity', 'Campinas')
+        ->set('churchTempState', 'SP')
+        ->call('saveChurchTemp');
+
+    $this->assertDatabaseHas('church_temps', [
+        'name' => 'Igreja Nova Vida',
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+
+    $user->refresh();
+
+    expect($user->church_temp_id)->not()->toBeNull();
 });

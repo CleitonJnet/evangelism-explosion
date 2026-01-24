@@ -9,6 +9,7 @@ new class extends Component {
     use PasswordValidationRules;
 
     public string $password = '';
+    public bool $embedded = false;
 
     /**
      * Delete the currently authenticated user.
@@ -25,7 +26,13 @@ new class extends Component {
     }
 }; ?>
 
-<section class="mt-10 space-y-6">
+@php
+    $sectionClasses = $embedded
+        ? 'flex flex-col gap-6 rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6'
+        : 'mt-10 space-y-6';
+@endphp
+
+<section class="{{ $sectionClasses }}">
     <div class="relative mb-5">
         <flux:heading>{{ __('Delete account') }}</flux:heading>
         <flux:subheading>{{ __('Delete your account and all of its resources') }}</flux:subheading>

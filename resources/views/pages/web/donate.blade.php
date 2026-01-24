@@ -101,7 +101,7 @@
                         Onde sua oferta alcança
                     </h3>
                     <p class="mt-3 text-base leading-relaxed text-slate-700">
-                        A oferta sustenta um movimento evangelistico em todo o Brasil: formamos multiplicadores,
+                        A oferta sustenta um movimento evangelístico em todo o Brasil: formamos multiplicadores,
                         fortalecemos igrejas e investimos em produção de novos materiais que facilitam o discipulado.
                     </p>
                 </div>

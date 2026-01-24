@@ -1,5 +1,28 @@
 <x-layouts.app-simple :title="__('Triagem')">
     @php
+        $rawName = trim((string) (auth()->user()->name ?? ''));
+        $nameParts = preg_split('/\s+/', $rawName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $firstName = $nameParts[0] ?? '';
+        $prepositions = ['de', 'da', 'do', 'das', 'dos'];
+        $lastNameParts = [];
+
+        if (!empty($nameParts)) {
+            $lastNameParts[] = array_pop($nameParts);
+
+            while (!empty($nameParts)) {
+                $candidate = end($nameParts);
+
+                if (!in_array(mb_strtolower($candidate), $prepositions, true)) {
+                    break;
+                }
+
+                $lastNameParts[] = array_pop($nameParts);
+            }
+        }
+
+        $lastName = implode(' ', array_reverse($lastNameParts));
+        $displayName = trim(implode(' ', array_filter([$firstName, $lastName])));
+
         $roles = [
             [
                 'key' => 'board',
@@ -67,10 +90,28 @@
     <div class="min-h-screen ee-app-bg px-6 py-12">
         <div class="mx-auto flex w-full max-w-6xl flex-col gap-10">
             <div class="flex flex-col gap-3">
-                <flux:heading size="xl" level="1">{{ __('Escolha o perfil de acesso') }}</flux:heading>
+                @if ($displayName !== '')
+                    <flux:heading size="lg" level="2">
+                        {{ __('Bem-vindo, :name!', ['name' => $displayName]) }}
+                    </flux:heading>
+                @endif
+                <flux:heading size="xl" level="1">{{ __('Escolha como deseja acessar') }}</flux:heading>
                 <flux:text class="max-w-2xl text-base text-[color:var(--ee-app-muted)]">
                     {{ __('Selecione o perfil que voce deseja usar agora. Apenas perfis autorizados ficam liberados.') }}
                 </flux:text>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <flux:button variant="outline" :href="route('web.home')" data-test="back-to-site">
+                    {{ __('Voltar para o site') }}
+                </flux:button>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <flux:button variant="outline" type="submit" data-test="logout">
+                        {{ __('Sair') }}
+                    </flux:button>
+                </form>
             </div>
 
             @if (!$hasAnyRole)

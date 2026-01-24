@@ -16,6 +16,8 @@
 
     {{ $slot }}
 
+    @livewire('shared.church-link-modal')
+
     @livewireScripts
     @stack('js')
 

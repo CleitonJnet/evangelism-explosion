@@ -12,8 +12,6 @@ class Login extends Component
 {
     public Training $event;
 
-    public bool $isPaid;
-
     public string $email = '';
 
     public string $password = '';
@@ -21,11 +19,6 @@ class Login extends Component
     public function mount(Training $event): void
     {
         $this->event = $event;
-        // ====== Flags do evento (pago x gratuito) ======
-        // converte para float
-        $pay = (float) preg_replace('/\D/', '', (string) $event->payment);
-
-        $this->isPaid = $pay > 0;
     }
 
     /**
@@ -47,6 +40,8 @@ class Login extends Component
         return [
             'required' => 'O campo :attribute e obrigatorio.',
             'email' => 'O campo :attribute deve ser um e-mail valido.',
+            'min' => 'O campo :attribute precisa de pelo menos :min caracteres.',
+            'max' => 'O campo :attribute nao pode ter mais de :max caracteres.',
         ];
     }
 

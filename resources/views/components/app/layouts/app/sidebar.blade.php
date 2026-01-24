@@ -39,10 +39,72 @@
                     'mentor' => 'app.menu-roles.mentor',
                     'student' => 'app.menu-roles.student',
                 ];
+
+                $hasRoleLinks =
+                    auth()->user()->can('access-board') ||
+                    auth()->user()->can('access-director') ||
+                    auth()->user()->can('access-teacher') ||
+                    auth()->user()->can('access-facilitator') ||
+                    auth()->user()->can('access-fieldworker') ||
+                    auth()->user()->can('access-mentor') ||
+                    auth()->user()->can('access-student');
             @endphp
 
             @if ($currentRoleKey && isset($roleMenus[$currentRoleKey]))
                 <x-dynamic-component :component="$roleMenus[$currentRoleKey]" />
+            @endif
+
+            @if (!$currentRoleKey && $hasRoleLinks)
+                <flux:sidebar.group :heading="__('Funções')" class="grid">
+                    @can('access-board')
+                        <flux:sidebar.item :href="route('app.board.dashboard')" :current="request()->routeIs('app.board.*')"
+                            wire:navigate>
+                            {{ __('Board Member') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-director')
+                        <flux:sidebar.item :href="route('app.director.dashboard')"
+                            :current="request()->routeIs('app.director.*')" wire:navigate>
+                            {{ __('National Director') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-teacher')
+                        <flux:sidebar.item :href="route('app.teacher.dashboard')"
+                            :current="request()->routeIs('app.teacher.*')" wire:navigate>
+                            {{ __('Teacher') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-facilitator')
+                        <flux:sidebar.item :href="route('app.facilitator.dashboard')"
+                            :current="request()->routeIs('app.facilitator.*')" wire:navigate>
+                            {{ __('Facilitator') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-fieldworker')
+                        <flux:sidebar.item :href="route('app.fieldworker.dashboard')"
+                            :current="request()->routeIs('app.fieldworker.*')" wire:navigate>
+                            {{ __('Field Worker') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-mentor')
+                        <flux:sidebar.item :href="route('app.mentor.dashboard')"
+                            :current="request()->routeIs('app.mentor.*')" wire:navigate>
+                            {{ __('Mentor') }}
+                        </flux:sidebar.item>
+                    @endcan
+
+                    @can('access-student')
+                        <flux:sidebar.item :href="route('app.student.dashboard')"
+                            :current="request()->routeIs('app.student.*')" wire:navigate>
+                            {{ __('Student') }}
+                        </flux:sidebar.item>
+                    @endcan
+                </flux:sidebar.group>
             @endif
 
         </flux:sidebar.nav>
@@ -65,14 +127,15 @@
             <flux:menu>
                 <flux:menu.radio.group>
                     <div class="p-0 text-sm font-normal">
-                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                        <a class="flex items-center gap-2 px-1 py-1.5 text-start text-sm"
+                            href="{{ route('app.profile') }}" wire:navigate data-test="mobile-profile-link">
                             <flux:avatar :name="auth()->user()->name" :initials="auth()->user()->initials()" />
 
                             <div class="grid flex-1 text-start text-sm leading-tight">
                                 <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
                                 <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </flux:menu.radio.group>
 
@@ -84,10 +147,6 @@
                             {{ __('Setup do sistema') }}
                         </flux:menu.item>
                     @endcan
-
-                    <flux:menu.item :href="route('app.profile.edit')" icon="cog" wire:navigate>
-                        {{ __('Configurações do usuário') }}
-                    </flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />
@@ -105,7 +164,11 @@
 
     {{ $slot }}
 
+    @livewire('shared.church-link-modal')
+
     @include('components.layouts.bottom.app-scripts')
+
+    @stack('js')
 </body>
 
 </html>

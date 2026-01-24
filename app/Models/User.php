@@ -3,13 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Helpers\PhoneHelper;
+use App\Helpers\PostalCodeHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use App\Helpers\PhoneHelper;
-use App\Helpers\PostalCodeHelper;
 
 class User extends Authenticatable
 {
@@ -38,7 +41,7 @@ class User extends Authenticatable
         'password',
         'church_id',
         'church_temp_id',
-        'notes'
+        'notes',
     ];
 
     /**
@@ -104,6 +107,7 @@ class User extends Authenticatable
         }
 
         $digits = preg_replace('/\D+/', '', $value);
+
         return ($digits === '' || $digits === null) ? null : $digits;
     }
 
@@ -148,31 +152,43 @@ class User extends Authenticatable
         return $this->roles()->where('name', $roleName)->exists();
     }
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
-    public function church()
+
+    public function church(): BelongsTo
     {
         return $this->belongsTo(Church::class);
     }
-    public function church_temp()
+
+    public function church_temp(): BelongsTo
     {
         return $this->belongsTo(ChurchTemp::class);
     }
-    public function courseAsTeacher()
+
+    public function courseAsTeacher(): BelongsToMany
     {
         return $this->belongsToMany(Course::class)->withPivot('status');
     }
-    public function trainingsAsTeacher()
+
+    public function trainingsAsTeacher(): HasMany
     {
-        return $this->hasMany(Training::class,'teacher_id','id');
+        return $this->hasMany(Training::class, 'teacher_id', 'id');
     }
-    public function churches()
+
+    public function trainingsAsStudent(): BelongsToMany
     {
-        return $this->belongsToMany(Church::class,'church_missionary','church_id','user_id');
+        return $this->belongsToMany(Training::class, 'training_user')
+            ->withPivot(['accredited', 'kit', 'payment', 'payment_receipt']);
     }
-    public function hostChurches()
+
+    public function churches(): BelongsToMany
+    {
+        return $this->belongsToMany(Church::class, 'church_missionary', 'church_id', 'user_id');
+    }
+
+    public function hostChurches(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\HostChurch::class, 'host_church_admins')
             ->withPivot(['certified_at', 'status'])

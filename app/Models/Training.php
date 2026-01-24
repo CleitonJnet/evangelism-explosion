@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
+use App\Helpers\MoneyHelper;
+use App\Helpers\PhoneHelper;
+use App\Helpers\PostalCodeHelper;
 use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Helpers\PhoneHelper;
-use App\Helpers\PostalCodeHelper;
-use App\Helpers\MoneyHelper;
 
 class Training extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes' , 'status' ];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status'];
 
     /**
      * @return array<string, string>
@@ -118,6 +118,6 @@ class Training extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'training_user')
-            ->withPivot('accredited', 'kit', 'payment');
+            ->withPivot('accredited', 'kit', 'payment', 'payment_receipt');
     }
 }

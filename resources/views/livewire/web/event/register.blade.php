@@ -9,38 +9,6 @@
 
     </div>
 
-    <!-- Pagamento (placeholder) -->
-    <div class="p-5 my-6 border rounded-2xl border-amber-200 bg-amber-50/60">
-        @if ($isPaid)
-            <div class="text-center">
-                <div
-                    class="rounded-md bg-amber-400/20 border border-amber-200 shadow text-amber-900 px-2 pt-1 pb-0.5 mb-2 text-sm w-fit mx-auto font-bold">
-                    Investimento:
-                    {{ $event->payment }}
-                </div>
-
-                <p class="mt-2 text-sm text-slate-700">
-                    Após enviar o formulário, você verá as instruções de pagamento (PIX).
-                </p>
-                <p class="text-sm text-amber-900">Guarde o comprovante.</p>
-            </div>
-        @else
-            <div class="">
-                <div
-                    class="rounded-md bg-amber-400/20 border border-amber-200 shadow text-amber-900 px-2 pt-1 pb-0.5 mb-2 text-sm w-fit mx-auto font-bold">
-                    Evento gratuito
-                </div>
-
-                <div class="mt-1 text-sm text-slate-700">
-
-                    <div class="text-sm font-extrabold text-slate-900 inline">Confirmação:</div>
-                    Após enviar o formulário, sua inscrição será registrada e você receberá
-                    as orientações do evento.
-                </div>
-            </div>
-        @endif
-    </div>
-
     <div class="flex gap-6">
 
         <form wire:submit="registerEvent" class="space-y-8">
@@ -56,8 +24,8 @@
                 <x-src.form.input type="tel" name="mobile" wire:model='mobile' data-no-tel-mask
                     label="Celular &#10023; WhatsApp" width_basic="200" required />
 
-                <x-src.form.input type="email" name="email" wire:model.blur='email' label="E-mail"
-                    width_basic="350" :note="$emailNotice" required />
+                <x-src.form.input type="email" name="email" wire:model.blur='email' label="E-mail" width_basic="350"
+                    :note="$emailNotice" required />
 
                 <x-src.form.input type="password" name="password" wire:model='password' label="Informe uma senha"
                     width_basic="300" required />

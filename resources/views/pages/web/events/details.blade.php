@@ -14,6 +14,11 @@
             $event->state ?? null,
         ]),
     );
+    $isEnrolled = auth()->check() && $event->students()->whereKey(auth()->id())->exists();
+    $eventAccessRoute = $isEnrolled
+        ? route('app.student.training.show', ['training' => $event->id])
+        : route('web.event.register', ['id' => $event->id]);
+    $eventAccessLabel = $isEnrolled ? 'Acessar evento' : 'Fazer inscrição';
 @endphp
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
@@ -106,8 +111,15 @@
                         </div>
 
                         {{-- Botões --}}
+                        @if ($isEnrolled)
+                            <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-900">
+                                Você já está inscrito neste evento. Caso precise atualizar seus dados, acesse sua área
+                                do aluno.
+                            </div>
+                        @endif
+
                         <div class="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center">
-                            <x-src.btn-gold label="Fazer inscrição" :route="route('web.event.register', ['id' => $event->id])" />
+                            <x-src.btn-gold :label="$eventAccessLabel" :route="$eventAccessRoute" />
 
                             @if ($event->banner != null)
                                 <x-src.btn-silver label="Baixar cartaz" :route="asset($event->banner)" download />
@@ -200,7 +212,8 @@
 
     {{-- CTA fixo (sempre disponível) --}}
     <x-web.events.bar-fixed-cta :course_name="$event->course->name" :course_type="$event->course->type" :start_time="$event->eventDates()->first()->start_time" :end_time="$event->eventDates()->first()->end_time"
-        :date="$event->eventDates()->first()->date" :banner="$event->banner" :route="" :route="route('web.event.register', ['id' => $event->id])" />
+        :date="$event->eventDates()->first()->date" :banner="$event->banner" :route="$eventAccessRoute"
+        :label="$eventAccessLabel" />
 
 
 </x-layouts.guest>

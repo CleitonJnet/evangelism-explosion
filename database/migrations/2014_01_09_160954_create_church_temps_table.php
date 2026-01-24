@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('complement')->nullable();
             $table->string('district')->nullable();
             $table->string('city')->nullable();
-            $table->string(column: 'state')->nullable();
+            $table->string('state')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('contact')->nullable();
             $table->string('contact_phone')->nullable();

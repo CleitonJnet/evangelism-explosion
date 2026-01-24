@@ -30,7 +30,6 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->string('logo')->nullable();
             $table->timestamps();
-            // $table->unique(['name', 'pastor', 'district', 'city', 'state']);
         });
     }
 

@@ -23,6 +23,8 @@ new class extends Component {
     #[Locked]
     public string $manualSetupKey = '';
 
+    public bool $embedded = false;
+
     public bool $showModal = false;
 
     public bool $showVerificationStep = false;
@@ -172,48 +174,26 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('components.app.partials.settings-heading')
+    @if (!$embedded)
+        @include('components.app.partials.settings-heading')
 
-    <flux:heading class="sr-only">{{ __('Configurações de autenticação em dois fatores') }}</flux:heading>
+        <flux:heading class="sr-only">{{ __('Configurações de autenticação em dois fatores') }}</flux:heading>
 
-    <x-app.settings.layout :heading="__('Two Factor Authentication')" :subheading="__('Manage your two-factor authentication settings')">
-        <div class="flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
-            @if ($twoFactorEnabled)
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <flux:badge color="green">{{ __('Enabled') }}</flux:badge>
-                    </div>
+        <x-app.settings.layout :heading="__('Two Factor Authentication')" :subheading="__('Manage your two-factor authentication settings')">
+            @include('components.app.settings.two-factor-content')
+        </x-app.settings.layout>
+    @else
+        <div class="flex flex-col gap-6 rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
+            <div class="flex items-center justify-between gap-4">
+                <flux:heading size="sm" level="2">{{ __('Two-Factor Auth') }}</flux:heading>
+                <flux:badge color="{{ $twoFactorEnabled ? 'green' : 'red' }}">
+                    {{ $twoFactorEnabled ? __('Enabled') : __('Disabled') }}
+                </flux:badge>
+            </div>
 
-                    <flux:text>
-                        {{ __('With two-factor authentication enabled, you will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.') }}
-                    </flux:text>
-
-                    <livewire:settings.two-factor.recovery-codes :$requiresConfirmation />
-
-                    <div class="flex justify-start">
-                        <flux:button variant="danger" icon="shield-exclamation" icon:variant="outline"
-                            wire:click="disable">
-                            {{ __('Disable 2FA') }}
-                        </flux:button>
-                    </div>
-                </div>
-            @else
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <flux:badge color="red">{{ __('Disabled') }}</flux:badge>
-                    </div>
-
-                    <flux:text variant="subtle">
-                        {{ __('When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.') }}
-                    </flux:text>
-
-                    <flux:button variant="primary" icon="shield-check" icon:variant="outline" wire:click="enable">
-                        {{ __('Enable 2FA') }}
-                    </flux:button>
-                </div>
-            @endif
+            @include('components.app.settings.two-factor-content')
         </div>
-    </x-app.settings.layout>
+    @endif
 
     <flux:modal name="two-factor-setup-modal" class="max-w-md md:min-w-md" @close="closeModal" wire:model="showModal">
         <div class="space-y-6">

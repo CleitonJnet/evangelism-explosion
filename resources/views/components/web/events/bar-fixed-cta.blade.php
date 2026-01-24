@@ -6,6 +6,7 @@
     'date' => null,
     'banner' => null,
     'route' => null,
+    'label' => 'inscrever-se',
 ])
 
 {{-- CTA fixo (sempre disponível) --}}
@@ -90,7 +91,7 @@
                 </a>
             @endif
             @if ($route !== null)
-                <x-src.btn-gold label="inscrever-se" class="py-0" :route="$route" class="py-2!" />
+                <x-src.btn-gold :label="$label" class="py-0" :route="$route" class="py-2!" />
             @endif
         </div>
 
