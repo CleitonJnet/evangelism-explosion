@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View as ViewView;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class View extends Component
 {
+    use WithPagination;
+
     public int $courseId;
 
     /**
@@ -20,6 +23,10 @@ class View extends Component
     public array $sectionForm = [];
 
     public string $teacherSearch = '';
+
+    public int $sectionsPerPage = 5;
+
+    public int $teachersPerPage = 5;
 
     /**
      * @var array{user_id: int|null, status: int}
@@ -59,11 +66,11 @@ class View extends Component
         $sections = $course->sections()
             ->orderBy('order')
             ->orderBy('id')
-            ->get();
+            ->paginate($this->sectionsPerPage, pageName: 'sectionsPage');
 
         $teachers = $course->teachers()
             ->orderBy('name')
-            ->get();
+            ->paginate($this->teachersPerPage, pageName: 'teachersPage');
 
         $teacherCandidates = $this->teacherCandidates($this->teacherSearch);
         $assignedTeacherIds = $teachers->pluck('id')->all();
@@ -120,6 +127,7 @@ class View extends Component
             $this->course()->sections()->create($validated['sectionForm']);
         }
 
+        $this->resetPage('sectionsPage');
         $this->closeSectionModal();
     }
 
@@ -127,6 +135,7 @@ class View extends Component
     {
         $section = $this->findSection($sectionId);
         $section->delete();
+        $this->resetPage('sectionsPage');
     }
 
     public function openCreateTeacherModal(): void
@@ -229,12 +238,50 @@ class View extends Component
             ]);
         }
 
+        $this->resetPage('teachersPage');
         $this->closeTeacherModal();
     }
 
     public function deleteTeacher(int $teacherId): void
     {
         $this->course()->teachers()->detach($teacherId);
+        $this->resetPage('teachersPage');
+    }
+
+    public function reorderSectionByIndex(int $sectionId, int $targetIndex, bool $forceIndex = false): void
+    {
+        $sections = Section::query()
+            ->where('course_id', $this->courseId)
+            ->orderBy('order')
+            ->orderBy('id')
+            ->get()
+            ->values();
+
+        $movingIndex = $sections->search(fn (Section $section) => $section->id === $sectionId);
+
+        if ($movingIndex === false) {
+            return;
+        }
+
+        $targetIndex = max(0, min($targetIndex, $sections->count()));
+
+        $moving = $sections->pull($movingIndex);
+
+        if (! $moving) {
+            return;
+        }
+
+        if (! $forceIndex && $targetIndex > $movingIndex) {
+            $targetIndex--;
+        }
+
+        $targetIndex = max(0, min($targetIndex, $sections->count()));
+
+        $sections->splice($targetIndex, 0, [$moving]);
+
+        $sections->each(function (Section $section, int $index): void {
+            $section->update(['order' => $index + 1]);
+        });
     }
 
     public function openDeleteSectionModal(int $sectionId): void

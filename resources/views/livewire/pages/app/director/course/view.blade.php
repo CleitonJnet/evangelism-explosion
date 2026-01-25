@@ -59,19 +59,81 @@
                 </flux:button>
             </div>
 
-            <div class="mt-6 overflow-x-auto">
+            <div class="mt-6 overflow-x-auto" x-data="{
+                draggingId: null,
+                overIndex: null,
+                overPosition: 'before',
+                pageBoundaryIndex: {{ $sections->currentPage() * $sections->perPage() }},
+                pageStartIndex: {{ ($sections->currentPage() - 1) * $sections->perPage() }},
+                startDrag(id) {
+                    this.draggingId = id;
+                },
+                endDrag() {
+                    this.draggingId = null;
+                    this.overIndex = null;
+                },
+                setOver(event, index) {
+                    if (this.draggingId === null) {
+                        return;
+                    }
+
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const offset = event.clientY - rect.top;
+
+                    this.overPosition = offset > rect.height / 2 ? 'after' : 'before';
+                    this.overIndex = index;
+                },
+                dropOn(index, isLastInPage, isFirstInPage) {
+                    if (this.draggingId === null) {
+                        return;
+                    }
+
+                    const forceNextPage = isLastInPage && this.overPosition === 'after';
+                    const forcePrevPage = isFirstInPage && this.overPosition === 'before' && this.pageStartIndex > 0;
+
+                    let insertIndex = this.overPosition === 'after' ? index + 1 : index;
+                    let forceIndex = false;
+
+                    if (forceNextPage) {
+                        insertIndex = this.pageBoundaryIndex;
+                        forceIndex = true;
+                    } else if (forcePrevPage) {
+                        insertIndex = this.pageStartIndex - 1;
+                        forceIndex = true;
+                    }
+
+                    $wire.reorderSectionByIndex(this.draggingId, insertIndex, forceIndex);
+                    this.endDrag();
+                },
+            }">
                 <table class="w-full text-left text-sm">
                     <thead class="text-xs uppercase text-[color:var(--ee-app-muted)]">
                         <tr class="border-b border-[color:var(--ee-app-border)]">
                             <th class="px-3 py-2">{{ __('Ordem') }}</th>
                             <th class="px-3 py-2">{{ __('Unidade') }}</th>
                             <th class="px-3 py-2">{{ __('Duração') }}</th>
-                            <th class="px-3 py-2">{{ __('Ações') }}</th>
+                            <th class="px-3 py-2 w-24 text-right">{{ __('Ações') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[color:var(--ee-app-border)]">
                         @forelse ($sections as $section)
-                            <tr wire:key="section-{{ $section->id }}">
+                            @php
+                                $sectionIndex = (($sections->firstItem() ?? 1) - 1) + $loop->index;
+                            @endphp
+                            <tr
+                                wire:key="section-{{ $section->id }}"
+                                draggable="true"
+                                class="cursor-grab"
+                                :class="{
+                                    'cursor-grabbing bg-amber-50': draggingId === {{ $section->id }},
+                                    'border-t-2 border-amber-400': overIndex === {{ $sectionIndex }} && overPosition === 'before',
+                                    'border-b-2 border-amber-400': overIndex === {{ $sectionIndex }} && overPosition === 'after',
+                                }"
+                                @dragstart="startDrag({{ $section->id }})"
+                                @dragend="endDrag"
+                                @dragover.prevent="setOver($event, {{ $sectionIndex }})"
+                                @drop.prevent="dropOn({{ $sectionIndex }}, {{ $loop->last ? 'true' : 'false' }}, {{ $loop->first ? 'true' : 'false' }})"
+                            >
                                 <td class="px-3 py-2">{{ $section->order ?? '-' }}</td>
                                 <td class="px-3 py-2">
                                     <div class="font-semibold">{{ $section->name }}</div>
@@ -80,16 +142,16 @@
                                     </div>
                                 </td>
                                 <td class="px-3 py-2">{{ $section->duration ?? '-' }}</td>
-                                <td class="px-3 py-2">
-                                    <div class="flex flex-wrap gap-2">
-                                        <flux:button variant="outline"
-                                            wire:click="openEditSectionModal({{ $section->id }})">
-                                            {{ __('Editar') }}
-                                        </flux:button>
-                                        <flux:button variant="danger"
-                                            wire:click="openDeleteSectionModal({{ $section->id }})">
-                                            {{ __('Remover') }}
-                                        </flux:button>
+                                <td class="px-3 py-2 w-24">
+                                    <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
+                                            variant="outline" icon="pencil-square" icon:variant="outline"
+                                            aria-label="{{ __('Editar') }}"
+                                            wire:click="openEditSectionModal({{ $section->id }})" />
+                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
+                                            variant="danger" icon="trash" icon:variant="outline"
+                                            aria-label="{{ __('Remover') }}"
+                                            wire:click="openDeleteSectionModal({{ $section->id }})" />
                                     </div>
                                 </td>
                             </tr>
@@ -102,6 +164,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="mt-4">
+                {{ $sections->links() }}
             </div>
         </section>
 
@@ -124,7 +190,7 @@
                         <tr class="border-b border-[color:var(--ee-app-border)]">
                             <th class="px-3 py-2">{{ __('Professor') }}</th>
                             <th class="px-3 py-2">{{ __('Status') }}</th>
-                            <th class="px-3 py-2">{{ __('Ações') }}</th>
+                            <th class="px-3 py-2 w-24 text-right">{{ __('Ações') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[color:var(--ee-app-border)]">
@@ -144,16 +210,16 @@
                                 <td class="px-3 py-2">
                                     {{ (int) ($teacher->pivot->status ?? 0) === 1 ? __('Ativo') : __('Inativo') }}
                                 </td>
-                                <td class="px-3 py-2">
-                                    <div class="flex flex-wrap gap-2">
-                                        <flux:button variant="outline"
-                                            wire:click="openEditTeacherModal({{ $teacher->id }})">
-                                            {{ __('Editar') }}
-                                        </flux:button>
-                                        <flux:button variant="danger"
-                                            wire:click="openDeleteTeacherModal({{ $teacher->id }})">
-                                            {{ __('Remover') }}
-                                        </flux:button>
+                                <td class="px-3 py-2 w-24">
+                                    <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
+                                            variant="outline" icon="pencil-square" icon:variant="outline"
+                                            aria-label="{{ __('Editar') }}"
+                                            wire:click="openEditTeacherModal({{ $teacher->id }})" />
+                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
+                                            variant="danger" icon="trash" icon:variant="outline"
+                                            aria-label="{{ __('Remover') }}"
+                                            wire:click="openDeleteTeacherModal({{ $teacher->id }})" />
                                     </div>
                                 </td>
                             </tr>
@@ -166,6 +232,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="mt-4">
+                {{ $teachers->links() }}
             </div>
         </section>
     </div>
@@ -266,8 +336,8 @@
                     </flux:text>
                     @php
                         $selectedTeacherId = $teacherForm['user_id'] ?? null;
-                        $selectedAlreadyAssigned = $selectedTeacherId
-                            && in_array($selectedTeacherId, $assignedTeacherIds, true);
+                        $selectedAlreadyAssigned =
+                            $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
                     @endphp
                     @if ($selectedAlreadyAssigned)
                         <flux:text class="text-sm text-amber-700 dark:text-amber-400">
@@ -292,14 +362,14 @@
             <div class="flex flex-wrap justify-end gap-2">
                 @php
                     $selectedTeacherId = $teacherForm['user_id'] ?? null;
-                    $selectedAlreadyAssigned = $selectedTeacherId
-                        && in_array($selectedTeacherId, $assignedTeacherIds, true);
+                    $selectedAlreadyAssigned =
+                        $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
                 @endphp
                 <flux:button type="button" variant="ghost" wire:click="closeTeacherModal">
                     {{ __('Cancelar') }}
                 </flux:button>
-                <flux:button type="submit" variant="primary" wire:loading.attr="disabled"
-                    wire:target="saveTeacher" :disabled="$selectedAlreadyAssigned">
+                <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="saveTeacher"
+                    :disabled="$selectedAlreadyAssigned">
                     {{ __('Salvar') }}
                 </flux:button>
             </div>
