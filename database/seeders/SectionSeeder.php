@@ -1,0 +1,809 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class SectionSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+
+        DB::table('sections')->insert([
+
+            [
+                'name' => 'Orientações da Clínica de Evangelismo Explosivo',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Esta unidade apresenta a visão, o propósito e a base histórica da Clínica de Evangelismo Explosivo, destacando seu papel no cumprimento da Grande Comissão. O conteúdo enfatiza o compromisso espiritual, a unidade do Corpo de Cristo e a responsabilidade do participante em viver e multiplicar o evangelismo como estilo de vida.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'O Treinamento de e² — Explicar o Evangelho',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade o facilitador compreende a proposta pedagógica do treinamento e², fundamentada na aprendizagem autêntica. O conteúdo apresenta a transição do modelo tradicional de ensino para um formato relacional, prático e participativo, preparando líderes para formar discípulos que aprendem fazendo.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Elementos-Chave do Treinamento e²',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade detalha os princípios essenciais que sustentam o treinamento e², incluindo o papel do facilitador, mentores, companheiros de oração, dinâmica em pequenos grupos, uso correto das ilustrações e a integração entre relacionamento e proclamação do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'O Ensino Semanal no e²',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '30 min',
+                'devotional' => 'Devocional Semanal',
+                'description' => 'Esta unidade orienta o facilitador quanto à condução das aulas semanais do e², apresentando a estrutura pedagógica baseada em devocional, revisão, prática e conversa. O foco está no desenvolvimento espiritual contínuo e na participação ativa dos alunos no processo de aprendizagem.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '50 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Uso do Questionário de Segurança',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade o facilitador aprende o propósito e a aplicação do questionário de segurança como ferramenta evangelística. O conteúdo orienta sobre abordagem respeitosa, identificação de pessoas receptivas e condução sábia de conversas espirituais em ambientes públicos e residenciais.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Relatório Público',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '30 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina a condução dos relatórios públicos após as Saídas de Treinamento Prático. O objetivo é promover encorajamento, aprendizado coletivo e intercessão, fortalecendo o senso de unidade e celebração da obra que Deus está realizando.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Guia de Implementação do Ministério de Evangelismo Explosivo',
+                'banner' => null,
+                'order' => 8,
+                'duration' => '30 min',
+                'devotional' => null,
+                'description' => 'Esta unidade capacita o facilitador a implementar o ministério de Evangelismo Explosivo na igreja local. O conteúdo apresenta princípios de visão, planejamento, organização, formação de líderes e acompanhamento espiritual, visando a multiplicação saudável do ministério.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+        ]);
+
+        DB::table('sections')->insert([
+            [
+                'name' => 'Unidade 1 — Por Que Estamos Aqui?',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '45 min',
+                'devotional' => null,
+                'description' => 'Esta unidade estabelece o propósito do workshop: recuperar o senso de chamado para compartilhar a fé e formar discípulos, não apenas convertidos. Trabalha motivações, expectativas e fundamentos bíblicos para que o evangelismo volte a ser um estilo de vida, como na igreja primitiva.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 2 — Aprendendo a Explicação do Evangelho Em Sua Mão',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina uma ferramenta prática e memorável para apresentar o Evangelho usando a própria mão, tornando a explicação simples, natural e fácil de reproduzir. O foco é capacitar o aluno a comunicar com clareza e segurança.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 3 — Vencendo o Medo de Testemunhar',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade confronta o medo como uma das maiores barreiras ao testemunho cristão. O participante aprende a substituir insegurança por dependência do Espírito Santo, entendendo que evangelizar é um ato de obediência, não de habilidade pessoal.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 4 — Encontrando Pessoas Receptivas',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '50 min',
+                'devotional' => null,
+                'description' => 'Ensina como discernir abertura espiritual e conduzir conversas significativas, identificando oportunidades naturais para apresentar o Evangelho com respeito, sensibilidade e intencionalidade.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 5 — Compartilhando o Evangelho Através de Ilustrações',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '35 min',
+                'devotional' => null,
+                'description' => 'Apresenta o uso de ilustrações como recurso pedagógico para comunicar verdades espirituais de forma clara e memorável, facilitando a compreensão do Evangelho sem comprometer sua fidelidade bíblica.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 6 — Levando a Uma Decisão',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Orienta como conduzir o ouvinte a uma resposta consciente ao Evangelho, explicando arrependimento e fé, lidando com dúvidas comuns e respeitando o tempo e a consciência da pessoa.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 7 — Desenvolvendo Amor pelos Perdidos',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Trabalha o aspecto do coração do evangelista, despertando compaixão, sensibilidade espiritual e urgência missionária, para que o evangelismo flua do amor e não apenas da técnica.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Unidade 8 — Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado',
+                'banner' => null,
+                'order' => 8,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Apresenta princípios para estruturar um ministério permanente de evangelismo e discipulado na igreja local, integrando treinamento, prática e acompanhamento espiritual.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+            [
+                'name' => 'Encerramento — Juntos na Colheita do Senhor',
+                'banner' => null,
+                'order' => 9,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Sessão final que reforça o compromisso com a missão, chamando os participantes a permanecerem ativos na colheita espiritual, unidos em oração, ação e visão de multiplicação.',
+                'knowhow' => null,
+                'course_id' => 2,
+            ],
+
+        ]);
+
+        DB::table('sections')->insert([
+            [
+                'name' => 'Unidade 1 — Conectando',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '1h',
+                'devotional' => 'Conectando-se às Pessoas',
+                'description' => 'Esta unidade desenvolve a habilidade de criar relacionamentos intencionais que conduzem naturalmente ao diálogo espiritual. O aluno aprende a ouvir com atenção, fazer perguntas apropriadas e identificar pessoas receptivas, seguindo o exemplo de Jesus ao se conectar genuinamente com as pessoas.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 2 — O Evangelho: Graça',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => 'A Graça de Deus',
+                'description' => 'Nesta unidade o aluno compreende que a vida eterna é um presente de Deus, não conquistado por méritos ou boas obras. O conteúdo enfatiza o contraste entre o caminho humano e o caminho divino, estabelecendo a graça como fundamento central do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 3 — O Evangelho: Homem',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '1h',
+                'devotional' => 'A Condição do Homem',
+                'description' => 'Esta unidade apresenta a realidade do pecado e a incapacidade humana de alcançar o padrão de perfeição exigido por Deus. O aluno aprende a explicar com clareza a condição espiritual do homem e sua necessidade absoluta de salvação.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 4 — Compartilhando Seu Testemunho',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '1h',
+                'devotional' => 'O Poder de Seu Testemunho',
+                'description' => 'Nesta unidade o aluno aprende a preparar e compartilhar seu testemunho pessoal de forma clara, objetiva e centrada na obra de Deus. O testemunho é apresentado como ponte relacional que desperta interesse espiritual e prepara o coração para o Evangelho.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 5 — O Evangelho: Deus e Cristo',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '1h',
+                'devotional' => 'Deus e Jesus Cristo',
+                'description' => 'Esta unidade aprofunda o entendimento sobre a natureza de Deus como amoroso e justo, e apresenta Jesus Cristo como o Deus-homem. O aluno aprende a explicar a obra substitutiva de Cristo na cruz como solução definitiva para o problema do pecado.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 6 — O Evangelho: Fé',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '1h',
+                'devotional' => 'Entendendo a Fé',
+                'description' => 'Nesta unidade o aluno distingue fé salvadora de fé temporal ou mero conhecimento intelectual. O conteúdo ensina que a salvação ocorre quando a confiança é transferida totalmente para Jesus Cristo, e não para esforços humanos.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+            [
+                'name' => 'Unidade 7 — Decisão e Acompanhamento',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '1h',
+                'devotional' => 'O Amor de Deus pelos Perdidos',
+                'description' => 'A unidade final ensina como conduzir uma pessoa à decisão por Cristo e como oferecer acompanhamento espiritual adequado. O foco está em apresentar o convite com clareza, respeito e amor, garantindo segurança de salvação e cuidado com o novo convertido.',
+                'knowhow' => null,
+                'course_id' => 3,
+            ],
+
+        ]);
+
+        DB::table('sections')->insert([
+            [
+                'name' => 'Unidade 1 — A Formação de um Mentor',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '1h',
+                'devotional' => 'Devocional 1 — Poder do Alto',
+                'description' => 'Esta unidade introduz o papel do mentor como alguém que lidera pelo exemplo e forma discípulos com visão de multiplicação. O aluno aprende que mentorear envolve oração, demonstração, delegação e prática intencional, preparando-se para guiar novos discípulos na explicação do Evangelho e no desenvolvimento de hábitos espirituais consistentes.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 2 — O Método de um Mentor',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => 'Devocional 2 — Jesus como Mentor',
+                'description' => 'Esta unidade apresenta o método de mentoreamento centrado em treinamento prático e acompanhamento relacional. O conteúdo enfatiza a Saída de Treinamento Prático como ferramenta principal para formar discípulos que aprendem observando, participando e recebendo feedback, sempre com responsabilidade e sensibilidade à direção de Deus.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 3 — O Modelo de um Mentor',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '1h',
+                'devotional' => 'Devocional 3 — Encontros Marcados por Deus',
+                'description' => 'Nesta unidade, o aluno é levado a enxergar o evangelismo como cooperação com a obra de Deus, aprendendo a identificar oportunidades preparadas pelo Senhor. O foco está em conexão genuína com as pessoas, boas transições na conversa e uso responsável de perguntas diagnósticas, evitando manipulação e buscando receptividade real.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 4 — A Mensagem de um Mentor',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '1h',
+                'devotional' => 'Devocional 4 — A Arte de Contar Histórias',
+                'description' => 'Esta unidade treina o mentor a comunicar verdades espirituais com clareza e impacto, usando histórias e experiências com Deus de forma apropriada. O aluno aprende a fortalecer o discipulado ao compartilhar testemunhos objetivos e úteis, ajudando também seus discípulos a reconhecerem e estruturarem suas próprias histórias para edificação e evangelização.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 5 — A Atitude de um Mentor',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '1h',
+                'devotional' => 'Devocional 5 — A Importância de Servir',
+                'description' => 'Esta unidade trabalha o caráter do mentor como servo: amor, preparo, paciência, paz e propósito na missão. O aluno aprende que mentorear não é dominar pessoas, mas servir discípulos e cooperar com Deus em meio à oposição espiritual, mantendo mansidão e firmeza ao explicar o Evangelho e ao formar novos evangelistas.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 6 — O Foco de um Mentor',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '1h',
+                'devotional' => 'Devocional 6 — Os Obstáculos do Discipulado',
+                'description' => 'Nesta unidade, o aluno consolida que o alvo da Grande Comissão é fazer discípulos e não apenas convertidos. O conteúdo orienta como lidar com obstáculos ao discipulado e como conduzir acompanhamento contínuo, ensinando meios de crescimento espiritual e incentivando comunhão, serviço e perseverança para que o fruto permaneça.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+            [
+                'name' => 'Unidade 7 — A Missão de um Mentor',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '1h',
+                'devotional' => 'Devocional 7 — Multiplicação',
+                'description' => 'A unidade final firma a visão de multiplicação espiritual, chamando o mentor a reproduzir discípulos fiéis, disponíveis e ensináveis. O aluno é direcionado a praticar e avaliar a explicação do Evangelho em formato de conversa, e a assumir o compromisso de formar novas equipes, apoiar o discipulado e fortalecer a missão da igreja local.',
+                'knowhow' => null,
+                'course_id' => 4,
+            ],
+
+        ]);
+
+        DB::table('sections')->insert([
+            [
+                'name' => 'Estudo 1 — Você Tem Certeza?',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade conduz o aluno a examinar, à luz das Escrituras, se é possível ter certeza da vida eterna. Por meio de perguntas de diagnóstico e textos bíblicos, o estudo confronta falsas seguranças e direciona a confiança para Cristo, levando a uma resposta pessoal clara e fundamentada.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 2 — Bíblia',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade apresenta a Palavra de Deus como base indispensável para o crescimento espiritual. O aluno é encorajado a ler, guardar e praticar as Escrituras com constância, entendendo que a Bíblia orienta a vida cristã e fortalece a fé por meio da obediência diária.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 3 — Oração',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina a oração como comunhão viva com Deus — uma conversa reverente e constante que aprofunda intimidade e consolida a fé. O estudo destaca oração como adoração, confissão, gratidão e súplica, incentivando uma prática simples, perseverante e alinhada à vontade do Senhor.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 4 — Adoração',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade amplia a visão bíblica de adoração como mais do que momentos de culto: trata-se de uma vida inteira voltada a honrar a Deus. O aluno é chamado a glorificar o Senhor no tempo, recursos, atitudes e motivações, aprendendo a adorar em todo lugar e em todo tempo.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 5 — Comunhão',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade mostra que o crescimento espiritual floresce no convívio com o corpo de Cristo. Comunhão é viver em unidade, amor, cuidado e serviço dentro da família de Deus, recebendo edificação, incentivo e apoio; o aluno é encorajado a se comprometer com a vida da igreja e relacionamentos cristãos saudáveis.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 6 — Testemunho',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade reafirma o privilégio e a responsabilidade cristã de anunciar o Evangelho. O aluno aprende que testemunhar é comunicar as Boas Novas com clareza e coerência de vida, desenvolvendo interesse genuíno pelas pessoas e se preparando para compartilhar sua própria história e a mensagem da salvação em Cristo.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+            [
+                'name' => 'Estudo 7 — Direção',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade orienta o aluno a buscar e reconhecer a vontade de Deus para decisões e vida diária. O estudo enfatiza que o Senhor ama seus filhos, conduz com segurança e chama o cristão a viver sob Seu governo, aprendendo a discernir caminhos à luz das Escrituras e a seguir a direção divina com confiança e obediência.',
+                'knowhow' => null,
+                'course_id' => 5,
+            ],
+        ]);
+
+        DB::table('sections')->insert([
+            [
+                'name' => 'Sessão 1 — Manejo da Palavra da Verdade',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '1h',
+                'devotional' => 'Devocional 1 — A Palavra da Verdade',
+                'description' => 'Esta unidade estabelece o fundamento do treinamento, capacitando o aluno a lidar corretamente com as Escrituras. O conteúdo reforça a importância da verdade absoluta, da confiabilidade bíblica e da preparação espiritual para responder com clareza às perguntas sinceras daqueles que questionam a fé cristã.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 2 — Cinco Maneiras de Lidar com uma Objeção ao Evangelho',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => 'Devocional 2 — A Atitude é Tudo',
+                'description' => 'Nesta unidade o aluno aprende princípios práticos para responder objeções sem confronto ou arrogância. O foco está na atitude correta do evangelista, combinando mansidão, respeito e dependência do Espírito Santo ao lidar com dúvidas, interrupções ou resistências durante conversas espirituais.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 3 — Eu Não Acredito na Bíblia',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '1h',
+                'devotional' => 'Devocional 3 — A Confiabilidade da Bíblia',
+                'description' => 'Esta unidade prepara o aluno para responder à objeção quanto à autoridade das Escrituras. O conteúdo apresenta razões históricas, arqueológicas e proféticas que demonstram a confiabilidade da Bíblia, ajudando o cristão a conduzir o diálogo de forma lógica, respeitosa e centrada no Evangelho.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 4 — Como Você Sabe que Deus Existe?',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '1h',
+                'devotional' => 'Devocional 4 — Deus é Real',
+                'description' => 'Nesta unidade o aluno aprende a apresentar respostas racionais à existência de Deus, utilizando argumentos baseados na criação, ordem, design e consciência humana. O objetivo é demonstrar que a fé cristã não é irracional, mas plenamente coerente com a realidade observável.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 5 — Como Deus Pode Permitir o Mal?',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '1h',
+                'devotional' => 'Devocional 5 — A Perfeita Justiça de Deus',
+                'description' => 'Esta unidade aborda uma das objeções mais sensíveis ao cristianismo: o problema do sofrimento, do mal e do inferno. O aluno aprende a explicar a justiça e o amor de Deus de forma equilibrada, mostrando que o mal é consequência da queda humana e que Deus oferece redenção, esperança e justiça final.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 6 — Como Jesus Pode Ser o Único Caminho?',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '1h',
+                'devotional' => 'Devocional 6 — Um Só Caminho',
+                'description' => 'Nesta unidade o aluno é capacitado a responder à exclusividade de Cristo com clareza bíblica. O conteúdo apresenta Jesus como o único Salvador por causa do pecado, do sacrifício e da ressurreição, fortalecendo a convicção cristã diante do pluralismo religioso.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+            [
+                'name' => 'Sessão 7 — E Quanto àqueles que Nunca Ouviram?',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '1h',
+                'devotional' => 'Devocional 7 — A Criação Anuncia a Deus',
+                'description' => 'A unidade final responde às objeções relacionadas à justiça divina diante dos que nunca ouviram o Evangelho e ao tema da hipocrisia religiosa. O aluno compreende a revelação de Deus por meio da criação, da consciência e de Cristo, e é desafiado a assumir responsabilidade pessoal na missão.',
+                'knowhow' => null,
+                'course_id' => 6,
+            ],
+
+        ]);
+
+        DB::table('sections')->insert([
+
+            [
+                'name' => 'Unidade Introdutória — Orientações do Treinamento Esperança para Crianças',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '30 min',
+                'devotional' => null,
+                'description' => 'Esta unidade introdutória apresenta a visão, os objetivos e a estrutura do treinamento Esperança para Crianças. O facilitador é orientado quanto ao propósito evangelístico do ministério, ao papel da equipe, à importância da oração e ao preparo espiritual necessário para conduzir crianças ao conhecimento do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 1 — Olimpíadas Bíblicas',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade utiliza atividades lúdicas para ensinar verdades bíblicas fundamentais às crianças. Por meio de jogos, versículos e dinâmicas, elas aprendem que a Palavra de Deus é verdadeira, confiável e poderosa, criando um ambiente alegre e propício para o aprendizado espiritual.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 2 — A Entrevista',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '30 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade o facilitador aprende a conduzir entrevistas espirituais com crianças, utilizando perguntas simples para identificar o nível de compreensão do Evangelho. O foco está em ouvir com atenção, estabelecer vínculo e discernir a condição espiritual de cada criança.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 3 — O Caminho do Evangelho',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade apresenta o Caminho do Evangelho por meio de gestos e explicações visuais, ajudando as crianças a memorizar e compreender os principais pontos da mensagem da salvação. O método facilita a explicação clara e progressiva do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 4 — As Boas Novas',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade as crianças aprendem quem é Jesus e o que Ele fez para oferecer a vida eterna. O ensino enfatiza a morte e a ressurreição de Cristo, apresentando as Boas Novas de forma simples, bíblica e adequada à compreensão infantil.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 5 — Vamos Conversar',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina como iniciar conversas espirituais e compartilhar o testemunho pessoal. As crianças aprendem a fazer perguntas, ouvir com respeito e identificar oportunidades naturais para falar sobre Deus.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 6 — Céu',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade é ensinado que a vida eterna é um presente gratuito de Deus. As crianças aprendem o conceito bíblico da graça, compreendendo que o Céu não pode ser conquistado por boas obras, mas recebido pela fé.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 7 — Pecado',
+                'banner' => null,
+                'order' => 8,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a realidade do pecado de forma clara e apropriada para crianças. O ensino mostra que o pecado separa o ser humano de Deus e que todos necessitam do perdão oferecido por meio de Jesus Cristo.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 8 — Deus',
+                'banner' => null,
+                'order' => 9,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade as crianças aprendem sobre o caráter de Deus, destacando Seu amor e Sua justiça. O ensino mostra que Deus deseja restaurar o relacionamento com as pessoas e oferece salvação por meio de Seu amor.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 9 — Cristo',
+                'banner' => null,
+                'order' => 10,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina que Jesus é o Filho de Deus, que viveu sem pecado, morreu na cruz e ressuscitou. As crianças compreendem que somente Cristo pode perdoar pecados e conceder a vida eterna.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 10 — Fé',
+                'banner' => null,
+                'order' => 11,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Nesta unidade é explicado o verdadeiro significado da fé bíblica, ensinando que confiar em Jesus é depender somente dEle para a salvação, e não de boas ações ou comportamento.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 11 — Resposta',
+                'banner' => null,
+                'order' => 12,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade orienta como conduzir uma criança a responder ao Evangelho com clareza e respeito. O foco está em apresentar o convite à fé, reconhecendo que a decisão é uma obra do Espírito Santo.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade 12 — Crescendo em Cristo',
+                'banner' => null,
+                'order' => 13,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'A unidade final ensina princípios básicos de crescimento cristão, como oração, leitura bíblica, comunhão e testemunho. As crianças são encorajadas a viver diariamente sua fé e a continuar firmes em Jesus.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+            [
+                'name' => 'Unidade de Implementação — Implantação do Ministério Esperança para Crianças',
+                'banner' => null,
+                'order' => 14,
+                'duration' => '60 min',
+                'devotional' => null,
+                'description' => 'Esta unidade orienta a implementação do ministério Esperança para Crianças na igreja local. O conteúdo aborda planejamento, formação de equipe, envolvimento da liderança, acompanhamento espiritual e continuidade do trabalho evangelístico infantil.',
+                'knowhow' => null,
+                'course_id' => 7,
+            ],
+
+        ]);
+
+        DB::table('sections')->insert([
+
+            [
+                'name' => 'Unidade 1 — Olimpíadas Bíblicas',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade inaugura o treinamento de forma dinâmica, usando jogos e atividades para fixar os versículos-chave do Caminho do Evangelho. O objetivo é que as crianças compreendam que a Palavra de Deus é verdadeira e poderosa, criando um ambiente alegre e memorável para iniciar o aprendizado do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 2 — A Entrevista',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Nesta unidade, o professor e os líderes aprendem a conhecer melhor cada criança e avaliar sua compreensão espiritual. A entrevista cria vínculo, promove escuta cuidadosa e permite discernir necessidades, preparando o caminho para ensinar o Evangelho com clareza e sensibilidade.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 3 — O Caminho do Evangelho',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade introduz o Caminho do Evangelho como trilho seguro para explicar a salvação de modo progressivo. As crianças aprendem a recitar com gestos os seis pontos, compreendendo que boas informações guiam ao destino correto, assim como o Evangelho guia ao Céu.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 4 — As Boas Novas',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Nesta unidade, as crianças aprendem quem é Jesus e o que Ele fez para oferecer a vida eterna. O foco é comunicar o núcleo do Evangelho de forma simples e bíblica, incentivar o compartilhamento com outras pessoas e ensinar como oferecer oportunidade de resposta com respeito e clareza.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 5 — Vamos Conversar',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade treina as crianças a iniciar conversas espirituais com naturalidade, compartilhar sua história (testemunho) e usar perguntas de diagnóstico para entender em que a pessoa confia. O conteúdo reforça postura respeitosa e ajuda a conduzir o diálogo para o Evangelho sem constrangimento.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 6 — Céu',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Nesta unidade, as crianças entendem o conceito bíblico de graça e aprendem que o Céu (vida eterna) é presente de Deus, não conquistado nem merecido. Por ilustrações e textos bíblicos, elas são encorajadas a confiar somente em Jesus e a explicar o ponto “Céu” com clareza.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 7 — Pecado',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina o que é pecado, por que todos pecam e como o pecado separa o ser humano de Deus. As crianças aprendem a explicar o ponto “Pecado” de maneira adequada, entendendo a necessidade de salvação e preparando o terreno para compreender a obra de Cristo.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 8 — Deus',
+                'banner' => null,
+                'order' => 8,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Nesta unidade, as crianças aprendem quem Deus é, enfatizando Seu amor e Sua justiça. O conteúdo fortalece a compreensão de que Deus é santo e correto, e que Seu amor não anula Sua justiça, preparando uma visão equilibrada do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 9 — Cristo',
+                'banner' => null,
+                'order' => 9,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade apresenta Jesus Cristo como o centro do Evangelho: Deus que veio ao mundo, viveu sem pecado, morreu em nosso lugar e ressuscitou. As crianças aprendem a explicar a obra de Cristo como a única provisão suficiente para o perdão e a vida eterna.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 10 — Fé',
+                'banner' => null,
+                'order' => 10,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Nesta unidade, as crianças compreendem o significado de fé bíblica: confiar em Jesus, e não em esforço próprio, religiosidade ou boas obras. O objetivo é que elas saibam explicar o ponto “Fé” com simplicidade e segurança, chamando o ouvinte a depender de Cristo.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 11 — Resposta',
+                'banner' => null,
+                'order' => 11,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'Esta unidade orienta como dar oportunidade para a pessoa responder ao Evangelho, com perguntas claras e postura respeitosa. As crianças aprendem que a decisão não é pressionada, mas apresentada com amor, reconhecendo que o Espírito Santo é quem convence o coração.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+            [
+                'name' => 'Unidade 12 — Crescendo em Jesus',
+                'banner' => null,
+                'order' => 12,
+                'duration' => '1h',
+                'devotional' => null,
+                'description' => 'A unidade final consolida o discipulado básico, ensinando práticas essenciais para crescer em Jesus: leitura da Bíblia, oração, comunhão e testemunho. O foco é ajudar as crianças a perseverarem na fé e a continuarem compartilhando o Evangelho como estilo de vida.',
+                'knowhow' => null,
+                'course_id' => 8,
+            ],
+
+        ]);
+
+    }
+}
