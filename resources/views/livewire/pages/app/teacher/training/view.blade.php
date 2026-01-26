@@ -39,6 +39,7 @@
                 </flux:button>
             </div>
         </div>
+        Prof:{{ $training->teacher_id }}
     </section>
 
     <section class="grid gap-6">

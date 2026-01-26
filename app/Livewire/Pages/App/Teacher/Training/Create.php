@@ -5,7 +5,6 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
-use App\Models\User;
 use App\Services\Schedule\TrainingScheduleGenerator;
 use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -99,8 +98,9 @@ class Create extends Component
         'state' => '',
     ];
 
-    public function mount() {
-        $this->teacher_id = Auth::user()->id;
+    public function mount(): void
+    {
+        $this->teacher_id = Auth::id();
     }
 
     /**
@@ -110,12 +110,6 @@ class Create extends Component
     {
         return [
             'course_id' => ['required', 'integer', 'exists:courses,id'],
-            'teacher_id' => [
-                'nullable',
-                'integer',
-                'exists:users,id',
-                Rule::exists('course_user', 'user_id')->where('course_id', $this->course_id),
-            ],
             'church_id' => ['nullable', 'integer', 'exists:churches,id'],
             'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'banner' => ['nullable', 'string', 'max:255'],
@@ -279,7 +273,7 @@ class Create extends Component
         $training = DB::transaction(function () use ($validated): Training {
             $training = Training::create([
                 'course_id' => $validated['course_id'],
-                'teacher_id' => $user->id ?? null,
+                'teacher_id' => $this->teacher_id ?? Auth::id(),
                 'church_id' => $validated['church_id'] ?? null,
                 'banner' => $validated['banner'] ?? null,
                 'coordinator' => $validated['coordinator'] ?? null,
@@ -350,7 +344,16 @@ class Create extends Component
      */
     private function loadCourses(): Collection
     {
+        $teacherId = $this->teacher_id ?? Auth::id();
+
+        if (! $teacherId) {
+            return collect();
+        }
+
         return Course::query()
+            ->whereHas('teachers', function ($query) use ($teacherId): void {
+                $query->whereKey($teacherId);
+            })
             ->where(function ($query): void {
                 $query->where('execution', 0)
                     ->orWhereIn('id', $this->extraCourseIds);

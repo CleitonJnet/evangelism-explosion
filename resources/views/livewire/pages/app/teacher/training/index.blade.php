@@ -50,7 +50,7 @@
                 </p>
             </div>
             <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
-                {{ __('Total:') . ' ' . $groups->sum(fn($group) => $group['items']->count()) . ' ' . __('Eventos') }}
+                {{ __('Total de eventos:') . ' ' . $groups->sum(fn($group) => $group['items']->count()) }}
             </div>
         </div>
 
@@ -74,7 +74,7 @@
                             <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
                             <span
                                 class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
-                                {{ $group['items']->count() . ' ' . __('Eventos') }}
+                                {{ __('Eventos:') }} {{ $group['items']->count() }}
                             </span>
                         </h3>
 

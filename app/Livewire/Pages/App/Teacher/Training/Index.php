@@ -17,32 +17,41 @@ class Index extends Component
      * @var array<int, int>
      */
     public array $extraCourseIds = [2];
-    public $user;
+
+    public ?int $userId = null;
 
     public function mount(?string $statusKey = null): void
     {
         $this->statusKey = $this->normalizeStatusKey($statusKey);
-        $this->user = Auth::user();
+        $this->userId = Auth::id();
     }
 
     public function render(): View
     {
         $status = $this->statusFromKey($this->statusKey);
 
-        $trainings = Training::query()
-            ->with([
-                'teacher',
-                'church',
-                'course.ministry',
-                'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
-            ])
-            ->whereHas('course', function ($query): void {
-                $query->where('execution', 0)
-                    ->orWhereIn('id', $this->extraCourseIds);
-            })
-            ->where('status', $status->value)
-            ->where('teacher_id', $this->user->id)
-            ->get();
+        $trainings = collect();
+
+        if ($this->userId) {
+            $trainings = Training::query()
+                ->select('trainings.*')
+                ->join('courses', 'courses.id', '=', 'trainings.course_id')
+                ->with([
+                    'teacher',
+                    'church',
+                    'course.ministry',
+                    'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+                ])
+                ->whereHas('course', function ($query): void {
+                    $query->where('execution', 0)
+                        ->orWhereIn('id', $this->extraCourseIds);
+                })
+                ->where('status', $status->value)
+                ->where('teacher_id', $this->userId)
+                ->orderBy('courses.type')
+                ->orderBy('courses.name')
+                ->get();
+        }
 
         return view('livewire.pages.app.teacher.training.index', [
             'statusKey' => $this->statusKey,

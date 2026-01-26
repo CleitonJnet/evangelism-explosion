@@ -51,6 +51,8 @@
             </div>
         </div>
 
+        <x-src.line-theme class="my-10" />
+
         <div class="mt-10 space-y-6">
             <div class="text-sm font-semibold text-heading">{{ __('Igreja sede') }}</div>
             <div class="flex flex-wrap gap-8">
@@ -69,6 +71,8 @@
 
             <livewire:address-fields wire:model="address" title="Endereço do treinamento" wire:key="training-address" />
         </div>
+
+        <x-src.line-theme class="my-10" />
 
         <div class="mt-10">
             <div class="text-sm font-semibold text-heading">{{ __('Informações gerais') }}</div>
