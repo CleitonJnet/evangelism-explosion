@@ -5,6 +5,7 @@ namespace App\Http\Controllers\System\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class TrainingController extends Controller
 {
@@ -32,6 +33,23 @@ class TrainingController extends Controller
         $training = Training::findOrFail($id);
 
         return view('pages.app.roles.teacher.trainings.show', ['training' => $training]);
+    }
+
+    public function schedule(Training $training): View
+    {
+        $training->load([
+            'course',
+            'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+            'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('starts_at'),
+        ]);
+
+        return view('pages.app.roles.teacher.trainings.schedule', [
+            'training' => $training,
+            'eventDates' => $training->eventDates,
+            'scheduleByDate' => $training->scheduleItems->groupBy(
+                fn ($item) => $item->date?->format('Y-m-d')
+            ),
+        ]);
     }
 
     public function edit(string $id)

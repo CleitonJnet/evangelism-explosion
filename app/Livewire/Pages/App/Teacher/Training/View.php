@@ -17,28 +17,26 @@ class View extends Component
     public Collection $eventDates;
 
     /**
-     * @var Collection<int, \App\Models\TrainingScheduleItem>
+     * @var Collection<int, \App\Models\User>
      */
-    public Collection $scheduleItems;
+    public Collection $students;
 
     public function mount(Training $training): void
     {
         $this->training = $training->load([
-            'course',
+            'course.ministry',
+            'teacher',
+            'church',
             'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
-            'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('starts_at'),
-        ]);
+            'students' => fn ($query) => $query->orderBy('name'),
+        ])->loadCount('scheduleItems');
 
         $this->eventDates = $this->training->eventDates;
-        $this->scheduleItems = $this->training->scheduleItems;
+        $this->students = $this->training->students;
     }
 
     public function render(): ViewResponse
     {
-        return view('livewire.pages.app.teacher.training.view', [
-            'scheduleByDate' => $this->scheduleItems->groupBy(
-                fn ($item) => $item->date?->format('Y-m-d')
-            ),
-        ]);
+        return view('livewire.pages.app.teacher.training.view');
     }
 }

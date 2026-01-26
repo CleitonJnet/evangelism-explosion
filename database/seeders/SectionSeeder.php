@@ -12,13 +12,103 @@ class SectionSeeder extends Seeder
      */
     public function run(): void
     {
-
+        // Workshop Com a Clínica
         DB::table('sections')->insert([
+            [
+                'name' => 'Unidade 1 — Por Que Estamos Aqui?',
+                'banner' => null,
+                'order' => 1,
+                'duration' => '45 min',
+                'devotional' => null,
+                'description' => 'Esta unidade estabelece o propósito do workshop: recuperar o senso de chamado para compartilhar a fé e formar discípulos, não apenas convertidos. Trabalha motivações, expectativas e fundamentos bíblicos para que o evangelismo volte a ser um estilo de vida, como na igreja primitiva.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 2 — Aprendendo a Explicação do Evangelho Em Sua Mão',
+                'banner' => null,
+                'order' => 2,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina uma ferramenta prática e memorável para apresentar o Evangelho usando a própria mão, tornando a explicação simples, natural e fácil de reproduzir. O foco é capacitar o aluno a comunicar com clareza e segurança.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 3 — Vencendo o Medo de Testemunhar',
+                'banner' => null,
+                'order' => 3,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade confronta o medo como uma das maiores barreiras ao testemunho cristão. O participante aprende a substituir insegurança por dependência do Espírito Santo, entendendo que evangelizar é um ato de obediência, não de habilidade pessoal.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 4 — Encontrando Pessoas Receptivas',
+                'banner' => null,
+                'order' => 4,
+                'duration' => '50 min',
+                'devotional' => null,
+                'description' => 'Ensina como discernir abertura espiritual e conduzir conversas significativas, identificando oportunidades naturais para apresentar o Evangelho com respeito, sensibilidade e intencionalidade.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 5 — Compartilhando o Evangelho Através de Ilustrações',
+                'banner' => null,
+                'order' => 5,
+                'duration' => '35 min',
+                'devotional' => null,
+                'description' => 'Apresenta o uso de ilustrações como recurso pedagógico para comunicar verdades espirituais de forma clara e memorável, facilitando a compreensão do Evangelho sem comprometer sua fidelidade bíblica.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 6 — Levando a Uma Decisão',
+                'banner' => null,
+                'order' => 6,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Orienta como conduzir o ouvinte a uma resposta consciente ao Evangelho, explicando arrependimento e fé, lidando com dúvidas comuns e respeitando o tempo e a consciência da pessoa.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 7 — Desenvolvendo Amor pelos Perdidos',
+                'banner' => null,
+                'order' => 7,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Trabalha o aspecto do coração do evangelista, despertando compaixão, sensibilidade espiritual e urgência missionária, para que o evangelismo flua do amor e não apenas da técnica.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Unidade 8 — Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado',
+                'banner' => null,
+                'order' => 8,
+                'duration' => '20 min',
+                'devotional' => null,
+                'description' => 'Apresenta princípios para estruturar um ministério permanente de evangelismo e discipulado na igreja local, integrando treinamento, prática e acompanhamento espiritual.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'Encerramento — Juntos na Colheita do Senhor',
+                'banner' => null,
+                'order' => 9,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Sessão final que reforça o compromisso com a missão, chamando os participantes a permanecerem ativos na colheita espiritual, unidos em oração, ação e visão de multiplicação.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
 
             [
                 'name' => 'Orientações da Clínica de Evangelismo Explosivo',
                 'banner' => null,
-                'order' => 1,
+                'order' => 10,
                 'duration' => '20 min',
                 'devotional' => null,
                 'description' => 'Esta unidade apresenta a visão, o propósito e a base histórica da Clínica de Evangelismo Explosivo, destacando seu papel no cumprimento da Grande Comissão. O conteúdo enfatiza o compromisso espiritual, a unidade do Corpo de Cristo e a responsabilidade do participante em viver e multiplicar o evangelismo como estilo de vida.',
@@ -29,7 +119,7 @@ class SectionSeeder extends Seeder
             [
                 'name' => 'O Treinamento de e² — Explicar o Evangelho',
                 'banner' => null,
-                'order' => 2,
+                'order' => 11,
                 'duration' => '20 min',
                 'devotional' => null,
                 'description' => 'Nesta unidade o facilitador compreende a proposta pedagógica do treinamento e², fundamentada na aprendizagem autêntica. O conteúdo apresenta a transição do modelo tradicional de ensino para um formato relacional, prático e participativo, preparando líderes para formar discípulos que aprendem fazendo.',
@@ -40,7 +130,7 @@ class SectionSeeder extends Seeder
             [
                 'name' => 'Elementos-Chave do Treinamento e²',
                 'banner' => null,
-                'order' => 3,
+                'order' => 12,
                 'duration' => '40 min',
                 'devotional' => null,
                 'description' => 'Esta unidade detalha os princípios essenciais que sustentam o treinamento e², incluindo o papel do facilitador, mentores, companheiros de oração, dinâmica em pequenos grupos, uso correto das ilustrações e a integração entre relacionamento e proclamação do Evangelho.',
@@ -51,7 +141,7 @@ class SectionSeeder extends Seeder
             [
                 'name' => 'O Ensino Semanal no e²',
                 'banner' => null,
-                'order' => 4,
+                'order' => 13,
                 'duration' => '30 min',
                 'devotional' => 'Devocional Semanal',
                 'description' => 'Esta unidade orienta o facilitador quanto à condução das aulas semanais do e², apresentando a estrutura pedagógica baseada em devocional, revisão, prática e conversa. O foco está no desenvolvimento espiritual contínuo e na participação ativa dos alunos no processo de aprendizagem.',
@@ -60,10 +150,10 @@ class SectionSeeder extends Seeder
             ],
 
             [
-                'name' => 'Saídas de Treinamento Prático (STP)',
+                'name' => 'AULA: Saídas de Treinamento Prático (STP)',
                 'banner' => null,
-                'order' => 5,
-                'duration' => '50 min',
+                'order' => 14,
+                'duration' => '45 min',
                 'devotional' => null,
                 'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
                 'knowhow' => null,
@@ -73,7 +163,7 @@ class SectionSeeder extends Seeder
             [
                 'name' => 'Uso do Questionário de Segurança',
                 'banner' => null,
-                'order' => 6,
+                'order' => 15,
                 'duration' => '20 min',
                 'devotional' => null,
                 'description' => 'Nesta unidade o facilitador aprende o propósito e a aplicação do questionário de segurança como ferramenta evangelística. O conteúdo orienta sobre abordagem respeitosa, identificação de pessoas receptivas e condução sábia de conversas espirituais em ambientes públicos e residenciais.',
@@ -82,10 +172,109 @@ class SectionSeeder extends Seeder
             ],
 
             [
+                'name' => 'ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 16,
+                'duration' => '10 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'PRÁTICA 1: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 17,
+                'duration' => '60 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
                 'name' => 'Relatório Público',
                 'banner' => null,
-                'order' => 7,
+                'order' => 18,
                 'duration' => '30 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina a condução dos relatórios públicos após as Saídas de Treinamento Prático. O objetivo é promover encorajamento, aprendizado coletivo e intercessão, fortalecendo o senso de unidade e celebração da obra que Deus está realizando.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+            [
+                'name' => 'PRÁTICA 1: Relatório Público',
+                'banner' => null,
+                'order' => 19,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina a condução dos relatórios públicos após as Saídas de Treinamento Prático. O objetivo é promover encorajamento, aprendizado coletivo e intercessão, fortalecendo o senso de unidade e celebração da obra que Deus está realizando.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            // e² dentro da clínica
+            [
+                'name' => 'Unidade 1 — Conectando',
+                'banner' => null,
+                'order' => 20,
+                'duration' => '1h',
+                'devotional' => 'Conectando-se às Pessoas',
+                'description' => 'Esta unidade desenvolve a habilidade de criar relacionamentos intencionais que conduzem naturalmente ao diálogo espiritual. O aluno aprende a ouvir com atenção, fazer perguntas apropriadas e identificar pessoas receptivas, seguindo o exemplo de Jesus ao se conectar genuinamente com as pessoas.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Unidade 2 — O Evangelho: Graça',
+                'banner' => null,
+                'order' => 21,
+                'duration' => '1h',
+                'devotional' => 'A Graça de Deus',
+                'description' => 'Nesta unidade o aluno compreende que a vida eterna é um presente de Deus, não conquistado por méritos ou boas obras. O conteúdo enfatiza o contraste entre o caminho humano e o caminho divino, estabelecendo a graça como fundamento central do Evangelho.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Unidade 3 — O Evangelho: Homem',
+                'banner' => null,
+                'order' => 22,
+                'duration' => '1h',
+                'devotional' => 'A Condição do Homem',
+                'description' => 'Esta unidade apresenta a realidade do pecado e a incapacidade humana de alcançar o padrão de perfeição exigido por Deus. O aluno aprende a explicar com clareza a condição espiritual do homem e sua necessidade absoluta de salvação.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 23,
+                'duration' => '10 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'PRÁTICA 2: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 24,
+                'duration' => '90 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'PRÁTICA 2: Relatório Público',
+                'banner' => null,
+                'order' => 25,
+                'duration' => '40 min',
                 'devotional' => null,
                 'description' => 'Esta unidade ensina a condução dos relatórios públicos após as Saídas de Treinamento Prático. O objetivo é promover encorajamento, aprendizado coletivo e intercessão, fortalecendo o senso de unidade e celebração da obra que Deus está realizando.',
                 'knowhow' => null,
@@ -93,17 +282,96 @@ class SectionSeeder extends Seeder
             ],
 
             [
+                'name' => 'Unidade 4 — Compartilhando Seu Testemunho',
+                'banner' => null,
+                'order' => 26,
+                'duration' => '1h',
+                'devotional' => 'O Poder de Seu Testemunho',
+                'description' => 'Nesta unidade o aluno aprende a preparar e compartilhar seu testemunho pessoal de forma clara, objetiva e centrada na obra de Deus. O testemunho é apresentado como ponte relacional que desperta interesse espiritual e prepara o coração para o Evangelho.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Unidade 5 — O Evangelho: Deus e Cristo',
+                'banner' => null,
+                'order' => 27,
+                'duration' => '1h',
+                'devotional' => 'Deus e Jesus Cristo',
+                'description' => 'Esta unidade aprofunda o entendimento sobre a natureza de Deus como amoroso e justo, e apresenta Jesus Cristo como o Deus-homem. O aluno aprende a explicar a obra substitutiva de Cristo na cruz como solução definitiva para o problema do pecado.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Unidade 6 — O Evangelho: Fé',
+                'banner' => null,
+                'order' => 28,
+                'duration' => '1h',
+                'devotional' => 'Entendendo a Fé',
+                'description' => 'Nesta unidade o aluno distingue fé salvadora de fé temporal ou mero conhecimento intelectual. O conteúdo ensina que a salvação ocorre quando a confiança é transferida totalmente para Jesus Cristo, e não para esforços humanos.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'Unidade 7 — Decisão e Acompanhamento',
+                'banner' => null,
+                'order' => 29,
+                'duration' => '1h',
+                'devotional' => 'O Amor de Deus pelos Perdidos',
+                'description' => 'A unidade final ensina como conduzir uma pessoa à decisão por Cristo e como oferecer acompanhamento espiritual adequado. O foco está em apresentar o convite com clareza, respeito e amor, garantindo segurança de salvação e cuidado com o novo convertido.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
                 'name' => 'Guia de Implementação do Ministério de Evangelismo Explosivo',
                 'banner' => null,
-                'order' => 8,
-                'duration' => '30 min',
+                'order' => 30,
+                'duration' => '60 min',
                 'devotional' => null,
                 'description' => 'Esta unidade capacita o facilitador a implementar o ministério de Evangelismo Explosivo na igreja local. O conteúdo apresenta princípios de visão, planejamento, organização, formação de líderes e acompanhamento espiritual, visando a multiplicação saudável do ministério.',
                 'knowhow' => null,
                 'course_id' => 1,
             ],
+            
+            [
+                'name' => 'ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 31,
+                'duration' => '10 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'PRÁTICA 3: Saídas de Treinamento Prático (STP)',
+                'banner' => null,
+                'order' => 32,
+                'duration' => '90 min',
+                'devotional' => null,
+                'description' => 'Esta unidade aborda a importância das Saídas de Treinamento Prático como elemento central do aprendizado. O conteúdo ensina como planejar, organizar e conduzir visitas evangelísticas, promovendo experiências reais que fortalecem a confiança e a maturidade espiritual dos participantes.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
+            [
+                'name' => 'PRÁTICA 3: Relatório Público',
+                'banner' => null,
+                'order' => 33,
+                'duration' => '40 min',
+                'devotional' => null,
+                'description' => 'Esta unidade ensina a condução dos relatórios públicos após as Saídas de Treinamento Prático. O objetivo é promover encorajamento, aprendizado coletivo e intercessão, fortalecendo o senso de unidade e celebração da obra que Deus está realizando.',
+                'knowhow' => null,
+                'course_id' => 1,
+            ],
+
         ]);
 
+        // Workshop ESM Sozinho
         DB::table('sections')->insert([
             [
                 'name' => 'Unidade 1 — Por Que Estamos Aqui?',
