@@ -1,7 +1,8 @@
 <x-layouts.app :title="__('Listar Treinamentos')">
-    <ul class="flex gap-6 flex-wrap">
-        <li><a href="{{ route('app.director.training.create') }}">Novo Treinamento</a></li>
-    </ul>
-    <hr>
-    <livewire:pages.app.director.training.index />
+    <x-src.toolbar.bar :title="__('Gerenciamento de Treinamentos e Eventos')" :description="__('Controle os treinamentos do Evangelismo Explosivo, organizando status e cursos em um só lugar.')">
+        <div id="app-toolbar" class="w-full"></div>
+        @stack('app-toolbar')
+    </x-src.toolbar.bar>
+
+    <livewire:pages.app.director.training.index :status-key="$statusKey ?? 'scheduled'" />
 </x-layouts.app>

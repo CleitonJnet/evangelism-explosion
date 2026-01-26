@@ -1,3 +1,5 @@
+@import url("fonts.css");
+
 :root {
     --txt-duration-animation: 2900ms;
 
@@ -51,6 +53,11 @@ html {
 }
 .text-shadow-light {
     text-shadow: 0px 0px 1px #fff;
+}
+
+.nav-cinzel {
+    font-family: "Cinzel", serif;
+    font-weight: 500;
 }
 
 .ee-app-bg {

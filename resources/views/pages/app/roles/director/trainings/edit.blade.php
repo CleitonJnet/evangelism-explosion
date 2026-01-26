@@ -1,8 +1,7 @@
-<x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-app.placeholder-pattern
-                class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
-    </div>
+<x-layouts.app :title="__('Editar Treinamento')">
+    <x-src.toolbar.bar :title="__('Editar treinamento')" :description="__('Atualize os dados do treinamento e mantenha a agenda correta.')">
+        <x-src.toolbar.button :href="route('app.director.training.show', $training)" :label="__('Detalhes')" icon="calendar" :tooltip="__('Detalhes do treinamento')" />
+    </x-src.toolbar.bar>
+
+    <livewire:pages.app.director.training.edit :training="$training" />
 </x-layouts.app>

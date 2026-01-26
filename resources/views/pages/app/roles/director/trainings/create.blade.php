@@ -1,8 +1,24 @@
-<x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-app.placeholder-pattern
-                class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
+<x-layouts.app :title="__('Criar Treinamento')">
+    <div class="mb-6">
+        <x-src.toolbar.bar>
+            <div class="w-full">
+                <h1 class="text-xl font-semibold text-slate-900">
+                    {{ __('Novo treinamento') }}
+                </h1>
+                <p class="text-sm text-slate-600">
+                    {{ __('Cadastre as informações do treinamento e organize a agenda do evento.') }}
+                </p>
+            </div>
+            <div class="h-px w-full bg-slate-200/90"></div>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                <x-src.toolbar.button
+                    :href="route('app.director.training.index')"
+                    :label="__('Listar todos')"
+                    icon="list"
+                    :tooltip="__('Lista de treinamentos')"
+                />
+            </div>
+        </x-src.toolbar.bar>
     </div>
+    <livewire:pages.app.director.training.create />
 </x-layouts.app>

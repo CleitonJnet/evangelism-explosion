@@ -2,12 +2,43 @@
 
 namespace App\Livewire\Pages\App\Director\Training;
 
+use App\Models\Training;
+use Illuminate\Support\Collection;
+use Illuminate\View\View as ViewResponse;
 use Livewire\Component;
 
 class View extends Component
 {
-    public function render()
+    public Training $training;
+
+    /**
+     * @var Collection<int, \App\Models\EventDate>
+     */
+    public Collection $eventDates;
+
+    /**
+     * @var Collection<int, \App\Models\TrainingScheduleItem>
+     */
+    public Collection $scheduleItems;
+
+    public function mount(Training $training): void
     {
-        return view('livewire.pages.app.director.training.view');
+        $this->training = $training->load([
+            'course',
+            'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+            'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('starts_at'),
+        ]);
+
+        $this->eventDates = $this->training->eventDates;
+        $this->scheduleItems = $this->training->scheduleItems;
+    }
+
+    public function render(): ViewResponse
+    {
+        return view('livewire.pages.app.director.training.view', [
+            'scheduleByDate' => $this->scheduleItems->groupBy(
+                fn ($item) => $item->date?->format('Y-m-d')
+            ),
+        ]);
     }
 }

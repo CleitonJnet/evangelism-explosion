@@ -1,110 +1,87 @@
-<div>
-    <div class="flex flex-col gap-6">
-        @foreach ($statusLabels as $status => $label)
-            @php
-                $items = $trainingsByStatus[$status] ?? collect();
-            @endphp
+<div class="flex flex-col gap-8">
+    @teleport('#app-toolbar')
+        <div class="flex w-full flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                <x-src.toolbar.button :href="route('app.director.training.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
 
-            <section class="flex flex-col gap-4">
-                <div class="flex items-center gap-2">
-                    <h2 class="text-lg font-semibold">{{ $label }}</h2>
-                    <span class="text-sm text-slate-500">({{ $items->count() }})</span>
+                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+
+                @foreach ($statuses as $status)
+                    @php
+                        $icon = match ($status['key']) {
+                            'planning' => 'hourglass',
+                            'scheduled' => 'calendar',
+                            'canceled' => 'x',
+                            'completed' => 'check',
+                            default => 'calendar',
+                        };
+                    @endphp
+                    <x-src.toolbar.button :href="$status['route']" :label="$status['label']" :icon="$icon" :active="$statusKey === $status['key']"
+                        :tooltip="__(':label', ['label' => $status['label']])" />
+                @endforeach
+
+            </div>
+
+            @if ($groups->isNotEmpty())
+                <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                    @foreach ($groups as $group)
+                        @php
+                            $course = $group['course'];
+                            $courseLabel = $course?->initials ?? __('Curso');
+                            $courseId = $course?->id ?? 'curso';
+                            $courseName = $course?->name ?? $courseLabel;
+                        @endphp
+                        <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
+                    @endforeach
                 </div>
+            @endif
+        </div>
+    @endteleport
 
-                @if ($items->isEmpty())
-                    <div class="text-sm text-slate-500">Sem eventos.</div>
-                @else
-                    <!-- Swiper -->
-                    <div class="swiper w-full SwiperTrainings">
-                        <div class="swiper-wrapper">
-                            @foreach ($items as $item)
-                                @php
-                                    $training = $item['training'];
-                                    $coordinatorName = $training->coordinator;
-                                    $dates = $item['dates'];
-                                    $courseType = data_get($training, 'course.type', 'Nao informado');
-                                    $courseName = data_get($training, 'course.name', 'Nao informado');
-                                    $teacherName = data_get($training, 'teacher.name', 'Nao informado');
-                                    $churchName = data_get($training, 'church.name', 'Nao informado');
-                                    $pastorName = data_get($training, 'church.pastor', 'Nao informado');
-                                    $addressParts = array_filter([
-                                        $training?->street,
-                                        $training?->number,
-                                        $training?->complement,
-                                        $training?->district,
-                                        $training?->city,
-                                        $training?->state,
-                                        $training?->postal_code,
-                                    ]);
-                                    $address = $addressParts ? implode(', ', $addressParts) : 'Endereco nao informado';
-                                @endphp
+    <section
+        class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
+        <div class="flex items-center justify-between gap-4 border-b-2 border-slate-200/80 pb-1 mb-10">
+            <div>
+                <h2 class="text-xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
+                    {{ collect(value: $statuses)->firstWhere('key', $statusKey)['label'] ?? __('Treinamentos') }}
+                </h2>
+                <p class="text-sm text-slate-600">
+                    {{ __('Treinamentos registrados neste status.') }}
+                </p>
+            </div>
+            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                {{ __('Total:') . ' ' . $groups->sum(fn($group) => $group['items']->count()) . ' ' . __('Eventos') }}
+            </div>
+        </div>
 
-                                <div wire:key="training-{{ $training->id }}-status-{{ $status }}"
-                                    class="flex flex-col gap-3 rounded border border-slate-800 bg-white p-4 shadow-sm swiper-slide w-fit">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div class="text-base font-semibold text-slate-900">
-                                            {{ $courseType . ': ' . $courseName }}
-                                        </div>
-                                    </div>
+        @if ($groups->isEmpty())
+            <div class="rounded-2xl border border-amber-200/60 bg-white p-6 text-sm text-slate-600">
+                {{ __('Sem eventos para este status.') }}
+            </div>
+        @else
+            <div class="flex flex-col gap-12">
+                @foreach ($groups as $group)
+                    @php
+                        $course = $group['course'];
+                        $courseType = $course?->type ?? __('Treinamento');
+                        $courseName = $course?->name ?? __('Curso não informado');
+                        $courseId = $course?->id ?? 'curso';
+                    @endphp
 
-                                    <div class="flex flex-col gap-1 text-sm text-slate-700">
-                                        <div><span class="font-semibold">Base de Treinamento:</span>
-                                            {{ $churchName }}
-                                        </div>
-                                        <div><span class="font-semibold">Pastor:</span> {{ $pastorName }}</div>
-                                        <div><span class="font-semibold">Coordenado:</span> {{ $coordinatorName }}
-                                        </div>
-                                        <div><span class="font-semibold">Professor:</span> {{ $teacherName }}</div>
-                                        <div><span class="font-semibold">Endereco:</span> {{ $address }}</div>
-                                    </div>
+                    <div id="course-{{ $courseId }}" class="">
+                        <h3 class="text-lg text-slate-900 flex gap-1.5 items-center justify-between mb-4 border-b border-slate-200/80 px-2 py-0.5 rounded-lg bg-white"
+                            style="font-family: 'Cinzel', serif;">
+                            <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
+                            <span
+                                class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
+                                {{ $group['items']->count() . ' ' . __('Eventos') }}
+                            </span>
+                        </h3>
 
-                                    <div class="flex flex-col gap-1 text-sm text-slate-600">
-                                        <div class="font-semibold">Datas:</div>
-                                        <ul class="flex flex-col gap-1">
-                                            @foreach ($dates as $eventDate)
-                                                @php
-                                                    $dateLabel = $eventDate->date
-                                                        ? \Illuminate\Support\Carbon::parse($eventDate->date)->format(
-                                                            'd/m/Y',
-                                                        )
-                                                        : '-';
-                                                    $startTime = $eventDate->start_time
-                                                        ? \Illuminate\Support\Carbon::parse(
-                                                            $eventDate->start_time,
-                                                        )->format('H:i')
-                                                        : '-';
-                                                    $endTime = $eventDate->end_time
-                                                        ? \Illuminate\Support\Carbon::parse(
-                                                            $eventDate->end_time,
-                                                        )->format('H:i')
-                                                        : '-';
-                                                @endphp
-                                                <li>
-                                                    <span class="font-semibold">{{ $dateLabel }}</span>
-                                                    <span>({{ $startTime }} - {{ $endTime }})</span>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="swiper-pagination"></div>
+                        <x-src.training-carousel :items="$group['items']" role="director" />
                     </div>
-
-                    <!-- Initialize Swiper -->
-                    <script>
-                        var swiper = new Swiper(".SwiperTrainings", {
-                            slidesPerView: "auto",
-                            spaceBetween: 30,
-                            pagination: {
-                                el: ".swiper-pagination",
-                                clickable: true,
-                            },
-                        });
-                    </script>
-                @endif
-            </section>
-        @endforeach
-    </div>
+                @endforeach
+            </div>
+        @endif
+    </section>
 </div>

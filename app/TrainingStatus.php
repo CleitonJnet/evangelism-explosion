@@ -12,7 +12,7 @@ enum TrainingStatus: int
     public function key(): string
     {
         return match ($this) {
-            self::Planning => 'planning', 
+            self::Planning => 'planning',
             self::Scheduled => 'scheduled',
             self::Canceled => 'canceled',
             self::Completed => 'completed',
@@ -25,7 +25,7 @@ enum TrainingStatus: int
             self::Planning => 'Planejamento',
             self::Scheduled => 'Agendado',
             self::Canceled => 'Cancelado',
-            self::Completed => 'Concluido',
+            self::Completed => 'Concluído',
         };
     }
 

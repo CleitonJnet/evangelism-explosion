@@ -16,7 +16,7 @@ class Training extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status'];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'kits', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status'];
 
     /**
      * @return array<string, string>
@@ -113,6 +113,11 @@ class Training extends Model
     public function eventDates(): HasMany
     {
         return $this->hasMany(EventDate::class, 'training_id');
+    }
+
+    public function scheduleItems(): HasMany
+    {
+        return $this->hasMany(TrainingScheduleItem::class);
     }
 
     public function students(): BelongsToMany

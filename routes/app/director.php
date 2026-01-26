@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\System\Director\ChurchController;
 use App\Http\Controllers\System\Director\CourseController;
+use App\Http\Controllers\System\Director\InventoryController;
 use App\Http\Controllers\System\Director\MinistryController;
 use App\Http\Controllers\System\Director\ProfileController;
 use App\Http\Controllers\System\Director\TrainingController;
-use App\Http\Controllers\System\Director\InventoryController;
+use App\Http\Controllers\TrainingScheduleController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -13,24 +14,36 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
     Route::view('/', 'pages.app.roles.director.dashboard')->name('dashboard');
 
     Volt::route('setup', 'pages.app.director.setup')->name('setup');
-    
+
     Route::prefix('church')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
         Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
     });
-    Route::resource("church",ChurchController::class)->only(['index', 'show', 'create','edit']);
-        
+    Route::resource('church', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
+
     Route::prefix('church/{church}')->name('church.')->group(function () {
-        Route::resource('profile', ProfileController::class)->only(['create','show','edit']);
+        Route::resource('profile', ProfileController::class)->only(['create', 'show', 'edit']);
     });
 
-    Route::resource("ministry",MinistryController::class)->only(['index', 'show', 'create','edit']);
+    Route::resource('ministry', MinistryController::class)->only(['index', 'show', 'create', 'edit']);
     Route::prefix('ministry/{ministry}')->name('ministry.')->group(function () {
-        Route::resource('course', CourseController::class)->only(['create','show','edit']);
+        Route::resource('course', CourseController::class)->only(['create', 'show', 'edit']);
     });
 
-    Route::resource("training",TrainingController::class)->only(['index', 'show', 'create','edit']);
+    Route::get('training/planning', [TrainingController::class, 'indexByStatus'])->name('training.planning')->defaults('status', 'planning');
+    Route::get('training/scheduled', [TrainingController::class, 'indexByStatus'])->name('training.scheduled')->defaults('status', 'scheduled');
+    Route::get('training/canceled', [TrainingController::class, 'indexByStatus'])->name('training.canceled')->defaults('status', 'canceled');
+    Route::get('training/completed', [TrainingController::class, 'indexByStatus'])->name('training.completed')->defaults('status', 'completed');
 
-    Route::resource("inventory",InventoryController::class)->only(['index', 'show', 'create','edit']);
+    Route::resource('training', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);
+
+    Route::prefix('trainings/{training}')->name('trainings.')->group(function () {
+        Route::post('schedule/regenerate', [TrainingScheduleController::class, 'regenerate'])->name('schedule.regenerate');
+        Route::patch('schedule-items/{item}', [TrainingScheduleController::class, 'updateItem'])->name('schedule-items.update');
+        Route::post('schedule-items/{item}/lock', [TrainingScheduleController::class, 'lock'])->name('schedule-items.lock');
+        Route::post('schedule-items/{item}/unlock', [TrainingScheduleController::class, 'unlock'])->name('schedule-items.unlock');
+    });
+
+    Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'create', 'edit']);
 });

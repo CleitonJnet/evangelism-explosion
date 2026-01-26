@@ -1,8 +1,49 @@
-<x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-app.placeholder-pattern
-                class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
+<x-layouts.app :title="__('Treinamento')">
+    <div x-data="{ showDeleteModal: false }" x-on:keydown.escape.window="showDeleteModal = false">
+        <x-src.toolbar.bar :title="__('Detalhes do treinamento')" :description="__('Acompanhe informações, agenda e participantes do treinamento selecionado.')">
+            <x-src.toolbar.button :href="route('app.director.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
+            <x-src.toolbar.button :href="route('app.director.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
+            <x-src.toolbar.button
+                href="#"
+                :label="__('Excluir')"
+                icon="trash"
+                :tooltip="__('Excluir treinamento')"
+                x-on:click.prevent="showDeleteModal = true"
+            />
+        </x-src.toolbar.bar>
+
+        <livewire:pages.app.director.training.view :training="$training" />
+
+        <div
+            x-cloak
+            x-show="showDeleteModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+            x-on:click.self="showDeleteModal = false"
+        >
+            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                <form method="POST" action="{{ route('app.director.training.destroy', $training) }}" class="flex flex-col gap-6">
+                    @csrf
+                    @method('DELETE')
+
+                    <div class="space-y-2">
+                        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                            {{ __('Confirmar exclusão') }}
+                        </h2>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">
+                            {{ __('Esta ação é permanente e removerá todas as informações do treinamento.') }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button" class="text-sm font-semibold text-slate-600 dark:text-slate-300" x-on:click="showDeleteModal = false">
+                            {{ __('Cancelar') }}
+                        </button>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                            {{ __('Excluir') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-layouts.app>
