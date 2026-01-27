@@ -14,7 +14,7 @@ class TrainingScheduleGenerator
 {
     private int $minBreakAt = 90;
 
-    private int $maxBreakAt = 150;
+    private int $maxBreakAt = 130;
 
     private int $breakMinutes = 15;
 
@@ -45,6 +45,8 @@ class TrainingScheduleGenerator
 
             $generatedItems = [];
             $queueIndex = 0;
+            $firstDateKey = $training->eventDates->first()?->date;
+            $welcomeDuration = $this->resolveWelcomeDuration($training);
 
             foreach ($training->eventDates as $eventDate) {
                 if (! $eventDate->start_time || ! $eventDate->end_time) {
@@ -59,7 +61,16 @@ class TrainingScheduleGenerator
                 }
 
                 $dateKey = $eventDate->date;
-                $anchors = $this->buildAnchors($dayStart, $dayEnd, $dateKey, $preservedByDate->get($dateKey));
+                $anchors = $this->buildAnchors(
+                    $dayStart,
+                    $dayEnd,
+                    $dateKey,
+                    $preservedByDate->get($dateKey),
+                    $dateKey === $firstDateKey,
+                    $welcomeDuration,
+                    $dateKey !== $firstDateKey,
+                    $dateKey !== $firstDateKey,
+                );
                 $slots = $this->buildSlots($dayStart, $dayEnd, $anchors);
 
                 foreach ($anchors as $anchor) {
@@ -104,7 +115,9 @@ class TrainingScheduleGenerator
                             break;
                         }
 
-                        if ($this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd)) {
+                        $next = $queue[$queueIndex];
+
+                        if ($this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd, $next['min'])) {
                             $generatedItems[] = $this->buildItemAttributes(
                                 $training,
                                 $eventDate->date,
@@ -127,7 +140,6 @@ class TrainingScheduleGenerator
                             continue;
                         }
 
-                        $next = $queue[$queueIndex];
                         $planned = $next['planned'];
 
                         if ($planned === 0) {
@@ -288,9 +300,75 @@ class TrainingScheduleGenerator
      * @param  EloquentCollection<int, TrainingScheduleItem>|null  $preserved
      * @return array<int, array{create: bool, date: string, starts_at: Carbon, ends_at: Carbon, type: string, title: string, duration: int, meta: array<string, mixed>|null}>
      */
-    private function buildAnchors(Carbon $dayStart, Carbon $dayEnd, string $dateKey, ?EloquentCollection $preserved): array
-    {
+    private function buildAnchors(
+        Carbon $dayStart,
+        Carbon $dayEnd,
+        string $dateKey,
+        ?EloquentCollection $preserved,
+        bool $includeWelcome,
+        int $welcomeDuration,
+        bool $includeDevotional,
+        bool $includeDinner,
+    ): array {
         $anchors = [];
+
+        if ($includeWelcome && ! $this->hasWelcomeAnchor($preserved)) {
+            $availableMinutes = $dayStart->diffInMinutes($dayEnd);
+            $duration = min($welcomeDuration, $availableMinutes);
+
+            if ($duration > 0) {
+                $anchors[] = [
+                    'create' => true,
+                    'date' => $dateKey,
+                    'starts_at' => $dayStart->copy(),
+                    'ends_at' => $dayStart->copy()->addMinutes($duration),
+                    'type' => 'WELCOME',
+                    'title' => 'Boas-vindas',
+                    'duration' => $duration,
+                    'meta' => ['anchor' => 'welcome'],
+                ];
+            }
+        }
+
+        if ($includeDevotional && ! $this->hasDevotionalAnchor($preserved)) {
+            $availableMinutes = $dayStart->diffInMinutes($dayEnd);
+            $duration = min(30, $availableMinutes);
+
+            if ($duration > 0) {
+                $anchors[] = [
+                    'create' => true,
+                    'date' => $dateKey,
+                    'starts_at' => $dayStart->copy(),
+                    'ends_at' => $dayStart->copy()->addMinutes($duration),
+                    'type' => 'SECTION',
+                    'title' => 'Devocional',
+                    'duration' => $duration,
+                    'meta' => ['anchor' => 'devotional'],
+                ];
+            }
+        }
+
+        $dinnerStart = Carbon::parse($dateKey.' 18:00:00');
+        $dinnerEnd = $dinnerStart->copy()->addHour();
+
+        if ($includeDinner && $dayEnd->gt($dinnerStart) && ! $this->hasMealAnchor($preserved, ['dinner', 'snack'], ['Jantar', 'Lanche'])) {
+            $start = $dinnerStart->lt($dayStart) ? $dayStart->copy() : $dinnerStart;
+            $end = $dinnerEnd->gt($dayEnd) ? $dayEnd->copy() : $dinnerEnd;
+            $duration = $start->diffInMinutes($end);
+
+            if ($duration > 0) {
+                $anchors[] = [
+                    'create' => true,
+                    'date' => $dateKey,
+                    'starts_at' => $start,
+                    'ends_at' => $end,
+                    'type' => 'MEAL',
+                    'title' => 'Jantar',
+                    'duration' => $duration,
+                    'meta' => ['anchor' => 'dinner'],
+                ];
+            }
+        }
 
         $lunchStart = Carbon::parse($dateKey.' 12:00:00');
         $lunchEnd = Carbon::parse($dateKey.' 13:00:00');
@@ -303,7 +381,7 @@ class TrainingScheduleGenerator
                 'ends_at' => $lunchEnd,
                 'type' => 'MEAL',
                 'title' => 'Almoço',
-                'duration' => 60,
+                'duration' => 90,
                 'meta' => ['anchor' => 'lunch'],
             ];
         }
@@ -368,22 +446,126 @@ class TrainingScheduleGenerator
         return $slots;
     }
 
-    private function shouldInsertBreak(int $minutesSinceBreak, CarbonInterface $current, CarbonInterface $slotEnd): bool
-    {
-        if ($minutesSinceBreak >= $this->minBreakAt && $this->canFitBreak($current, $slotEnd)) {
+    private function shouldInsertBreak(
+        int $minutesSinceBreak,
+        CarbonInterface $current,
+        CarbonInterface $slotEnd,
+        int $nextMinDuration,
+    ): bool {
+        if ($minutesSinceBreak >= $this->minBreakAt && $this->canFitBreak($current, $slotEnd, $nextMinDuration)) {
             return true;
         }
 
-        if ($minutesSinceBreak > $this->maxBreakAt && $this->canFitBreak($current, $slotEnd)) {
+        if ($minutesSinceBreak > $this->maxBreakAt && $this->canFitBreak($current, $slotEnd, $nextMinDuration)) {
             return true;
         }
 
         return false;
     }
 
-    private function canFitBreak(CarbonInterface $current, CarbonInterface $slotEnd): bool
+    private function canFitBreak(CarbonInterface $current, CarbonInterface $slotEnd, int $nextMinDuration): bool
     {
-        return $current->copy()->addMinutes($this->breakMinutes)->lte($slotEnd);
+        $afterBreak = $current->copy()->addMinutes($this->breakMinutes);
+        $remainingMinutes = $afterBreak->diffInMinutes($slotEnd, false);
+
+        if ($remainingMinutes <= 0) {
+            return false;
+        }
+
+        return $remainingMinutes >= $nextMinDuration;
+    }
+
+    private function resolveWelcomeDuration(Training $training): int
+    {
+        $duration = (int) ($training->welcome_duration_minutes ?? 30);
+
+        if ($duration < 30) {
+            return 30;
+        }
+
+        if ($duration > 60) {
+            return 60;
+        }
+
+        return $duration;
+    }
+
+    /**
+     * @param  EloquentCollection<int, TrainingScheduleItem>|null  $preserved
+     */
+    private function hasWelcomeAnchor(?EloquentCollection $preserved): bool
+    {
+        if (! $preserved) {
+            return false;
+        }
+
+        foreach ($preserved as $item) {
+            $anchor = $item->meta['anchor'] ?? null;
+
+            if ($anchor === 'welcome' || $item->type === 'WELCOME') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  EloquentCollection<int, TrainingScheduleItem>|null  $preserved
+     */
+    private function hasDevotionalAnchor(?EloquentCollection $preserved): bool
+    {
+        if (! $preserved) {
+            return false;
+        }
+
+        foreach ($preserved as $item) {
+            $anchor = $item->meta['anchor'] ?? null;
+            $title = $item->title ?? '';
+
+            if ($anchor === 'devotional') {
+                return true;
+            }
+
+            if (strtolower($item->type) === 'section' && strtolower($title) === 'devocional') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  EloquentCollection<int, TrainingScheduleItem>|null  $preserved
+     * @param  array<int, string>  $anchors
+     * @param  array<int, string>  $titles
+     */
+    private function hasMealAnchor(?EloquentCollection $preserved, array $anchors, array $titles): bool
+    {
+        if (! $preserved) {
+            return false;
+        }
+
+        foreach ($preserved as $item) {
+            $anchor = $item->meta['anchor'] ?? null;
+            $title = $item->title ?? '';
+
+            if (in_array($anchor, $anchors, true)) {
+                return true;
+            }
+
+            if (strtolower($item->type) !== 'meal') {
+                continue;
+            }
+
+            foreach ($titles as $candidate) {
+                if (strtolower($title) === strtolower($candidate)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

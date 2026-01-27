@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\TrainingStatus;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\EventDate;
 use App\Models\User;
+use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -74,6 +74,7 @@ class TrainingFactory extends Factory
             'totDecisions' => fake()->numberBetween(0, 200),
             'notes' => fake()->optional(0.2)->sentence(12),
             'status' => fake()->randomElement(TrainingStatus::cases()),
+            'welcome_duration_minutes' => 30,
             'course_id' => $this->randomCourseId(),
             'teacher_id' => $this->randomTeacherId(),
             'church_id' => $this->randomChurchId(),
@@ -262,7 +263,7 @@ class TrainingFactory extends Factory
         $ddd = fake()->randomElement(['11', '21', '31', '41', '51', '61', '71', '81', '85', '91']);
         $suffix = str_pad((string) fake()->numberBetween(0, 99999999), 8, '0', STR_PAD_LEFT);
 
-        return $ddd . '9' . $suffix;
+        return $ddd.'9'.$suffix;
     }
 
     private function postalCode(): string
@@ -272,17 +273,17 @@ class TrainingFactory extends Factory
 
     private function trainingEmail(string $city): string
     {
-        $localPart = Str::slug('treinamento-' . $city, '.');
+        $localPart = Str::slug('treinamento-'.$city, '.');
         $domain = fake()->randomElement(['igreja.org.br', 'ministerio.com.br', 'comunidade.com.br']);
 
-        return $localPart . '@' . $domain;
+        return $localPart.'@'.$domain;
     }
 
     private function trainingUrl(string $city): string
     {
-        $slug = Str::slug('treinamento-' . $city);
+        $slug = Str::slug('treinamento-'.$city);
 
-        return 'https://www.' . $slug . '.org.br';
+        return 'https://www.'.$slug.'.org.br';
     }
 
     private function moneyValue(): string

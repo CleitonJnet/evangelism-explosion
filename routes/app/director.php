@@ -40,7 +40,9 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
 
     Route::prefix('trainings/{training}')->name('trainings.')->group(function () {
         Route::post('schedule/regenerate', [TrainingScheduleController::class, 'regenerate'])->name('schedule.regenerate');
+        Route::post('schedule-items', [TrainingScheduleController::class, 'storeItem'])->name('schedule-items.store');
         Route::patch('schedule-items/{item}', [TrainingScheduleController::class, 'updateItem'])->name('schedule-items.update');
+        Route::delete('schedule-items/{item}', [TrainingScheduleController::class, 'destroyItem'])->name('schedule-items.destroy');
         Route::post('schedule-items/{item}/lock', [TrainingScheduleController::class, 'lock'])->name('schedule-items.lock');
         Route::post('schedule-items/{item}/unlock', [TrainingScheduleController::class, 'unlock'])->name('schedule-items.unlock');
     });

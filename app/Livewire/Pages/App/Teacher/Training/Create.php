@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -83,6 +82,8 @@ class Create extends Component
 
     public ?int $status = TrainingStatus::Scheduled->value;
 
+    public ?int $welcome_duration_minutes = 30;
+
     public string $churchSearch = '';
 
     /**
@@ -133,6 +134,7 @@ class Create extends Component
             'totDecisions' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
             'status' => ['nullable', 'integer', 'in:0,1,2,3'],
+            'welcome_duration_minutes' => ['nullable', 'integer', 'min:30', 'max:60'],
             'eventDates' => ['required', 'array', 'min:1'],
             'eventDates.*.date' => ['required', 'date_format:Y-m-d', 'distinct'],
             'eventDates.*.start_time' => ['required', 'date_format:H:i'],
@@ -167,6 +169,8 @@ class Create extends Component
             'eventDates.*.end_time.required' => 'Informe o horário final.',
             'eventDates.*.end_time.date_format' => 'O horário final deve estar no formato HH:MM.',
             'eventDates.*.end_time.after' => 'O horário final deve ser maior que o horário inicial.',
+            'welcome_duration_minutes.min' => 'O período de boas-vindas deve ter no mínimo 30 minutos.',
+            'welcome_duration_minutes.max' => 'O período de boas-vindas deve ter no máximo 60 minutos.',
         ];
     }
 
@@ -179,6 +183,7 @@ class Create extends Component
             'course_id' => 'curso',
             'teacher_id' => 'professor',
             'church_id' => 'igreja',
+            'welcome_duration_minutes' => 'boas-vindas',
         ];
     }
 
@@ -296,6 +301,7 @@ class Create extends Component
                 'totDecisions' => $validated['totDecisions'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
                 'status' => $validated['status'] ?? TrainingStatus::Scheduled,
+                'welcome_duration_minutes' => $validated['welcome_duration_minutes'] ?? 30,
                 'street' => $validated['address']['street'] ?? null,
                 'number' => $validated['address']['number'] ?? null,
                 'complement' => $validated['address']['complement'] ?? null,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegenerateTrainingScheduleRequest;
+use App\Http\Requests\StoreTrainingScheduleItemRequest;
 use App\Http\Requests\UpdateTrainingScheduleItemRequest;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
@@ -43,9 +44,20 @@ class TrainingScheduleController extends Controller
         $startsAt = Carbon::createFromFormat('Y-m-d H:i:s', $validated['starts_at'])
             ->setDate($date->year, $date->month, $date->day);
 
+        $duration = (int) ($validated['planned_duration_minutes'] ?? $item->planned_duration_minutes);
+
+        if (array_key_exists('title', $validated)) {
+            $item->title = $validated['title'];
+        }
+
+        if (array_key_exists('type', $validated)) {
+            $item->type = $validated['type'];
+        }
+
+        $item->planned_duration_minutes = $duration;
         $item->date = $date->format('Y-m-d');
         $item->starts_at = $startsAt->copy();
-        $item->ends_at = $startsAt->copy()->addMinutes((int) $item->planned_duration_minutes);
+        $item->ends_at = $startsAt->copy()->addMinutes($duration);
         $item->origin = 'TEACHER';
         $item->save();
 
@@ -59,6 +71,74 @@ class TrainingScheduleController extends Controller
         return response()->json([
             'ok' => true,
             'item' => $item->fresh(),
+        ]);
+    }
+
+    public function storeItem(
+        StoreTrainingScheduleItemRequest $request,
+        Training $training,
+        TrainingScheduleGenerator $generator,
+    ): JsonResponse {
+        $validated = $request->validated();
+        $date = Carbon::createFromFormat('Y-m-d', $validated['date']);
+        $startsAt = Carbon::createFromFormat('Y-m-d H:i:s', $validated['starts_at'])
+            ->setDate($date->year, $date->month, $date->day);
+
+        $duration = (int) $validated['planned_duration_minutes'];
+
+        $item = $training->scheduleItems()->create([
+            'section_id' => null,
+            'date' => $date->format('Y-m-d'),
+            'starts_at' => $startsAt->copy(),
+            'ends_at' => $startsAt->copy()->addMinutes($duration),
+            'type' => $validated['type'],
+            'title' => $validated['title'],
+            'planned_duration_minutes' => $duration,
+            'suggested_duration_minutes' => null,
+            'min_duration_minutes' => null,
+            'origin' => 'TEACHER',
+            'is_locked' => false,
+            'status' => 'OK',
+            'conflict_reason' => null,
+            'meta' => null,
+        ]);
+
+        $generator->markConflicts(
+            $training->scheduleItems()
+                ->whereDate('date', $date->format('Y-m-d'))
+                ->orderBy('starts_at')
+                ->get(),
+        );
+
+        return response()->json([
+            'ok' => true,
+            'item' => $item->fresh(),
+        ]);
+    }
+
+    public function destroyItem(
+        Training $training,
+        TrainingScheduleItem $item,
+        TrainingScheduleGenerator $generator,
+    ): JsonResponse {
+        if ($item->training_id !== $training->id) {
+            abort(404);
+        }
+
+        $date = $item->date?->format('Y-m-d');
+        $item->delete();
+
+        if ($date) {
+            $generator->markConflicts(
+                $training->scheduleItems()
+                    ->whereDate('date', $date)
+                    ->orderBy('starts_at')
+                    ->get(),
+            );
+        }
+
+        return response()->json([
+            'ok' => true,
         ]);
     }
 

@@ -22,6 +22,9 @@
                 ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
                 ->values()
                 ->toArray()" />
+
+        <x-src.form.input name="welcome_duration_minutes" wire:model="welcome_duration_minutes"
+            label="Boas-vindas (min)" width_basic="200" type="number" min="30" max="60" />
     </div>
 
     <div class="mt-8 flex flex-col gap-4">
