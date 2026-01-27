@@ -14,7 +14,7 @@ class TrainingScheduleGenerator
 {
     private int $minBreakAt = 90;
 
-    private int $maxBreakAt = 130;
+    private int $maxBreakAt = 120;
 
     private int $breakMinutes = 15;
 
@@ -259,6 +259,95 @@ class TrainingScheduleGenerator
                     }
                 });
             });
+    }
+
+    public function repositionItem(
+        Training $training,
+        TrainingScheduleItem $item,
+        Carbon $targetStart,
+        string $targetDate,
+    ): void {
+        $sourceDate = $item->date?->format('Y-m-d') ?? $targetDate;
+        $targetItems = $this->itemsForDate($training, $targetDate, $item->id);
+
+        $insertIndex = $targetItems->search(function (TrainingScheduleItem $candidate) use ($targetStart): bool {
+            return $candidate->starts_at && $candidate->starts_at->gte($targetStart);
+        });
+
+        if ($insertIndex === false) {
+            $targetItems->push($item);
+        } else {
+            $targetItems->splice($insertIndex, 0, [$item]);
+        }
+
+        $this->reflowDay($training, $targetDate, $targetItems);
+
+        if ($sourceDate !== $targetDate) {
+            $sourceItems = $this->itemsForDate($training, $sourceDate, $item->id);
+            $this->reflowDay($training, $sourceDate, $sourceItems);
+        }
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $items
+     */
+    private function reflowDay(Training $training, string $date, Collection $items): void
+    {
+        if ($items->isEmpty()) {
+            return;
+        }
+
+        $dayStart = $this->resolveDayStart($training, $date, $items->first());
+        $cursor = $dayStart->copy();
+
+        foreach ($items as $dayItem) {
+            $duration = (int) ($dayItem->planned_duration_minutes ?? 0);
+
+            $dayItem->date = $date;
+            $dayItem->starts_at = $cursor->copy();
+            $dayItem->ends_at = $cursor->copy()->addMinutes($duration);
+            $dayItem->save();
+
+            $cursor = $dayItem->ends_at->copy();
+        }
+    }
+
+    /**
+     * @return Collection<int, TrainingScheduleItem>
+     */
+    private function itemsForDate(Training $training, string $date, ?int $excludeId = null): Collection
+    {
+        $items = $training->scheduleItems()
+            ->whereDate('date', $date)
+            ->orderBy('starts_at')
+            ->get();
+
+        if ($excludeId === null) {
+            return $items;
+        }
+
+        return $items->reject(fn (TrainingScheduleItem $item) => $item->id === $excludeId)->values();
+    }
+
+    private function resolveDayStart(
+        Training $training,
+        string $date,
+        ?TrainingScheduleItem $fallbackItem,
+    ): Carbon {
+        $training->loadMissing('eventDates');
+
+        $eventDate = $training->eventDates
+            ->first(fn ($event) => $event->date === $date);
+
+        if ($eventDate?->start_time) {
+            return Carbon::parse($date.' '.$eventDate->start_time);
+        }
+
+        if ($fallbackItem?->starts_at) {
+            return $fallbackItem->starts_at->copy();
+        }
+
+        return Carbon::parse($date.' 00:00:00');
     }
 
     private function deletePreviousItems(Training $training, string $mode): void

@@ -262,6 +262,80 @@ it('creates and removes schedule items', function () {
     expect(TrainingScheduleItem::query()->whereKey($itemId)->exists())->toBeFalse();
 });
 
+it('reflows times when moving a schedule item', function () {
+    $course = Course::factory()->create();
+    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '09:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    $first = $training->scheduleItems()->create([
+        'section_id' => null,
+        'date' => '2026-02-10',
+        'starts_at' => Carbon::parse('2026-02-10 09:00:00'),
+        'ends_at' => Carbon::parse('2026-02-10 10:00:00'),
+        'type' => 'SECTION',
+        'title' => 'Primeira',
+        'planned_duration_minutes' => 60,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'origin' => 'TEACHER',
+        'is_locked' => false,
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $second = $training->scheduleItems()->create([
+        'section_id' => null,
+        'date' => '2026-02-10',
+        'starts_at' => Carbon::parse('2026-02-10 10:00:00'),
+        'ends_at' => Carbon::parse('2026-02-10 10:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Segunda',
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'origin' => 'TEACHER',
+        'is_locked' => false,
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $response = $this->withoutMiddleware([
+        \Illuminate\Auth\Middleware\Authenticate::class,
+        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        \Illuminate\Auth\Middleware\Authorize::class,
+    ])->patchJson(route('app.director.trainings.schedule-items.update', [
+        'training' => $training->id,
+        'item' => $second->id,
+    ]), [
+        'date' => '2026-02-10',
+        'starts_at' => '2026-02-10 09:00:00',
+    ]);
+
+    $response->assertSuccessful();
+
+    $ordered = $training->scheduleItems()
+        ->whereDate('date', '2026-02-10')
+        ->orderBy('starts_at')
+        ->get();
+
+    expect($ordered)->toHaveCount(2);
+    expect($ordered->first()?->id)->toBe($second->id);
+    expect($ordered->first()?->starts_at->format('H:i'))->toBe('09:00');
+    expect($ordered->first()?->ends_at->format('H:i'))->toBe('09:30');
+    expect($ordered->last()?->id)->toBe($first->id);
+    expect($ordered->last()?->starts_at->format('H:i'))->toBe('09:30');
+    expect($ordered->last()?->ends_at->format('H:i'))->toBe('10:30');
+});
+
 it('preserves teacher and locked items when regenerating auto only', function () {
     $course = Course::factory()->create();
     Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
@@ -400,6 +474,10 @@ it('updates schedule items and marks conflicts when moved', function () {
     $second->refresh();
 
     expect($first->origin)->toBe('TEACHER');
-    expect($first->status)->toBe('CONFLICT');
-    expect($second->status)->toBe('CONFLICT');
+    expect($first->status)->toBe('OK');
+    expect($second->status)->toBe('OK');
+    expect($first->starts_at->format('H:i'))->toBe('09:00');
+    expect($first->ends_at->format('H:i'))->toBe('10:00');
+    expect($second->starts_at->format('H:i'))->toBe('10:00');
+    expect($second->ends_at->format('H:i'))->toBe('11:00');
 });

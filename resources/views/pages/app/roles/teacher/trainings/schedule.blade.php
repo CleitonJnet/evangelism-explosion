@@ -70,13 +70,8 @@
                     );
                 @endphp
                 <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
-                    x-bind:class="{
-                        'ring-2 ring-yellow-300/70 bg-yellow-50/60': dropTarget && dropTarget.date === '{{ $dateKey }}' && dropTarget.startsAt === '{{ $dayStart }}',
-                    }"
-                    @dragenter.prevent="setDropTarget('{{ $dateKey }}', '{{ $dayStart }}', null)"
-                    @dragover.prevent
                     @drop.prevent="dropOn('{{ $dateKey }}', '{{ $dayStart }}')">
-                <div class="mb-4">
+                    <div class="mb-4">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div>
                                 <div class="text-sm font-semibold text-heading">
@@ -86,15 +81,16 @@
                                 </div>
                             </div>
                             <flux:button size="sm" type="button" variant="outline" icon="plus"
-                                tooltip="{{ __('Adicionar sessão') }}"
-                                aria-label="{{ __('Adicionar sessão') }}"
+                                tooltip="{{ __('Adicionar sessão') }}" aria-label="{{ __('Adicionar sessão') }}"
                                 x-on:click="openCreate('{{ $dateKey }}', '{{ substr($eventDate->start_time ?? '', 0, 5) }}')" />
                         </div>
-                </div>
+                    </div>
 
-                    <div class="overflow-hidden rounded-xl border border-[color:var(--ee-app-border)] bg-white">
+                    <div class="overflow-hidden rounded-xl border border-[color:var(--ee-app-border)] bg-white"
+                        style="box-shadow: 0 0 2px 0 #052f4a">
                         <table class="w-full text-left text-sm">
-                            <thead class="text-xs uppercase text-[color:var(--ee-app-muted)]">
+                            <thead
+                                class="text-xs bg-linear-to-b from-sky-200 to-sky-300 uppercase text-[color:var(--ee-app-muted)]">
                                 <tr class="border-b border-[color:var(--ee-app-border)]">
                                     <th class="px-3 py-2">{{ __('Horário') }}</th>
                                     <th class="px-3 py-2">{{ __('Sessão') }}</th>
@@ -111,26 +107,44 @@
                                                 'id' => $item->conflict_reason['with'] ?? '-',
                                             ])
                                             : '';
-                                @endphp
-                                @php
-                                    $rowIndex = $loop->index;
-                                @endphp
-                                <tr class="items-center"
-                                    :class="{
-                                        'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
-                                        'opacity-70': busy,
-                                        'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId === {{ $item->id }},
-                                        'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget.date === '{{ $item->date->format('Y-m-d') }}' && dropTarget.startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
-                                        'translate-y-2': draggingId && dropTarget && dropTarget.order !== null && dropTarget.order <= {{ $rowIndex }} && draggingId !== {{ $item->id }},
-                                        'transition-transform duration-150': draggingId,
-                                    }"
-                                    x-bind:draggable="draggingEnabledId === {{ $item->id }}"
-                                    title="{{ $tooltip }}"
-                                    @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')"
-                                    @dragend="endDrag"
-                                    @dragenter.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragover.prevent
-                                    @drop.prevent="dropOn('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')">
+                                    @endphp
+                                    @php
+                                        $rowIndex = $loop->index;
+                                    @endphp
+                                    @php
+                                        $hour = (int) $item->starts_at->format('H');
+                                        if ($hour < 12) {
+                                            $periodClass = 'bg-sky-100/30';
+                                        } elseif ($hour < 18) {
+                                            $periodClass = 'bg-amber-100/30';
+                                        } else {
+                                            $periodClass = 'bg-indigo-100/50';
+                                        }
+                                    @endphp
+                                    <tr class="items-center {{ $periodClass }}"
+                                        :class="{
+                                            'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
+                                            'opacity-70': busy,
+                                            'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId ===
+                                                {{ $item->id }},
+                                            'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget
+                                                .date === '{{ $item->date->format('Y-m-d') }}' && dropTarget
+                                                .startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
+                                            'translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
+                                                draggingIndex !== null && dropTarget.order < draggingIndex &&
+                                                dropTarget.order <= {{ $rowIndex }} && draggingIndex > {{ $rowIndex }},
+                                            '-translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
+                                                draggingIndex !== null && dropTarget.order > draggingIndex &&
+                                                dropTarget.order >= {{ $rowIndex }} && draggingIndex < {{ $rowIndex }},
+                                            'transition-transform duration-150': draggingId,
+                                        }"
+                                        x-bind:draggable="draggingEnabledId === {{ $item->id }}"
+                                        title="{{ $tooltip }}"
+                                        @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
+                                        @dragend="endDrag"
+                                        @dragenter.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
+                                        @dragover.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
+                                        @drop.prevent="dropOn('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')">
                                         <td class="px-3 py-2 whitespace-nowrap">
                                             <div class="flex items-center gap-2">
                                                 <button type="button"
@@ -165,8 +179,8 @@
                                         </td>
                                         <td class="px-3 py-2 text-right">
                                             <div class="flex flex-wrap justify-end gap-2">
-                                                <flux:button type="button" size="sm" variant="danger" icon="trash"
-                                                    tooltip="{{ __('Remover sessão') }}"
+                                                <flux:button type="button" size="sm" variant="danger"
+                                                    icon="trash" tooltip="{{ __('Remover sessão') }}"
                                                     aria-label="{{ __('Remover sessão') }}"
                                                     x-on:click.stop="deleteItem({{ $item->id }})">
                                                 </flux:button>
@@ -192,13 +206,13 @@
                         </table>
                     </div>
                 </div>
-        @empty
-            <div
-                class="rounded-2xl border border-dashed border-[color:var(--ee-app-border)] p-6 text-sm text-[color:var(--ee-app-muted)]">
-                {{ __('Nenhuma data cadastrada para este treinamento.') }}
-            </div>
-        @endforelse
-    </section>
+            @empty
+                <div
+                    class="rounded-2xl border border-dashed border-[color:var(--ee-app-border)] p-6 text-sm text-[color:var(--ee-app-muted)]">
+                    {{ __('Nenhuma data cadastrada para este treinamento.') }}
+                </div>
+            @endforelse
+        </section>
 
         <div x-show="modalOpen" x-cloak x-transition class="fixed inset-0 z-50 flex items-center justify-center">
             <div class="absolute inset-0 bg-black/50" x-on:click="closeModal"></div>
@@ -246,7 +260,8 @@
                     <div class="grid gap-2">
                         <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
                             for="schedule-duration">{{ __('Duração (min)') }}</label>
-                        <input id="schedule-duration" type="number" min="1" max="720" x-model="form.duration"
+                        <input id="schedule-duration" type="number" min="1" max="720"
+                            x-model="form.duration"
                             class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
                     </div>
                 </div>
@@ -255,7 +270,8 @@
                     <flux:button type="button" variant="outline" x-on:click="closeModal">
                         {{ __('Cancelar') }}
                     </flux:button>
-                    <flux:button type="button" variant="primary" x-on:click="submitModal" x-bind:disabled="busy">
+                    <flux:button type="button" variant="primary" x-on:click="submitModal"
+                        x-bind:disabled="busy">
                         {{ __('Salvar') }}
                     </flux:button>
                 </div>
@@ -265,10 +281,11 @@
 
     @once
         <script data-navigate-once>
-            window.trainingScheduleBoard = function (config) {
+            window.trainingScheduleBoard = function(config) {
                 return {
                     draggingId: null,
                     draggingEnabledId: null,
+                    draggingIndex: null,
                     dropTarget: {
                         date: null,
                         startsAt: null,
@@ -371,12 +388,14 @@
                             window.location.reload();
                         }
                     },
-                    startDrag(id, date, startsAt) {
+                    startDrag(id, date, startsAt, order) {
                         this.draggingId = id;
-                        this.setDropTarget(date, startsAt, 0);
+                        this.draggingIndex = order;
+                        this.setDropTarget(date, startsAt, order);
                     },
                     endDrag() {
                         this.draggingId = null;
+                        this.draggingIndex = null;
                         this.disableDrag();
                         this.clearDropTarget();
                     },

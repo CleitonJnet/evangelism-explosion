@@ -226,7 +226,7 @@ CREATE TABLE `event_dates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `event_dates_training_id_date_start_time_unique` (`training_id`,`date`,`start_time`),
   CONSTRAINT `event_dates_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=429 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=437 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -513,7 +513,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1642 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2054 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -626,7 +626,7 @@ CREATE TABLE `sections` (
   PRIMARY KEY (`id`),
   KEY `sections_course_id_foreign` (`course_id`),
   CONSTRAINT `sections_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -702,6 +702,41 @@ CREATE TABLE `suppliers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `training_schedule_items`
+--
+
+DROP TABLE IF EXISTS `training_schedule_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `training_schedule_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `training_id` bigint unsigned NOT NULL,
+  `section_id` bigint unsigned DEFAULT NULL,
+  `date` date NOT NULL,
+  `starts_at` datetime NOT NULL,
+  `ends_at` datetime NOT NULL,
+  `type` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `planned_duration_minutes` int unsigned NOT NULL,
+  `suggested_duration_minutes` int unsigned DEFAULT NULL,
+  `min_duration_minutes` int unsigned DEFAULT NULL,
+  `origin` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'AUTO',
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `status` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'OK',
+  `conflict_reason` json DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `training_schedule_items_section_id_foreign` (`section_id`),
+  KEY `training_schedule_items_training_id_date_starts_at_index` (`training_id`,`date`,`starts_at`),
+  KEY `training_schedule_items_training_id_date_type_index` (`training_id`,`date`,`type`),
+  CONSTRAINT `training_schedule_items_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `training_schedule_items_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=674 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `training_user`
 --
 
@@ -764,6 +799,7 @@ CREATE TABLE `trainings` (
   `course_id` bigint unsigned DEFAULT NULL,
   `teacher_id` bigint unsigned DEFAULT NULL,
   `church_id` bigint unsigned DEFAULT NULL,
+  `welcome_duration_minutes` smallint unsigned NOT NULL DEFAULT '30',
   PRIMARY KEY (`id`),
   KEY `trainings_course_id_foreign` (`course_id`),
   KEY `trainings_teacher_id_foreign` (`teacher_id`),
@@ -771,7 +807,7 @@ CREATE TABLE `trainings` (
   CONSTRAINT `trainings_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `trainings_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `trainings_teacher_id_foreign` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=310 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=311 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -846,4 +882,4 @@ CREATE TABLE `vouchers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-25 12:36:25
+-- Dump completed on 2026-01-27  0:45:42

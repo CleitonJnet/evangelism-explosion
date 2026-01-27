@@ -41,6 +41,7 @@ class TrainingScheduleController extends Controller
         }
 
         $validated = $request->validated();
+        $sourceDate = $item->date?->format('Y-m-d');
         $date = Carbon::createFromFormat('Y-m-d', $validated['date']);
         $startsAt = Carbon::createFromFormat('Y-m-d H:i:s', $validated['starts_at'])
             ->setDate($date->year, $date->month, $date->day);
@@ -56,18 +57,20 @@ class TrainingScheduleController extends Controller
         }
 
         $item->planned_duration_minutes = $duration;
-        $item->date = $date->format('Y-m-d');
-        $item->starts_at = $startsAt->copy();
-        $item->ends_at = $startsAt->copy()->addMinutes($duration);
         $item->origin = 'TEACHER';
-        $item->save();
 
-        $generator->markConflicts(
-            $training->scheduleItems()
-                ->whereDate('date', $date->format('Y-m-d'))
-                ->orderBy('starts_at')
-                ->get(),
-        );
+        $targetDate = $date->format('Y-m-d');
+        $generator->repositionItem($training, $item, $startsAt, $targetDate);
+
+        $datesToCheck = collect([$sourceDate, $targetDate])->filter()->unique();
+        foreach ($datesToCheck as $dateKey) {
+            $generator->markConflicts(
+                $training->scheduleItems()
+                    ->whereDate('date', $dateKey)
+                    ->orderBy('starts_at')
+                    ->get(),
+            );
+        }
 
         return response()->json([
             'ok' => true,

@@ -60,11 +60,6 @@
                 );
             @endphp
             <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-4"
-                x-bind:class="{
-                    'ring-2 ring-yellow-300/70 bg-yellow-50/60': dropTarget && dropTarget.date === '{{ $dateKey }}' && dropTarget.startsAt === '{{ $dayStart }}',
-                }"
-                @dragenter.prevent="setDropTarget('{{ $dateKey }}', '{{ $dayStart }}', null)"
-                @dragover.prevent
                 @drop.prevent="dropOn('{{ $dateKey }}', '{{ $dayStart }}')">
                 <div class="mb-4">
                     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -105,20 +100,31 @@
                                 @php
                                     $rowIndex = $loop->index;
                                 @endphp
-                                <tr class="items-center"
+                                @php
+                                    $hour = (int) $item->starts_at->format('H');
+                                    if ($hour < 12) {
+                                        $periodClass = 'bg-sky-50/70';
+                                    } elseif ($hour < 18) {
+                                        $periodClass = 'bg-amber-50/60';
+                                    } else {
+                                        $periodClass = 'bg-indigo-50/60';
+                                    }
+                                @endphp
+                                <tr class="items-center {{ $periodClass }}"
                                     :class="{
                                         'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
                                         'opacity-70': busy,
                                         'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId === {{ $item->id }},
                                         'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget.date === '{{ $item->date->format('Y-m-d') }}' && dropTarget.startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
-                                        'translate-y-2': draggingId && dropTarget && dropTarget.order !== null && dropTarget.order <= {{ $rowIndex }} && draggingId !== {{ $item->id }},
+                                        'translate-y-2': draggingId && dropTarget && dropTarget.order !== null && draggingIndex !== null && dropTarget.order < draggingIndex && dropTarget.order <= {{ $rowIndex }} && draggingIndex > {{ $rowIndex }},
+                                        '-translate-y-2': draggingId && dropTarget && dropTarget.order !== null && draggingIndex !== null && dropTarget.order > draggingIndex && dropTarget.order >= {{ $rowIndex }} && draggingIndex < {{ $rowIndex }},
                                         'transition-transform duration-150': draggingId,
                                     }"
                                     draggable="true" title="{{ $tooltip }}"
-                                    @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')"
+                                    @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
                                     @dragend="endDrag"
-                                    @dragenter.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragover.prevent
+                                    @dragenter.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
+                                    @dragover.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
                                     @drop.prevent="dropOn('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')">
                                     <td class="px-3 py-2 whitespace-nowrap">
                                         {{ $item->starts_at->format('H:i') }} - {{ $item->ends_at->format('H:i') }}
@@ -239,6 +245,7 @@
         window.trainingScheduleBoard = function (config) {
             return {
                 draggingId: null,
+                draggingIndex: null,
                 dropTarget: {
                     date: null,
                     startsAt: null,
@@ -335,12 +342,14 @@
                         window.location.reload();
                     }
                 },
-                startDrag(id, date, startsAt) {
+                startDrag(id, date, startsAt, order) {
                     this.draggingId = id;
-                    this.setDropTarget(date, startsAt, 0);
+                    this.draggingIndex = order;
+                    this.setDropTarget(date, startsAt, order);
                 },
                 endDrag() {
                     this.draggingId = null;
+                    this.draggingIndex = null;
                     this.clearDropTarget();
                 },
                 async regenerate() {
