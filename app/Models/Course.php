@@ -9,21 +9,36 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color',  'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id' ];
+    protected $fillable = ['order', 'execution', 'ojt_default_count', 'ojt_default_policy', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color', 'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id'];
 
-    public function ministry(){
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'execution' => 'integer',
+            'ojt_default_count' => 'integer',
+        ];
+    }
+
+    public function ministry()
+    {
         return $this->belongsTo(Ministry::class);
     }
 
-    public function sections(){
+    public function sections()
+    {
         return $this->hasMany(Section::class);
     }
 
-    public function teachers(){
+    public function teachers()
+    {
         return $this->belongsToMany(User::class)->withPivot('status');
     }
 
-    public function lessonplan(){
+    public function lessonplan()
+    {
         return $this->hasMany(Lessonplan::class);
     }
 }

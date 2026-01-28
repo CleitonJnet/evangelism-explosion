@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\OjtSession;
+use App\Models\OjtTeam;
 use App\Models\User;
+use App\Policies\OjtSessionPolicy;
+use App\Policies\OjtTeamPolicy;
 use App\Policies\RoleAccessPolicy;
 use App\Policies\UserPolicy;
 use Carbon\CarbonImmutable;
@@ -53,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAccessGates(): void
     {
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(OjtSession::class, OjtSessionPolicy::class);
+        Gate::policy(OjtTeam::class, OjtTeamPolicy::class);
         Gate::define('access-board', [RoleAccessPolicy::class, 'accessBoard']);
         Gate::define('access-director', [RoleAccessPolicy::class, 'accessDirector']);
         Gate::define('access-teacher', [RoleAccessPolicy::class, 'accessTeacher']);

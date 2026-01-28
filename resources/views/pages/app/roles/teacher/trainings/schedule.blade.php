@@ -2,9 +2,9 @@
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')">
         <x-src.toolbar.button :href="route('app.teacher.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
         <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Detalhes')" icon="calendar" :tooltip="__('Detalhes do treinamento')" />
+        <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
         <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
             :tooltip="__('Programação do evento')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
     </x-src.toolbar.bar>
 
     @php
@@ -132,10 +132,12 @@
                                                 .startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
                                             'translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
                                                 draggingIndex !== null && dropTarget.order < draggingIndex &&
-                                                dropTarget.order <= {{ $rowIndex }} && draggingIndex > {{ $rowIndex }},
+                                                dropTarget.order <= {{ $rowIndex }} && draggingIndex >
+                                                {{ $rowIndex }},
                                             '-translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
                                                 draggingIndex !== null && dropTarget.order > draggingIndex &&
-                                                dropTarget.order >= {{ $rowIndex }} && draggingIndex < {{ $rowIndex }},
+                                                dropTarget.order >= {{ $rowIndex }} && draggingIndex <
+                                                {{ $rowIndex }},
                                             'transition-transform duration-150': draggingId,
                                         }"
                                         x-bind:draggable="draggingEnabledId === {{ $item->id }}"

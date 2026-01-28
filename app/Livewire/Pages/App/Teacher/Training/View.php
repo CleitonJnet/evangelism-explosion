@@ -21,6 +21,21 @@ class View extends Component
      */
     public Collection $students;
 
+    /**
+     * @var array{
+     *     completed_sessions: int,
+     *     expected_sessions: int,
+     *     gospel_presentations: int,
+     *     listeners_count: int,
+     *     results_decisions: int,
+     *     results_interested: int,
+     *     results_rejection: int,
+     *     results_assurance: int,
+     *     follow_up_scheduled: int
+     * }
+     */
+    public array $ojtSummary = [];
+
     public function mount(Training $training): void
     {
         $this->training = $training->load([
@@ -33,6 +48,7 @@ class View extends Component
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;
+        $this->ojtSummary = $this->training->ojtReportSummary();
     }
 
     public function render(): ViewResponse

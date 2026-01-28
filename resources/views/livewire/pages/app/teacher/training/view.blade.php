@@ -271,6 +271,46 @@
                 </div>
             </div>
 
+            <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4">
+                <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('OJT Summary') }}</h4>
+                <div class="mt-3 grid gap-3 text-sm text-slate-700">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Completed / Expected') }}</span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $ojtSummary['completed_sessions'] ?? 0 }} / {{ $ojtSummary['expected_sessions'] ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Gospel presentations') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['gospel_presentations'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Listeners') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['listeners_count'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Decisions') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_decisions'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Interested') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_interested'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Rejection') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_rejection'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Assurance') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_assurance'] ?? 0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500">{{ __('Follow-up scheduled') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $ojtSummary['follow_up_scheduled'] ?? 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4 lg:col-span-2">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Datas do evento') }}</h4>
                 <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Student\Training;
 
+use App\Models\OjtSession;
 use App\Models\Training;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,11 @@ class Show extends Component
     public ?string $paymentReceiptPath = null;
 
     public mixed $paymentReceipt = null;
+
+    /**
+     * @var array<int, array<string, mixed>>
+     */
+    public array $ojtAssignments = [];
 
     public function mount(Training $training): void
     {
@@ -63,6 +69,8 @@ class Show extends Component
 
         $this->paymentConfirmed = (bool) $enrollment->pivot?->payment;
         $this->paymentReceiptPath = $enrollment->pivot?->payment_receipt;
+
+        $this->ojtAssignments = $this->buildOjtAssignments($user->id);
     }
 
     public function render(): View
@@ -134,5 +142,54 @@ class Show extends Component
         return $minutes > 0
             ? sprintf('%02dh%02d', $hours, $minutes)
             : sprintf('%02dh', $hours);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildOjtAssignments(int $studentId): array
+    {
+        return $this->training->ojtSessions()
+            ->whereDate('date', '>=', now()->toDateString())
+            ->where('status', 'planned')
+            ->whereHas('teams.trainees', function ($query) use ($studentId): void {
+                $query->where('trainee_id', $studentId);
+            })
+            ->with(['teams' => function ($query) use ($studentId): void {
+                $query->whereHas('trainees', function ($subQuery) use ($studentId): void {
+                    $subQuery->where('trainee_id', $studentId);
+                })->with(['mentor', 'trainees.trainee', 'report']);
+            }])
+            ->orderBy('date')
+            ->orderBy('starts_at')
+            ->get()
+            ->map(function (OjtSession $session) use ($studentId): array {
+                $team = $session->teams->first();
+                $teammate = $team?->trainees->firstWhere('trainee_id', '!=', $studentId);
+                $report = $team?->report;
+
+                return [
+                    'id' => $session->id,
+                    'week_number' => $session->week_number,
+                    'date' => $session->date?->format('Y-m-d'),
+                    'starts_at' => $session->starts_at,
+                    'ends_at' => $session->ends_at,
+                    'mentor_name' => $team?->mentor?->name,
+                    'teammate_name' => $teammate?->trainee?->name,
+                    'report' => $report && $report->submitted_at ? [
+                        'submitted_at' => $report->submitted_at?->format('Y-m-d H:i'),
+                        'gospel_presentations' => $report->gospel_presentations,
+                        'listeners_count' => $report->listeners_count,
+                        'results_decisions' => $report->results_decisions,
+                        'results_interested' => $report->results_interested,
+                        'results_rejection' => $report->results_rejection,
+                        'results_assurance' => $report->results_assurance,
+                        'follow_up_scheduled' => (bool) $report->follow_up_scheduled,
+                        'lesson_learned' => $report->lesson_learned,
+                    ] : null,
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

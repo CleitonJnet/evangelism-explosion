@@ -4,6 +4,10 @@ use App\Http\Controllers\System\Teacher\ChurchController;
 use App\Http\Controllers\System\Teacher\CourseController;
 use App\Http\Controllers\System\Teacher\InventoryController;
 use App\Http\Controllers\System\Teacher\MinistryController;
+use App\Http\Controllers\System\Teacher\OjtReportController;
+use App\Http\Controllers\System\Teacher\OjtSessionController;
+use App\Http\Controllers\System\Teacher\OjtStatsController;
+use App\Http\Controllers\System\Teacher\OjtTeamController;
 use App\Http\Controllers\System\Teacher\ProfileController;
 use App\Http\Controllers\System\Teacher\TrainingController;
 use App\Http\Controllers\System\Teacher\TrainingScheduleController;
@@ -46,6 +50,26 @@ Route::middleware('can:access-teacher')
             Route::delete('schedule-items/{item}', [TrainingScheduleController::class, 'destroyItem'])->name('schedule-items.destroy');
             Route::post('schedule-items/{item}/lock', [TrainingScheduleController::class, 'lock'])->name('schedule-items.lock');
             Route::post('schedule-items/{item}/unlock', [TrainingScheduleController::class, 'unlock'])->name('schedule-items.unlock');
+        });
+
+        Route::prefix('trainings/{training}/ojt')->name('trainings.ojt.')->group(function () {
+            Route::get('sessions', [OjtSessionController::class, 'index'])->name('sessions.index');
+            Route::get('sessions/create', [OjtSessionController::class, 'create'])->name('sessions.create');
+            Route::post('sessions', [OjtSessionController::class, 'store'])->name('sessions.store');
+            Route::post('sessions/generate', [OjtSessionController::class, 'generate'])->name('sessions.generate');
+            Route::get('sessions/{session}/edit', [OjtSessionController::class, 'edit'])->name('sessions.edit');
+            Route::patch('sessions/{session}', [OjtSessionController::class, 'update'])->name('sessions.update');
+            Route::delete('sessions/{session}', [OjtSessionController::class, 'destroy'])->name('sessions.destroy');
+
+            Route::get('teams', [OjtTeamController::class, 'index'])->name('teams.index');
+            Route::post('teams/generate', [OjtTeamController::class, 'generate'])->name('teams.generate');
+            Route::patch('teams/{team}/assignments', [OjtTeamController::class, 'updateAssignments'])->name('teams.assignments.update');
+
+            Route::get('reports', [OjtReportController::class, 'index'])->name('reports.index');
+            Route::get('reports/{report}', [OjtReportController::class, 'show'])->name('reports.show');
+
+            Route::get('stats/summary', [OjtStatsController::class, 'summary'])->name('stats.summary');
+            Route::get('stats/public-report', [OjtStatsController::class, 'publicReport'])->name('stats.public-report');
         });
 
         Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'create', 'edit']);
