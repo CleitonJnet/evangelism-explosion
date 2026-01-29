@@ -17,6 +17,8 @@ class TrainingScheduleGenerator
 
     private const BREAKFAST_END = '08:30:00';
 
+    private const BREAK_TITLE = 'Intervalo';
+
     private const LUNCH_START = '12:00:00';
 
     private const AFTERNOON_SNACK_START = '15:30:00';
@@ -160,27 +162,32 @@ class TrainingScheduleGenerator
         $queueIndex = 0;
         $generatedItems = [];
         $unallocated = [];
-        $firstDateKey = $training->eventDates->first()?->date;
+        $firstDateKey = $this->resolveDateKey($training->eventDates->first()?->date);
 
         foreach ($training->eventDates as $eventDate) {
             if (! $eventDate->start_time || ! $eventDate->end_time) {
                 continue;
             }
 
-            $dayStart = Carbon::parse($eventDate->date.' '.$eventDate->start_time);
-            $dayEnd = Carbon::parse($eventDate->date.' '.$eventDate->end_time);
+            $dateKey = $this->resolveDateKey($eventDate->date);
+
+            if (! $dateKey) {
+                continue;
+            }
+
+            $dayStart = Carbon::parse($dateKey.' '.$eventDate->start_time);
+            $dayEnd = Carbon::parse($dateKey.' '.$eventDate->end_time);
 
             if ($dayEnd->lessThanOrEqualTo($dayStart)) {
                 continue;
             }
 
-            $dateKey = $eventDate->date;
+            $daySettings = $this->resolveDaySettings($settings, $dateKey, $dateKey === $firstDateKey);
             $anchors = $this->buildAnchorsForDay(
                 $dayStart,
                 $dayEnd,
                 $dateKey,
-                $settings,
-                $dateKey === $firstDateKey,
+                $daySettings,
                 [],
             );
 
@@ -217,30 +224,35 @@ class TrainingScheduleGenerator
 
         $generatedItems = [];
         $unallocated = [];
-        $firstDateKey = $training->eventDates->first()?->date;
+        $firstDateKey = $this->resolveDateKey($training->eventDates->first()?->date);
 
         foreach ($training->eventDates as $eventDate) {
             if (! $eventDate->start_time || ! $eventDate->end_time) {
                 continue;
             }
 
-            $dayStart = Carbon::parse($eventDate->date.' '.$eventDate->start_time);
-            $dayEnd = Carbon::parse($eventDate->date.' '.$eventDate->end_time);
+            $dateKey = $this->resolveDateKey($eventDate->date);
+
+            if (! $dateKey) {
+                continue;
+            }
+
+            $dayStart = Carbon::parse($dateKey.' '.$eventDate->start_time);
+            $dayEnd = Carbon::parse($dateKey.' '.$eventDate->end_time);
 
             if ($dayEnd->lessThanOrEqualTo($dayStart)) {
                 continue;
             }
 
-            $dateKey = $eventDate->date;
             $dayItems = $prepared['itemsByDate'][$dateKey] ?? [];
             $lockedAnchors = $prepared['lockedByDate'][$dateKey] ?? [];
 
+            $daySettings = $this->resolveDaySettings($settings, $dateKey, $dateKey === $firstDateKey);
             $anchors = $this->buildAnchorsForDay(
                 $dayStart,
                 $dayEnd,
                 $dateKey,
-                $settings,
-                $dateKey === $firstDateKey,
+                $daySettings,
                 $lockedAnchors,
             );
 
@@ -380,7 +392,7 @@ class TrainingScheduleGenerator
             ->unique()
             ->values();
 
-        $lastDate = $training->eventDates->last()?->date;
+        $lastDate = $this->resolveDateKey($training->eventDates->last()?->date);
 
         foreach ($sections as $section) {
             if ($existingSectionIds->contains($section->id)) {
@@ -449,6 +461,7 @@ class TrainingScheduleGenerator
         if (! $item['section_id']) {
             $item['suggested_minutes'] = null;
             $item['min_minutes'] = null;
+            $item['max_minutes'] = null;
 
             return $item;
         }
@@ -470,19 +483,21 @@ class TrainingScheduleGenerator
         $item['planned_minutes'] = $planned;
         $item['suggested_minutes'] = $suggested;
         $item['min_minutes'] = $min;
+        $item['max_minutes'] = $max;
 
         return $item;
     }
 
     /**
      * @param  Collection<int, Section>  $sections
-     * @return Collection<int, array{section: Section, section_id: int, title: string, suggested: int, min: int, planned: int}>
+     * @return Collection<int, array{section: Section, section_id: int, title: string, suggested: int, min: int, max: int, planned: int}>
      */
     private function buildSectionQueue(Collection $sections): Collection
     {
         return $sections->map(function ($section): array {
             $suggested = (int) ($section->duration ?? 0);
             $min = (int) ceil($suggested * 0.8);
+            $max = (int) ceil($suggested * 1.2);
 
             return [
                 'section' => $section,
@@ -490,6 +505,7 @@ class TrainingScheduleGenerator
                 'title' => $section->name ?? __('Unidade'),
                 'suggested' => $suggested,
                 'min' => $min,
+                'max' => $max,
                 'planned' => $suggested,
             ];
         })->values();
@@ -503,6 +519,8 @@ class TrainingScheduleGenerator
         $suggested = (int) ($section->duration ?? 0);
         $min = (int) ceil($suggested * 0.8);
 
+        $max = (int) ceil($suggested * 1.2);
+
         return [
             'order' => $order,
             'assigned_date' => $dateKey,
@@ -512,6 +530,7 @@ class TrainingScheduleGenerator
             'planned_minutes' => $suggested,
             'suggested_minutes' => $suggested,
             'min_minutes' => $min,
+            'max_minutes' => $max,
             'origin' => 'AUTO',
             'meta' => null,
         ];
@@ -556,6 +575,7 @@ class TrainingScheduleGenerator
         $slots = $this->buildSlots($dayStart, $dayEnd, $anchors);
         $postLunchStart = $this->resolvePostLunchStart($anchors);
         $afterLunchPause = (int) ($settings['after_lunch_pause_minutes'] ?? 10);
+        $postLunchFirstSessionAvailable = $postLunchStart !== null;
 
         foreach ($slots as $slot) {
             if ($queueIndex >= count($queue)) {
@@ -565,7 +585,6 @@ class TrainingScheduleGenerator
             $current = $slot['start']->copy();
             $slotEnd = $slot['end']->copy();
             $minutesSinceBreak = 0;
-            $postLunch = $postLunchStart && $current->gte($postLunchStart);
 
             while ($queueIndex < count($queue)) {
                 if ($current->gte($slotEnd)) {
@@ -574,8 +593,9 @@ class TrainingScheduleGenerator
 
                 $next = $queue[$queueIndex];
                 $nextMin = (int) ($next['min'] ?? 0);
+                $postLunch = $postLunchStart !== null && $current->gte($postLunchStart);
 
-                if (! $postLunch && $this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd, $nextMin)) {
+                if ($this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd, $nextMin)) {
                     $breakEnd = $current->copy()->addMinutes($this->breakMinutes);
                     if ($breakEnd->gt($slotEnd)) {
                         break;
@@ -587,7 +607,7 @@ class TrainingScheduleGenerator
                         $current->copy(),
                         $breakEnd->copy(),
                         'BREAK',
-                        'Intervalo',
+                        self::BREAK_TITLE,
                         $this->breakMinutes,
                         null,
                         null,
@@ -628,14 +648,19 @@ class TrainingScheduleGenerator
                 }
 
                 $segment = $planned;
-                $postLunchPauseRequired = false;
+                $postLunchBreakRequired = false;
 
                 if ($postLunch) {
-                    $segment = min($segment, 60);
-                    $postLunchPauseRequired = true;
+                    $segmentMax = $postLunchFirstSessionAvailable ? 80 : 60;
+                    $segment = min($segment, $segmentMax);
+
+                    if ($postLunchFirstSessionAvailable) {
+                        $postLunchBreakRequired = true;
+                        $postLunchFirstSessionAvailable = false;
+                    }
                 }
 
-                $requiredTime = $segment + ($postLunchPauseRequired ? $afterLunchPause : 0);
+                $requiredTime = $segment + ($postLunchBreakRequired ? $afterLunchPause : 0);
                 $slotRemaining = $current->diffInMinutes($slotEnd, false);
 
                 if ($slotRemaining < $requiredTime) {
@@ -664,7 +689,10 @@ class TrainingScheduleGenerator
                 $current = $segmentEnd->copy();
                 $minutesSinceBreak += $segment;
 
-                if ($postLunchPauseRequired) {
+                $remaining = $planned - $segment;
+                $hasRemainingContent = $remaining > 0 || ($queueIndex + 1) < count($queue);
+
+                if ($postLunchBreakRequired && $hasRemainingContent) {
                     $pauseEnd = $current->copy()->addMinutes($afterLunchPause);
 
                     $generatedItems[] = $this->buildItemAttributes(
@@ -673,12 +701,12 @@ class TrainingScheduleGenerator
                         $current->copy(),
                         $pauseEnd->copy(),
                         'BREAK',
-                        'Pausa',
+                        self::BREAK_TITLE,
                         $afterLunchPause,
                         null,
                         null,
                         null,
-                        ['anchor' => 'after_lunch_pause'],
+                        ['anchor' => 'break'],
                         'AUTO',
                         false,
                     );
@@ -687,8 +715,6 @@ class TrainingScheduleGenerator
                     $minutesSinceBreak = 0;
                 }
 
-                $remaining = $planned - $segment;
-
                 if ($remaining > 0) {
                     $queue[$queueIndex]['planned'] = $remaining;
                 } else {
@@ -696,6 +722,8 @@ class TrainingScheduleGenerator
                 }
             }
         }
+
+        $generatedItems = $this->redistributeSlotMinutes($generatedItems, $slots, $postLunchStart);
 
         return ['items' => $generatedItems, 'index' => $queueIndex];
     }
@@ -739,6 +767,7 @@ class TrainingScheduleGenerator
         $slots = $this->buildSlots($dayStart, $dayEnd, $anchors);
         $postLunchStart = $this->resolvePostLunchStart($anchors);
         $afterLunchPause = (int) ($settings['after_lunch_pause_minutes'] ?? 10);
+        $postLunchFirstSessionAvailable = $postLunchStart !== null;
 
         $items = array_map(function (array $item): array {
             $item['remaining_minutes'] = (int) ($item['planned_minutes'] ?? 0);
@@ -756,7 +785,6 @@ class TrainingScheduleGenerator
             $current = $slot['start']->copy();
             $slotEnd = $slot['end']->copy();
             $minutesSinceBreak = 0;
-            $postLunch = $postLunchStart && $current->gte($postLunchStart);
 
             while ($index < count($items)) {
                 if ($current->gte($slotEnd)) {
@@ -765,8 +793,9 @@ class TrainingScheduleGenerator
 
                 $next = $items[$index];
                 $nextMin = (int) ($next['min_minutes'] ?? 0);
+                $postLunch = $postLunchStart !== null && $current->gte($postLunchStart);
 
-                if (! $postLunch && $this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd, $nextMin)) {
+                if ($this->shouldInsertBreak($minutesSinceBreak, $current, $slotEnd, $nextMin)) {
                     $breakEnd = $current->copy()->addMinutes($this->breakMinutes);
                     if ($breakEnd->gt($slotEnd)) {
                         break;
@@ -778,7 +807,7 @@ class TrainingScheduleGenerator
                         $current->copy(),
                         $breakEnd->copy(),
                         'BREAK',
-                        'Intervalo',
+                        self::BREAK_TITLE,
                         $this->breakMinutes,
                         null,
                         null,
@@ -819,19 +848,38 @@ class TrainingScheduleGenerator
                 }
 
                 $segment = $remaining;
-                $postLunchPauseRequired = false;
+                $postLunchBreakRequired = false;
 
                 if ($postLunch && $this->countsAsTraining($next['type'])) {
-                    $segment = min($segment, 60);
-                    $postLunchPauseRequired = true;
+                    $segmentMax = $postLunchFirstSessionAvailable ? 80 : 60;
+                    $segment = min($segment, $segmentMax);
+
+                    if ($postLunchFirstSessionAvailable) {
+                        $postLunchBreakRequired = true;
+                        $postLunchFirstSessionAvailable = false;
+                    }
                 }
 
-                $requiredTime = $segment + ($postLunchPauseRequired ? $afterLunchPause : 0);
+                $requiredTime = $segment + ($postLunchBreakRequired ? $afterLunchPause : 0);
                 $slotRemaining = $current->diffInMinutes($slotEnd, false);
 
                 if ($slotRemaining < $requiredTime) {
-                    break 2;
+                    if ($slotRemaining <= 0) {
+                        break 2;
+                    }
+
+                    if ($this->isSectionFromCatalog($next) && $slotRemaining < $nextMin) {
+                        break;
+                    }
+
+                    if ($postLunchBreakRequired && $slotRemaining > $afterLunchPause) {
+                        $segment = $slotRemaining - $afterLunchPause;
+                    } else {
+                        $segment = $slotRemaining;
+                    }
                 }
+
+                $segment = min($segment, $remaining);
 
                 $segmentStart = $current->copy();
                 $segmentEnd = $segmentStart->copy()->addMinutes($segment);
@@ -856,9 +904,14 @@ class TrainingScheduleGenerator
 
                 if ($this->countsAsTraining($next['type'])) {
                     $minutesSinceBreak += $segment;
+                } else {
+                    $minutesSinceBreak = 0;
                 }
 
-                if ($postLunchPauseRequired) {
+                $nextRemaining = $remaining - $segment;
+                $hasRemainingContent = $nextRemaining > 0 || ($index + 1) < count($items);
+
+                if ($postLunchBreakRequired && $hasRemainingContent) {
                     $pauseEnd = $current->copy()->addMinutes($afterLunchPause);
 
                     $generatedItems[] = $this->buildItemAttributes(
@@ -867,12 +920,12 @@ class TrainingScheduleGenerator
                         $current->copy(),
                         $pauseEnd->copy(),
                         'BREAK',
-                        'Pausa',
+                        self::BREAK_TITLE,
                         $afterLunchPause,
                         null,
                         null,
                         null,
-                        ['anchor' => 'after_lunch_pause'],
+                        ['anchor' => 'break'],
                         'AUTO',
                         false,
                     );
@@ -881,9 +934,9 @@ class TrainingScheduleGenerator
                     $minutesSinceBreak = 0;
                 }
 
-                $next['remaining_minutes'] = $remaining - $segment;
+                $next['remaining_minutes'] = $nextRemaining;
 
-                if ($next['remaining_minutes'] <= 0) {
+                if ($nextRemaining <= 0) {
                     $index++;
                 } else {
                     $items[$index] = $next;
@@ -895,7 +948,232 @@ class TrainingScheduleGenerator
             $unallocated = array_slice($items, $index);
         }
 
+        $generatedItems = $this->redistributeSlotMinutes($generatedItems, $slots, $postLunchStart);
+
         return ['items' => $generatedItems, 'unallocated' => $unallocated];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, array{start: Carbon, end: Carbon}>  $slots
+     * @return array<int, array<string, mixed>>
+     */
+    private function redistributeSlotMinutes(array $items, array $slots, ?Carbon $postLunchStart): array
+    {
+        foreach ($slots as $slot) {
+            if ($postLunchStart && $slot['start']->gte($postLunchStart)) {
+                continue;
+            }
+
+            $slotItems = [];
+
+            foreach ($items as $index => $item) {
+                $startsAt = $item['starts_at'] ?? null;
+                $endsAt = $item['ends_at'] ?? null;
+
+                if (! $startsAt || ! $endsAt) {
+                    continue;
+                }
+
+                if ($startsAt->gte($slot['start']) && $endsAt->lte($slot['end'])) {
+                    $slotItems[] = $index;
+                }
+            }
+
+            if ($slotItems === []) {
+                continue;
+            }
+
+            $sectionIndexes = [];
+            $sectionTotal = 0;
+            $fixedSectionTotal = 0;
+            $otherTotal = 0;
+            $durations = [];
+            $mins = [];
+            $maxs = [];
+
+            foreach ($slotItems as $index) {
+                $duration = (int) ($items[$index]['planned_duration_minutes'] ?? 0);
+                $durations[$index] = $duration;
+
+                if ($this->isSectionItem($items[$index])) {
+                    if ($this->hasFixedDuration($items[$index])) {
+                        $fixedSectionTotal += $duration;
+                    } else {
+                        $sectionIndexes[] = $index;
+                        $sectionTotal += $duration;
+                    }
+                    $suggested = (int) ($items[$index]['suggested_duration_minutes'] ?? $duration);
+                    $mins[$index] = (int) ($items[$index]['min_duration_minutes'] ?? ceil($suggested * 0.8));
+                    $maxs[$index] = (int) ($items[$index]['max_duration_minutes'] ?? ceil($suggested * 1.2));
+                } else {
+                    $otherTotal += $duration;
+                }
+            }
+
+            if ($sectionTotal <= 0 && $fixedSectionTotal <= 0) {
+                continue;
+            }
+
+            $slotMinutes = $slot['start']->diffInMinutes($slot['end'], false);
+            $availableForSections = $slotMinutes - $otherTotal - $fixedSectionTotal;
+
+            if ($availableForSections <= 0) {
+                continue;
+            }
+
+            $scaled = $sectionIndexes === []
+                ? []
+                : $this->scaleDurationsBounded($sectionIndexes, $durations, $mins, $maxs, $availableForSections);
+            $cursor = $slot['start']->copy();
+
+            foreach ($slotItems as $index) {
+                $duration = $durations[$index];
+
+                if (array_key_exists($index, $scaled)) {
+                    $duration = $scaled[$index];
+                    $items[$index]['planned_duration_minutes'] = $duration;
+                }
+
+                $items[$index]['starts_at'] = $cursor->copy();
+                $items[$index]['ends_at'] = $cursor->copy()->addMinutes($duration);
+                $cursor = $items[$index]['ends_at']->copy();
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param  array<int, int>  $sectionIndexes
+     * @param  array<int, int>  $durations
+     * @return array<int, int>
+     */
+    private function scaleDurationsBounded(
+        array $sectionIndexes,
+        array $durations,
+        array $mins,
+        array $maxs,
+        int $available,
+    ): array {
+        $total = 0;
+
+        foreach ($sectionIndexes as $index) {
+            $total += $durations[$index] ?? 0;
+        }
+
+        if ($total <= 0) {
+            return [];
+        }
+
+        $scaled = [];
+        $fractions = [];
+        $sum = 0;
+
+        foreach ($sectionIndexes as $index) {
+            $raw = ($durations[$index] / $total) * $available;
+            $floor = (int) floor($raw);
+            $min = (int) ($mins[$index] ?? 0);
+            $max = (int) ($maxs[$index] ?? $available);
+            $value = max($min, min($max, $floor));
+            $scaled[$index] = $value;
+            $sum += $value;
+            $fractions[$index] = $raw - $floor;
+        }
+
+        if ($sum === $available) {
+            return $scaled;
+        }
+
+        if ($sum < $available) {
+            $remainder = $available - $sum;
+            arsort($fractions);
+
+            while ($remainder > 0) {
+                $progress = false;
+
+                foreach (array_keys($fractions) as $index) {
+                    if ($remainder <= 0) {
+                        break;
+                    }
+
+                    $max = (int) ($maxs[$index] ?? $available);
+
+                    if ($scaled[$index] >= $max) {
+                        continue;
+                    }
+
+                    $scaled[$index]++;
+                    $remainder--;
+                    $progress = true;
+                }
+
+                if (! $progress) {
+                    break;
+                }
+            }
+        }
+
+        if ($sum > $available) {
+            $excess = $sum - $available;
+            asort($fractions);
+
+            while ($excess > 0) {
+                $progress = false;
+
+                foreach (array_keys($fractions) as $index) {
+                    if ($excess <= 0) {
+                        break;
+                    }
+
+                    $min = (int) ($mins[$index] ?? 0);
+
+                    if ($scaled[$index] <= $min) {
+                        continue;
+                    }
+
+                    $scaled[$index]--;
+                    $excess--;
+                    $progress = true;
+                }
+
+                if (! $progress) {
+                    break;
+                }
+            }
+        }
+
+        return $scaled;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    private function isSectionItem(array $item): bool
+    {
+        return ($item['type'] ?? null) === 'SECTION' && ! empty($item['section_id']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    private function hasFixedDuration(array $item): bool
+    {
+        $meta = $item['meta'] ?? null;
+
+        if (! is_array($meta)) {
+            return false;
+        }
+
+        return ($meta['fixed_duration'] ?? false) === true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    private function isSectionFromCatalog(array $item): bool
+    {
+        return ($item['type'] ?? null) === 'SECTION' && ! empty($item['section_id']);
     }
 
     /**
@@ -943,8 +1221,7 @@ class TrainingScheduleGenerator
         Carbon $dayStart,
         Carbon $dayEnd,
         string $dateKey,
-        array $settings,
-        bool $includeWelcome,
+        array $daySettings,
         array $lockedAnchors,
     ): array {
         $anchors = [];
@@ -970,8 +1247,8 @@ class TrainingScheduleGenerator
             ];
         }
 
-        if ($includeWelcome) {
-            $duration = $this->resolveWelcomeDurationMinutes($settings);
+        if (($daySettings['welcome_enabled'] ?? false) === true) {
+            $duration = $this->resolveWelcomeDurationMinutes($daySettings);
 
             if ($duration > 0 && $dayStart->lt($dayEnd)) {
                 $welcomeEnd = $dayStart->copy()->addMinutes($duration);
@@ -996,7 +1273,7 @@ class TrainingScheduleGenerator
             }
         }
 
-        $meals = $settings['meals'] ?? [];
+        $meals = $daySettings['meals'] ?? [];
 
         $anchors = array_merge($anchors, $this->buildMealAnchors($dateKey, $dayStart, $dayEnd, $meals, $minimumStart));
 
@@ -1020,7 +1297,7 @@ class TrainingScheduleGenerator
             $duration = (int) ($meals['breakfast']['duration_minutes'] ?? 30);
             $end = $start->copy()->addMinutes($duration);
 
-            if ($end->lte($dayEnd)) {
+            if ($end->lt($dayEnd)) {
                 $anchors[] = $this->buildMealAnchor($start, $end, 'Café da manhã', 'breakfast');
             }
         }
@@ -1032,7 +1309,7 @@ class TrainingScheduleGenerator
             $duration = (int) ($meals['lunch']['duration_minutes'] ?? 60);
             $end = $start->copy()->addMinutes($duration);
 
-            if ($end->lte($dayEnd)) {
+            if ($end->lt($dayEnd)) {
                 $anchors[] = $this->buildMealAnchor($start, $end, 'Almoço', 'lunch');
             }
         }
@@ -1044,7 +1321,7 @@ class TrainingScheduleGenerator
             $duration = (int) ($meals['afternoon_snack']['duration_minutes'] ?? 30);
             $end = $start->copy()->addMinutes($duration);
 
-            if ($end->lte($dayEnd)) {
+            if ($end->lt($dayEnd)) {
                 $anchors[] = $this->buildMealAnchor($start, $end, 'Lanche', 'afternoon_snack');
             }
         }
@@ -1059,7 +1336,7 @@ class TrainingScheduleGenerator
             $title = $substitute ? 'Lanche' : 'Jantar';
             $anchor = $substitute ? 'night_snack' : 'dinner';
 
-            if ($end->lte($dayEnd)) {
+            if ($end->lt($dayEnd)) {
                 $anchors[] = $this->buildMealAnchor($start, $end, $title, $anchor);
             }
         }
@@ -1092,6 +1369,19 @@ class TrainingScheduleGenerator
         $slot = Carbon::parse($dateKey.' '.$time);
 
         return $slot->gte($dayStart) && $slot->lt($dayEnd);
+    }
+
+    private function resolveDateKey(CarbonInterface|string|null $date): ?string
+    {
+        if ($date instanceof CarbonInterface) {
+            return $date->format('Y-m-d');
+        }
+
+        if (is_string($date) && $date !== '') {
+            return $date;
+        }
+
+        return null;
     }
 
     /**
@@ -1195,13 +1485,70 @@ class TrainingScheduleGenerator
         $merged['after_lunch_pause_minutes'] = (int) ($merged['after_lunch_pause_minutes'] ?? 10);
         $merged['after_lunch_pause_minutes'] = max(5, min(10, $merged['after_lunch_pause_minutes']));
 
+        $merged['meals'] = $this->normalizeMeals($merged['meals'] ?? []);
+
+        return $merged;
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     * @return array<string, mixed>
+     */
+    private function resolveDaySettings(array $settings, string $dateKey, bool $isFirstDay): array
+    {
+        $days = $settings['days'] ?? [];
+        $daySettings = $days[$dateKey] ?? [];
+        $daySettings = is_array($daySettings) ? $daySettings : [];
+
+        $defaults = [
+            'welcome_enabled' => $isFirstDay,
+            'welcome_duration_minutes' => (int) ($settings['welcome_duration_minutes'] ?? 30),
+            'meals' => $settings['meals'] ?? [],
+        ];
+
+        $merged = array_replace_recursive($defaults, $daySettings);
+        $merged['welcome_enabled'] = (bool) ($merged['welcome_enabled'] ?? false);
+        $merged['welcome_duration_minutes'] = $this->resolveWelcomeDurationMinutes($merged);
+        $merged['meals'] = $this->normalizeMeals($merged['meals'] ?? []);
+
+        return $merged;
+    }
+
+    /**
+     * @param  array<string, mixed>  $meals
+     * @return array<string, mixed>
+     */
+    private function normalizeMeals(array $meals): array
+    {
+        $defaults = [
+            'breakfast' => [
+                'enabled' => true,
+                'duration_minutes' => 30,
+            ],
+            'lunch' => [
+                'enabled' => true,
+                'duration_minutes' => 60,
+            ],
+            'afternoon_snack' => [
+                'enabled' => true,
+                'duration_minutes' => 30,
+            ],
+            'dinner' => [
+                'enabled' => true,
+                'duration_minutes' => 60,
+                'substitute_snack' => false,
+            ],
+        ];
+
+        $merged = array_replace_recursive($defaults, $meals);
+
         foreach (['breakfast', 'lunch', 'afternoon_snack', 'dinner'] as $mealKey) {
-            $meal = $merged['meals'][$mealKey] ?? [];
-            $merged['meals'][$mealKey]['enabled'] = (bool) ($meal['enabled'] ?? true);
-            $merged['meals'][$mealKey]['duration_minutes'] = (int) ($meal['duration_minutes'] ?? 30);
+            $meal = $merged[$mealKey] ?? [];
+            $merged[$mealKey]['enabled'] = (bool) ($meal['enabled'] ?? true);
+            $merged[$mealKey]['duration_minutes'] = (int) ($meal['duration_minutes'] ?? 30);
         }
 
-        $merged['meals']['dinner']['substitute_snack'] = (bool) ($merged['meals']['dinner']['substitute_snack'] ?? false);
+        $merged['dinner']['substitute_snack'] = (bool) ($merged['dinner']['substitute_snack'] ?? false);
 
         return $merged;
     }
@@ -1214,7 +1561,11 @@ class TrainingScheduleGenerator
             return true;
         }
 
-        return $item->origin === 'AUTO' && in_array($item->type, ['BREAK', 'MEAL', 'WELCOME'], true);
+        if (in_array($item->type, ['WELCOME'], true)) {
+            return true;
+        }
+
+        return $item->origin === 'AUTO' && in_array($item->type, ['BREAK', 'MEAL'], true);
     }
 
     private function isSegmentItem(TrainingScheduleItem $item): bool
