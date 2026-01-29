@@ -39,11 +39,18 @@ class TrainingScheduleController extends Controller
             abort(404);
         }
 
+        if ($item->is_locked) {
+            abort(403);
+        }
+
         $validated = $request->validated();
-        $sourceDate = $item->date?->format('Y-m-d');
         $date = Carbon::createFromFormat('Y-m-d', $validated['date']);
         $startsAt = Carbon::createFromFormat('Y-m-d H:i:s', $validated['starts_at'])
             ->setDate($date->year, $date->month, $date->day);
+
+        if (! array_key_exists('planned_duration_minutes', $validated)) {
+            $startsAt = $startsAt->copy()->subSecond();
+        }
 
         $duration = (int) ($validated['planned_duration_minutes'] ?? $item->planned_duration_minutes);
 
@@ -57,23 +64,15 @@ class TrainingScheduleController extends Controller
 
         $item->planned_duration_minutes = $duration;
         $item->origin = 'TEACHER';
+        $item->date = $date->format('Y-m-d');
+        $item->starts_at = $startsAt->copy();
+        $item->ends_at = $startsAt->copy()->addMinutes($duration);
+        $item->save();
 
-        $targetDate = $date->format('Y-m-d');
-        $generator->repositionItem($training, $item, $startsAt, $targetDate);
-
-        $datesToCheck = collect([$sourceDate, $targetDate])->filter()->unique();
-        foreach ($datesToCheck as $dateKey) {
-            $generator->markConflicts(
-                $training->scheduleItems()
-                    ->whereDate('date', $dateKey)
-                    ->orderBy('starts_at')
-                    ->get(),
-            );
-        }
+        $generator->generate($training, 'AUTO_ONLY');
 
         return response()->json([
             'ok' => true,
-            'item' => $item->fresh(),
         ]);
     }
 
@@ -89,7 +88,7 @@ class TrainingScheduleController extends Controller
 
         $duration = (int) $validated['planned_duration_minutes'];
 
-        $item = $training->scheduleItems()->create([
+        $training->scheduleItems()->create([
             'section_id' => null,
             'date' => $date->format('Y-m-d'),
             'starts_at' => $startsAt->copy(),
@@ -106,16 +105,10 @@ class TrainingScheduleController extends Controller
             'meta' => null,
         ]);
 
-        $generator->markConflicts(
-            $training->scheduleItems()
-                ->whereDate('date', $date->format('Y-m-d'))
-                ->orderBy('starts_at')
-                ->get(),
-        );
+        $generator->generate($training, 'AUTO_ONLY');
 
         return response()->json([
             'ok' => true,
-            'item' => $item->fresh(),
         ]);
     }
 
@@ -128,17 +121,9 @@ class TrainingScheduleController extends Controller
             abort(404);
         }
 
-        $date = $item->date?->format('Y-m-d');
         $item->delete();
 
-        if ($date) {
-            $generator->markConflicts(
-                $training->scheduleItems()
-                    ->whereDate('date', $date)
-                    ->orderBy('starts_at')
-                    ->get(),
-            );
-        }
+        $generator->generate($training, 'AUTO_ONLY');
 
         return response()->json([
             'ok' => true,

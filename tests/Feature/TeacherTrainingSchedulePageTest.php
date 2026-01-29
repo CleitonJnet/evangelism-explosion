@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
@@ -12,7 +13,8 @@ uses(RefreshDatabase::class);
 it('shows the training schedule page for teachers', function () {
     $teacher = User::factory()->create();
     $role = Role::query()->create(['name' => 'Teacher']);
-    $training = Training::factory()->create();
+    $course = Course::factory()->create();
+    $training = Training::factory()->create(['course_id' => $course->id]);
     $eventDate = $training->eventDates->first();
 
     TrainingScheduleItem::factory()->create([

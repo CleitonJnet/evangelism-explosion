@@ -21,7 +21,7 @@ class Training extends Model
 
     public const OJT_POLICY_FIXED = 'FIXED';
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'kits', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'ojt_count_override', 'ojt_policy_override'];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'kits', 'totStudents', 'totChurches', 'totNewChurches', 'totPastors', 'totKitsReceived', 'totKitsUsed', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'ojt_count_override', 'ojt_policy_override'];
 
     /**
      * @return array<string, string>
@@ -31,6 +31,7 @@ class Training extends Model
         return [
             'status' => TrainingStatus::class,
             'welcome_duration_minutes' => 'integer',
+            'schedule_settings' => 'array',
             'ojt_count_override' => 'integer',
         ];
     }

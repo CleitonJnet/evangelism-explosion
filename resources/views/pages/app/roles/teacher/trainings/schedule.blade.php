@@ -27,10 +27,16 @@
         $storeUrl = route('app.teacher.trainings.schedule-items.store', [
             'training' => $training->id,
         ]);
+        $settingsUrl = route('app.teacher.trainings.schedule.settings', [
+            'training' => $training->id,
+        ]);
     @endphp
 
     <div x-data="trainingScheduleBoard({
         regenerateUrl: @js(route('app.teacher.trainings.schedule.regenerate', $training)),
+        settingsUrl: @js($settingsUrl),
+        settings: @js($scheduleSettings),
+        welcomeDuration: @js($training->welcome_duration_minutes ?? 30),
         storeUrl: @js($storeUrl),
         updateUrlTemplate: @js($updateTemplate),
         deleteUrlTemplate: @js($deleteTemplate),
@@ -58,6 +64,137 @@
                         x-on:click="regenerate" x-bind:disabled="busy" />
                 </div>
             </div>
+            <div class="mt-4 flex flex-wrap gap-4">
+                <div class="rounded-xl border border-[color:var(--ee-app-border)] bg-white/80 px-4 py-3">
+                    <div class="text-xs uppercase text-[color:var(--ee-app-muted)]">
+                        {{ __('Carga horária total') }}
+                    </div>
+                    <div class="text-sm font-semibold text-heading">
+                        {{ $totalWorkloadLabel }}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-50 via-white to-slate-100 p-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <flux:heading size="sm" level="2">{{ __('Configurações da programação') }}</flux:heading>
+                    <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
+                        {{ __('Defina refeições automáticas e ajustes rápidos do cronograma.') }}
+                    </flux:text>
+                </div>
+            </div>
+            <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                <div class="grid gap-3 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-heading">{{ __('Café da manhã') }}</span>
+                        <input type="checkbox" class="h-4 w-4"
+                            x-model="settings.meals.breakfast.enabled"
+                            x-on:change="saveSettings" />
+                    </div>
+                    <div class="text-xs text-[color:var(--ee-app-muted)]">
+                        {{ __('Janela padrão: 07:30–08:30') }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" min="5" max="180"
+                            class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                            x-model="settings.meals.breakfast.duration_minutes"
+                            x-bind:disabled="!settings.meals.breakfast.enabled"
+                            x-on:change="saveSettings" />
+                        <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                    </div>
+                </div>
+                <div class="grid gap-3 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-heading">{{ __('Almoço') }}</span>
+                        <input type="checkbox" class="h-4 w-4"
+                            x-model="settings.meals.lunch.enabled"
+                            x-on:change="saveSettings" />
+                    </div>
+                    <div class="text-xs text-[color:var(--ee-app-muted)]">
+                        {{ __('Início padrão: 12:00') }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" min="5" max="180"
+                            class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                            x-model="settings.meals.lunch.duration_minutes"
+                            x-bind:disabled="!settings.meals.lunch.enabled"
+                            x-on:change="saveSettings" />
+                        <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                    </div>
+                </div>
+                <div class="grid gap-3 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-heading">{{ __('Lanche da tarde') }}</span>
+                        <input type="checkbox" class="h-4 w-4"
+                            x-model="settings.meals.afternoon_snack.enabled"
+                            x-on:change="saveSettings" />
+                    </div>
+                    <div class="text-xs text-[color:var(--ee-app-muted)]">
+                        {{ __('Início padrão: 15:30') }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" min="5" max="180"
+                            class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                            x-model="settings.meals.afternoon_snack.duration_minutes"
+                            x-bind:disabled="!settings.meals.afternoon_snack.enabled"
+                            x-on:change="saveSettings" />
+                        <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                    </div>
+                </div>
+                <div class="grid gap-3 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-heading">{{ __('Jantar') }}</span>
+                        <input type="checkbox" class="h-4 w-4"
+                            x-model="settings.meals.dinner.enabled"
+                            x-on:change="saveSettings" />
+                    </div>
+                    <div class="text-xs text-[color:var(--ee-app-muted)]">
+                        {{ __('Início padrão: 18:00') }}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <input type="number" min="5" max="180"
+                                class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                                x-model="settings.meals.dinner.duration_minutes"
+                                x-bind:disabled="!settings.meals.dinner.enabled"
+                                x-on:change="saveSettings" />
+                            <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                        </div>
+                        <label class="flex items-center gap-2 text-xs text-[color:var(--ee-app-muted)]">
+                            <input type="checkbox" class="h-4 w-4"
+                                x-model="settings.meals.dinner.substitute_snack"
+                                x-bind:disabled="!settings.meals.dinner.enabled"
+                                x-on:change="saveSettings" />
+                            <span>{{ __('Substituir jantar por lanche') }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 grid gap-4 lg:grid-cols-3">
+                <div class="grid gap-2 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <span class="text-xs uppercase text-[color:var(--ee-app-muted)]">{{ __('Boas-vindas') }}</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" min="30" max="60"
+                            class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                            x-model="settings.welcome_duration_minutes"
+                            x-on:change="saveSettings" />
+                        <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                    </div>
+                </div>
+                <div class="grid gap-2 rounded-xl border border-[color:var(--ee-app-border)] bg-white p-4">
+                    <span class="text-xs uppercase text-[color:var(--ee-app-muted)]">{{ __('Pausa após almoço') }}</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" min="5" max="10"
+                            class="w-24 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                            x-model="settings.after_lunch_pause_minutes"
+                            x-on:change="saveSettings" />
+                        <span class="text-xs text-[color:var(--ee-app-muted)]">{{ __('min') }}</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="grid gap-6">
@@ -79,6 +216,28 @@
                                 <div class="text-xs text-[color:var(--ee-app-muted)]">
                                     {{ $eventDate->start_time }} - {{ $eventDate->end_time }}
                                 </div>
+                                @php
+                                    $summary = $daySummaries->get($dateKey);
+                                @endphp
+                                @if ($summary)
+                                    <div class="mt-2 flex flex-wrap items-center gap-3 text-xs text-[color:var(--ee-app-muted)]">
+                                        <span>{{ __('Carga do dia: :duration', ['duration' => $summary['day_label'] ?? '00h']) }}</span>
+                                        @if (($summary['overflow_minutes'] ?? 0) > 0)
+                                            <span class="font-semibold text-red-600">
+                                                {{ __('Excedente: :duration', ['duration' => $summary['overflow_label'] ?? '00h']) }}
+                                            </span>
+                                        @else
+                                            <span class="font-semibold text-emerald-600">
+                                                {{ __('Tempo restante: :duration', ['duration' => $summary['remaining_label'] ?? '00h']) }}
+                                            </span>
+                                        @endif
+                                        @if (! empty($summary['long_day_warning']))
+                                            <span class="font-semibold text-amber-600">
+                                                {{ __('Dia longo sem refeições') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                             <flux:button size="sm" type="button" variant="outline" icon="plus"
                                 tooltip="{{ __('Adicionar sessão') }}" aria-label="{{ __('Adicionar sessão') }}"
@@ -150,12 +309,16 @@
                                         <td class="px-3 py-2 whitespace-nowrap">
                                             <div class="flex items-center gap-2">
                                                 <button type="button"
-                                                    class="cursor-grab inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700"
+                                                    class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 {{ $item->is_locked ? 'cursor-not-allowed opacity-40' : 'cursor-grab' }}"
                                                     title="{{ __('Arrastar para reordenar') }}"
                                                     aria-label="{{ __('Arrastar para reordenar') }}"
-                                                    x-on:mousedown.stop="enableDrag({{ $item->id }})"
+                                                    @if (! $item->is_locked)
+                                                        x-on:mousedown.stop="enableDrag({{ $item->id }})"
+                                                    @endif
                                                     x-on:mouseup.window="disableDrag"
-                                                    x-on:touchstart.stop="enableDrag({{ $item->id }})"
+                                                    @if (! $item->is_locked)
+                                                        x-on:touchstart.stop="enableDrag({{ $item->id }})"
+                                                    @endif
                                                     x-on:touchend.window="disableDrag" x-on:mouseleave="disableDrag">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +340,25 @@
                                             @endif
                                         </td>
                                         <td class="px-3 py-2 whitespace-nowrap">
-                                            {{ $item->planned_duration_minutes }} {{ __('min') }}
+                                            @if ($item->type === 'SECTION' && $item->suggested_duration_minutes)
+                                                @php
+                                                    $minDuration = (int) ceil($item->suggested_duration_minutes * 0.8);
+                                                    $maxDuration = (int) floor($item->suggested_duration_minutes * 1.2);
+                                                @endphp
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <input type="number" min="{{ $minDuration }}"
+                                                        max="{{ $maxDuration }}"
+                                                        value="{{ $item->planned_duration_minutes }}"
+                                                        class="w-20 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                                                        x-on:change="updateDuration({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', $event.target.value)"
+                                                        @if ($item->is_locked) disabled @endif />
+                                                    <span class="text-xs text-[color:var(--ee-app-muted)]">
+                                                        {{ $minDuration }}-{{ $maxDuration }} {{ __('min') }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                {{ $item->planned_duration_minutes }} {{ __('min') }}
+                                            @endif
                                         </td>
                                         <td class="px-3 py-2 text-right">
                                             <div class="flex flex-wrap justify-end gap-2">
@@ -303,6 +484,10 @@
                         time: '',
                         duration: 60,
                     },
+                    settings: {
+                        ...config.settings,
+                        welcome_duration_minutes: Number(config.settings?.welcome_duration_minutes ?? config.welcomeDuration ?? 30),
+                    },
                     headers() {
                         return {
                             'Content-Type': 'application/json',
@@ -420,6 +605,76 @@
 
                         if (response.ok) {
                             window.location.reload();
+                        }
+                    },
+                    async saveSettings() {
+                        if (this.busy) {
+                            return;
+                        }
+
+                        this.busy = true;
+
+                        const payload = {
+                            welcome_duration_minutes: Number(this.settings.welcome_duration_minutes),
+                            schedule_settings: {
+                                meals: this.settings.meals,
+                                after_lunch_pause_minutes: Number(this.settings.after_lunch_pause_minutes),
+                            },
+                        };
+
+                        const response = await fetch(config.settingsUrl, {
+                            method: 'POST',
+                            headers: this.headers(),
+                            body: JSON.stringify(payload),
+                        });
+
+                        this.busy = false;
+
+                        if (response.ok) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        if (response.status === 422) {
+                            const data = await response.json();
+                            const message = data?.message || '{{ __('Confira os valores informados.') }}';
+                            window.alert(message);
+                        }
+                    },
+                    async updateDuration(id, date, startsAt, duration) {
+                        if (this.busy) {
+                            return;
+                        }
+
+                        const parsed = Number(duration);
+
+                        if (!Number.isFinite(parsed) || parsed <= 0) {
+                            return;
+                        }
+
+                        this.busy = true;
+
+                        const response = await fetch(this.urlFromTemplate(config.updateUrlTemplate, id), {
+                            method: 'PATCH',
+                            headers: this.headers(),
+                            body: JSON.stringify({
+                                date,
+                                starts_at: startsAt,
+                                planned_duration_minutes: parsed,
+                            }),
+                        });
+
+                        this.busy = false;
+
+                        if (response.ok) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        if (response.status === 422) {
+                            const data = await response.json();
+                            const message = data?.message || '{{ __('Confira os valores informados.') }}';
+                            window.alert(message);
                         }
                     },
                     async dropOn(date, startsAt) {
