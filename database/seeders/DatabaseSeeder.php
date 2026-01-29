@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Course;
 use App\Models\Ministry;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -32,6 +34,11 @@ class DatabaseSeeder extends Seeder
         Course::create(['id' => 8, 'order' => '1', 'execution' => 1, 'initials' => 'EPC',  'price' => '10,00', 'name' => 'Esperança Para Crianças', 'learnMoreLink' => 'https://beta.eebrasil.org.br/ministry/kids-ee', 'type' => 'implementation', 'targetAudience' => 'O Workshop Hope for Kids (EE-Kids) é destinado a professores, líderes de ministério infantil, pais e voluntários que desejam ser capacitados para apresentar o evangelho às crianças de forma bíblica, clara e adequada à sua faixa etária.', 'certificate' => null, 'color' => null, 'description' => null, 'knowhow' => null, 'logo' => null, 'banner' => null, 'ministry_id' => 2]);
 
         $this->call(SectionSeeder::class);
+
+        DB::table('course_user')->insert(['course_id'=> 1]);
+        User::findOrFail(1)->courseAsTeacher()->sync([1, 2, 3, 4, 5, 6, 7, 8]);
+
+
         $this->call(TrainingsSeeder::class);
     }
 }

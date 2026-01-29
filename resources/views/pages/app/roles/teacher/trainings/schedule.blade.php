@@ -1,7 +1,7 @@
 <x-layouts.app :title="__('Programação do treinamento')">
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')">
         <x-src.toolbar.button :href="route('app.teacher.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Detalhes')" icon="calendar" :tooltip="__('Detalhes do treinamento')" />
+        <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Detalhes')" icon="eye" :tooltip="__('Detalhes do treinamento')" />
         <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
         <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
             :tooltip="__('Programação do evento')" />

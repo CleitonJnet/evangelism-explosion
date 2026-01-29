@@ -8,8 +8,8 @@
 
 
     @can('access-teacher')
-        <flux:sidebar.item :href="route('app.teacher.dashboard')" :current="request()->routeIs('app.teacher.dashboard')"
-            wire:navigate :class="$sidebarItemClass">
+        <flux:sidebar.item icon="layout-grid" :href="route('app.teacher.dashboard')"
+            :current="request()->routeIs('app.teacher.dashboard')" wire:navigate :class="$sidebarItemClass">
             <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Dashboard') }}
                 <div style="text-shadow: 0 0 1px #000000"
                     class="absolute top-1/2 -translate-1/2 right-0 text-amber-200/90 {{ request()->routeIs('app.teacher.dashboard') ? 'opacity-100' : 'opacity-0' }}">
@@ -27,17 +27,7 @@
             </div>
         </flux:sidebar.item> --}}
 
-        {{-- <flux:sidebar.item :href="route('app.teacher.ministry.index')"
-            :current="request()->routeIs('app.teacher.ministry.*')" wire:navigate :class="$sidebarItemClass">
-            <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Ministérios') }}
-                <div style="text-shadow: 0 0 1px #000000"
-                    class="absolute top-1/2 -translate-1/2 right-0 text-amber-200/90 {{ request()->routeIs('app.teacher.ministry.*') ? 'opacity-100' : 'opacity-0' }}">
-                    &#10148;
-                </div>
-            </div>
-        </flux:sidebar.item> --}}
-
-        <flux:sidebar.item :href="route('app.teacher.training.index')"
+        <flux:sidebar.item icon="calendar" :href="route('app.teacher.training.index')"
             :current="request()->routeIs('app.teacher.training.*')" wire:navigate :class="$sidebarItemClass">
             <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Treinamentos') }}
                 <div style="text-shadow: 0 0 1px #000000"

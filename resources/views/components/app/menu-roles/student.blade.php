@@ -7,7 +7,7 @@
 
 
     @can('access-student')
-        <flux:sidebar.item :href="route('app.student.dashboard')" :current="request()->routeIs('app.student.dashboard')"
+        <flux:sidebar.item icon="layout-grid" :href="route('app.student.dashboard')" :current="request()->routeIs('app.student.dashboard')"
             wire:navigate :class="$sidebarItemClass">
             <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Dashboard') }}
                 <div style="text-shadow: 0 0 1px #000000"
@@ -16,7 +16,7 @@
                 </div>
             </div>
         </flux:sidebar.item>
-        <flux:sidebar.item :href="route('app.student.training.index')"
+        <flux:sidebar.item icon="calendar" :href="route('app.student.training.index')"
             :current="request()->routeIs('app.student.training.*')" wire:navigate :class="$sidebarItemClass">
             <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Trainings') }}
                 <div style="text-shadow: 0 0 1px #000000"

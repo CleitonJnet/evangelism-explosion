@@ -64,24 +64,24 @@ class UsersSeeder extends Seeder
             'church_id' => 6,
         ]);
 
-        $factoryCount = max(0, 5000 - 3);
+        $factoryCount = max(0, 100);
 
         User::factory()
             ->count($factoryCount)
             ->create();
 
-        $userOne->roles()->sync([1,2,3,4,5,6]);
+        $userOne->roles()->sync([1,2,3,4,5,6,7]);
         $userTwo->roles()->sync([1,2,3,4,5,6]);
         $userThree->roles()->sync([3,4,5,6]);
         $userFour->roles()->sync([1,3,4,5,6]);
-        $userFive->roles()->sync([1,2,3,4,5,6]);
+        $userFive->roles()->sync([1,2,3,4,5,6,7]);
 
-        $roleIds = [$director->id, $teacher->id, $facilitator->id, $mentor->id, $student->id];
+        $roleIds = [$board->id, $director->id, $teacher->id, $facilitator->id, $mentor->id, $student->id];
 
         User::query()
             ->whereDoesntHave('roles')
             ->select(['id'])
-            ->chunkById(200, function ($users) use ($roleIds): void {
+            ->chunkById(20, function ($users) use ($roleIds): void {
                 foreach ($users as $user) {
                     $user->roles()->attach(Arr::random($roleIds));
                 }

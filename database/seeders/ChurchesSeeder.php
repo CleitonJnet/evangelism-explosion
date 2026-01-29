@@ -148,7 +148,7 @@ class ChurchesSeeder extends Seeder
         );
 
         Church::factory()
-            ->count(1000)
+            ->count(20)
             ->create();
     }
 }
