@@ -31,6 +31,11 @@ class Schedule extends Component
     public Collection $scheduleItems;
 
     /**
+     * @var array<int, int>
+     */
+    public array $durationInputs = [];
+
+    /**
      * @var array{
      *     welcome_duration_minutes: int,
      *     after_lunch_pause_minutes: int,
@@ -79,8 +84,6 @@ class Schedule extends Component
 
     public string $totalWorkloadLabel = '00h';
 
-    public string $mode = 'AUTO_ONLY';
-
     public bool $modalOpen = false;
 
     /**
@@ -104,14 +107,7 @@ class Schedule extends Component
     public function regenerate(TrainingScheduleGenerator $generator): void
     {
         $this->authorizeTraining($this->training);
-
-        if (! in_array($this->mode, ['AUTO_ONLY', 'FULL'], true)) {
-            $this->dispatchScheduleAlert('Selecione um modo de regeneração válido.');
-
-            return;
-        }
-
-        $this->generateSchedule($generator, $this->mode);
+        $this->generateSchedule($generator, 'FULL');
         $this->refreshSchedule($generator);
     }
 
@@ -213,6 +209,27 @@ class Schedule extends Component
 
         $this->generateSchedule($generator, 'AUTO_ONLY');
         $this->refreshSchedule($generator);
+    }
+
+    public function applyDuration(TrainingScheduleGenerator $generator, int $id): void
+    {
+        $this->authorizeTraining($this->training);
+
+        $item = $this->scheduleItems->firstWhere('id', $id);
+
+        if (! $item || ! $item->date || ! $item->starts_at) {
+            return;
+        }
+
+        $duration = (int) ($this->durationInputs[$id] ?? 0);
+
+        $this->updateDuration(
+            $generator,
+            $id,
+            $item->date->format('Y-m-d'),
+            $item->starts_at->format('Y-m-d H:i:s'),
+            $duration,
+        );
     }
 
     public function moveItem(TrainingScheduleGenerator $generator, int $id, string $date, string $startsAt): void
@@ -391,6 +408,7 @@ class Schedule extends Component
         $this->eventDates = $this->training->eventDates;
         $this->scheduleItems = $this->training->scheduleItems;
         $this->scheduleSettings = $this->resolveScheduleSettings($generator);
+        $this->syncDurationInputs();
 
         $this->applyScheduleAdjustments($generator);
 
@@ -462,6 +480,21 @@ class Schedule extends Component
         return $remaining > 0
             ? sprintf('%02dh %02dmin', $hours, $remaining)
             : sprintf('%02dh', $hours);
+    }
+
+    private function syncDurationInputs(): void
+    {
+        $this->durationInputs = $this->scheduleItems
+            ->mapWithKeys(function (TrainingScheduleItem $item): array {
+                $duration = (int) $item->planned_duration_minutes;
+
+                if ($duration <= 0) {
+                    $duration = (int) ($item->suggested_duration_minutes ?? 60);
+                }
+
+                return [$item->id => $duration];
+            })
+            ->toArray();
     }
 
     private function buildStartsAt(string $date, string $time): ?string
@@ -756,6 +789,7 @@ class Schedule extends Component
                 $this->eventDates = $this->training->eventDates;
                 $this->scheduleItems = $this->training->scheduleItems;
                 $this->scheduleSettings = $this->resolveScheduleSettings($generator);
+                $this->syncDurationInputs();
             }
 
             return;
@@ -772,6 +806,7 @@ class Schedule extends Component
         $this->eventDates = $this->training->eventDates;
         $this->scheduleItems = $this->training->scheduleItems;
         $this->scheduleSettings = $this->resolveScheduleSettings($generator);
+        $this->syncDurationInputs();
 
         if ($this->removeConsecutiveScheduleItems()) {
             $this->training->load([
@@ -782,6 +817,7 @@ class Schedule extends Component
 
             $this->eventDates = $this->training->eventDates;
             $this->scheduleItems = $this->training->scheduleItems;
+            $this->syncDurationInputs();
         }
     }
 

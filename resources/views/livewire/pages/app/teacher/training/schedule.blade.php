@@ -16,11 +16,9 @@
                 </flux:text>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <select wire:model="mode"
-                    class="rounded-md border border-[color:var(--ee-app-border)] bg-white px-3 py-2 text-sm">
-                    <option value="AUTO_ONLY">{{ __('Regenerar automático') }}</option>
-                    <option value="FULL">{{ __('Regenerar tudo') }}</option>
-                </select>
+                <span class="text-xs font-semibold text-[color:var(--ee-app-muted)]">
+                    {{ __('Regenerar agenda (reset padrão)') }}
+                </span>
                 <flux:button variant="primary" type="button" icon="arrow-path" tooltip="{{ __('Regenerar agenda') }}"
                     aria-label="{{ __('Regenerar agenda') }}" x-on:click="regenerate" x-bind:disabled="busy" />
             </div>
@@ -37,6 +35,12 @@
 
     @php
         $hasMultipleDays = $eventDates->count() > 1;
+        $lastEventDate = $eventDates->last();
+        $lastEventDateKey = $lastEventDate?->date;
+        $lastEventEnd =
+            $lastEventDate && $lastEventDate->end_time
+                ? \Carbon\Carbon::parse($lastEventDate->date . ' ' . $lastEventDate->end_time)
+                : null;
     @endphp
     <section class="grid gap-6">
         @forelse ($eventDates as $eventDate)
@@ -89,7 +93,8 @@
                                     </span>
                                 @endif
                                 <div class="text-sm font-semibold text-heading">
-                                    {{ \Carbon\Carbon::parse($dateKey)->format('d/m/Y') }}
+                                    {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($dateKey)->locale('pt_BR')->isoFormat('dddd')) }}
+                                    {{ \Carbon\Carbon::parse($dateKey)->format('d/m') }}
                                 </div>
                             </div>
                             <div class="text-xs text-[color:var(--ee-app-muted)]">
@@ -107,7 +112,7 @@
                             <label class="relative inline-flex items-center">
                                 <input type="checkbox"
                                     class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                    wire:model="scheduleSettings.days.{{ $dateKey }}.welcome_enabled"
+                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.welcome_enabled"
                                     wire:change="saveDaySettings('{{ $dateKey }}')" />
                                 <span
                                     class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
@@ -120,7 +125,7 @@
                             <label class="relative inline-flex items-center">
                                 <input type="checkbox"
                                     class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                    wire:model="scheduleSettings.days.{{ $dateKey }}.devotional_enabled"
+                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.devotional_enabled"
                                     wire:change="saveDaySettings('{{ $dateKey }}')" />
                                 <span
                                     class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
@@ -134,7 +139,7 @@
                                 <label class="relative inline-flex items-center">
                                     <input type="checkbox"
                                         class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model="scheduleSettings.days.{{ $dateKey }}.meals.breakfast.enabled"
+                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.breakfast.enabled"
                                         wire:change="saveDaySettings('{{ $dateKey }}')" />
                                     <span
                                         class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
@@ -164,7 +169,7 @@
                                 <label class="relative inline-flex items-center">
                                     <input type="checkbox"
                                         class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model="scheduleSettings.days.{{ $dateKey }}.meals.afternoon_snack.enabled"
+                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.afternoon_snack.enabled"
                                         wire:change="saveDaySettings('{{ $dateKey }}')" />
                                     <span
                                         class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
@@ -179,7 +184,7 @@
                                 <label class="relative inline-flex items-center">
                                     <input type="checkbox"
                                         class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model="scheduleSettings.days.{{ $dateKey }}.meals.dinner.enabled"
+                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.dinner.enabled"
                                         wire:change="saveDaySettings('{{ $dateKey }}')" />
                                     <span
                                         class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
@@ -226,6 +231,18 @@
                                             'id' => $item->conflict_reason['with'] ?? '-',
                                         ])
                                         : '';
+                                    $isOverflow = false;
+                                    if ($lastEventDateKey && $lastEventEnd) {
+                                        $itemDate = $item->date?->format('Y-m-d');
+                                        if ($itemDate && $itemDate > $lastEventDateKey) {
+                                            $isOverflow = true;
+                                        } elseif (
+                                            $itemDate === $lastEventDateKey &&
+                                            $item->ends_at?->gt($lastEventEnd)
+                                        ) {
+                                            $isOverflow = true;
+                                        }
+                                    }
                                     $rowIndex = $loop->index;
                                     $hour = (int) $item->starts_at->format('H');
                                     if ($hour < 12) {
@@ -240,6 +257,7 @@
                                     wire:key="schedule-item-{{ $item->id }}"
                                     :class="{
                                         'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
+                                        'text-red-600': {{ $isOverflow ? 'true' : 'false' }},
                                         'opacity-70': busy,
                                         'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId === {{ $item->id }},
                                         'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget
@@ -282,7 +300,7 @@
                                         </div>
                                     </td>
                                     <td class="px-3 py-2">
-                                        <div class="font-semibold text-heading">{{ $item->title }}</div>
+                                        <div class="font-semibold text-heading truncate">{{ $item->title }}</div>
                                         @if ($item->section?->devotional)
                                             <div class="text-xs text-[color:var(--ee-app-muted)]">
                                                 {{ $item->section->devotional }}
@@ -295,12 +313,12 @@
                                                 $minDuration = (int) ceil($item->suggested_duration_minutes * 0.8);
                                                 $maxDuration = (int) floor($item->suggested_duration_minutes * 1.2);
                                             @endphp
-                                            <div class="flex flex-wrap items-center gap-2">
+                                            <div class="flex items-center gap-2 truncate">
                                                 <input type="number" min="{{ $minDuration }}"
                                                     max="{{ $maxDuration }}"
-                                                    value="{{ $item->planned_duration_minutes }}"
                                                     class="w-20 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
-                                                    x-on:change="updateDuration({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', $event.target.value)"
+                                                    wire:model.blur="durationInputs.{{ $item->id }}"
+                                                    wire:blur="applyDuration({{ $item->id }})"
                                                     @if ($item->is_locked) disabled @endif />
                                                 <span class="text-xs text-[color:var(--ee-app-muted)]">
                                                     {{ $minDuration }}-{{ $maxDuration }} {{ __('min') }}
@@ -309,9 +327,9 @@
                                         @else
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <input type="number" min="1" max="720"
-                                                    value="{{ $item->planned_duration_minutes }}"
                                                     class="w-20 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
-                                                    x-on:change="updateDuration({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', $event.target.value)"
+                                                    wire:model.blur="durationInputs.{{ $item->id }}"
+                                                    wire:blur="applyDuration({{ $item->id }})"
                                                     @if ($item->is_locked) disabled @endif />
                                                 <span class="text-xs text-[color:var(--ee-app-muted)]">
                                                     {{ __('min') }}
@@ -320,7 +338,7 @@
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 text-right">
-                                        <div class="flex flex-wrap justify-end gap-2">
+                                        <div class="flex justify-end gap-0.5">
                                             <flux:button type="button" size="sm" variant="danger"
                                                 icon="trash" tooltip="{{ __('Remover sessão') }}"
                                                 aria-label="{{ __('Remover sessão') }}"
@@ -329,7 +347,7 @@
                                             <flux:button type="button" size="sm"
                                                 variant="{{ $item->is_locked ? 'outline' : 'primary' }}"
                                                 class="whitespace-nowrap"
-                                                icon="{{ $item->is_locked ? 'lock-open' : 'lock-closed' }}"
+                                                icon="{{ $item->is_locked ? 'lock-closed' : 'lock-open' }}"
                                                 tooltip="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
                                                 aria-label="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
                                                 x-on:click.stop="toggleLock({{ $item->id }}, {{ $item->is_locked ? 'false' : 'true' }})">
