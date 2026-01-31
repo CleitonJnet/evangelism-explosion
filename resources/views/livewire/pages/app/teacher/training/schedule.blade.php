@@ -1,37 +1,23 @@
 <div x-data="trainingScheduleBoard(@entangle('modalOpen'))" x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6">
-    <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')">
-        <x-src.toolbar.button :href="route('app.teacher.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Detalhes')" icon="eye" :tooltip="__('Detalhes do treinamento')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
-            :tooltip="__('Programação do evento')" />
-    </x-src.toolbar.bar>
-    <section
-        class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <flux:heading size="sm" level="2">{{ __('Agenda do treinamento') }}</flux:heading>
-                <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-                    {{ $training->course?->name ?? __('Curso não definido') }}
-                </flux:text>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <span class="text-xs font-semibold text-[color:var(--ee-app-muted)]">
-                    {{ __('Regenerar agenda (reset padrão)') }}
-                </span>
-                <flux:button variant="primary" type="button" icon="arrow-path" tooltip="{{ __('Regenerar agenda') }}"
-                    aria-label="{{ __('Regenerar agenda') }}" x-on:click="regenerate" x-bind:disabled="busy" />
-            </div>
+    <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
+        <div class="flex flex-wrap gap-2">
+            <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
+                :tooltip="__('Programação do evento')" />
         </div>
-    </section>
 
-    <section
-        class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-50 via-white to-slate-100 p-6">
-        <flux:heading size="sm" level="2">{{ __('Configurações por dia') }}</flux:heading>
-        <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-            {{ __('Ajuste as chaves no cabeçalho de cada dia do treinamento.') }}
-        </flux:text>
-    </section>
+        <label
+            class="flex flex-wrap items-center justify-end gap-3 cursor-pointer hover:bg-sky-950/5 transition duration-200 rounded-lg"
+            aria-label="{{ __('Regenerar agenda') }}">
+            <span class="text-xs max-w-24 text-right p-1 select-none">
+                {{ __('Reset para a agenda padrão') }}
+            </span>
+            <flux:button variant="primary" type="button" icon="arrow-path" tooltip="{{ __('Regenerar agenda') }}"
+                aria-label="{{ __('Regenerar agenda') }}" x-on:click="regenerate" x-bind:disabled="busy"
+                class="cursor-pointer" />
+        </label>
+    </x-src.toolbar.bar>
 
     @php
         $hasMultipleDays = $eventDates->count() > 1;
@@ -82,131 +68,55 @@
             <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
                 wire:key="schedule-day-{{ $dateKey }}"
                 @drop.prevent="dropOn('{{ $dateKey }}', '{{ $dayStart }}')">
-                <div class="mb-4">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div class="flex gap-2 items-center">
-                            <div class="flex flex-wrap items-center gap-2 border-r-2 border-sky-950 pr-2">
+                <div class="">
+                    <div class="flex flex-wrap items-start justify-between gap-2 pb-2">
+                        <div class="flex flex-col gap-1 items-end">
+                            <div
+                                class="flex flex-wrap items-center gap-2 rounded bg-sky-950 px-2 pt-1 pb-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-200">
                                 @if ($hasMultipleDays)
-                                    <span
-                                        class="rounded bg-sky-950 px-2 pt-1 pb-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-200">
-                                        {{ __('Dia') }} {{ $loop->iteration }}
+                                    <span class="">
+                                        {{ __('Dia') }} {{ $loop->iteration }}:
                                     </span>
                                 @endif
-                                <div class="text-sm font-semibold text-heading">
+                                <div class="font-semibold text-heading text-slate-50">
                                     {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($dateKey)->locale('pt_BR')->isoFormat('dddd')) }}
+                                    -
                                     {{ \Carbon\Carbon::parse($dateKey)->format('d/m') }}
                                 </div>
                             </div>
-                            <div class="text-xs text-[color:var(--ee-app-muted)]">
+                            <div class="text-xs text-amber-700 px-2">
                                 {{ $eventDate->start_time }} - {{ $eventDate->end_time }}
                             </div>
                         </div>
-                        <flux:button size="sm" type="button" variant="outline" icon="plus"
-                            tooltip="{{ __('Adicionar sessão') }}" aria-label="{{ __('Adicionar sessão') }}"
-                            wire:click="openCreate('{{ $dateKey }}', '{{ substr($eventDate->start_time ?? '', 0, 5) }}')" />
-                    </div>
-                    <div
-                        class="mt-3 flex flex-wrap items-center justify-end py-2 gap-3 text-xs text-[color:var(--ee-app-muted)]">
-                        <div class="flex items-center gap-2">
-                            <span>{{ __('Boas-vindas') }}</span>
-                            <label class="relative inline-flex items-center">
-                                <input type="checkbox"
-                                    class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.welcome_enabled"
+                        <div
+                            class="flex flex-auto flex-wrap items-center justify-end gap-2 text-xs text-[color:var(--ee-app-muted)]">
+                            <x-app.switch-schedule :label="__('Recepção')" :key="$dateKey"
+                                wire:model.blur="scheduleSettings.days.{{ $dateKey }}.welcome_enabled"
+                                wire:change="saveDaySettings('{{ $dateKey }}')" />
+                            <x-app.switch-schedule :label="__('Devocional')" :key="$dateKey"
+                                wire:model.blur="scheduleSettings.days.{{ $dateKey }}.devotional_enabled"
+                                wire:change="saveDaySettings('{{ $dateKey }}')" />
+                            @if ($showBreakfast)
+                                <x-app.switch-schedule :label="__('Café')" :key="$dateKey"
+                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.breakfast.enabled"
                                     wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                <span
-                                    class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                <span
-                                    class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                            </label>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span>{{ __('Devocional') }}</span>
-                            <label class="relative inline-flex items-center">
-                                <input type="checkbox"
-                                    class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.devotional_enabled"
+                            @endif
+                            @if ($showLunch)
+                                <x-app.switch-schedule :label="__('Almoço')" :key="$dateKey"
+                                    wire:model="scheduleSettings.days.{{ $dateKey }}.meals.lunch.enabled"
                                     wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                <span
-                                    class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                <span
-                                    class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                            </label>
+                            @endif
+                            @if ($showSnack)
+                                <x-app.switch-schedule :label="__('Lanche')" :key="$dateKey"
+                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.afternoon_snack.enabled"
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                            @endif
+                            @if ($showDinner)
+                                <x-app.switch-schedule :label="__('Jantar')" :key="$dateKey"
+                                    wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.dinner.enabled"
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                            @endif
                         </div>
-                        @if ($showBreakfast)
-                            <div class="flex items-center gap-2">
-                                <span>{{ __('Café') }}</span>
-                                <label class="relative inline-flex items-center">
-                                    <input type="checkbox"
-                                        class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.breakfast.enabled"
-                                        wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                    <span
-                                        class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                    <span
-                                        class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                                </label>
-                            </div>
-                        @endif
-                        @if ($showLunch)
-                            <div class="flex items-center gap-2">
-                                <span>{{ __('Almoço') }}</span>
-                                <label class="relative inline-flex items-center">
-                                    <input type="checkbox"
-                                        class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model="scheduleSettings.days.{{ $dateKey }}.meals.lunch.enabled"
-                                        wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                    <span
-                                        class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                    <span
-                                        class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                                </label>
-                            </div>
-                        @endif
-                        @if ($showSnack)
-                            <div class="flex items-center gap-2">
-                                <span>{{ __('Lanche da tarde') }}</span>
-                                <label class="relative inline-flex items-center">
-                                    <input type="checkbox"
-                                        class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.afternoon_snack.enabled"
-                                        wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                    <span
-                                        class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                    <span
-                                        class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                                </label>
-                            </div>
-                        @endif
-                        @if ($showDinner)
-                            <div class="flex items-center gap-2">
-                                <span>{{ $dinnerLabel }}</span>
-                                <label class="relative inline-flex items-center">
-                                    <input type="checkbox"
-                                        class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                        wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.dinner.enabled"
-                                        wire:change="saveDaySettings('{{ $dateKey }}')" />
-                                    <span
-                                        class="h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-sky-950"></span>
-                                    <span
-                                        class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition peer-checked:translate-x-4"></span>
-                                </label>
-                                <label class="flex items-center gap-2">
-                                    <span>{{ __('Trocar por lanche') }}</span>
-                                    <span class="relative inline-flex h-5 w-9 items-center">
-                                        <input type="checkbox"
-                                            class="peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                                            wire:model="scheduleSettings.days.{{ $dateKey }}.meals.dinner.substitute_snack"
-                                            wire:change="saveDaySettings('{{ $dateKey }}')"
-                                            @if (!data_get($scheduleSettings, "days.$dateKey.meals.dinner.enabled")) disabled @endif />
-                                        <span
-                                            class="absolute inset-0 rounded-full bg-slate-200 transition-colors duration-200 peer-checked:bg-sky-950"></span>
-                                        <span
-                                            class="absolute left-1 top-1 h-3 w-3 rounded-full bg-amber-400 transition-transform duration-200 peer-checked:translate-x-4"></span>
-                                    </span>
-                                </label>
-                            </div>
-                        @endif
                     </div>
                 </div>
 
@@ -216,10 +126,9 @@
                         <thead
                             class="text-xs bg-linear-to-b from-sky-200 to-sky-300 uppercase text-[color:var(--ee-app-muted)]">
                             <tr class="border-b border-[color:var(--ee-app-border)]">
-                                <th class="px-3 py-2">{{ __('Horário') }}</th>
+                                <th class="px-3 py-2 w-36">{{ __('Horário') }}</th>
                                 <th class="px-3 py-2">{{ __('Sessão') }}</th>
-                                <th class="px-3 py-2">{{ __('Duração') }}</th>
-                                <th class="px-3 py-2 text-right">{{ __('Ações') }}</th>
+                                <th class="px-3 py-2 w-36">{{ __('Duração') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[color:var(--ee-app-border)]">
@@ -246,11 +155,11 @@
                                     $rowIndex = $loop->index;
                                     $hour = (int) $item->starts_at->format('H');
                                     if ($hour < 12) {
-                                        $periodClass = 'bg-sky-100/30';
+                                        $periodClass = 'odd:bg-lime-100/30 even:bg-lime-100/40';
                                     } elseif ($hour < 18) {
-                                        $periodClass = 'bg-amber-100/30';
+                                        $periodClass = 'odd:bg-amber-100/30 even:bg-amber-100/40';
                                     } else {
-                                        $periodClass = 'bg-indigo-100/50';
+                                        $periodClass = 'odd:bg-indigo-100/50 even:bg-indigo-100/65';
                                     }
                                 @endphp
                                 <tr class="items-center {{ $periodClass }}"
@@ -281,26 +190,27 @@
                                     <td class="px-3 py-2 whitespace-nowrap">
                                         <div class="flex items-center gap-2">
                                             <button type="button"
-                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 {{ $item->is_locked ? 'cursor-not-allowed opacity-40' : 'cursor-grab' }}"
+                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 hover:bg-sky-500 {{ $item->is_locked ? 'cursor-not-allowed opacity-40' : 'cursor-grab' }}"
                                                 title="{{ __('Arrastar para reordenar') }}"
                                                 aria-label="{{ __('Arrastar para reordenar') }}"
                                                 @if (!$item->is_locked) x-on:mousedown.stop="enableDrag({{ $item->id }})" @endif
                                                 x-on:mouseup.window="disableDrag"
                                                 @if (!$item->is_locked) x-on:touchstart.stop="enableDrag({{ $item->id }})" @endif
                                                 x-on:touchend.window="disableDrag" x-on:mouseleave="disableDrag">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
+                                                        stroke-width="3"
                                                         d="M8 6h.01M12 6h.01M16 6h.01M8 12h.01M12 12h.01M16 12h.01M8 18h.01M12 18h.01M16 18h.01" />
                                                 </svg>
                                             </button>
-                                            <span>{{ $item->starts_at->format('H:i') }} -
+                                            <span class="font-light text-xs">{{ $item->starts_at->format('H:i') }} -
                                                 {{ $item->ends_at->format('H:i') }}</span>
                                         </div>
                                     </td>
                                     <td class="px-3 py-2">
-                                        <div class="font-semibold text-heading truncate">{{ $item->title }}</div>
+                                        <div class="font-medium text-heading">{{ $item->title }}
+                                        </div>
                                         @if ($item->section?->devotional)
                                             <div class="text-xs text-[color:var(--ee-app-muted)]">
                                                 {{ $item->section->devotional }}
@@ -313,51 +223,39 @@
                                                 $minDuration = (int) ceil($item->suggested_duration_minutes * 0.8);
                                                 $maxDuration = (int) floor($item->suggested_duration_minutes * 1.2);
                                             @endphp
-                                            <div class="flex items-center gap-2 truncate">
+                                            <div class="flex items-center gap-2">
                                                 <input type="number" min="{{ $minDuration }}"
                                                     max="{{ $maxDuration }}"
-                                                    class="w-20 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                                                    class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
                                                     wire:blur="applyDuration({{ $item->id }})"
                                                     @if ($item->is_locked) disabled @endif />
-                                                <span class="text-xs text-[color:var(--ee-app-muted)]">
-                                                    {{ $minDuration }}-{{ $maxDuration }} {{ __('min') }}
-                                                </span>
+                                                <div class="text-[10px] text-[color:var(--ee-app-muted)] flex flex-col">
+                                                    <div>
+                                                        {{ __('de') }}<span class="font-bold">
+                                                            {{ $minDuration }}-{{ $maxDuration }}
+                                                        </span>
+                                                    </div>
+                                                    <div>{{ __('minutes') }}</div>
+                                                </div>
                                             </div>
                                         @else
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <input type="number" min="1" max="720"
-                                                    class="w-20 rounded-md border border-[color:var(--ee-app-border)] px-2 py-1 text-sm"
+                                                    class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
                                                     wire:blur="applyDuration({{ $item->id }})"
                                                     @if ($item->is_locked) disabled @endif />
                                                 <span class="text-xs text-[color:var(--ee-app-muted)]">
-                                                    {{ __('min') }}
+                                                    {{ __('minutes') }}
                                                 </span>
                                             </div>
                                         @endif
                                     </td>
-                                    <td class="px-3 py-2 text-right">
-                                        <div class="flex justify-end gap-0.5">
-                                            <flux:button type="button" size="sm" variant="danger"
-                                                icon="trash" tooltip="{{ __('Remover sessão') }}"
-                                                aria-label="{{ __('Remover sessão') }}"
-                                                x-on:click.stop="deleteItem({{ $item->id }})">
-                                            </flux:button>
-                                            <flux:button type="button" size="sm"
-                                                variant="{{ $item->is_locked ? 'outline' : 'primary' }}"
-                                                class="whitespace-nowrap"
-                                                icon="{{ $item->is_locked ? 'lock-closed' : 'lock-open' }}"
-                                                tooltip="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
-                                                aria-label="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
-                                                x-on:click.stop="toggleLock({{ $item->id }}, {{ $item->is_locked ? 'false' : 'true' }})">
-                                            </flux:button>
-                                        </div>
-                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td class="px-3 py-4 text-xs text-[color:var(--ee-app-muted)]" colspan="4">
+                                    <td class="px-3 py-4 text-xs text-[color:var(--ee-app-muted)]" colspan="3">
                                         {{ __('Nenhum item para este dia.') }}
                                     </td>
                                 </tr>
