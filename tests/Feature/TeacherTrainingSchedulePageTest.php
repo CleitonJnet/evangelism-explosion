@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
 it('shows the training schedule page for teachers', function () {
     $teacher = User::factory()->create();
     $role = Role::query()->create(['name' => 'Teacher']);
-    $course = Course::factory()->create();
+    $course = Course::factory()->create(['name' => 'Treinamento Alpha']);
     $training = Training::factory()->create([
         'course_id' => $course->id,
         'teacher_id' => $teacher->id,
@@ -38,8 +38,36 @@ it('shows the training schedule page for teachers', function () {
         ->assertSuccessful()
         ->assertSeeLivewire(\App\Livewire\Pages\App\Teacher\Training\Schedule::class)
         ->assertSee('Programação do treinamento')
-        ->assertSee('Agenda do treinamento')
+        ->assertSee('Treinamento Alpha')
+        ->assertSee('Teacher')
+        ->assertSee('Training')
+        ->assertSee('Programação')
         ->assertSee('Arrastar para reordenar');
+});
+
+it('shows details before edit on the training edit breadcrumb', function () {
+    $teacher = User::factory()->create();
+    $role = Role::query()->create(['name' => 'Teacher']);
+    $course = Course::factory()->create();
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $teacher->roles()->attach($role->id);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.training.edit', $training))
+        ->assertSuccessful()
+        ->assertSee('Detalhes')
+        ->assertSee('Editar');
+});
+
+it('does not expose create, delete, or lock actions on the teacher schedule component', function () {
+    expect(method_exists(Schedule::class, 'openCreate'))->toBeFalse();
+    expect(method_exists(Schedule::class, 'createItem'))->toBeFalse();
+    expect(method_exists(Schedule::class, 'deleteItem'))->toBeFalse();
+    expect(method_exists(Schedule::class, 'toggleLock'))->toBeFalse();
 });
 
 it('keeps a single welcome session and inserts devotionals', function () {

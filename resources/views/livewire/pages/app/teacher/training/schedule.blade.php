@@ -420,28 +420,6 @@
                     this.busy = false;
                     this.clearDropTarget();
                 },
-                async toggleLock(id, shouldLock) {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-                    await this.$wire.toggleLock(id, shouldLock);
-                    this.busy = false;
-                },
-                async deleteItem(id) {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    if (!window.confirm('{{ __('Remover esta sessão?') }}')) {
-                        return;
-                    }
-
-                    this.busy = true;
-                    await this.$wire.deleteItem(id);
-                    this.busy = false;
-                },
             };
         };
     </script>

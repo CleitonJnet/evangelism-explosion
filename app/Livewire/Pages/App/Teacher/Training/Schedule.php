@@ -274,115 +274,9 @@ class Schedule extends Component
         $this->refreshSchedule($generator);
     }
 
-    public function toggleLock(TrainingScheduleGenerator $generator, int $id, bool $shouldLock): void
-    {
-        $this->authorizeTraining($this->training);
-
-        $item = TrainingScheduleItem::query()
-            ->where('training_id', $this->training->id)
-            ->findOrFail($id);
-
-        $item->is_locked = $shouldLock;
-        $item->save();
-
-        $this->refreshSchedule($generator);
-    }
-
-    public function deleteItem(TrainingScheduleGenerator $generator, int $id): void
-    {
-        $this->authorizeTraining($this->training);
-
-        $item = TrainingScheduleItem::query()
-            ->where('training_id', $this->training->id)
-            ->findOrFail($id);
-
-        $item->delete();
-
-        $this->generateSchedule($generator, 'AUTO_ONLY');
-        $this->refreshSchedule($generator);
-    }
-
-    public function openCreate(string $date, string $time): void
-    {
-        $this->authorizeTraining($this->training);
-
-        $this->form = [
-            'title' => '',
-            'type' => 'SECTION',
-            'date' => $date,
-            'time' => $time,
-            'duration' => 60,
-        ];
-
-        $this->modalOpen = true;
-    }
-
     public function closeModal(): void
     {
         $this->modalOpen = false;
-    }
-
-    public function createItem(TrainingScheduleGenerator $generator): void
-    {
-        $this->authorizeTraining($this->training);
-
-        $startsAt = $this->buildStartsAt($this->form['date'] ?? '', $this->form['time'] ?? '');
-
-        if (! $startsAt) {
-            $this->dispatchScheduleAlert('Informe a data e o horário inicial.');
-
-            return;
-        }
-
-        $duration = (int) ($this->form['duration'] ?? 0);
-        $duration = $this->normalizeIntervalDuration((string) ($this->form['type'] ?? ''), $duration);
-
-        $validator = Validator::make([
-            'date' => $this->form['date'] ?? '',
-            'starts_at' => $startsAt,
-            'planned_duration_minutes' => $duration,
-            'title' => $this->form['title'] ?? '',
-            'type' => $this->form['type'] ?? '',
-        ], $this->storeItemRules(), $this->storeItemMessages(), $this->storeItemAttributes());
-
-        if ($validator->fails()) {
-            $this->dispatchScheduleAlert($validator->errors()->first() ?? 'Confira os valores informados.');
-
-            return;
-        }
-
-        $dateValue = Carbon::createFromFormat('Y-m-d', (string) $this->form['date']);
-        $startValue = Carbon::createFromFormat('Y-m-d H:i:s', $startsAt)
-            ->setDate($dateValue->year, $dateValue->month, $dateValue->day);
-
-        $this->training->scheduleItems()->create([
-            'section_id' => null,
-            'date' => $dateValue->format('Y-m-d'),
-            'starts_at' => $startValue->copy(),
-            'ends_at' => $startValue->copy()->addMinutes($duration),
-            'type' => $this->form['type'],
-            'title' => $this->form['title'],
-            'planned_duration_minutes' => $duration,
-            'suggested_duration_minutes' => null,
-            'min_duration_minutes' => null,
-            'origin' => 'TEACHER',
-            'is_locked' => false,
-            'status' => 'OK',
-            'conflict_reason' => null,
-            'meta' => null,
-        ]);
-
-        $this->generateSchedule($generator, 'AUTO_ONLY');
-        $this->refreshSchedule($generator);
-
-        $this->modalOpen = false;
-        $this->form = [
-            'title' => '',
-            'type' => 'SECTION',
-            'date' => '',
-            'time' => '',
-            'duration' => 60,
-        ];
     }
 
     public function render(): View
@@ -495,15 +389,6 @@ class Schedule extends Component
                 return [$item->id => $duration];
             })
             ->toArray();
-    }
-
-    private function buildStartsAt(string $date, string $time): ?string
-    {
-        if (! $date || ! $time) {
-            return null;
-        }
-
-        return sprintf('%s %s:00', $date, $time);
     }
 
     /**
@@ -666,55 +551,6 @@ class Schedule extends Component
             'date' => 'data',
             'starts_at' => 'horário inicial',
             'planned_duration_minutes' => 'duração',
-        ];
-    }
-
-    /**
-     * @return array<string, array<int, string>>
-     */
-    private function storeItemRules(): array
-    {
-        return [
-            'date' => ['required', 'date_format:Y-m-d'],
-            'starts_at' => ['required', 'date_format:Y-m-d H:i:s'],
-            'planned_duration_minutes' => ['required', 'integer', 'min:1', 'max:720'],
-            'title' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'max:50'],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function storeItemMessages(): array
-    {
-        return [
-            'date.required' => 'A data é obrigatória.',
-            'date.date_format' => 'A data deve estar no formato YYYY-MM-DD.',
-            'starts_at.required' => 'O horário inicial é obrigatório.',
-            'starts_at.date_format' => 'O horário inicial deve estar no formato YYYY-MM-DD HH:MM:SS.',
-            'planned_duration_minutes.required' => 'A duração é obrigatória.',
-            'planned_duration_minutes.integer' => 'A duração deve ser um número inteiro.',
-            'planned_duration_minutes.min' => 'A duração deve ser de ao menos 1 minuto.',
-            'planned_duration_minutes.max' => 'A duração deve ser de no máximo 720 minutos.',
-            'title.required' => 'O título é obrigatório.',
-            'title.max' => 'O título deve ter no máximo 255 caracteres.',
-            'type.required' => 'O tipo é obrigatório.',
-            'type.max' => 'O tipo deve ter no máximo 50 caracteres.',
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function storeItemAttributes(): array
-    {
-        return [
-            'date' => 'data',
-            'starts_at' => 'horário inicial',
-            'planned_duration_minutes' => 'duração',
-            'title' => 'título',
-            'type' => 'tipo',
         ];
     }
 
