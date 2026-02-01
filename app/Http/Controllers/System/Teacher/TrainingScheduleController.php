@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegenerateTrainingScheduleRequest;
 use App\Http\Requests\StoreTrainingScheduleItemRequest;
 use App\Http\Requests\UpdateTrainingScheduleItemRequest;
-use App\Http\Requests\UpdateTrainingScheduleSettingsRequest;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
 use App\Services\Schedule\TrainingScheduleGenerator;
@@ -159,27 +158,6 @@ class TrainingScheduleController extends Controller
         return response()->json([
             'ok' => true,
             'item' => $item->fresh(),
-        ]);
-    }
-
-    public function updateSettings(
-        UpdateTrainingScheduleSettingsRequest $request,
-        Training $training,
-        TrainingScheduleGenerator $generator,
-    ): JsonResponse {
-        $validated = $request->validated();
-
-        if (array_key_exists('welcome_duration_minutes', $validated)) {
-            $training->welcome_duration_minutes = $validated['welcome_duration_minutes'];
-        }
-
-        $training->schedule_settings = $validated['schedule_settings'];
-        $training->save();
-
-        $generator->generate($training, 'AUTO_ONLY');
-
-        return response()->json([
-            'ok' => true,
         ]);
     }
 }

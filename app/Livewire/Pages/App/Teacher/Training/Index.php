@@ -124,10 +124,10 @@ class Index extends Component
         return collect(TrainingStatus::cases())
             ->map(function (TrainingStatus $status): array {
                 $route = match ($status) {
-                    TrainingStatus::Planning => route('app.teacher.training.planning'),
-                    TrainingStatus::Scheduled => route('app.teacher.training.scheduled'),
-                    TrainingStatus::Canceled => route('app.teacher.training.canceled'),
-                    TrainingStatus::Completed => route('app.teacher.training.completed'),
+                    TrainingStatus::Planning => route('app.teacher.trainings.planning'),
+                    TrainingStatus::Scheduled => route('app.teacher.trainings.scheduled'),
+                    TrainingStatus::Canceled => route('app.teacher.trainings.canceled'),
+                    TrainingStatus::Completed => route('app.teacher.trainings.completed'),
                 };
 
                 return [

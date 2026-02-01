@@ -2,7 +2,7 @@
     <x-src.toolbar.bar :title="__('On-The-Job Training')" :description="__('Manage OJT sessions for this training.')">
         <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('List trainings')" icon="list" :tooltip="__('All trainings')" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Details')" icon="eye" :tooltip="__('Training details')" />
-        <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Schedule')" icon="calendar" :tooltip="__('Training schedule')" />
+        <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Schedule')" icon="calendar" :tooltip="__('Training schedule')" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.ojt.sessions.index', $training)" :label="__('OJT')" icon="users-chat" :active="true"
             :tooltip="__('On-The-Job Training')" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Edit')" icon="pencil" :tooltip="__('Edit training')" />

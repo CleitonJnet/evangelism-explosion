@@ -34,7 +34,7 @@ it('shows the training schedule page for teachers', function () {
     $teacher->roles()->attach($role->id);
 
     $this->actingAs($teacher)
-        ->get(route('app.teacher.training.schedule', $training))
+        ->get(route('app.teacher.trainings.schedule', $training))
         ->assertSuccessful()
         ->assertSeeLivewire(\App\Livewire\Pages\App\Teacher\Training\Schedule::class)
         ->assertSee('Programação do treinamento')
@@ -217,7 +217,7 @@ it('shows day labels when the training has multiple event dates', function () {
     $teacher->roles()->attach($role->id);
 
     $this->actingAs($teacher)
-        ->get(route('app.teacher.training.schedule', $training))
+        ->get(route('app.teacher.trainings.schedule', $training))
         ->assertSuccessful()
         ->assertSee('Dia 1')
         ->assertSee('Dia 2');
