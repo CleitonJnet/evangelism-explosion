@@ -1,8 +1,8 @@
 <div x-data="trainingScheduleBoard(@entangle('modalOpen'))" x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6">
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2">
-            <x-src.toolbar.button :href="route('app.teacher.training.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
-            <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
             <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
                 :tooltip="__('Programação do evento')" />
         </div>

@@ -57,7 +57,7 @@ it('shows details before edit on the training edit breadcrumb', function () {
     $teacher->roles()->attach($role->id);
 
     $this->actingAs($teacher)
-        ->get(route('app.teacher.training.edit', $training))
+        ->get(route('app.teacher.trainings.edit', $training))
         ->assertSuccessful()
         ->assertSee('Detalhes')
         ->assertSee('Editar');
