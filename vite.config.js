@@ -17,18 +17,19 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        host: "0.0.0.0", // importante: escuta em todas as interfaces
+        host: "127.0.0.1", // importante: escuta em todas as interfaces
         port: 5173, // porta padrão do vite (pode mudar)
         strictPort: false, // se a porta estiver ocupada, pode usar outra (mude para true se quiser falhar)
+        // hmr: { host: "evangelism-explosion.test" },
         // // hmr: configura onde os clientes de HMR devem se conectar
-        // hmr: {
-        //     host: "192.168.1.16", // <-- substitua pelo IP da sua máquina na LAN.
-        //     port: 5173,
-        //     protocol: "ws", // 'ws' para http, 'wss' para https
-        // },
-        // cors: true,
-        // watch: {
-        //     ignored: ["**/storage/framework/views/**"],
-        // },
+        hmr: {
+            host: "127.0.0.1", // <-- substitua pelo IP da sua máquina na LAN.
+            port: 5173,
+            protocol: "ws", // 'ws' para http, 'wss' para https
+        },
+        cors: true,
+        watch: {
+            ignored: ["**/storage/framework/views/**"],
+        },
     },
 });
