@@ -333,7 +333,7 @@ class Create extends Component
 
         $generator->generate($training, 'FULL');
 
-        $this->redirectRoute('app.teacher.training.show', ['training' => $training->id]);
+        $this->redirectRoute('app.teacher.trainings.show', ['training' => $training->id]);
     }
 
     public function render(): View

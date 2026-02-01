@@ -27,7 +27,7 @@
             </div>
         </flux:sidebar.item> --}}
 
-        <flux:sidebar.item icon="calendar" :href="route('app.teacher.training.index')"
+        <flux:sidebar.item icon="calendar" :href="route('app.teacher.trainings.index')"
             :current="request()->routeIs('app.teacher.training.*')" wire:navigate :class="$sidebarItemClass">
             <div class="relative"><span class="text-lg">&#10174;</span> {{ __('Treinamentos') }}
                 <div style="text-shadow: 0 0 1px #000000"

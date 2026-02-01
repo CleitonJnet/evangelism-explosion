@@ -1,8 +1,8 @@
 <x-layouts.app :title="__('Treinamento')">
     <div x-data="{ showDeleteModal: false }" x-on:keydown.escape.window="showDeleteModal = false">
         <x-src.toolbar.bar :title="__('Detalhes do treinamento')" :description="__('Acompanhe informações, agenda e participantes do treinamento selecionado.')">
-            <x-src.toolbar.button :href="route('app.teacher.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
-            <x-src.toolbar.button :href="route('app.teacher.training.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
             <x-src.toolbar.button :href="route('app.teacher.training.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.ojt.sessions.index', $training)" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
@@ -15,7 +15,7 @@
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
             x-on:click.self="showDeleteModal = false">
             <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
-                <form method="POST" action="{{ route('app.teacher.training.destroy', $training) }}"
+                <form method="POST" action="{{ route('app.teacher.trainings.destroy', $training) }}"
                     class="flex flex-col gap-6">
                     @csrf
                     @method('DELETE')

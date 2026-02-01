@@ -11,7 +11,7 @@
             </div>
             <div class="h-px w-full bg-slate-200/90"></div>
             <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
-                <x-src.toolbar.button :href="route('app.teacher.training.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
+                <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
             </div>
         </x-src.toolbar.bar>
     </div>

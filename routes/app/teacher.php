@@ -19,29 +19,29 @@ Route::middleware('can:access-teacher')
     ->group(function () {
         Route::view('/', 'pages.app.roles.teacher.dashboard')->name('dashboard');
 
-        Route::prefix('church')->name('church.')->group(function () {
+        Route::prefix('churches')->name('church.')->group(function () {
             Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
             Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
             Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
         });
-        Route::resource('church', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
+        Route::resource('churches', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
 
-        Route::prefix('church/{church}')->name('church.')->group(function () {
+        Route::prefix('churches/{church}')->name('church.')->group(function () {
             Route::resource('profile', ProfileController::class)->only(['create', 'show', 'edit']);
         });
 
         Route::resource('ministry', MinistryController::class)->only(['index', 'show', 'create', 'edit']);
-        Route::prefix('ministry/{ministry}')->name('ministry.')->group(function () {
+        Route::prefix('ministries/{ministry}')->name('ministry.')->group(function () {
             Route::resource('course', CourseController::class)->only(['create', 'show', 'edit']);
         });
 
-        Route::get('training/planning', [TrainingController::class, 'indexByStatus'])->name('training.planning')->defaults('status', 'planning');
-        Route::get('training/scheduled', [TrainingController::class, 'indexByStatus'])->name('training.scheduled')->defaults('status', 'scheduled');
-        Route::get('training/canceled', [TrainingController::class, 'indexByStatus'])->name('training.canceled')->defaults('status', 'canceled');
-        Route::get('training/completed', [TrainingController::class, 'indexByStatus'])->name('training.completed')->defaults('status', 'completed');
+        Route::get('trainings/planning', [TrainingController::class, 'indexByStatus'])->name('training.planning')->defaults('status', 'planning');
+        Route::get('trainings/scheduled', [TrainingController::class, 'indexByStatus'])->name('training.scheduled')->defaults('status', 'scheduled');
+        Route::get('trainings/canceled', [TrainingController::class, 'indexByStatus'])->name('training.canceled')->defaults('status', 'canceled');
+        Route::get('trainings/completed', [TrainingController::class, 'indexByStatus'])->name('training.completed')->defaults('status', 'completed');
 
-        Route::get('training/{training}/schedule', [TrainingController::class, 'schedule'])->name('training.schedule');
-        Route::resource('training', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);
+        Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])->name('training.schedule');
+        Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);
 
         Route::prefix('trainings/{training}')->name('trainings.')->group(function () {
             Route::post('schedule/regenerate', [TrainingScheduleController::class, 'regenerate'])->name('schedule.regenerate');

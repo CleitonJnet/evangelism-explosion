@@ -2,7 +2,7 @@
     @teleport('#app-toolbar')
         <div class="flex w-full flex-wrap items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
-                <x-src.toolbar.button :href="route('app.teacher.training.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
+                <x-src.toolbar.button :href="route('app.teacher.trainings.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
 
                 <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
 

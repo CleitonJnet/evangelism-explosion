@@ -63,6 +63,6 @@ class TrainingController extends Controller
     {
         $training->delete();
 
-        return redirect()->route('app.teacher.training.index');
+        return redirect()->route('app.teacher.trainings.index');
     }
 }

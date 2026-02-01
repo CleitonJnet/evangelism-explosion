@@ -105,7 +105,7 @@
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
-                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.training.show', $training->id)" />
+                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.trainings.show', $training->id)" />
             @endforeach
         </div>
         <div class="swiper-button-prev -left-2!"></div>

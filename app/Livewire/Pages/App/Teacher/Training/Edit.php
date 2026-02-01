@@ -389,7 +389,7 @@ class Edit extends Component
             $this->banner = $path;
         }
 
-        $this->redirectRoute('app.teacher.training.show', ['training' => $this->training->id]);
+        $this->redirectRoute('app.teacher.trainings.show', ['training' => $this->training->id]);
     }
 
     public function render(): View
