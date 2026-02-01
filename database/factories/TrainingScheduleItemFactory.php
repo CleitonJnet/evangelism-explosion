@@ -33,7 +33,7 @@ class TrainingScheduleItemFactory extends Factory
             'title' => fake()->sentence(3),
             'planned_duration_minutes' => $duration,
             'suggested_duration_minutes' => $duration,
-            'min_duration_minutes' => (int) ceil($duration * 0.75),
+            'min_duration_minutes' => (int) ceil($duration * 0.8),
             'origin' => 'AUTO',
             'is_locked' => false,
             'status' => 'OK',

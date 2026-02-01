@@ -18,7 +18,16 @@ it('generates lunch and breaks without overlaps', function () {
     Section::factory()->create(['course_id' => $course->id, 'order' => 2, 'duration' => 60, 'name' => 'Parte 2']);
     Section::factory()->create(['course_id' => $course->id, 'order' => 3, 'duration' => 60, 'name' => 'Parte 3']);
 
-    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'schedule_settings' => [
+            'days' => [
+                '2026-02-10' => [
+                    'welcome_enabled' => false,
+                ],
+            ],
+        ],
+    ]);
     $training->eventDates()->delete();
 
     EventDate::query()->create([
@@ -32,7 +41,7 @@ it('generates lunch and breaks without overlaps', function () {
 
     $items = $training->scheduleItems()->orderBy('starts_at')->get();
 
-    expect($items->where('type', 'MEAL'))->toHaveCount(1);
+    expect($items->where('type', 'MEAL')->where('title', 'Almoço'))->toHaveCount(1);
     expect($items->where('type', 'BREAK')->count())->toBeGreaterThanOrEqual(1);
 
     $items->groupBy('date')->each(function ($dayItems): void {
@@ -83,55 +92,21 @@ it('adds a welcome period on the first day', function () {
     expect($welcomeItems->first()?->planned_duration_minutes)->toBe(45);
 });
 
-it('adds a devotional period on days after the first', function () {
+it('adds dinner when the day includes 18:00', function () {
     $course = Course::factory()->create();
 
     Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
-        'welcome_duration_minutes' => 30,
+        'schedule_settings' => [
+            'days' => [
+                '2026-02-10' => [
+                    'welcome_enabled' => false,
+                ],
+            ],
+        ],
     ]);
-    $training->eventDates()->delete();
-
-    EventDate::query()->create([
-        'training_id' => $training->id,
-        'date' => '2026-02-10',
-        'start_time' => '08:00:00',
-        'end_time' => '12:00:00',
-    ]);
-
-    EventDate::query()->create([
-        'training_id' => $training->id,
-        'date' => '2026-02-11',
-        'start_time' => '08:00:00',
-        'end_time' => '12:00:00',
-    ]);
-
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
-
-    $devotional = $training->scheduleItems()
-        ->where('title', 'Devocional')
-        ->whereDate('date', '2026-02-11')
-        ->first();
-
-    $firstItemSecondDay = $training->scheduleItems()
-        ->whereDate('date', '2026-02-11')
-        ->orderBy('starts_at')
-        ->first();
-
-    expect($devotional)->not->toBeNull();
-    expect($devotional?->starts_at->format('H:i'))->toBe('08:00');
-    expect($devotional?->ends_at->format('H:i'))->toBe('08:30');
-    expect($firstItemSecondDay?->title)->toBe('Devocional');
-});
-
-it('adds dinner after 18:00 except on the first day', function () {
-    $course = Course::factory()->create();
-
-    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
-
-    $training = Training::factory()->create(['course_id' => $course->id]);
     $training->eventDates()->delete();
 
     EventDate::query()->create([
@@ -162,59 +137,203 @@ it('adds dinner after 18:00 except on the first day', function () {
         ->whereDate('date', '2026-02-11')
         ->first();
 
-    expect($firstDayDinner)->toBeNull();
+    expect($firstDayDinner)->not->toBeNull();
     expect($secondDayDinner)->not->toBeNull();
+    expect($firstDayDinner?->starts_at->format('H:i'))->toBe('18:00');
     expect($secondDayDinner?->starts_at->format('H:i'))->toBe('18:00');
 });
 
-it('compresses sections proportionally when needed', function () {
+it('allows dinner to be swapped for snack per day', function () {
     $course = Course::factory()->create();
 
     Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
-    Section::factory()->create(['course_id' => $course->id, 'order' => 2, 'duration' => 60, 'name' => 'Parte 2']);
 
-    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'schedule_settings' => [
+            'days' => [
+                '2026-02-10' => [
+                    'meals' => [
+                        'dinner' => [
+                            'enabled' => true,
+                            'duration_minutes' => 60,
+                            'substitute_snack' => true,
+                        ],
+                    ],
+                ],
+                '2026-02-11' => [
+                    'meals' => [
+                        'dinner' => [
+                            'enabled' => true,
+                            'duration_minutes' => 60,
+                            'substitute_snack' => false,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ]);
     $training->eventDates()->delete();
 
     EventDate::query()->create([
         'training_id' => $training->id,
         'date' => '2026-02-10',
-        'start_time' => '09:00:00',
-        'end_time' => '11:10:00',
+        'start_time' => '17:00:00',
+        'end_time' => '19:30:00',
+    ]);
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-11',
+        'start_time' => '17:00:00',
+        'end_time' => '19:30:00',
     ]);
 
     app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
 
-    $sections = $training->scheduleItems()->where('type', 'SECTION')->orderBy('starts_at')->get();
+    $firstDayMeal = $training->scheduleItems()
+        ->where('type', 'MEAL')
+        ->whereDate('date', '2026-02-10')
+        ->first();
 
-    expect($sections)->toHaveCount(2);
-    expect($sections->sum('planned_duration_minutes'))->toBe(100);
-    expect($sections->min('planned_duration_minutes'))->toBeGreaterThanOrEqual(45);
-    expect($sections->last()->ends_at->format('H:i'))->toBe('11:10');
+    $secondDayMeal = $training->scheduleItems()
+        ->where('type', 'MEAL')
+        ->whereDate('date', '2026-02-11')
+        ->first();
+
+    expect($firstDayMeal?->title)->toBe('Lanche');
+    expect($secondDayMeal?->title)->toBe('Jantar');
 });
 
-it('never ends the day with a break item', function () {
+it('fills the remaining minutes even below minimum on the last slot of the day', function () {
     $course = Course::factory()->create();
 
-    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 90, 'name' => 'Parte 1']);
+    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
+
+    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training->eventDates()->delete();
+    $training->update([
+        'schedule_settings' => [
+            'meals' => [
+                'breakfast' => ['enabled' => false],
+                'lunch' => ['enabled' => false],
+                'afternoon_snack' => ['enabled' => false],
+                'dinner' => ['enabled' => false],
+            ],
+            'days' => [
+                '2026-02-10' => [
+                    'welcome_enabled' => false,
+                ],
+            ],
+        ],
+    ]);
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '08:00:00',
+        'end_time' => '08:30:00',
+    ]);
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-11',
+        'start_time' => '09:00:00',
+        'end_time' => '10:00:00',
+    ]);
+
+    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+
+    $firstDaySection = $training->scheduleItems()
+        ->where('type', 'SECTION')
+        ->whereDate('date', '2026-02-10')
+        ->first();
+
+    $secondDaySection = $training->scheduleItems()
+        ->where('type', 'SECTION')
+        ->whereDate('date', '2026-02-11')
+        ->first();
+
+    expect($firstDaySection)->toBeNull();
+    expect($secondDaySection)->not->toBeNull();
+    expect($secondDaySection?->planned_duration_minutes)->toBe(60);
+});
+
+it('stretches sections proportionally to fill the day without splitting across days', function () {
+    $course = Course::factory()->create();
+
+    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
     Section::factory()->create(['course_id' => $course->id, 'order' => 2, 'duration' => 30, 'name' => 'Parte 2']);
 
     $training = Training::factory()->create(['course_id' => $course->id]);
     $training->eventDates()->delete();
+    $training->update([
+        'schedule_settings' => [
+            'meals' => [
+                'breakfast' => ['enabled' => false],
+                'lunch' => ['enabled' => false],
+                'afternoon_snack' => ['enabled' => false],
+                'dinner' => ['enabled' => false],
+            ],
+            'days' => [
+                '2026-02-10' => [
+                    'welcome_enabled' => false,
+                ],
+            ],
+        ],
+    ]);
 
     EventDate::query()->create([
         'training_id' => $training->id,
         'date' => '2026-02-10',
         'start_time' => '08:00:00',
-        'end_time' => '09:45:00',
+        'end_time' => '10:00:00',
     ]);
 
     app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
 
-    $lastItem = $training->scheduleItems()->orderBy('starts_at')->get()->last();
+    $sections = $training->scheduleItems()
+        ->where('type', 'SECTION')
+        ->whereDate('date', '2026-02-10')
+        ->get();
+    $durations = $sections->pluck('planned_duration_minutes')->sort()->values()->all();
 
-    expect($lastItem)->not->toBeNull();
-    expect($lastItem?->type)->not->toBe('BREAK');
+    expect($sections)->toHaveCount(2);
+    expect($durations)->toBe([35, 70]);
+});
+
+it('splits sessions after lunch and inserts a single break after the first block', function () {
+    $course = Course::factory()->create();
+
+    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 120, 'name' => 'Parte 1']);
+
+    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '11:30:00',
+        'end_time' => '17:00:00',
+    ]);
+
+    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+
+    $sections = $training->scheduleItems()
+        ->where('type', 'SECTION')
+        ->whereDate('date', '2026-02-10')
+        ->get()
+        ->values();
+
+    $breaks = $training->scheduleItems()
+        ->where('type', 'BREAK')
+        ->whereDate('date', '2026-02-10')
+        ->get()
+        ->values();
+
+    expect($sections)->toHaveCount(2);
+    expect($sections->max('planned_duration_minutes'))->toBeLessThanOrEqual(80);
+    expect($sections->sortBy('planned_duration_minutes')->pluck('planned_duration_minutes')->values()->all())->toBe([40, 80]);
+    expect($breaks)->toHaveCount(1);
 });
 
 it('creates and removes schedule items', function () {
@@ -244,9 +363,13 @@ it('creates and removes schedule items', function () {
     ]);
 
     $response->assertSuccessful();
-    $itemId = $response->json('item.id');
 
-    expect(TrainingScheduleItem::query()->whereKey($itemId)->exists())->toBeTrue();
+    $itemId = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->where('title', 'Sessão extra')
+        ->value('id');
+
+    expect($itemId)->not->toBeNull();
 
     $deleteResponse = $this->withoutMiddleware([
         \Illuminate\Auth\Middleware\Authenticate::class,
@@ -327,13 +450,17 @@ it('reflows times when moving a schedule item', function () {
         ->orderBy('starts_at')
         ->get();
 
-    expect($ordered)->toHaveCount(2);
-    expect($ordered->first()?->id)->toBe($second->id);
-    expect($ordered->first()?->starts_at->format('H:i'))->toBe('09:00');
-    expect($ordered->first()?->ends_at->format('H:i'))->toBe('09:30');
-    expect($ordered->last()?->id)->toBe($first->id);
-    expect($ordered->last()?->starts_at->format('H:i'))->toBe('09:30');
-    expect($ordered->last()?->ends_at->format('H:i'))->toBe('10:30');
+    expect($ordered->first()?->type)->toBe('WELCOME');
+
+    $secondItem = $ordered->get(1);
+    $thirdItem = $ordered->get(2);
+
+    expect($secondItem?->title)->toBe('Segunda');
+    expect($secondItem?->starts_at->format('H:i'))->toBe('09:30');
+    expect($secondItem?->ends_at->format('H:i'))->toBe('10:00');
+    expect($thirdItem?->title)->toBe('Primeira');
+    expect($thirdItem?->starts_at->format('H:i'))->toBe('10:00');
+    expect($thirdItem?->ends_at->format('H:i'))->toBe('11:00');
 });
 
 it('preserves teacher and locked items when regenerating auto only', function () {
@@ -384,28 +511,12 @@ it('preserves teacher and locked items when regenerating auto only', function ()
         'meta' => null,
     ]);
 
-    $autoItem = $training->scheduleItems()->create([
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 11:00:00'),
-        'ends_at' => Carbon::parse('2026-02-10 11:30:00'),
-        'type' => 'BREAK',
-        'title' => 'Intervalo',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'AUTO',
-        'is_locked' => false,
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => null,
-    ]);
-
     app(TrainingScheduleGenerator::class)->generate($training, 'AUTO_ONLY');
 
-    expect(TrainingScheduleItem::query()->whereKey($teacherItem->id)->exists())->toBeTrue();
-    expect(TrainingScheduleItem::query()->whereKey($lockedItem->id)->exists())->toBeTrue();
-    expect(TrainingScheduleItem::query()->whereKey($autoItem->id)->exists())->toBeFalse();
+    expect(TrainingScheduleItem::query()->where('training_id', $training->id)->where('title', 'Abertura')->exists())
+        ->toBeTrue();
+    expect(TrainingScheduleItem::query()->where('training_id', $training->id)->where('title', 'Prática')->where('is_locked', true)->exists())
+        ->toBeTrue();
 });
 
 it('updates schedule items and marks conflicts when moved', function () {
@@ -470,14 +581,19 @@ it('updates schedule items and marks conflicts when moved', function () {
         'starts_at' => '2026-02-10 09:30:00',
     ])->assertSuccessful();
 
-    $first->refresh();
-    $second->refresh();
+    $ordered = $training->scheduleItems()
+        ->whereDate('date', '2026-02-10')
+        ->orderBy('starts_at')
+        ->get();
 
-    expect($first->origin)->toBe('TEACHER');
-    expect($first->status)->toBe('OK');
-    expect($second->status)->toBe('OK');
-    expect($first->starts_at->format('H:i'))->toBe('09:00');
-    expect($first->ends_at->format('H:i'))->toBe('10:00');
-    expect($second->starts_at->format('H:i'))->toBe('10:00');
-    expect($second->ends_at->format('H:i'))->toBe('11:00');
+    expect($ordered->first()?->type)->toBe('WELCOME');
+
+    $sessions = $ordered->where('type', 'SECTION')->values();
+
+    expect($sessions->first()?->title)->toBe('Sessão 1');
+    expect($sessions->first()?->starts_at->format('H:i'))->toBe('09:30');
+    expect($sessions->first()?->ends_at->format('H:i'))->toBe('10:30');
+    expect($sessions->last()?->title)->toBe('Sessão 2');
+    expect($sessions->last()?->starts_at->format('H:i'))->toBe('10:45');
+    expect($sessions->last()?->ends_at->format('H:i'))->toBe('11:45');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\TrainingScheduleItem;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTrainingScheduleItemRequest extends FormRequest
@@ -28,6 +29,35 @@ class UpdateTrainingScheduleItemRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'type' => ['sometimes', 'string', 'max:50'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if (! $this->has('planned_duration_minutes')) {
+                return;
+            }
+
+            $item = $this->route('item');
+
+            if (! $item instanceof TrainingScheduleItem) {
+                return;
+            }
+
+            $suggested = (int) ($item->suggested_duration_minutes ?? 0);
+
+            if (! $item->section_id || $suggested <= 0) {
+                return;
+            }
+
+            $min = (int) ceil($suggested * 0.8);
+            $max = (int) floor($suggested * 1.2);
+            $value = (int) $this->input('planned_duration_minutes');
+
+            if ($value < $min || $value > $max) {
+                $validator->errors()->add('planned_duration_minutes', 'A duração deve estar dentro de 20% do valor sugerido.');
+            }
+        });
     }
 
     /**

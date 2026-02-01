@@ -37,18 +37,8 @@ class TrainingController extends Controller
 
     public function schedule(Training $training): View
     {
-        $training->load([
-            'course',
-            'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
-            'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('starts_at'),
-        ]);
-
         return view('pages.app.roles.teacher.trainings.schedule', [
             'training' => $training,
-            'eventDates' => $training->eventDates,
-            'scheduleByDate' => $training->scheduleItems->groupBy(
-                fn ($item) => $item->date?->format('Y-m-d')
-            ),
         ]);
     }
 

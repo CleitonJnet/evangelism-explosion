@@ -45,6 +45,7 @@ Route::middleware('can:access-teacher')
 
         Route::prefix('trainings/{training}')->name('trainings.')->group(function () {
             Route::post('schedule/regenerate', [TrainingScheduleController::class, 'regenerate'])->name('schedule.regenerate');
+            Route::post('schedule/settings', [TrainingScheduleController::class, 'updateSettings'])->name('schedule.settings');
             Route::post('schedule-items', [TrainingScheduleController::class, 'storeItem'])->name('schedule-items.store');
             Route::patch('schedule-items/{item}', [TrainingScheduleController::class, 'updateItem'])->name('schedule-items.update');
             Route::delete('schedule-items/{item}', [TrainingScheduleController::class, 'destroyItem'])->name('schedule-items.destroy');
