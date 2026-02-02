@@ -24,12 +24,13 @@ it('shows the training schedule page for teachers', function () {
     ]);
     $eventDate = $training->eventDates->first();
 
-    TrainingScheduleItem::factory()->create([
+    $scheduleItem = TrainingScheduleItem::factory()->create([
         'training_id' => $training->id,
         'date' => $eventDate?->date,
         'starts_at' => Carbon::parse($eventDate?->date.' 09:00:00'),
         'ends_at' => Carbon::parse($eventDate?->date.' 10:00:00'),
     ]);
+    $dayStart = Carbon::parse($eventDate?->date.' '.$eventDate?->start_time)->format('Y-m-d H:i:s');
 
     $teacher->roles()->attach($role->id);
 
@@ -42,7 +43,15 @@ it('shows the training schedule page for teachers', function () {
         ->assertSee('Teacher')
         ->assertSee('Training')
         ->assertSee('Programação')
-        ->assertSee('Arrastar para reordenar');
+        ->assertSee('Arrastar para reordenar')
+        ->assertSee('js-schedule-day-list', false)
+        ->assertSee('data-date-key="'.$eventDate?->date.'"', false)
+        ->assertSee('data-day-start="'.$dayStart.'"', false)
+        ->assertSee('js-schedule-item', false)
+        ->assertSee('data-item-id="', false)
+        ->assertSee('data-starts-at="', false)
+        ->assertSee('data-ends-at="', false)
+        ->assertSee('js-drag-handle', false);
 });
 
 it('shows details before edit on the training edit breadcrumb', function () {

@@ -1,4 +1,4 @@
-<div x-data="trainingScheduleBoard(@entangle('modalOpen'))" x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6">
+<div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6">
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
@@ -66,8 +66,7 @@
                 $showDinner = $isWithinWindow($dayStartTime, $dayEndTime, '17:00:00', '21:00:00');
             @endphp
             <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
-                wire:key="schedule-day-{{ $dateKey }}"
-                @drop.prevent="dropOn('{{ $dateKey }}', '{{ $dayStart }}')">
+                wire:key="schedule-day-{{ $dateKey }}">
                 <div class="">
                     <div class="flex flex-wrap items-start justify-between gap-2 pb-2">
                         <div class="flex flex-col gap-1 items-end">
@@ -131,7 +130,8 @@
                                 <th class="px-3 py-2 w-36">{{ __('Duração') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-[color:var(--ee-app-border)]">
+                        <tbody class="divide-y divide-[color:var(--ee-app-border)] js-schedule-day-list"
+                            data-date-key="{{ $dateKey }}" data-day-start="{{ $dayStart }}">
                             @forelse ($items as $item)
                                 @php
                                     $hasConflict = $item->status === 'CONFLICT';
@@ -152,7 +152,6 @@
                                             $isOverflow = true;
                                         }
                                     }
-                                    $rowIndex = $loop->index;
                                     $hour = (int) $item->starts_at->format('H');
                                     if ($hour < 12) {
                                         $periodClass = 'odd:bg-lime-100/30 even:bg-lime-100/40';
@@ -162,41 +161,23 @@
                                         $periodClass = 'odd:bg-indigo-100/50 even:bg-indigo-100/65';
                                     }
                                 @endphp
-                                <tr class="items-center {{ $periodClass }}"
+                                <tr class="items-center {{ $periodClass }} js-schedule-item"
                                     wire:key="schedule-item-{{ $item->id }}"
+                                    data-item-id="{{ $item->id }}"
+                                    data-starts-at="{{ $item->starts_at->format('Y-m-d H:i:s') }}"
+                                    data-ends-at="{{ optional($item->ends_at)->format('Y-m-d H:i:s') }}"
                                     :class="{
                                         'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
                                         'text-red-600': {{ $isOverflow ? 'true' : 'false' }},
                                         'opacity-70': busy,
-                                        'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId === {{ $item->id }},
-                                        'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget
-                                            .date === '{{ $item->date->format('Y-m-d') }}' && dropTarget
-                                            .startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
-                                        'translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
-                                            draggingIndex !== null && dropTarget.order < draggingIndex && dropTarget
-                                            .order <= {{ $rowIndex }} && draggingIndex > {{ $rowIndex }},
-                                        '-translate-y-2': draggingId && dropTarget && dropTarget.order !== null &&
-                                            draggingIndex !== null && dropTarget.order > draggingIndex && dropTarget
-                                            .order >= {{ $rowIndex }} && draggingIndex < {{ $rowIndex }},
-                                        'transition-transform duration-150': draggingId,
                                     }"
-                                    x-bind:draggable="draggingEnabledId === {{ $item->id }}"
-                                    title="{{ $tooltip }}"
-                                    @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragend="endDrag"
-                                    @dragenter.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragover.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @drop.prevent="dropOn('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')">
+                                    title="{{ $tooltip }}">
                                     <td class="px-3 py-2 whitespace-nowrap">
                                         <div class="flex items-center gap-2">
                                             <button type="button"
-                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 hover:bg-sky-500 {{ $item->is_locked ? 'cursor-not-allowed opacity-40' : 'cursor-grab' }}"
+                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 hover:bg-sky-500 cursor-grab js-drag-handle"
                                                 title="{{ __('Arrastar para reordenar') }}"
-                                                aria-label="{{ __('Arrastar para reordenar') }}"
-                                                @if (!$item->is_locked) x-on:mousedown.stop="enableDrag({{ $item->id }})" @endif
-                                                x-on:mouseup.window="disableDrag"
-                                                @if (!$item->is_locked) x-on:touchstart.stop="enableDrag({{ $item->id }})" @endif
-                                                x-on:touchend.window="disableDrag" x-on:mouseleave="disableDrag">
+                                                aria-label="{{ __('Arrastar para reordenar') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -228,8 +209,7 @@
                                                     max="{{ $maxDuration }}"
                                                     class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})"
-                                                    @if ($item->is_locked) disabled @endif />
+                                                    wire:blur="applyDuration({{ $item->id }})" />
                                                 <div class="text-[10px] text-[color:var(--ee-app-muted)] flex flex-col">
                                                     <div>
                                                         {{ __('de') }}<span class="font-bold">
@@ -244,8 +224,7 @@
                                                 <input type="number" min="1" max="720"
                                                     class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})"
-                                                    @if ($item->is_locked) disabled @endif />
+                                                    wire:blur="applyDuration({{ $item->id }})" />
                                                 <span class="text-xs text-[color:var(--ee-app-muted)]">
                                                     {{ __('minutes') }}
                                                 </span>
@@ -272,155 +251,4 @@
         @endforelse
     </section>
 
-    <div x-show="modalOpen" x-cloak x-transition class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/50" x-on:click="$wire.closeModal()"></div>
-        <div
-            class="relative w-full max-w-lg rounded-2xl border border-[color:var(--ee-app-border)] bg-white p-6 shadow-xl">
-            <div class="text-sm font-semibold text-heading">
-                <span>{{ __('Adicionar sessão') }}</span>
-            </div>
-
-            <div class="mt-4 grid gap-4">
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-title">{{ __('Título') }}</label>
-                    <input id="schedule-title" type="text" wire:model="form.title"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm"
-                        maxlength="255" />
-                </div>
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-type">{{ __('Tipo') }}</label>
-                    <select id="schedule-type" wire:model="form.type"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm">
-                        <option value="SECTION">{{ __('Sessão') }}</option>
-                        <option value="BREAK">{{ __('Intervalo') }}</option>
-                        <option value="DEVOTIONAL">{{ __('Devocional') }}</option>
-                        <option value="MEAL">{{ __('Refeição') }}</option>
-                        <option value="WELCOME">{{ __('Boas-vindas') }}</option>
-                        <option value="OPENING">{{ __('Abertura') }}</option>
-                        <option value="PRACTICE">{{ __('Prática') }}</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="grid gap-2">
-                        <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                            for="schedule-date">{{ __('Data') }}</label>
-                        <input id="schedule-date" type="date" wire:model="form.date"
-                            class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                    </div>
-                    <div class="grid gap-2">
-                        <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                            for="schedule-time">{{ __('Início') }}</label>
-                        <input id="schedule-time" type="time" wire:model="form.time"
-                            class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                    </div>
-                </div>
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-duration">{{ __('Duração (min)') }}</label>
-                    <input id="schedule-duration" type="number" min="1" max="720"
-                        wire:model="form.duration"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <flux:button type="button" variant="outline" wire:click="closeModal">
-                    {{ __('Cancelar') }}
-                </flux:button>
-                <flux:button type="button" variant="primary" wire:click="createItem" x-bind:disabled="busy">
-                    {{ __('Salvar') }}
-                </flux:button>
-            </div>
-        </div>
-    </div>
 </div>
-
-@once
-    <script data-navigate-once>
-        window.trainingScheduleBoard = function(modalOpen) {
-            return {
-                modalOpen: modalOpen,
-                draggingId: null,
-                draggingEnabledId: null,
-                draggingIndex: null,
-                dropTarget: {
-                    date: null,
-                    startsAt: null,
-                    order: null,
-                },
-                busy: false,
-                enableDrag(id) {
-                    this.draggingEnabledId = id;
-                },
-                disableDrag() {
-                    this.draggingEnabledId = null;
-                },
-                setDropTarget(date, startsAt, order) {
-                    if (!this.draggingId) {
-                        return;
-                    }
-
-                    this.dropTarget = {
-                        date,
-                        startsAt,
-                        order,
-                    };
-                },
-                clearDropTarget() {
-                    this.dropTarget = {
-                        date: null,
-                        startsAt: null,
-                        order: null,
-                    };
-                },
-                startDrag(id, date, startsAt, order) {
-                    this.draggingId = id;
-                    this.draggingIndex = order;
-                    this.setDropTarget(date, startsAt, order);
-                },
-                endDrag() {
-                    this.draggingId = null;
-                    this.draggingIndex = null;
-                    this.disableDrag();
-                    this.clearDropTarget();
-                },
-                async regenerate() {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-                    await this.$wire.regenerate();
-                    this.busy = false;
-                },
-                async updateDuration(id, date, startsAt, duration) {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    const parsed = Number(duration);
-
-                    if (!Number.isFinite(parsed) || parsed <= 0) {
-                        return;
-                    }
-
-                    this.busy = true;
-                    await this.$wire.updateDuration(id, date, startsAt, parsed);
-                    this.busy = false;
-                },
-                async dropOn(date, startsAt) {
-                    if (!this.draggingId || this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-                    await this.$wire.moveItem(this.draggingId, date, startsAt);
-                    this.busy = false;
-                    this.clearDropTarget();
-                },
-            };
-        };
-    </script>
-@endonce
