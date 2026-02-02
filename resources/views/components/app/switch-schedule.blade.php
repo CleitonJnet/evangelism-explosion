@@ -1,7 +1,7 @@
 @props(['label' => null, 'key' => null])
 
 <label for="{{ $label . $key }}"
-    class="flex flex-col items-center gap-1 rounded-xl bg-slate-200 hover:bg-sky-200 transition duration-200 basis-20 py-1.5 cursor-pointer border border-slate-300">
+    class="flex flex-col items-center justify-center gap-1 rounded-xl bg-slate-200 hover:bg-sky-200 transition duration-200 basis-20 py-1.5 cursor-pointer border border-slate-300">
     <div class="relative inline-flex items-center">
         <input type="checkbox" id="{{ $label . $key }}"
             {{ $attributes->merge(['class' => 'peer sr-only focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0']) }} />
