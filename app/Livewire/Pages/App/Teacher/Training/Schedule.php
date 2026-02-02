@@ -4,7 +4,9 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
-use App\Services\Schedule\TrainingScheduleGenerator;
+use App\Services\Schedule\TrainingDayBlocksService;
+use App\Services\Schedule\TrainingScheduleBreakPolicy;
+use App\Services\Schedule\TrainingScheduleDayBlocksApplier;
 use App\Services\Schedule\TrainingScheduleResetService;
 use App\Services\Schedule\TrainingScheduleTimelineService;
 use Carbon\Carbon;
@@ -34,46 +36,25 @@ class Schedule extends Component
     public array $durationInputs = [];
 
     /**
-     * @var array{
-     *     welcome_duration_minutes: int,
-     *     after_lunch_pause_minutes: int,
-     *     devotional: array{
-     *         after_welcome_enabled: bool,
-     *         after_breakfast_enabled: bool,
-     *         duration_minutes: int,
-     *     },
-     *     days: array<string, array{
-     *         welcome_enabled: bool,
-     *         welcome_duration_minutes: int,
-     *         devotional_enabled: bool,
-     *         devotional_duration_minutes: int,
-     *         meals: array{
-     *             breakfast: array{enabled: bool, duration_minutes: int},
-     *             lunch: array{enabled: bool, duration_minutes: int},
-     *             afternoon_snack: array{enabled: bool, duration_minutes: int},
-     *             dinner: array{enabled: bool, duration_minutes: int, substitute_snack: bool}
-     *         }
-     *     }>,
-     *     meals: array{
-     *         breakfast: array{enabled: bool, duration_minutes: int},
-     *         lunch: array{enabled: bool, duration_minutes: int},
-     *         afternoon_snack: array{enabled: bool, duration_minutes: int},
-     *         dinner: array{enabled: bool, duration_minutes: int, substitute_snack: bool}
-     *     }
-     * }
+     * @var array<string, array<string, bool>>
      */
-    public array $scheduleSettings = [];
+    public array $dayBlocks = [];
+
+    /**
+     * @var array<string, array{showBreakfast: bool, showLunch: bool, showSnack: bool, showDinner: bool}>
+     */
+    public array $dayUi = [];
 
     public bool $busy = false;
 
-    public function mount(Training $training, TrainingScheduleGenerator $generator): void
+    public function mount(Training $training): void
     {
         $this->authorizeTraining($training);
         $this->training = $training;
-        $this->refreshSchedule($generator);
+        $this->refreshSchedule();
     }
 
-    public function regenerate(TrainingScheduleResetService $resetService, TrainingScheduleGenerator $generator): void
+    public function regenerate(TrainingScheduleResetService $resetService): void
     {
         if ($this->busy) {
             return;
@@ -84,16 +65,18 @@ class Schedule extends Component
 
         try {
             $resetService->resetFull($this->training->id);
-            $this->refreshSchedule($generator);
+            $this->refreshSchedule();
         } finally {
             $this->busy = false;
         }
     }
 
-    public function saveDaySettings(
-        TrainingScheduleGenerator $generator,
-        TrainingScheduleResetService $resetService,
+    public function toggleDayBlock(
+        TrainingScheduleDayBlocksApplier $applier,
+        TrainingScheduleBreakPolicy $breakPolicy,
         string $dateKey,
+        string $blockKey,
+        bool $enabled,
     ): void {
         if ($this->busy) {
             return;
@@ -103,9 +86,112 @@ class Schedule extends Component
         $this->busy = true;
 
         try {
-            $this->persistDaySettings($dateKey, $this->scheduleSettings['days'][$dateKey] ?? []);
-            $resetService->resetFull($this->training->id);
-            $this->refreshSchedule($generator);
+            app(TrainingDayBlocksService::class)->set($this->training->id, $dateKey, $blockKey, $enabled);
+            $applier->apply($this->training->id, $dateKey, $blockKey, $enabled);
+
+            if ($blockKey === 'snack' && ! $enabled) {
+                $breakPolicy->suggestBreakIfLongRun($this->training->id, $dateKey, '15:30:00', 'snack_off');
+            }
+
+            $this->refreshSchedule();
+        } finally {
+            $this->busy = false;
+        }
+    }
+
+    public function addBreak(TrainingScheduleTimelineService $timelineService, string $dateKey): void
+    {
+        if ($this->busy) {
+            return;
+        }
+
+        $this->authorizeTraining($this->training);
+        $this->busy = true;
+
+        try {
+            $items = TrainingScheduleItem::query()
+                ->where('training_id', $this->training->id)
+                ->whereDate('date', $dateKey)
+                ->orderBy('position')
+                ->orderBy('id')
+                ->get();
+
+            $targetPosition = (int) floor(($items->count() + 1) / 2);
+            $targetPosition = max(1, $targetPosition);
+            $insertIndex = $targetPosition - 1;
+            $dayStart = $this->resolveDayStart($dateKey);
+
+            $breakItem = TrainingScheduleItem::query()->create([
+                'training_id' => $this->training->id,
+                'section_id' => null,
+                'date' => $dateKey,
+                'starts_at' => $dayStart->copy(),
+                'ends_at' => $dayStart->copy()->addMinutes(10),
+                'type' => 'BREAK',
+                'title' => 'Intervalo',
+                'planned_duration_minutes' => 10,
+                'suggested_duration_minutes' => null,
+                'min_duration_minutes' => null,
+                'origin' => 'TEACHER',
+                'status' => 'OK',
+                'conflict_reason' => null,
+                'meta' => null,
+            ]);
+
+            $items->splice($insertIndex, 0, [$breakItem]);
+            $this->syncPositions($items);
+
+            $timelineService->reflowDay($this->training->id, $dateKey);
+            $this->refreshSchedule();
+        } finally {
+            $this->busy = false;
+        }
+    }
+
+    public function deleteBreak(
+        TrainingScheduleTimelineService $timelineService,
+        TrainingScheduleBreakPolicy $breakPolicy,
+        int $itemId,
+    ): void {
+        if ($this->busy) {
+            return;
+        }
+
+        $this->authorizeTraining($this->training);
+        $this->busy = true;
+
+        try {
+            $item = TrainingScheduleItem::query()
+                ->where('training_id', $this->training->id)
+                ->findOrFail($itemId);
+
+            if ($item->type !== 'BREAK') {
+                return;
+            }
+
+            $dateKey = $item->date?->format('Y-m-d');
+            $meta = is_array($item->meta) ? $item->meta : [];
+            $reasonKey = $meta['auto_reason'] ?? null;
+
+            $item->delete();
+
+            if ($dateKey) {
+                $remaining = TrainingScheduleItem::query()
+                    ->where('training_id', $this->training->id)
+                    ->whereDate('date', $dateKey)
+                    ->orderBy('position')
+                    ->orderBy('id')
+                    ->get();
+
+                $this->syncPositions($remaining);
+                $timelineService->reflowDay($this->training->id, $dateKey);
+            }
+
+            if ($dateKey && $reasonKey === 'snack_off') {
+                $breakPolicy->suppressSnackBreak($this->training->id, $dateKey);
+            }
+
+            $this->refreshSchedule();
         } finally {
             $this->busy = false;
         }
@@ -141,11 +227,11 @@ class Schedule extends Component
             }
 
             if ($item->section_id && $item->suggested_duration_minutes) {
-                $min = (int) ceil($item->suggested_duration_minutes * 0.8);
-                $max = (int) floor($item->suggested_duration_minutes * 1.2);
+                $min = (int) ceil($item->suggested_duration_minutes * 0.75);
+                $max = (int) floor($item->suggested_duration_minutes * 1.25);
 
                 if ($duration < $min || $duration > $max) {
-                    $this->dispatchScheduleAlert('A duração deve estar dentro de 20% do valor sugerido.');
+                    $this->dispatchScheduleAlert('A duração deve estar dentro de 25% do valor sugerido.');
 
                     return;
                 }
@@ -157,8 +243,6 @@ class Schedule extends Component
                 $item->meta = $meta;
             }
 
-            $this->updateDurationForDayAnchors($item, $duration);
-
             $item->planned_duration_minutes = $duration;
             $item->origin = 'TEACHER';
             $item->save();
@@ -169,7 +253,7 @@ class Schedule extends Component
                 $timelineService->reflowDay($this->training->id, $dateKey);
             }
 
-            $this->refreshSchedule(app(TrainingScheduleGenerator::class));
+            $this->refreshSchedule();
         } finally {
             $this->busy = false;
         }
@@ -203,7 +287,7 @@ class Schedule extends Component
             }
 
             $timelineService->moveAfter($this->training->id, $id, $dateKey, $afterItemId);
-            $this->refreshSchedule(app(TrainingScheduleGenerator::class));
+            $this->refreshSchedule();
         } finally {
             $this->busy = false;
         }
@@ -219,7 +303,7 @@ class Schedule extends Component
         ]);
     }
 
-    private function refreshSchedule(TrainingScheduleGenerator $generator): void
+    private function refreshSchedule(): void
     {
         $this->training = Training::query()
             ->with([
@@ -231,10 +315,21 @@ class Schedule extends Component
 
         $this->eventDates = $this->training->eventDates;
         $this->scheduleItems = $this->training->scheduleItems;
-        $this->scheduleSettings = $this->resolveScheduleSettings($generator);
-        $this->syncDurationInputs();
+        $dayBlocksService = app(TrainingDayBlocksService::class);
+        $this->dayUi = $dayBlocksService->computeDayUi($this->training);
+        $this->dayBlocks = $dayBlocksService->get($this->training->id);
+        $normalizedBlocks = $dayBlocksService->normalizeDayBlocksForVisibility(
+            $this->training,
+            $this->dayBlocks,
+            $this->dayUi,
+        );
 
-        if ($this->ensureSingleWelcome()) {
+        if ($normalizedBlocks !== $this->dayBlocks) {
+            $dayBlocksService->persistDayBlocks($this->training, $normalizedBlocks);
+            $this->dayBlocks = $normalizedBlocks;
+        }
+
+        if ($this->cleanupHiddenMeals($this->dayUi)) {
             $this->training->load([
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
                 'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('position'),
@@ -242,9 +337,8 @@ class Schedule extends Component
 
             $this->eventDates = $this->training->eventDates;
             $this->scheduleItems = $this->training->scheduleItems;
-            $this->scheduleSettings = $this->resolveScheduleSettings($generator);
-            $this->syncDurationInputs();
         }
+        $this->syncDurationInputs();
     }
 
     private function syncDurationInputs(): void
@@ -276,330 +370,104 @@ class Schedule extends Component
         $this->dispatch('schedule-alert', message: $message);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function resolveScheduleSettings(TrainingScheduleGenerator $generator): array
+    private function resolveDayStart(string $dateKey): Carbon
     {
-        $settings = $generator->settingsFor($this->training);
-        $storedSettings = $this->training->schedule_settings;
-        $storedSettings = is_array($storedSettings) ? $storedSettings : [];
-        $devotional = $storedSettings['devotional'] ?? [];
+        $eventDate = $this->eventDates->first(function ($eventDate) use ($dateKey): bool {
+            if (! $eventDate->date) {
+                return false;
+            }
 
-        $settings['devotional'] = $this->normalizeDevotionalSettings($devotional);
-        $settings['meals'] = $this->normalizeMealDurations($settings['meals'] ?? []);
-        $settings['days'] = $this->resolveDaySettings($settings, $storedSettings);
+            $eventDateKey = is_string($eventDate->date)
+                ? $eventDate->date
+                : $eventDate->date->format('Y-m-d');
 
-        return $settings;
-    }
+            return $eventDateKey === $dateKey;
+        });
 
-    private function normalizeDevotionalSettings(array $devotional): array
-    {
-        $defaults = [
-            'after_welcome_enabled' => true,
-            'after_breakfast_enabled' => false,
-            'duration_minutes' => 30,
-        ];
+        $startTime = $eventDate?->start_time ?? '00:00:00';
 
-        if (array_key_exists('enabled', $devotional)) {
-            $devotional['after_welcome_enabled'] = (bool) $devotional['enabled'];
-            $devotional['after_breakfast_enabled'] = (bool) ($devotional['after_breakfast_enabled'] ?? false);
-        }
-
-        if (isset($devotional['start_day']) || isset($devotional['after_welcome'])) {
-            $devotional['after_breakfast_enabled'] = (bool) ($devotional['start_day']['enabled'] ?? false);
-            $devotional['after_welcome_enabled'] = (bool) ($devotional['after_welcome']['enabled'] ?? true);
-
-            $legacyDuration = $devotional['after_welcome']['duration_minutes']
-                ?? $devotional['start_day']['duration_minutes']
-                ?? $devotional['duration_minutes']
-                ?? 30;
-
-            $devotional['duration_minutes'] = $legacyDuration;
-        }
-
-        $merged = array_replace_recursive($defaults, $devotional);
-        $merged['after_welcome_enabled'] = (bool) ($merged['after_welcome_enabled'] ?? true);
-        $merged['after_breakfast_enabled'] = (bool) ($merged['after_breakfast_enabled'] ?? true);
-        $merged['duration_minutes'] = $this->normalizeDevotionalMinutes((int) ($merged['duration_minutes'] ?? 30));
-
-        return $merged;
-    }
-
-    private function normalizeDevotionalMinutes(int $minutes): int
-    {
-        if ($minutes < 5) {
-            return 5;
-        }
-
-        if ($minutes > 180) {
-            return 180;
-        }
-
-        return $minutes;
+        return Carbon::parse($dateKey.' '.$startTime);
     }
 
     /**
-     * @param  array<string, array<string, mixed>>  $meals
-     * @return array<string, array<string, mixed>>
+     * @param  array<string, array{showBreakfast: bool, showLunch: bool, showSnack: bool, showDinner: bool}>  $dayUi
      */
-    private function normalizeMealDurations(array $meals): array
+    private function cleanupHiddenMeals(array $dayUi): bool
     {
-        $updated = $meals;
+        $timelineService = app(TrainingScheduleTimelineService::class);
+        $reflowDates = [];
 
-        foreach (['breakfast', 'lunch', 'afternoon_snack', 'dinner'] as $mealKey) {
-            if (! isset($updated[$mealKey]) || ! is_array($updated[$mealKey])) {
+        foreach ($dayUi as $dateKey => $flags) {
+            $hiddenMeals = [];
+
+            if (! ($flags['showBreakfast'] ?? false)) {
+                $hiddenMeals[] = ['anchor' => ['breakfast'], 'subkind' => ['breakfast']];
+            }
+
+            if (! ($flags['showLunch'] ?? false)) {
+                $hiddenMeals[] = ['anchor' => ['lunch'], 'subkind' => ['lunch']];
+            }
+
+            if (! ($flags['showSnack'] ?? false)) {
+                $hiddenMeals[] = ['anchor' => ['afternoon_snack'], 'subkind' => ['snack']];
+            }
+
+            if (! ($flags['showDinner'] ?? false)) {
+                $hiddenMeals[] = ['anchor' => ['dinner', 'night_snack'], 'subkind' => ['dinner']];
+            }
+
+            if ($hiddenMeals === []) {
                 continue;
             }
 
-            $duration = (int) ($updated[$mealKey]['duration_minutes'] ?? 0);
-            $normalized = $this->normalizeIntervalMinutes($duration);
+            $query = TrainingScheduleItem::query()
+                ->where('training_id', $this->training->id)
+                ->whereDate('date', $dateKey)
+                ->where('type', 'MEAL');
 
-            if ($normalized !== $duration) {
-                $updated[$mealKey]['duration_minutes'] = $normalized;
+            $query->where(function ($subQuery) use ($hiddenMeals): void {
+                foreach ($hiddenMeals as $meal) {
+                    $anchors = $meal['anchor'];
+                    $subkinds = $meal['subkind'];
+
+                    $subQuery->orWhere(function ($or) use ($anchors, $subkinds): void {
+                        $or->whereIn('meta->anchor', $anchors)
+                            ->orWhereIn('meta->subkind', $subkinds);
+                    });
+                }
+            });
+
+            $deleted = $query->delete();
+
+            if ($deleted > 0) {
+                $reflowDates[] = $dateKey;
             }
         }
 
-        return $updated;
-    }
+        foreach (array_unique($reflowDates) as $dateKey) {
+            $timelineService->reflowDay($this->training->id, $dateKey);
+        }
 
-    private function normalizeIntervalMinutes(int $minutes): int
-    {
-        return $minutes === 59 ? 60 : $minutes;
+        return $reflowDates !== [];
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @param  Collection<int, TrainingScheduleItem>  $items
      */
-    private function resolveDaySettings(array $settings, array $storedSettings, bool $syncFromItems = true): array
+    private function syncPositions(Collection $items): void
     {
-        $days = $storedSettings['days'] ?? [];
-        $mealsDefaults = $settings['meals'] ?? [];
-        $devotionalDefaults = $settings['devotional'] ?? [];
-        $firstDate = $this->eventDates->first()?->date;
-        $resolved = [];
+        $position = 1;
 
-        foreach ($this->eventDates as $eventDate) {
-            $dateKey = $eventDate->date;
-            $storedDay = $days[$dateKey] ?? [];
-            $storedDay = is_array($storedDay) ? $storedDay : [];
+        foreach ($items as $item) {
+            if ($item->position === $position) {
+                $position++;
 
-            $defaults = [
-                'welcome_enabled' => $dateKey === $firstDate,
-                'welcome_duration_minutes' => (int) ($settings['welcome_duration_minutes'] ?? 30),
-                'devotional_enabled' => (bool) ($devotionalDefaults['after_welcome_enabled'] ?? true),
-                'devotional_duration_minutes' => (int) ($devotionalDefaults['duration_minutes'] ?? 30),
-                'meals' => $mealsDefaults,
-            ];
-
-            $merged = array_replace_recursive($defaults, $storedDay);
-            $merged['welcome_enabled'] = (bool) ($merged['welcome_enabled'] ?? false);
-            $merged['welcome_duration_minutes'] = $this->normalizeWelcomeMinutes(
-                (int) ($merged['welcome_duration_minutes'] ?? 30)
-            );
-            $merged['devotional_enabled'] = (bool) ($merged['devotional_enabled'] ?? true);
-            $merged['devotional_duration_minutes'] = $this->normalizeDevotionalMinutes(
-                (int) ($merged['devotional_duration_minutes'] ?? 30)
-            );
-            $merged['meals'] = $this->normalizeMealDurations($merged['meals'] ?? []);
-            $merged['meals']['dinner']['substitute_snack'] = (bool) ($merged['meals']['dinner']['substitute_snack'] ?? false);
-            $merged['meals'] = $this->applyMealAvailability($merged['meals'], $eventDate);
-
-            if ($syncFromItems) {
-                $merged['meals'] = $this->syncDayMealSelectionFromItems($dateKey, $merged['meals']);
+                continue;
             }
 
-            $resolved[$dateKey] = $merged;
-        }
-
-        return $resolved;
-    }
-
-    private function normalizeWelcomeMinutes(int $minutes): int
-    {
-        if ($minutes < 30) {
-            return 30;
-        }
-
-        if ($minutes > 60) {
-            return 60;
-        }
-
-        return $minutes;
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $meals
-     * @return array<string, array<string, mixed>>
-     */
-    private function applyMealAvailability(array $meals, $eventDate): array
-    {
-        if (! $eventDate?->start_time || ! $eventDate?->end_time) {
-            return $meals;
-        }
-
-        $dayStart = Carbon::parse($eventDate->date.' '.$eventDate->start_time);
-        $dayEnd = Carbon::parse($eventDate->date.' '.$eventDate->end_time);
-
-        $availability = [
-            'breakfast' => $this->isWithinWindow($dayStart, $dayEnd, '07:00:00', '10:30:00'),
-            'lunch' => $this->isWithinWindow($dayStart, $dayEnd, '10:00:00', '15:00:00'),
-            'afternoon_snack' => $this->isWithinWindow($dayStart, $dayEnd, '14:00:00', '17:00:00'),
-            'dinner' => $this->isWithinWindow($dayStart, $dayEnd, '17:00:00', '21:00:00'),
-        ];
-
-        foreach ($availability as $mealKey => $allowed) {
-            if (! $allowed) {
-                $meals[$mealKey]['enabled'] = false;
-            }
-        }
-
-        return $meals;
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $meals
-     * @return array<string, array<string, mixed>>
-     */
-    private function syncDayMealSelectionFromItems(string $dateKey, array $meals): array
-    {
-        if ($this->scheduleItems->isEmpty()) {
-            return $meals;
-        }
-
-        $mealItems = $this->scheduleItems
-            ->filter(fn (TrainingScheduleItem $item) => $item->type === 'MEAL')
-            ->filter(fn (TrainingScheduleItem $item) => $item->date?->format('Y-m-d') === $dateKey);
-
-        $hasSnack = $mealItems->contains(fn (TrainingScheduleItem $item) => ($item->meta['anchor'] ?? null) === 'afternoon_snack');
-        $hasDinner = $mealItems->contains(fn (TrainingScheduleItem $item) => ($item->meta['anchor'] ?? null) === 'dinner');
-        $hasNightSnack = $mealItems->contains(fn (TrainingScheduleItem $item) => ($item->meta['anchor'] ?? null) === 'night_snack');
-
-        $meals['afternoon_snack']['enabled'] = $hasSnack;
-        $meals['dinner']['enabled'] = $hasDinner || $hasNightSnack;
-        $meals['dinner']['substitute_snack'] = $hasNightSnack;
-
-        return $meals;
-    }
-
-    private function isWithinWindow(Carbon $dayStart, Carbon $dayEnd, string $windowStart, string $windowEnd): bool
-    {
-        $start = Carbon::parse($dayStart->format('Y-m-d').' '.$windowStart);
-        $end = Carbon::parse($dayStart->format('Y-m-d').' '.$windowEnd);
-
-        return $dayEnd->gt($start) && $dayStart->lt($end);
-    }
-
-    private function persistDaySettings(string $dateKey, array $daySettings): void
-    {
-        $normalized = $this->resolveDaySettings($this->scheduleSettings, [
-            'days' => [$dateKey => $daySettings],
-        ], false);
-
-        $storedSettings = $this->training->schedule_settings;
-        $storedSettings = is_array($storedSettings) ? $storedSettings : [];
-        $storedSettings['days'] = $storedSettings['days'] ?? [];
-        $storedSettings['days'][$dateKey] = $normalized[$dateKey] ?? $daySettings;
-
-        $this->training->schedule_settings = $storedSettings;
-        $this->training->save();
-
-        $this->scheduleSettings['days'][$dateKey] = $storedSettings['days'][$dateKey];
-    }
-
-    private function ensureSingleWelcome(): bool
-    {
-        $firstDate = $this->eventDates->first()?->date;
-
-        if (! $firstDate) {
-            return false;
-        }
-
-        $dateKey = $firstDate instanceof Carbon ? $firstDate->format('Y-m-d') : (string) $firstDate;
-
-        $welcomeItems = $this->scheduleItems
-            ->filter(fn (TrainingScheduleItem $item) => $item->type === 'WELCOME')
-            ->filter(fn (TrainingScheduleItem $item) => $item->date?->format('Y-m-d') === $dateKey)
-            ->sortBy('position')
-            ->values();
-
-        if ($welcomeItems->count() <= 1) {
-            return false;
-        }
-
-        $keep = $welcomeItems->first();
-        $duration = (int) ($keep?->planned_duration_minutes ?? 30);
-        $duration = max(30, min(60, $duration));
-
-        if ($this->training->welcome_duration_minutes !== $duration) {
-            $this->training->welcome_duration_minutes = $duration;
-            $this->training->save();
-        }
-
-        $idsToDelete = $welcomeItems->skip(1)->pluck('id')->values()->all();
-
-        if ($idsToDelete === []) {
-            return false;
-        }
-
-        TrainingScheduleItem::query()
-            ->whereIn('id', $idsToDelete)
-            ->delete();
-
-        app(TrainingScheduleTimelineService::class)->reflowDay($this->training->id, $dateKey);
-
-        return true;
-    }
-
-    private function updateDurationForDayAnchors(TrainingScheduleItem $item, int $duration): void
-    {
-        $dateKey = $item->date?->format('Y-m-d');
-
-        if (! $dateKey) {
-            return;
-        }
-
-        if ($item->type === 'MEAL') {
-            $anchor = (string) ($item->meta['anchor'] ?? '');
-            $mealKey = match ($anchor) {
-                'breakfast' => 'breakfast',
-                'lunch' => 'lunch',
-                'afternoon_snack' => 'afternoon_snack',
-                'dinner', 'night_snack' => 'dinner',
-                default => null,
-            };
-
-            if (! $mealKey) {
-                return;
-            }
-
-            $daySettings = $this->scheduleSettings['days'][$dateKey] ?? [];
-            $daySettings['meals'][$mealKey]['enabled'] = true;
-            $daySettings['meals'][$mealKey]['duration_minutes'] = $duration;
-
-            if ($mealKey === 'dinner') {
-                $daySettings['meals'][$mealKey]['substitute_snack'] = $anchor === 'night_snack';
-            }
-
-            $this->persistDaySettings($dateKey, $daySettings);
-
-            return;
-        }
-
-        if ($item->type === 'WELCOME') {
-            $daySettings = $this->scheduleSettings['days'][$dateKey] ?? [];
-            $daySettings['welcome_enabled'] = true;
-            $daySettings['welcome_duration_minutes'] = $duration;
-            $this->persistDaySettings($dateKey, $daySettings);
-
-            return;
-        }
-
-        if ($item->type === 'DEVOTIONAL') {
-            $daySettings = $this->scheduleSettings['days'][$dateKey] ?? [];
-            $daySettings['devotional_enabled'] = true;
-            $daySettings['devotional_duration_minutes'] = $duration;
-            $this->persistDaySettings($dateKey, $daySettings);
+            $item->position = $position;
+            $item->save();
+            $position++;
         }
     }
 

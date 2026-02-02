@@ -79,13 +79,20 @@ it('does not expose create, delete, or lock actions on the teacher schedule comp
     expect(method_exists(Schedule::class, 'toggleLock'))->toBeFalse();
 });
 
-it('keeps a single welcome session and inserts devotionals', function () {
+it('loads day blocks from schedule settings', function () {
     $teacher = User::factory()->create();
     $course = Course::factory()->create();
     $training = Training::factory()->create([
         'course_id' => $course->id,
         'teacher_id' => $teacher->id,
-        'welcome_duration_minutes' => 30,
+        'schedule_settings' => [
+            'day_blocks' => [
+                '2026-02-10' => [
+                    'snack' => false,
+                ],
+            ],
+            'overrides' => [],
+        ],
     ]);
 
     $training->eventDates()->delete();
@@ -104,94 +111,12 @@ it('keeps a single welcome session and inserts devotionals', function () {
         'end_time' => '12:00:00',
     ]);
 
-    TrainingScheduleItem::query()->create([
-        'training_id' => $training->id,
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 08:00:00'),
-        'ends_at' => Carbon::parse('2026-02-10 08:30:00'),
-        'type' => 'WELCOME',
-        'title' => 'Boas-vindas',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'TEACHER',
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => null,
-    ]);
-
-    TrainingScheduleItem::query()->create([
-        'training_id' => $training->id,
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 08:30:00'),
-        'ends_at' => Carbon::parse('2026-02-10 09:00:00'),
-        'type' => 'WELCOME',
-        'title' => 'Boas-vindas extra',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'TEACHER',
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => null,
-    ]);
-
-    TrainingScheduleItem::query()->create([
-        'training_id' => $training->id,
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 09:00:00'),
-        'ends_at' => Carbon::parse('2026-02-10 09:30:00'),
-        'type' => 'DEVOTIONAL',
-        'title' => 'Devocional duplicado',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'AUTO',
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => ['anchor' => 'devotional_after_welcome'],
-    ]);
-
-    TrainingScheduleItem::query()->create([
-        'training_id' => $training->id,
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 09:30:00'),
-        'ends_at' => Carbon::parse('2026-02-10 10:00:00'),
-        'type' => 'DEVOTIONAL',
-        'title' => 'Devocional duplicado 2',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'AUTO',
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => ['anchor' => 'devotional_after_welcome'],
-    ]);
-
     $this->actingAs($teacher);
 
     Livewire::test(Schedule::class, ['training' => $training])
         ->assertStatus(200)
-        ->assertSet('scheduleSettings.days.2026-02-10.meals.afternoon_snack.enabled', false)
-        ->assertSet('scheduleSettings.days.2026-02-10.meals.dinner.enabled', false);
-
-    $welcomeCount = TrainingScheduleItem::query()
-        ->where('training_id', $training->id)
-        ->where('type', 'WELCOME')
-        ->count();
-
-    expect($welcomeCount)->toBe(1);
-
-    $devotionalCount = TrainingScheduleItem::query()
-        ->where('training_id', $training->id)
-        ->where('type', 'DEVOTIONAL')
-        ->count();
-
-    expect($devotionalCount)->toBe(2);
+        ->assertSet('dayBlocks.2026-02-10.snack', false)
+        ->assertSet('dayBlocks.2026-02-10.welcome', true);
 });
 
 it('shows day labels when the training has multiple event dates', function () {
@@ -228,7 +153,7 @@ it('shows day labels when the training has multiple event dates', function () {
         ->assertSee('Dia 2');
 });
 
-it('allows changing section duration within the 20 percent rule', function () {
+it('allows changing section duration within the 25 percent rule', function () {
     $teacher = User::factory()->create();
     $role = Role::query()->create(['name' => 'Teacher']);
     $course = Course::factory()->create();
