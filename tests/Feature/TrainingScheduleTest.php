@@ -20,6 +20,8 @@ it('generates lunch and breaks without overlaps', function () {
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
+        'teacher_id' => null,
+        'church_id' => null,
         'schedule_settings' => [
             'days' => [
                 '2026-02-10' => [
@@ -37,7 +39,7 @@ it('generates lunch and breaks without overlaps', function () {
         'end_time' => '17:00:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $items = $training->scheduleItems()->orderBy('starts_at')->get();
 
@@ -60,6 +62,8 @@ it('adds a welcome period on the first day', function () {
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
+        'teacher_id' => null,
+        'church_id' => null,
         'welcome_duration_minutes' => 45,
     ]);
     $training->eventDates()->delete();
@@ -78,7 +82,7 @@ it('adds a welcome period on the first day', function () {
         'end_time' => '12:00:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $welcomeItems = $training->scheduleItems()->where('type', 'WELCOME')->orderBy('starts_at')->get();
     $firstItem = $training->scheduleItems()->orderBy('starts_at')->first();
@@ -99,6 +103,8 @@ it('adds dinner when the day includes 18:00', function () {
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
+        'teacher_id' => null,
+        'church_id' => null,
         'schedule_settings' => [
             'days' => [
                 '2026-02-10' => [
@@ -123,7 +129,7 @@ it('adds dinner when the day includes 18:00', function () {
         'end_time' => '19:30:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $firstDayDinner = $training->scheduleItems()
         ->where('type', 'MEAL')
@@ -150,6 +156,8 @@ it('allows dinner to be swapped for snack per day', function () {
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
+        'teacher_id' => null,
+        'church_id' => null,
         'schedule_settings' => [
             'days' => [
                 '2026-02-10' => [
@@ -189,7 +197,7 @@ it('allows dinner to be swapped for snack per day', function () {
         'end_time' => '19:30:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $firstDayMeal = $training->scheduleItems()
         ->where('type', 'MEAL')
@@ -241,7 +249,7 @@ it('fills the remaining minutes even below minimum on the last slot of the day',
         'end_time' => '10:00:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $firstDaySection = $training->scheduleItems()
         ->where('type', 'SECTION')
@@ -289,7 +297,7 @@ it('stretches sections proportionally to fill the day without splitting across d
         'end_time' => '10:00:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $sections = $training->scheduleItems()
         ->where('type', 'SECTION')
@@ -316,7 +324,7 @@ it('splits sessions after lunch and inserts a single break after the first block
         'end_time' => '17:00:00',
     ]);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(TrainingScheduleGenerator::class)->generate($training);
 
     $sections = $training->scheduleItems()
         ->where('type', 'SECTION')
@@ -408,7 +416,6 @@ it('reflows times when moving a schedule item', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'TEACHER',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -425,7 +432,6 @@ it('reflows times when moving a schedule item', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'TEACHER',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -440,30 +446,28 @@ it('reflows times when moving a schedule item', function () {
         'item' => $second->id,
     ]), [
         'date' => '2026-02-10',
-        'starts_at' => '2026-02-10 09:00:00',
+        'starts_at' => '2026-02-10 08:30:00',
     ]);
 
     $response->assertSuccessful();
 
     $ordered = $training->scheduleItems()
         ->whereDate('date', '2026-02-10')
-        ->orderBy('starts_at')
+        ->orderBy('position')
         ->get();
 
-    expect($ordered->first()?->type)->toBe('WELCOME');
-
+    $firstItem = $ordered->first();
     $secondItem = $ordered->get(1);
-    $thirdItem = $ordered->get(2);
 
-    expect($secondItem?->title)->toBe('Segunda');
-    expect($secondItem?->starts_at->format('H:i'))->toBe('09:30');
-    expect($secondItem?->ends_at->format('H:i'))->toBe('10:00');
-    expect($thirdItem?->title)->toBe('Primeira');
-    expect($thirdItem?->starts_at->format('H:i'))->toBe('10:00');
-    expect($thirdItem?->ends_at->format('H:i'))->toBe('11:00');
+    expect($firstItem?->title)->toBe('Segunda');
+    expect($firstItem?->starts_at->format('H:i:s'))->toBe('09:00:00');
+    expect($firstItem?->ends_at->format('H:i:s'))->toBe('09:30:00');
+    expect($secondItem?->title)->toBe('Primeira');
+    expect($secondItem?->starts_at->format('H:i:s'))->toBe('09:30:01');
+    expect($secondItem?->ends_at->format('H:i:s'))->toBe('10:30:01');
 });
 
-it('preserves teacher and locked items when regenerating auto only', function () {
+it('regenerates the schedule from scratch', function () {
     $course = Course::factory()->create();
     Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
 
@@ -488,38 +492,18 @@ it('preserves teacher and locked items when regenerating auto only', function ()
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'TEACHER',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
     ]);
 
-    $lockedItem = $training->scheduleItems()->create([
-        'section_id' => null,
-        'date' => '2026-02-10',
-        'starts_at' => Carbon::parse('2026-02-10 10:00:00'),
-        'ends_at' => Carbon::parse('2026-02-10 10:30:00'),
-        'type' => 'PRACTICE',
-        'title' => 'Prática',
-        'planned_duration_minutes' => 30,
-        'suggested_duration_minutes' => null,
-        'min_duration_minutes' => null,
-        'origin' => 'AUTO',
-        'is_locked' => true,
-        'status' => 'OK',
-        'conflict_reason' => null,
-        'meta' => null,
-    ]);
+    app(\App\Services\Schedule\TrainingScheduleResetService::class)->resetFull($training->id);
 
-    app(TrainingScheduleGenerator::class)->generate($training, 'AUTO_ONLY');
-
-    expect(TrainingScheduleItem::query()->where('training_id', $training->id)->where('title', 'Abertura')->exists())
-        ->toBeTrue();
-    expect(TrainingScheduleItem::query()->where('training_id', $training->id)->where('title', 'Prática')->where('is_locked', true)->exists())
-        ->toBeTrue();
+    expect(TrainingScheduleItem::query()->whereKey($teacherItem->id)->exists())->toBeFalse();
+    expect(TrainingScheduleItem::query()->where('training_id', $training->id)->exists())->toBeTrue();
 });
 
-it('updates schedule items and marks conflicts when moved', function () {
+it('updates schedule items and reflows times after duration changes', function () {
     $course = Course::factory()->create();
     $training = Training::factory()->create([
         'course_id' => $course->id,
@@ -546,7 +530,6 @@ it('updates schedule items and marks conflicts when moved', function () {
         'suggested_duration_minutes' => 60,
         'min_duration_minutes' => 45,
         'origin' => 'AUTO',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -563,7 +546,6 @@ it('updates schedule items and marks conflicts when moved', function () {
         'suggested_duration_minutes' => 60,
         'min_duration_minutes' => 45,
         'origin' => 'AUTO',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -578,22 +560,22 @@ it('updates schedule items and marks conflicts when moved', function () {
         'item' => $first->id,
     ]), [
         'date' => '2026-02-10',
-        'starts_at' => '2026-02-10 09:30:00',
+        'starts_at' => '2026-02-10 09:00:00',
+        'planned_duration_minutes' => 90,
     ])->assertSuccessful();
 
     $ordered = $training->scheduleItems()
         ->whereDate('date', '2026-02-10')
-        ->orderBy('starts_at')
+        ->orderBy('position')
         ->get();
 
-    expect($ordered->first()?->type)->toBe('WELCOME');
+    $firstItem = $ordered->first();
+    $secondItem = $ordered->get(1);
 
-    $sessions = $ordered->where('type', 'SECTION')->values();
-
-    expect($sessions->first()?->title)->toBe('Sessão 1');
-    expect($sessions->first()?->starts_at->format('H:i'))->toBe('09:30');
-    expect($sessions->first()?->ends_at->format('H:i'))->toBe('10:30');
-    expect($sessions->last()?->title)->toBe('Sessão 2');
-    expect($sessions->last()?->starts_at->format('H:i'))->toBe('10:45');
-    expect($sessions->last()?->ends_at->format('H:i'))->toBe('11:45');
+    expect($firstItem?->title)->toBe('Sessão 1');
+    expect($firstItem?->starts_at->format('H:i:s'))->toBe('09:00:00');
+    expect($firstItem?->ends_at->format('H:i:s'))->toBe('10:30:00');
+    expect($secondItem?->title)->toBe('Sessão 2');
+    expect($secondItem?->starts_at->format('H:i:s'))->toBe('10:30:01');
+    expect($secondItem?->ends_at->format('H:i:s'))->toBe('11:30:01');
 });

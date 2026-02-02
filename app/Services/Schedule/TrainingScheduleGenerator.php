@@ -49,9 +49,9 @@ class TrainingScheduleGenerator
         return $this->normalizeSettings($settings);
     }
 
-    public function generate(Training $training, string $mode = 'AUTO_ONLY'): GenerationResult
+    public function generate(Training $training): GenerationResult
     {
-        return DB::transaction(function () use ($training, $mode): GenerationResult {
+        return DB::transaction(function () use ($training): GenerationResult {
             $training->load([
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
                 'course.sections' => fn ($query) => $query->orderBy('order'),
@@ -60,9 +60,7 @@ class TrainingScheduleGenerator
 
             $settings = $this->settingsFor($training);
 
-            $plan = $mode === 'FULL'
-                ? $this->buildPlanFromSections($training, $settings)
-                : $this->buildPlanFromExisting($training, $settings);
+            $plan = $this->buildPlanFromSections($training, $settings);
 
             $training->scheduleItems()->delete();
 
@@ -90,21 +88,6 @@ class TrainingScheduleGenerator
         $settings = $this->settingsFor($training);
 
         return $this->buildPlanFromExisting($training, $settings);
-    }
-
-    public function repositionItem(
-        Training $training,
-        TrainingScheduleItem $item,
-        Carbon $targetStart,
-        string $targetDate,
-    ): void {
-        $item->date = $targetDate;
-        $item->starts_at = $targetStart->copy();
-        $item->ends_at = $targetStart->copy()->addMinutes((int) $item->planned_duration_minutes);
-        $item->origin = 'TEACHER';
-        $item->save();
-
-        $this->generate($training, 'AUTO_ONLY');
     }
 
     /**
@@ -188,7 +171,6 @@ class TrainingScheduleGenerator
                 $dayEnd,
                 $dateKey,
                 $daySettings,
-                [],
             );
 
             $result = $this->scheduleFromQueue(
@@ -245,15 +227,12 @@ class TrainingScheduleGenerator
             }
 
             $dayItems = $prepared['itemsByDate'][$dateKey] ?? [];
-            $lockedAnchors = $prepared['lockedByDate'][$dateKey] ?? [];
-
             $daySettings = $this->resolveDaySettings($settings, $dateKey, $dateKey === $firstDateKey);
             $anchors = $this->buildAnchorsForDay(
                 $dayStart,
                 $dayEnd,
                 $dateKey,
                 $daySettings,
-                $lockedAnchors,
             );
 
             $result = $this->scheduleFromItems(
@@ -275,7 +254,7 @@ class TrainingScheduleGenerator
 
     /**
      * @param  EloquentCollection<int, TrainingScheduleItem>  $existingItems
-     * @return array{itemsByDate: array<string, array<int, array<string, mixed>>>, lockedByDate: array<string, array<int, array<string, mixed>>>}
+     * @return array{itemsByDate: array<string, array<int, array<string, mixed>>>}
      */
     private function prepareContentFromExisting(Training $training, EloquentCollection $existingItems): array
     {
@@ -304,29 +283,9 @@ class TrainingScheduleGenerator
 
         $contentItems = [];
         $segmentGroups = [];
-        $lockedAnchors = [];
         $orderIndex = 0;
 
         foreach ($orderedItems as $item) {
-            if ($item->is_locked) {
-                $lockedAnchors[] = [
-                    'date' => $item->date?->format('Y-m-d'),
-                    'starts_at' => $item->starts_at?->copy(),
-                    'ends_at' => $item->ends_at?->copy(),
-                    'type' => $item->type,
-                    'title' => $item->title,
-                    'planned_minutes' => (int) $item->planned_duration_minutes,
-                    'suggested_minutes' => $item->suggested_duration_minutes ? (int) $item->suggested_duration_minutes : null,
-                    'min_minutes' => $item->min_duration_minutes ? (int) $item->min_duration_minutes : null,
-                    'section_id' => $item->section_id,
-                    'origin' => $item->origin ?? 'TEACHER',
-                    'meta' => $item->meta,
-                ];
-                $orderIndex++;
-
-                continue;
-            }
-
             if ($this->isAutoAnchor($item)) {
                 $orderIndex++;
 
@@ -429,25 +388,8 @@ class TrainingScheduleGenerator
                 ->all();
         }
 
-        $lockedByDate = [];
-
-        foreach ($lockedAnchors as $anchor) {
-            $dateKey = $anchor['date'];
-
-            if (! $dateKey || ! $anchor['starts_at'] || ! $anchor['ends_at']) {
-                continue;
-            }
-
-            if (! array_key_exists($dateKey, $lockedByDate)) {
-                $lockedByDate[$dateKey] = [];
-            }
-
-            $lockedByDate[$dateKey][] = $anchor;
-        }
-
         return [
             'itemsByDate' => $itemsByDate,
-            'lockedByDate' => $lockedByDate,
         ];
     }
 
@@ -568,7 +510,6 @@ class TrainingScheduleGenerator
                 $anchor['section_id'],
                 $anchor['meta'],
                 $anchor['origin'],
-                $anchor['is_locked'],
             );
         }
 
@@ -614,7 +555,6 @@ class TrainingScheduleGenerator
                         null,
                         ['anchor' => 'break'],
                         'AUTO',
-                        false,
                     );
 
                     $current = $breakEnd->copy();
@@ -639,7 +579,6 @@ class TrainingScheduleGenerator
                         $next['section_id'],
                         null,
                         'AUTO',
-                        false,
                     );
 
                     $queueIndex++;
@@ -683,7 +622,6 @@ class TrainingScheduleGenerator
                     $next['section_id'],
                     $postLunch && $next['section_id'] ? ['segment_of' => $next['section_id']] : null,
                     'AUTO',
-                    false,
                 );
 
                 $current = $segmentEnd->copy();
@@ -708,7 +646,6 @@ class TrainingScheduleGenerator
                         null,
                         ['anchor' => 'break'],
                         'AUTO',
-                        false,
                     );
 
                     $current = $pauseEnd->copy();
@@ -760,7 +697,6 @@ class TrainingScheduleGenerator
                 $anchor['section_id'],
                 $anchor['meta'],
                 $anchor['origin'],
-                $anchor['is_locked'],
             );
         }
 
@@ -814,7 +750,6 @@ class TrainingScheduleGenerator
                         null,
                         ['anchor' => 'break'],
                         'AUTO',
-                        false,
                     );
 
                     $current = $breakEnd->copy();
@@ -839,7 +774,6 @@ class TrainingScheduleGenerator
                         $next['section_id'] ?? null,
                         $next['meta'] ?? null,
                         $next['origin'] ?? 'AUTO',
-                        false,
                     );
 
                     $index++;
@@ -897,7 +831,6 @@ class TrainingScheduleGenerator
                     $next['section_id'] ?? null,
                     $postLunch && $next['section_id'] ? ['segment_of' => $next['section_id']] : $next['meta'] ?? null,
                     $next['origin'] ?? 'AUTO',
-                    false,
                 );
 
                 $current = $segmentEnd->copy();
@@ -927,7 +860,6 @@ class TrainingScheduleGenerator
                         null,
                         ['anchor' => 'break'],
                         'AUTO',
-                        false,
                     );
 
                     $current = $pauseEnd->copy();
@@ -1177,7 +1109,7 @@ class TrainingScheduleGenerator
     }
 
     /**
-     * @param  array<int, array{starts_at: Carbon, ends_at: Carbon, type: string, title: string, duration: int, suggested_minutes: int|null, min_minutes: int|null, section_id: int|null, origin: string, is_locked: bool, meta: array<string, mixed>|null}>  $anchors
+     * @param  array<int, array{starts_at: Carbon, ends_at: Carbon, type: string, title: string, duration: int, suggested_minutes: int|null, min_minutes: int|null, section_id: int|null, origin: string, meta: array<string, mixed>|null}>  $anchors
      * @return array<int, array{start: Carbon, end: Carbon}>
      */
     private function buildSlots(Carbon $dayStart, Carbon $dayEnd, array $anchors): array
@@ -1214,38 +1146,16 @@ class TrainingScheduleGenerator
 
     /**
      * @param  array<string, mixed>  $settings
-     * @param  array<int, array<string, mixed>>  $lockedAnchors
-     * @return array<int, array{starts_at: Carbon, ends_at: Carbon, type: string, title: string, duration: int, suggested_minutes: int|null, min_minutes: int|null, section_id: int|null, origin: string, is_locked: bool, meta: array<string, mixed>|null}>
+     * @return array<int, array{starts_at: Carbon, ends_at: Carbon, type: string, title: string, duration: int, suggested_minutes: int|null, min_minutes: int|null, section_id: int|null, origin: string, meta: array<string, mixed>|null}>
      */
     private function buildAnchorsForDay(
         Carbon $dayStart,
         Carbon $dayEnd,
         string $dateKey,
         array $daySettings,
-        array $lockedAnchors,
     ): array {
         $anchors = [];
         $minimumStart = $dayStart->copy();
-
-        foreach ($lockedAnchors as $anchor) {
-            if (! $anchor['starts_at'] || ! $anchor['ends_at']) {
-                continue;
-            }
-
-            $anchors[] = [
-                'starts_at' => $anchor['starts_at']->copy(),
-                'ends_at' => $anchor['ends_at']->copy(),
-                'type' => $anchor['type'],
-                'title' => $anchor['title'],
-                'duration' => (int) $anchor['planned_minutes'],
-                'suggested_minutes' => $anchor['suggested_minutes'] ?? null,
-                'min_minutes' => $anchor['min_minutes'] ?? null,
-                'section_id' => $anchor['section_id'] ?? null,
-                'origin' => $anchor['origin'] ?? 'TEACHER',
-                'is_locked' => true,
-                'meta' => $anchor['meta'] ?? null,
-            ];
-        }
 
         if (($daySettings['welcome_enabled'] ?? false) === true) {
             $duration = $this->resolveWelcomeDurationMinutes($daySettings);
@@ -1264,7 +1174,6 @@ class TrainingScheduleGenerator
                         'min_minutes' => null,
                         'section_id' => null,
                         'origin' => 'AUTO',
-                        'is_locked' => true,
                         'meta' => ['anchor' => 'welcome'],
                     ];
 
@@ -1359,7 +1268,6 @@ class TrainingScheduleGenerator
             'min_minutes' => null,
             'section_id' => null,
             'origin' => 'AUTO',
-            'is_locked' => false,
             'meta' => ['anchor' => $anchor],
         ];
     }
@@ -1588,6 +1496,18 @@ class TrainingScheduleGenerator
             $items->push($training->scheduleItems()->create($attributes));
         }
 
+        $items->groupBy(fn (TrainingScheduleItem $item) => $item->date?->format('Y-m-d'))
+            ->each(function (Collection $group): void {
+                $sorted = $group->sortBy('starts_at')->values();
+                $position = 1;
+
+                foreach ($sorted as $item) {
+                    $item->position = $position;
+                    $item->save();
+                    $position++;
+                }
+            });
+
         return $items;
     }
 
@@ -1607,7 +1527,6 @@ class TrainingScheduleGenerator
         ?int $sectionId,
         ?array $meta,
         string $origin,
-        bool $isLocked,
     ): array {
         return [
             'training' => $training,
@@ -1622,7 +1541,6 @@ class TrainingScheduleGenerator
             'suggested_duration_minutes' => $suggestedMinutes,
             'min_duration_minutes' => $minMinutes,
             'origin' => $origin,
-            'is_locked' => $isLocked,
             'status' => 'OK',
             'conflict_reason' => null,
             'meta' => $meta,

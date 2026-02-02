@@ -8,7 +8,8 @@ use App\Http\Requests\StoreTrainingScheduleItemRequest;
 use App\Http\Requests\UpdateTrainingScheduleItemRequest;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
-use App\Services\Schedule\TrainingScheduleGenerator;
+use App\Services\Schedule\TrainingScheduleResetService;
+use App\Services\Schedule\TrainingScheduleTimelineService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
@@ -17,16 +18,14 @@ class TrainingScheduleController extends Controller
     public function regenerate(
         RegenerateTrainingScheduleRequest $request,
         Training $training,
-        TrainingScheduleGenerator $generator,
+        TrainingScheduleResetService $resetService,
     ): JsonResponse {
-        $mode = $request->validated('mode') ?? 'AUTO_ONLY';
-
-        $result = $generator->generate($training, $mode);
+        $resetService->resetFull($training->id);
 
         return response()->json([
             'ok' => true,
-            'generated_count' => $result->items->count(),
-            'unallocated_count' => $result->unallocated->count(),
+            'generated_count' => $training->scheduleItems()->count(),
+            'unallocated_count' => 0,
         ]);
     }
 
@@ -34,14 +33,10 @@ class TrainingScheduleController extends Controller
         UpdateTrainingScheduleItemRequest $request,
         Training $training,
         TrainingScheduleItem $item,
-        TrainingScheduleGenerator $generator,
+        TrainingScheduleTimelineService $timelineService,
     ): JsonResponse {
         if ($item->training_id !== $training->id) {
             abort(404);
-        }
-
-        if ($item->is_locked) {
-            abort(403);
         }
 
         $validated = $request->validated();
@@ -49,11 +44,9 @@ class TrainingScheduleController extends Controller
         $startsAt = Carbon::createFromFormat('Y-m-d H:i:s', $validated['starts_at'])
             ->setDate($date->year, $date->month, $date->day);
 
-        if (! array_key_exists('planned_duration_minutes', $validated)) {
-            $startsAt = $startsAt->copy()->subSecond();
-        }
-
+        $oldDate = $item->date?->format('Y-m-d');
         $duration = (int) ($validated['planned_duration_minutes'] ?? $item->planned_duration_minutes);
+        $dateKey = $date->format('Y-m-d');
 
         if (array_key_exists('title', $validated)) {
             $item->title = $validated['title'];
@@ -65,12 +58,22 @@ class TrainingScheduleController extends Controller
 
         $item->planned_duration_minutes = $duration;
         $item->origin = 'TEACHER';
-        $item->date = $date->format('Y-m-d');
+        $item->date = $dateKey;
         $item->starts_at = $startsAt->copy();
         $item->ends_at = $startsAt->copy()->addMinutes($duration);
         $item->save();
 
-        $generator->generate($training, 'AUTO_ONLY');
+        $this->syncPositionsForDate($training->id, $dateKey);
+
+        if ($oldDate && $oldDate !== $dateKey) {
+            $this->syncPositionsForDate($training->id, $oldDate);
+        }
+
+        $timelineService->reflowDay($training->id, $dateKey);
+
+        if ($oldDate && $oldDate !== $dateKey) {
+            $timelineService->reflowDay($training->id, $oldDate);
+        }
 
         return response()->json([
             'ok' => true,
@@ -80,7 +83,7 @@ class TrainingScheduleController extends Controller
     public function storeItem(
         StoreTrainingScheduleItemRequest $request,
         Training $training,
-        TrainingScheduleGenerator $generator,
+        TrainingScheduleTimelineService $timelineService,
     ): JsonResponse {
         $validated = $request->validated();
         $date = Carbon::createFromFormat('Y-m-d', $validated['date']);
@@ -100,13 +103,13 @@ class TrainingScheduleController extends Controller
             'suggested_duration_minutes' => null,
             'min_duration_minutes' => null,
             'origin' => 'TEACHER',
-            'is_locked' => false,
             'status' => 'OK',
             'conflict_reason' => null,
             'meta' => null,
         ]);
 
-        $generator->generate($training, 'AUTO_ONLY');
+        $this->syncPositionsForDate($training->id, $date->format('Y-m-d'));
+        $timelineService->reflowDay($training->id, $date->format('Y-m-d'));
 
         return response()->json([
             'ok' => true,
@@ -116,48 +119,40 @@ class TrainingScheduleController extends Controller
     public function destroyItem(
         Training $training,
         TrainingScheduleItem $item,
-        TrainingScheduleGenerator $generator,
+        TrainingScheduleTimelineService $timelineService,
     ): JsonResponse {
         if ($item->training_id !== $training->id) {
             abort(404);
         }
 
+        $dateKey = $item->date?->format('Y-m-d');
         $item->delete();
 
-        $generator->generate($training, 'AUTO_ONLY');
+        if ($dateKey) {
+            $this->syncPositionsForDate($training->id, $dateKey);
+            $timelineService->reflowDay($training->id, $dateKey);
+        }
 
         return response()->json([
             'ok' => true,
         ]);
     }
 
-    public function lock(Training $training, TrainingScheduleItem $item): JsonResponse
+    private function syncPositionsForDate(int $trainingId, string $dateKey): void
     {
-        if ($item->training_id !== $training->id) {
-            abort(404);
+        $items = TrainingScheduleItem::query()
+            ->where('training_id', $trainingId)
+            ->whereDate('date', $dateKey)
+            ->orderBy('starts_at')
+            ->orderBy('id')
+            ->get();
+
+        $position = 1;
+
+        foreach ($items as $item) {
+            $item->position = $position;
+            $item->save();
+            $position++;
         }
-
-        $item->is_locked = true;
-        $item->save();
-
-        return response()->json([
-            'ok' => true,
-            'item' => $item->fresh(),
-        ]);
-    }
-
-    public function unlock(Training $training, TrainingScheduleItem $item): JsonResponse
-    {
-        if ($item->training_id !== $training->id) {
-            abort(404);
-        }
-
-        $item->is_locked = false;
-        $item->save();
-
-        return response()->json([
-            'ok' => true,
-            'item' => $item->fresh(),
-        ]);
     }
 }

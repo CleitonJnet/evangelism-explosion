@@ -333,7 +333,7 @@ class Create extends Component
             $this->banner = $path;
         }
 
-        $generator->generate($training, 'FULL');
+        $generator->generate($training);
 
         $this->redirectRoute('app.director.training.show', ['training' => $training->id]);
     }

@@ -116,7 +116,6 @@ it('keeps a single welcome session and inserts devotionals', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'TEACHER',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -134,7 +133,6 @@ it('keeps a single welcome session and inserts devotionals', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'TEACHER',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => null,
@@ -152,7 +150,6 @@ it('keeps a single welcome session and inserts devotionals', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'AUTO',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => ['anchor' => 'devotional_after_welcome'],
@@ -170,7 +167,6 @@ it('keeps a single welcome session and inserts devotionals', function () {
         'suggested_duration_minutes' => null,
         'min_duration_minutes' => null,
         'origin' => 'AUTO',
-        'is_locked' => false,
         'status' => 'OK',
         'conflict_reason' => null,
         'meta' => ['anchor' => 'devotional_after_welcome'],
@@ -267,7 +263,7 @@ it('allows changing section duration within the 20 percent rule', function () {
         'end_time' => '09:40:00',
     ]);
 
-    app(\App\Services\Schedule\TrainingScheduleGenerator::class)->generate($training, 'FULL');
+    app(\App\Services\Schedule\TrainingScheduleGenerator::class)->generate($training);
 
     $firstSection = TrainingScheduleItem::query()
         ->where('training_id', $training->id)
@@ -292,13 +288,8 @@ it('allows changing section duration within the 20 percent rule', function () {
     expect($currentSection)->not->toBeNull();
 
     $component
-        ->call(
-            'updateDuration',
-            $currentSection->id,
-            $currentSection->date->format('Y-m-d'),
-            $currentSection->starts_at->format('Y-m-d H:i:s'),
-            70
-        )
+        ->set('durationInputs.'.$currentSection->id, 70)
+        ->call('applyDuration', $currentSection->id)
         ->assertStatus(200);
 
     $updatedSection = TrainingScheduleItem::query()

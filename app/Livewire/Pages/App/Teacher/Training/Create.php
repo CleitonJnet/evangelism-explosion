@@ -331,7 +331,7 @@ class Create extends Component
             $this->banner = $path;
         }
 
-        $generator->generate($training, 'FULL');
+        $generator->generate($training);
 
         $this->redirectRoute('app.teacher.trainings.show', ['training' => $training->id]);
     }

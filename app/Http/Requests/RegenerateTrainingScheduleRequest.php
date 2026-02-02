@@ -21,28 +21,6 @@ class RegenerateTrainingScheduleRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'mode' => ['nullable', 'in:AUTO_ONLY,FULL'],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'mode.in' => 'O modo de regeneração informado é inválido.',
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'mode' => 'modo',
-        ];
+        return [];
     }
 }

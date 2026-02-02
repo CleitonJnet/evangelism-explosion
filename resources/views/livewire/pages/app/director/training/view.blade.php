@@ -7,14 +7,6 @@
         'training' => $training->id,
         'item' => 'ITEM_ID',
     ]);
-    $lockTemplate = route('app.director.trainings.schedule-items.lock', [
-        'training' => $training->id,
-        'item' => 'ITEM_ID',
-    ]);
-    $unlockTemplate = route('app.director.trainings.schedule-items.unlock', [
-        'training' => $training->id,
-        'item' => 'ITEM_ID',
-    ]);
     $storeUrl = route('app.director.trainings.schedule-items.store', [
         'training' => $training->id,
     ]);
@@ -25,8 +17,6 @@
     storeUrl: @js($storeUrl),
     updateUrlTemplate: @js($updateTemplate),
     deleteUrlTemplate: @js($deleteTemplate),
-    lockUrlTemplate: @js($lockTemplate),
-    unlockUrlTemplate: @js($unlockTemplate),
     csrf: @js(csrf_token()),
 })" class="space-y-6">
     <section class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
@@ -38,11 +28,6 @@
                 </flux:text>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <select x-model="mode"
-                    class="rounded-md border border-[color:var(--ee-app-border)] bg-white px-3 py-2 text-sm">
-                    <option value="AUTO_ONLY">{{ __('Regenerar automático') }}</option>
-                    <option value="FULL">{{ __('Regenerar tudo') }}</option>
-                </select>
                 <flux:button variant="primary" type="button" icon="arrow-path"
                     tooltip="{{ __('Regenerar agenda') }}" aria-label="{{ __('Regenerar agenda') }}"
                     x-on:click="regenerate" x-bind:disabled="busy" />
@@ -147,14 +132,6 @@
                                                 aria-label="{{ __('Remover sessão') }}"
                                                 x-on:click.stop="deleteItem({{ $item->id }})">
                                             </flux:button>
-                                            <flux:button type="button" size="sm"
-                                                variant="{{ $item->is_locked ? 'outline' : 'primary' }}"
-                                                class="whitespace-nowrap"
-                                                icon="{{ $item->is_locked ? 'lock-open' : 'lock-closed' }}"
-                                                tooltip="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
-                                                aria-label="{{ $item->is_locked ? __('Destravar sessão') : __('Travar sessão') }}"
-                                                x-on:click.stop="toggleLock({{ $item->id }}, {{ $item->is_locked ? 'false' : 'true' }})">
-                                            </flux:button>
                                         </div>
                                     </td>
                                 </tr>
@@ -251,7 +228,6 @@
                     startsAt: null,
                     order: null,
                 },
-                mode: 'AUTO_ONLY',
                 busy: false,
                 modalOpen: false,
                 form: {
@@ -362,9 +338,7 @@
                     const response = await fetch(config.regenerateUrl, {
                         method: 'POST',
                         headers: this.headers(),
-                        body: JSON.stringify({
-                            mode: this.mode
-                        }),
+                        body: JSON.stringify({}),
                     });
 
                     this.busy = false;
@@ -391,25 +365,6 @@
 
                     this.busy = false;
                     this.clearDropTarget();
-
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                },
-                async toggleLock(id, shouldLock) {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-
-                    const template = shouldLock ? config.lockUrlTemplate : config.unlockUrlTemplate;
-                    const response = await fetch(this.urlFromTemplate(template, id), {
-                        method: 'POST',
-                        headers: this.headers(),
-                    });
-
-                    this.busy = false;
 
                     if (response.ok) {
                         window.location.reload();

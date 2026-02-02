@@ -1,4 +1,5 @@
-<div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6">
+<div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6"
+    wire:loading.class="pointer-events-none" wire:target="regenerate,moveAfter,applyDuration,saveDaySettings">
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
@@ -14,8 +15,8 @@
                 {{ __('Reset para a agenda padrão') }}
             </span>
             <flux:button variant="primary" type="button" icon="arrow-path" tooltip="{{ __('Regenerar agenda') }}"
-                aria-label="{{ __('Regenerar agenda') }}" x-on:click="regenerate" x-bind:disabled="busy"
-                class="cursor-pointer" />
+                aria-label="{{ __('Regenerar agenda') }}" x-on:click="$wire.regenerate()"
+                wire:loading.attr="disabled" wire:target="regenerate" class="cursor-pointer" />
         </label>
     </x-src.toolbar.bar>
 
@@ -32,7 +33,7 @@
         @forelse ($eventDates as $eventDate)
             @php
                 $dateKey = $eventDate->date;
-                $items = $scheduleByDate->get($dateKey, collect())->sortBy('starts_at');
+                $items = $scheduleByDate->get($dateKey, collect())->sortBy('position');
                 $dayStart = \Carbon\Carbon::parse($eventDate->date . ' ' . $eventDate->start_time)->format(
                     'Y-m-d H:i:s',
                 );
@@ -91,29 +92,29 @@
                             class="flex flex-auto flex-wrap items-center justify-end gap-2 text-xs text-[color:var(--ee-app-muted)]">
                             <x-app.switch-schedule :label="__('Recepção')" :key="$dateKey"
                                 wire:model.blur="scheduleSettings.days.{{ $dateKey }}.welcome_enabled"
-                                wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             <x-app.switch-schedule :label="__('Devocional')" :key="$dateKey"
                                 wire:model.blur="scheduleSettings.days.{{ $dateKey }}.devotional_enabled"
-                                wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             @if ($showBreakfast)
                                 <x-app.switch-schedule :label="__('Café')" :key="$dateKey"
                                     wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.breakfast.enabled"
-                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             @endif
                             @if ($showLunch)
                                 <x-app.switch-schedule :label="__('Almoço')" :key="$dateKey"
                                     wire:model="scheduleSettings.days.{{ $dateKey }}.meals.lunch.enabled"
-                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             @endif
                             @if ($showSnack)
                                 <x-app.switch-schedule :label="__('Lanche')" :key="$dateKey"
                                     wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.afternoon_snack.enabled"
-                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             @endif
                             @if ($showDinner)
                                 <x-app.switch-schedule :label="__('Jantar')" :key="$dateKey"
                                     wire:model.blur="scheduleSettings.days.{{ $dateKey }}.meals.dinner.enabled"
-                                    wire:change="saveDaySettings('{{ $dateKey }}')" />
+                                    wire:change="saveDaySettings('{{ $dateKey }}')" wire:loading.attr="disabled" wire:target="saveDaySettings" />
                             @endif
                         </div>
                     </div>
@@ -209,7 +210,7 @@
                                                     max="{{ $maxDuration }}"
                                                     class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})" />
+                                                    wire:blur="applyDuration({{ $item->id }})" wire:loading.attr="disabled" wire:target="applyDuration" />
                                                 <div class="text-[10px] text-[color:var(--ee-app-muted)] flex flex-col">
                                                     <div>
                                                         {{ __('de') }}<span class="font-bold">
@@ -224,7 +225,7 @@
                                                 <input type="number" min="1" max="720"
                                                     class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})" />
+                                                    wire:blur="applyDuration({{ $item->id }})" wire:loading.attr="disabled" wire:target="applyDuration" />
                                                 <span class="text-xs text-[color:var(--ee-app-muted)]">
                                                     {{ __('minutes') }}
                                                 </span>
@@ -252,3 +253,5 @@
     </section>
 
 </div>
+
+

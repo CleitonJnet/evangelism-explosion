@@ -39,25 +39,18 @@ export function initScheduleSortable(root = document) {
 
                 const id = Number(itemEl.dataset.itemId);
                 const dateKey = String(toList.dataset.dateKey || "");
-                const dayStart = String(toList.dataset.dayStart || "");
                 const newIndex = typeof evt.newIndex === "number" ? evt.newIndex : 0;
 
-                if (!Number.isFinite(id) || !dateKey || !dayStart) {
+                if (!Number.isFinite(id) || !dateKey) {
                     return;
                 }
 
-                let startsAt = dayStart;
+                let afterItemId = null;
 
-                if (toList.children.length === 0) {
-                    startsAt = dayStart;
-                } else if (newIndex === 0) {
-                    startsAt = dayStart;
-                } else {
+                if (newIndex > 0) {
                     const prevEl = toList.children[newIndex - 1];
-                    const prevStartsAt = prevEl?.dataset?.startsAt;
-                    const prevEndsAt = prevEl?.dataset?.endsAt;
-
-                    startsAt = prevEndsAt || prevStartsAt || dayStart;
+                    const prevId = Number(prevEl?.dataset?.itemId);
+                    afterItemId = Number.isFinite(prevId) ? prevId : null;
                 }
 
                 const componentRoot =
@@ -68,7 +61,12 @@ export function initScheduleSortable(root = document) {
                     return;
                 }
 
-                Livewire.find(componentId).call("moveItem", id, dateKey, startsAt);
+                Livewire.find(componentId).call(
+                    "moveAfter",
+                    id,
+                    dateKey,
+                    afterItemId
+                );
             },
         });
 
