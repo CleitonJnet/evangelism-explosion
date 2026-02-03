@@ -78,6 +78,12 @@ class TrainingDayBlocksService
     {
         $training->loadMissing('eventDates');
 
+        $firstDateKey = $training->eventDates
+            ->sortBy(fn ($eventDate) => $this->resolveDateKey($eventDate->date))
+            ->map(fn ($eventDate) => $this->resolveDateKey($eventDate->date))
+            ->filter()
+            ->first();
+
         $defaults = [];
 
         foreach ($training->eventDates as $eventDate) {
@@ -88,6 +94,7 @@ class TrainingDayBlocksService
             }
 
             $defaults[$dateKey] = $this->defaultDayBlocks();
+            $defaults[$dateKey]['welcome'] = $dateKey === $firstDateKey;
         }
 
         return $defaults;
@@ -168,6 +175,12 @@ class TrainingDayBlocksService
         $storedDayBlocks = $storedSettings['day_blocks'] ?? [];
         $dayBlocks = $this->defaultsForTraining($training);
 
+        $firstDateKey = $training->eventDates
+            ->sortBy(fn ($eventDate) => $this->resolveDateKey($eventDate->date))
+            ->map(fn ($eventDate) => $this->resolveDateKey($eventDate->date))
+            ->filter()
+            ->first();
+
         foreach ($dayBlocks as $dateKey => $defaults) {
             $stored = $storedDayBlocks[$dateKey] ?? [];
             $stored = is_array($stored) ? $stored : [];
@@ -176,6 +189,10 @@ class TrainingDayBlocksService
 
             foreach (self::BLOCK_KEYS as $blockKey) {
                 $merged[$blockKey] = (bool) ($merged[$blockKey] ?? true);
+            }
+
+            if ($dateKey !== $firstDateKey && ($stored['welcome'] ?? null) === null) {
+                $merged['welcome'] = false;
             }
 
             $dayBlocks[$dateKey] = $merged;

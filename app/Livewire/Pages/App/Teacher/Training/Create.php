@@ -332,6 +332,7 @@ class Create extends Component
         }
 
         $generator->generate($training);
+        $generator->normalizeGeneratedDurationsToFive($training->fresh());
 
         $this->redirectRoute('app.teacher.trainings.show', ['training' => $training->id]);
     }

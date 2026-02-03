@@ -74,6 +74,38 @@ class TrainingScheduleGenerator
         });
     }
 
+    public function normalizeGeneratedDurationsToFive(Training $training): void
+    {
+        $training->loadMissing('scheduleItems');
+
+        $training->scheduleItems->each(function (TrainingScheduleItem $item): void {
+            $minutes = (int) $item->planned_duration_minutes;
+            $rounded = (int) (round($minutes / 5) * 5);
+
+            if ($rounded <= 0) {
+                $rounded = 5;
+            }
+
+            if ($item->type === 'SECTION') {
+                if ($item->min_duration_minutes !== null) {
+                    $rounded = max($rounded, (int) $item->min_duration_minutes);
+                }
+
+                if ($item->suggested_duration_minutes !== null) {
+                    $base = (int) $item->suggested_duration_minutes;
+                    $min = (int) floor($base * 0.75);
+                    $max = (int) ceil($base * 1.25);
+                    $rounded = max($min, min($rounded, $max));
+                }
+            }
+
+            if ($rounded !== (int) $item->planned_duration_minutes) {
+                $item->planned_duration_minutes = $rounded;
+                $item->saveQuietly();
+            }
+        });
+    }
+
     /**
      * @return array{items: array<int, array<string, mixed>>, unallocated: array<int, array<string, mixed>>}
      */
@@ -146,6 +178,7 @@ class TrainingScheduleGenerator
         $generatedItems = [];
         $unallocated = [];
         $firstDateKey = $this->resolveDateKey($training->eventDates->first()?->date);
+        $lastScheduled = null;
 
         foreach ($training->eventDates as $eventDate) {
             if (! $eventDate->start_time || ! $eventDate->end_time) {
@@ -182,10 +215,41 @@ class TrainingScheduleGenerator
                 $dateKey,
                 $anchors,
                 $settings,
+                true,
             );
 
             $generatedItems = array_merge($generatedItems, $result['items']);
             $queueIndex = $result['index'];
+
+            $lastScheduled = [
+                'dateKey' => $dateKey,
+                'dayStart' => $dayStart,
+                'dayEnd' => $dayEnd,
+                'anchors' => $anchors,
+                'cursor' => $this->resolveLastCursor($result['items'], $dateKey, $dayStart),
+            ];
+        }
+
+        if ($queueIndex < count($queue) && $lastScheduled !== null) {
+            $remainingMinutes = $this->sumRemainingQueueMinutes($queue, $queueIndex);
+            $overflowEnd = $lastScheduled['cursor']
+                ->copy()
+                ->addMinutes($remainingMinutes + $this->overflowBufferMinutes($remainingMinutes, $settings));
+
+            $overflowResult = $this->scheduleFromQueue(
+                $training,
+                $queue,
+                $queueIndex,
+                $lastScheduled['cursor'],
+                $overflowEnd,
+                $lastScheduled['dateKey'],
+                $lastScheduled['anchors'],
+                $settings,
+                false,
+            );
+
+            $generatedItems = array_merge($generatedItems, $overflowResult['items']);
+            $queueIndex = $overflowResult['index'];
         }
 
         if ($queueIndex < count($queue)) {
@@ -493,24 +557,27 @@ class TrainingScheduleGenerator
         string $dateKey,
         array $anchors,
         array $settings,
+        bool $includeAnchors,
     ): array {
         $generatedItems = [];
 
-        foreach ($anchors as $anchor) {
-            $generatedItems[] = $this->buildItemAttributes(
-                $training,
-                $dateKey,
-                $anchor['starts_at'],
-                $anchor['ends_at'],
-                $anchor['type'],
-                $anchor['title'],
-                $anchor['duration'],
-                $anchor['suggested_minutes'],
-                $anchor['min_minutes'],
-                $anchor['section_id'],
-                $anchor['meta'],
-                $anchor['origin'],
-            );
+        if ($includeAnchors) {
+            foreach ($anchors as $anchor) {
+                $generatedItems[] = $this->buildItemAttributes(
+                    $training,
+                    $dateKey,
+                    $anchor['starts_at'],
+                    $anchor['ends_at'],
+                    $anchor['type'],
+                    $anchor['title'],
+                    $anchor['duration'],
+                    $anchor['suggested_minutes'],
+                    $anchor['min_minutes'],
+                    $anchor['section_id'],
+                    $anchor['meta'],
+                    $anchor['origin'],
+                );
+            }
         }
 
         $slots = $this->buildSlots($dayStart, $dayEnd, $anchors);
@@ -663,6 +730,61 @@ class TrainingScheduleGenerator
         $generatedItems = $this->redistributeSlotMinutes($generatedItems, $slots, $postLunchStart);
 
         return ['items' => $generatedItems, 'index' => $queueIndex];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     */
+    private function resolveLastCursor(array $items, string $dateKey, Carbon $fallback): Carbon
+    {
+        $last = null;
+
+        foreach ($items as $item) {
+            if (($item['date'] ?? null) !== $dateKey) {
+                continue;
+            }
+
+            $end = $item['ends_at'] ?? null;
+
+            if (! $end instanceof CarbonInterface) {
+                continue;
+            }
+
+            if ($last === null || $end->gt($last)) {
+                $last = $end->copy();
+            }
+        }
+
+        return $last ?? $fallback->copy();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $queue
+     */
+    private function sumRemainingQueueMinutes(array $queue, int $startIndex): int
+    {
+        $total = 0;
+
+        for ($index = $startIndex; $index < count($queue); $index++) {
+            $total += (int) ($queue[$index]['planned'] ?? 0);
+        }
+
+        return $total;
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     */
+    private function overflowBufferMinutes(int $remainingMinutes, array $settings): int
+    {
+        if ($remainingMinutes <= 0) {
+            return 60;
+        }
+
+        $breaks = (int) ceil($remainingMinutes / max(1, $this->minBreakAt));
+        $afterLunchPause = (int) ($settings['after_lunch_pause_minutes'] ?? 10);
+
+        return ($breaks * $this->breakMinutes) + ($afterLunchPause * 2) + 60;
     }
 
     /**

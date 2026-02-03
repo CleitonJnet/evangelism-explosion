@@ -28,8 +28,8 @@
 
                 <div class="p-4 text-center shadow-sm rounded-xl bg-white/85 backdrop-blur-md text-slate-900">
 
-                    <div class="flex justify-center py-3 text-left" title="{{ $type }}: {{ $event }}"
-                        style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif">
+                    <div class="flex justify-center py-3 text-left pt-serif-regular"
+                        title="{{ $type }}: {{ $event }}">
                         <div class="leading-5">
                             <span class="text-lg"
                                 style="color: #000000';

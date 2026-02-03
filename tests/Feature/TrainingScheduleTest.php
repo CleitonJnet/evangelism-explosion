@@ -6,6 +6,7 @@ use App\Models\Section;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
 use App\Services\Schedule\TrainingScheduleGenerator;
+use App\Services\Schedule\TrainingScheduleResetService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -501,6 +502,98 @@ it('regenerates the schedule from scratch', function () {
 
     expect(TrainingScheduleItem::query()->whereKey($teacherItem->id)->exists())->toBeFalse();
     expect(TrainingScheduleItem::query()->where('training_id', $training->id)->exists())->toBeTrue();
+});
+
+it('normalizes generated durations to five-minute increments on reset', function () {
+    $course = Course::factory()->create();
+
+    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 33, 'name' => 'Parte 1']);
+    Section::factory()->create(['course_id' => $course->id, 'order' => 2, 'duration' => 37, 'name' => 'Parte 2']);
+
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'welcome_duration_minutes' => 37,
+    ]);
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    app(TrainingScheduleResetService::class)->resetFull($training->id);
+
+    $items = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->get();
+
+    expect($items)->not->toBeEmpty();
+
+    $items->each(function (TrainingScheduleItem $item): void {
+        expect(((int) $item->planned_duration_minutes) % 5)->toBe(0);
+
+        if ($item->type !== 'SECTION') {
+            return;
+        }
+
+        if ($item->min_duration_minutes !== null) {
+            expect($item->planned_duration_minutes)->toBeGreaterThanOrEqual((int) $item->min_duration_minutes);
+        }
+
+        if ($item->suggested_duration_minutes === null) {
+            return;
+        }
+
+        $base = (int) $item->suggested_duration_minutes;
+        $min = (int) floor($base * 0.75);
+        $max = (int) ceil($base * 1.25);
+
+        expect($item->planned_duration_minutes)->toBeGreaterThanOrEqual($min);
+        expect($item->planned_duration_minutes)->toBeLessThanOrEqual($max);
+    });
+});
+
+it('keeps welcome only on the first day after a reset', function () {
+    $course = Course::factory()->create();
+    Section::factory()->create(['course_id' => $course->id, 'order' => 1, 'duration' => 60, 'name' => 'Parte 1']);
+
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+    ]);
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-11',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    app(TrainingScheduleResetService::class)->resetFull($training->id);
+
+    $firstDayWelcome = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->whereDate('date', '2026-02-10')
+        ->where('type', 'WELCOME')
+        ->exists();
+
+    $secondDayWelcome = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->whereDate('date', '2026-02-11')
+        ->where('type', 'WELCOME')
+        ->exists();
+
+    expect($firstDayWelcome)->toBeTrue();
+    expect($secondDayWelcome)->toBeFalse();
 });
 
 it('updates schedule items and reflows times after duration changes', function () {

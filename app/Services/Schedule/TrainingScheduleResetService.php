@@ -55,6 +55,8 @@ class TrainingScheduleResetService
 
                 $this->cleanupHiddenMeals($trainingId, $dateKey, $dayUi[$dateKey] ?? []);
 
+                $this->generator->normalizeGeneratedDurationsToFive($training->fresh());
+
                 if (! ($blocksForDay['snack'] ?? true)) {
                     $this->breakPolicy->suggestBreakIfLongRun($trainingId, $dateKey, '15:30:00', 'snack_off');
                 }

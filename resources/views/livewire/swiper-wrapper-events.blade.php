@@ -19,8 +19,8 @@
             @continue
         @endif
 
-        <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
-            :start_time="$startTime" :city="$event->city" :state="$event->state" :route="route('web.event.details', $event->id)" />
+        <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date" :start_time="$startTime"
+            :city="$event->city" :state="$event->state" :route="route('web.event.details', $event->id)" />
     @endforeach
 
     <div class="swiper-slide">
