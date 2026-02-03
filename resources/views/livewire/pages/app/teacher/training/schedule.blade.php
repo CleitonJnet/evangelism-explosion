@@ -4,9 +4,10 @@
     <div class="absolute inset-0 opacity-0 pointer-events-all cursor-wait" wire:loading
         wire:target="regenerate,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak"></div>
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
+            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
                 :tooltip="__('Programação do evento')" />
         </div>
@@ -32,6 +33,19 @@
                 ? \Carbon\Carbon::parse($lastEventDate->date . ' ' . $lastEventDate->end_time)
                 : null;
     @endphp
+
+    @if ($hasMultipleDays)
+        <x-src.toolbar.bar :breadcrumb="false" justify="justify-end">
+            <div class="max-w-28 text-right text-xs">{{ __('Dias de Treinamentos') }}</div>
+            @foreach ($eventDates as $itemDate)
+                @php
+                    $week = \App\Helpers\WeekHelper::dayName($itemDate->date);
+                @endphp
+                <x-src.toolbar.course-button :href="'#day' . $loop->iteration" :label="__($week)" :tooltip="__($week)" />
+            @endforeach
+        </x-src.toolbar.bar>
+    @endif
+
     <section class="grid gap-6">
         @forelse ($eventDates as $eventDate)
             @php
@@ -46,7 +60,8 @@
                 $showSnack = (bool) ($dayUiFlags['showSnack'] ?? false);
                 $showDinner = (bool) ($dayUiFlags['showDinner'] ?? false);
             @endphp
-            <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
+            <div id="{{ 'day' . $loop->iteration }}"
+                class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
                 wire:key="schedule-day-{{ $dateKey }}">
                 <div class="">
                     <div class="flex flex-wrap items-start justify-between gap-2 pb-2">
@@ -59,7 +74,7 @@
                                     </span>
                                 @endif
                                 <div class="font-semibold text-heading text-slate-50">
-                                    {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($dateKey)->locale('pt_BR')->isoFormat('dddd')) }}
+                                    {{ \App\Helpers\WeekHelper::dayName($dateKey) }}
                                     -
                                     {{ \Carbon\Carbon::parse($dateKey)->format('d/m') }}
                                 </div>

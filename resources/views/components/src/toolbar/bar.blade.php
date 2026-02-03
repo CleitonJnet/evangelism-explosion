@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'justify' => 'justify-start', 'class' => ''])
+@props(['title' => null, 'description' => null, 'justify' => 'justify-start', 'class' => '', 'breadcrumb' => true])
 
 @php
     $route = request()->route();
@@ -199,7 +199,7 @@
 
 <section
     {{ $attributes->merge(['class' => 'rounded-2xl border border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200 px-5 py-2 shadow-sm mb-6 w-full']) }}>
-    @if ($breadcrumbItems !== [])
+    @if ($breadcrumb && $breadcrumbItems !== [])
         <nav class="flex flex-wrap items-center gap-2 text-xs py-2 text-amber-700/50" aria-label="{{ __('Breadcrumb') }}">
             @foreach ($breadcrumbItems as $item)
                 @if (!$loop->first)
