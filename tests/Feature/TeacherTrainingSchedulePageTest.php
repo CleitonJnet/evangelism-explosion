@@ -226,3 +226,59 @@ it('allows changing section duration within the 25 percent rule', function () {
     expect($updatedSection)->not->toBeNull();
     expect($updatedSection?->planned_duration_minutes)->toBe(70);
 });
+
+it('updates day times and reflows schedule items', function () {
+    $teacher = User::factory()->create();
+    $role = Role::query()->create(['name' => 'Teacher']);
+    $course = Course::factory()->create();
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-02-10',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    $scheduleItem = TrainingScheduleItem::factory()->create([
+        'training_id' => $training->id,
+        'section_id' => null,
+        'date' => '2026-02-10',
+        'starts_at' => Carbon::parse('2026-02-10 08:00:00'),
+        'ends_at' => Carbon::parse('2026-02-10 09:00:00'),
+        'planned_duration_minutes' => 60,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'position' => 1,
+        'type' => 'BREAK',
+        'title' => 'Intervalo',
+    ]);
+
+    $teacher->roles()->attach($role->id);
+    $this->actingAs($teacher);
+
+    Livewire::test(Schedule::class, ['training' => $training])
+        ->set('dayTimes.2026-02-10.start_time', '09:00')
+        ->assertStatus(200)
+        ->set('dayTimes.2026-02-10.end_time', '13:30')
+        ->assertStatus(200);
+
+    $eventDate = EventDate::query()
+        ->where('training_id', $training->id)
+        ->where('date', '2026-02-10')
+        ->first();
+
+    expect($eventDate)->not->toBeNull();
+    expect($eventDate?->start_time)->toBe('09:00:00');
+    expect($eventDate?->end_time)->toBe('13:30:00');
+
+    $updatedItem = TrainingScheduleItem::query()->find($scheduleItem->id);
+    expect($updatedItem)->not->toBeNull();
+    expect($updatedItem?->starts_at?->format('H:i:s'))->toBe('09:00:00');
+    expect($updatedItem?->ends_at?->format('H:i:s'))->toBe('10:00:00');
+});

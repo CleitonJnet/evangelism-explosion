@@ -12,7 +12,7 @@
         class="absolute inset-0 pointer-events-none opacity-60 bg-[radial-gradient(circle_at_20%_20%,rgba(199,168,64,0.18),transparent_55%)]">
     </div>
 
-    <div class="relative px-4 py-10 mx-auto max-w-8xl mx-auto sm:px-6 lg:px-10">
+    <div class="relative px-4 py-10 mx-auto max-w-8xl sm:px-6 lg:px-10">
 
         {{-- Cabeçalho do bloco --}}
         <div class="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

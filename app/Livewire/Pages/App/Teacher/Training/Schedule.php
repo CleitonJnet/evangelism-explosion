@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Models\EventDate;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
 use App\Services\Schedule\TrainingDayBlocksService;
@@ -18,6 +19,12 @@ use Livewire\Component;
 
 class Schedule extends Component
 {
+    public const PLAN_STATUS_UNDER = 'under';
+
+    public const PLAN_STATUS_OVER = 'over';
+
+    public const PLAN_STATUS_OK = 'ok';
+
     public Training $training;
 
     /**
@@ -44,6 +51,11 @@ class Schedule extends Component
      * @var array<string, array{showBreakfast: bool, showLunch: bool, showSnack: bool, showDinner: bool}>
      */
     public array $dayUi = [];
+
+    /**
+     * @var array<string, array{start_time: string, end_time: string}>
+     */
+    public array $dayTimes = [];
 
     public bool $busy = false;
 
@@ -297,9 +309,13 @@ class Schedule extends Component
     {
         $scheduleByDate = $this->scheduleItems
             ->groupBy(fn (TrainingScheduleItem $item) => $item->date?->format('Y-m-d'));
+        $planStatusByDate = $this->buildPlanStatusByDate($scheduleByDate);
+        $planDiffByDate = $this->buildPlanDiffByDate($scheduleByDate);
 
         return view('livewire.pages.app.teacher.training.schedule', [
             'scheduleByDate' => $scheduleByDate,
+            'planStatusByDate' => $planStatusByDate,
+            'planDiffByDate' => $planDiffByDate,
         ]);
     }
 
@@ -339,6 +355,89 @@ class Schedule extends Component
             $this->scheduleItems = $this->training->scheduleItems;
         }
         $this->syncDurationInputs();
+        $this->syncDayTimes();
+    }
+
+    public function updatedDayTimes(string $value, string $key): void
+    {
+        if ($this->busy) {
+            return;
+        }
+
+        $this->authorizeTraining($this->training);
+        $this->busy = true;
+
+        try {
+            $segments = explode('.', $key);
+
+            if (count($segments) < 2) {
+                return;
+            }
+
+            [$dateKey, $field] = $segments;
+
+            if (! in_array($field, ['start_time', 'end_time'], true)) {
+                return;
+            }
+
+            $validator = Validator::make(
+                ['date' => $dateKey, 'time' => $value],
+                $this->dayTimeRules(),
+                $this->dayTimeMessages(),
+                $this->dayTimeAttributes(),
+            );
+
+            if ($validator->fails()) {
+                $this->dispatchScheduleAlert($validator->errors()->first() ?? 'Confira os valores informados.');
+                $this->refreshSchedule();
+
+                return;
+            }
+
+            $eventDate = EventDate::query()
+                ->where('training_id', $this->training->id)
+                ->where('date', $dateKey)
+                ->first();
+
+            if (! $eventDate) {
+                $this->dispatchScheduleAlert('Data do treinamento nÃ£o encontrada.');
+                $this->refreshSchedule();
+
+                return;
+            }
+
+            $currentStart = $field === 'start_time'
+                ? $value
+                : substr($eventDate->start_time ?? '', 0, 5);
+            $currentEnd = $field === 'end_time'
+                ? $value
+                : substr($eventDate->end_time ?? '', 0, 5);
+
+            if ($currentStart !== '' && $currentEnd !== '') {
+                $startMinutes = $this->timeToMinutes($currentStart);
+                $endMinutes = $this->timeToMinutes($currentEnd);
+
+                if ($endMinutes <= $startMinutes) {
+                    $this->dispatchScheduleAlert('O horÃ¡rio final deve ser maior que o horÃ¡rio inicial.');
+                    $this->refreshSchedule();
+
+                    return;
+                }
+            }
+
+            if ($value.':00' !== $eventDate->$field) {
+                $eventDate->$field = $value.':00';
+                $eventDate->save();
+
+                if ($field === 'start_time') {
+                    app(TrainingScheduleTimelineService::class)->reflowDay($this->training->id, $dateKey);
+                }
+            }
+
+            $this->refreshSchedule();
+        } finally {
+            $this->busy = false;
+        }
     }
 
     private function syncDurationInputs(): void
@@ -354,6 +453,159 @@ class Schedule extends Component
                 return [$item->id => $duration];
             })
             ->toArray();
+    }
+
+    private function syncDayTimes(): void
+    {
+        $this->dayTimes = $this->eventDates
+            ->mapWithKeys(function ($eventDate): array {
+                $dateKey = is_string($eventDate->date)
+                    ? $eventDate->date
+                    : $eventDate->date?->format('Y-m-d');
+
+                if (! $dateKey) {
+                    return [];
+                }
+
+                return [
+                    $dateKey => [
+                        'start_time' => substr($eventDate->start_time ?? '', 0, 5),
+                        'end_time' => substr($eventDate->end_time ?? '', 0, 5),
+                    ],
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * @param  Collection<string, Collection<int, TrainingScheduleItem>>  $scheduleByDate
+     * @return array<string, string>
+     */
+    private function buildPlanStatusByDate(Collection $scheduleByDate): array
+    {
+        $statuses = [];
+
+        foreach ($this->eventDates as $eventDate) {
+            $dateKey = is_string($eventDate->date)
+                ? $eventDate->date
+                : $eventDate->date?->format('Y-m-d');
+
+            if (! $dateKey) {
+                continue;
+            }
+
+            $items = $scheduleByDate->get($dateKey, collect());
+
+            $statuses[$dateKey] = $this->resolvePlanStatus(
+                $dateKey,
+                $eventDate->end_time,
+                $items,
+            );
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * @param  Collection<string, Collection<int, TrainingScheduleItem>>  $scheduleByDate
+     * @return array<string, array{hours: int, minutes: int}>
+     */
+    private function buildPlanDiffByDate(Collection $scheduleByDate): array
+    {
+        $diffs = [];
+
+        foreach ($this->eventDates as $eventDate) {
+            $dateKey = is_string($eventDate->date)
+                ? $eventDate->date
+                : $eventDate->date?->format('Y-m-d');
+
+            if (! $dateKey) {
+                continue;
+            }
+
+            $items = $scheduleByDate->get($dateKey, collect());
+
+            $diffs[$dateKey] = $this->resolvePlanDiff(
+                $eventDate->end_time,
+                $items,
+            );
+        }
+
+        return $diffs;
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $items
+     */
+    private function resolvePlanStatus(string $dateKey, ?string $endTime, Collection $items): string
+    {
+        if (! $endTime) {
+            return self::PLAN_STATUS_UNDER;
+        }
+
+        $plannedMinutes = $this->timeToMinutes($endTime);
+
+        $lastEndMinutes = $items
+            ->filter(fn (TrainingScheduleItem $item) => $item->ends_at)
+            ->max(function (TrainingScheduleItem $item): int {
+                return ((int) $item->ends_at->format('H')) * 60 + (int) $item->ends_at->format('i');
+            });
+
+        if (! $lastEndMinutes) {
+            return self::PLAN_STATUS_UNDER;
+        }
+
+        if ($lastEndMinutes === null) {
+            return self::PLAN_STATUS_UNDER;
+        }
+
+        if ($lastEndMinutes < $plannedMinutes) {
+            return self::PLAN_STATUS_UNDER;
+        }
+
+        if ($lastEndMinutes > $plannedMinutes) {
+            return self::PLAN_STATUS_OVER;
+        }
+
+        return self::PLAN_STATUS_OK;
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $items
+     * @return array{hours: int, minutes: int}
+     */
+    private function resolvePlanDiff(?string $endTime, Collection $items): array
+    {
+        if (! $endTime) {
+            return ['hours' => 0, 'minutes' => 0];
+        }
+
+        $plannedMinutes = $this->timeToMinutes($endTime);
+        $lastEndMinutes = $items
+            ->filter(fn (TrainingScheduleItem $item) => $item->ends_at)
+            ->max(function (TrainingScheduleItem $item): int {
+                return ((int) $item->ends_at->format('H')) * 60 + (int) $item->ends_at->format('i');
+            });
+
+        if ($lastEndMinutes === null) {
+            return ['hours' => 0, 'minutes' => 0];
+        }
+
+        $diff = abs($lastEndMinutes - $plannedMinutes);
+
+        return [
+            'hours' => intdiv($diff, 60),
+            'minutes' => $diff % 60,
+        ];
+    }
+
+    private function timeToMinutes(string $time): int
+    {
+        $value = strlen($time) === 5
+            ? Carbon::createFromFormat('H:i', $time)
+            : Carbon::createFromFormat('H:i:s', $time);
+
+        return ((int) $value->format('H')) * 60 + (int) $value->format('i');
     }
 
     private function authorizeTraining(Training $training): void
@@ -500,6 +752,41 @@ class Schedule extends Component
     {
         return [
             'planned_duration_minutes' => 'duração',
+        ];
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function dayTimeRules(): array
+    {
+        return [
+            'date' => ['required', 'date_format:Y-m-d'],
+            'time' => ['required', 'date_format:H:i'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function dayTimeMessages(): array
+    {
+        return [
+            'date.required' => 'A data Ã© obrigatÃ³ria.',
+            'date.date_format' => 'A data deve estar no formato YYYY-MM-DD.',
+            'time.required' => 'Informe o horÃ¡rio.',
+            'time.date_format' => 'O horÃ¡rio deve estar no formato HH:MM.',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function dayTimeAttributes(): array
+    {
+        return [
+            'date' => 'data',
+            'time' => 'horÃ¡rio',
         ];
     }
 

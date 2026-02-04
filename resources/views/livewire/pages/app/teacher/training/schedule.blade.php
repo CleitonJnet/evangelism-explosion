@@ -61,30 +61,49 @@
                 $showDinner = (bool) ($dayUiFlags['showDinner'] ?? false);
             @endphp
             <div id="{{ 'day' . $loop->iteration }}"
-                class="rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
+                class="rounded-2xl border border-(--ee-app-border) bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
                 wire:key="schedule-day-{{ $dateKey }}">
-                <div class="">
+                <div>
                     <div class="flex flex-wrap items-start justify-between gap-2 pb-2">
-                        <div class="flex flex-wrap items-center bg-sky-950/10 rounded">
-                            <div
-                                class="flex flex-wrap items-center gap-2 rounded bg-sky-950 px-2 pt-1 pb-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-200">
-                                @if ($hasMultipleDays)
-                                    <span class="">
-                                        {{ __('Dia') }} {{ $loop->iteration }}:
-                                    </span>
-                                @endif
-                                <div class="font-semibold text-heading text-slate-50">
-                                    {{ \App\Helpers\WeekHelper::dayName($dateKey) }}
-                                    -
-                                    {{ \Carbon\Carbon::parse($dateKey)->format('d/m') }}
+                        <div class="grid gap-0.5">
+                            <div class="flex flex-wrap items-center bg-sky-950/10 rounded">
+                                <div
+                                    class="flex flex-wrap items-center gap-2 rounded bg-sky-950 px-2 pt-1 pb-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-200">
+                                    @if ($hasMultipleDays)
+                                        <span class="">
+                                            {{ __('Dia') }} {{ $loop->iteration }}:
+                                        </span>
+                                    @endif
+                                    <div class="font-semibold text-heading text-slate-50">
+                                        {{ \App\Helpers\WeekHelper::dayName($dateKey) }}
+                                        -
+                                        {{ \Carbon\Carbon::parse($dateKey)->format('d/m') }}
+                                    </div>
+                                </div>
+                                <div class="text-xs text-amber-700 px-2">
+                                    {{ $eventDate->start_time ? substr($eventDate->start_time, 0, 5) : '' }} -
+                                    {{ $eventDate->end_time ? substr($eventDate->end_time, 0, 5) : '' }}
                                 </div>
                             </div>
-                            <div class="text-xs text-amber-700 px-2">
-                                {{ $eventDate->start_time }} - {{ $eventDate->end_time }}
+                            <div class="text-xs flex gap-4">
+                                <label for="day_time_start_{{ $dateKey }}">
+                                    <span>{{ __('Início das sessões') }}</span>
+                                    <input type="time" id="day_time_start_{{ $dateKey }}" class=""
+                                        wire:model.live.blur="dayTimes.{{ $dateKey }}.start_time"
+                                        wire:loading.attr="disabled"
+                                        wire:target="dayTimes.{{ $dateKey }}.start_time">
+                                </label>
+                                <label for="day_time_end_{{ $dateKey }}">
+                                    <span>{{ __('Fim das sessões') }}</span>
+                                    <input type="time" id="day_time_end_{{ $dateKey }}" class=""
+                                        wire:model.live="dayTimes.{{ $dateKey }}.end_time"
+                                        wire:loading.attr="disabled"
+                                        wire:target="dayTimes.{{ $dateKey }}.end_time">
+                                </label>
                             </div>
                         </div>
                         <div
-                            class="flex flex-auto flex-wrap items-center justify-end gap-2 text-xs text-[color:var(--ee-app-muted)]">
+                            class="flex flex-auto flex-wrap items-center justify-end gap-2 text-xs text-(--ee-app-muted)">
                             <x-app.switch-schedule :label="__('Boas-vindas')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.welcome', true)"
                                 wire:change="toggleDayBlock('{{ $dateKey }}', 'welcome', $event.target.checked)"
                                 wire:loading.attr="disabled" wire:target="toggleDayBlock" />
@@ -121,18 +140,17 @@
                     </div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl border border-[color:var(--ee-app-border)] bg-white"
+                <div class="overflow-hidden rounded-xl border border-(--ee-app-border) bg-white mb-1"
                     style="box-shadow: 0 0 2px 0 #052f4a">
                     <table class="w-full text-left text-sm">
-                        <thead
-                            class="text-xs bg-linear-to-b from-sky-200 to-sky-300 uppercase text-[color:var(--ee-app-muted)]">
-                            <tr class="border-b border-[color:var(--ee-app-border)]">
+                        <thead class="text-xs bg-linear-to-b from-sky-200 to-sky-300 uppercase text-(--ee-app-muted)">
+                            <tr class="border-b border-(--ee-app-border)">
                                 <th class="px-3 py-2 w-36">{{ __('Horário') }}</th>
                                 <th class="px-3 py-2">{{ __('Sessão') }}</th>
                                 <th class="px-3 py-2 w-36">{{ __('Duração') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-[color:var(--ee-app-border)] js-schedule-day-list"
+                        <tbody class="divide-y divide-(--ee-app-border) js-schedule-day-list"
                             data-date-key="{{ $dateKey }}" data-day-start="{{ $dayStart }}">
                             @forelse ($items as $item)
                                 @php
@@ -176,7 +194,7 @@
                                     <td class="px-3 py-2 whitespace-nowrap">
                                         <div class="flex items-center gap-2">
                                             <button type="button"
-                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--ee-app-border)] bg-white text-[color:var(--ee-app-muted)] transition hover:text-slate-700 hover:bg-sky-500 cursor-grab js-drag-handle"
+                                                class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-(--ee-app-border) bg-white text-(--ee-app-muted) transition hover:text-slate-700 hover:bg-sky-500 cursor-grab js-drag-handle"
                                                 title="{{ __('Arrastar para reordenar') }}"
                                                 aria-label="{{ __('Arrastar para reordenar') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
@@ -195,7 +213,7 @@
                                             {{ $item->title }}
                                         </div>
                                         @if ($item->section?->devotional)
-                                            <div class="text-xs text-[color:var(--ee-app-muted)]">
+                                            <div class="text-xs text-(--ee-app-muted)">
                                                 {{ $item->section->devotional }}
                                             </div>
                                         @endif
@@ -209,12 +227,11 @@
                                             <div class="flex items-center gap-2">
                                                 <input type="number" min="{{ $minDuration }}"
                                                     max="{{ $maxDuration }}"
-                                                    class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-right py-1 text-sm bg-white/60 focus-within:bg-white"
+                                                    class="w-12 rounded-md border border-(--ee-app-border) text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
                                                     wire:blur="applyDuration({{ $item->id }})"
                                                     wire:loading.attr="disabled" wire:target="applyDuration" />
-                                                <div
-                                                    class="text-[10px] text-[color:var(--ee-app-muted)] flex flex-col">
+                                                <div class="text-[10px] text-(--ee-app-muted) flex flex-col">
                                                     <div>
                                                         {{ __('de') }}<span class="font-bold">
                                                             {{ $minDuration }}-{{ $maxDuration }}
@@ -226,11 +243,11 @@
                                         @else
                                             <div class="flex items-center gap-2">
                                                 <input type="number" min="1" max="720"
-                                                    class="w-12 rounded-md border border-[color:var(--ee-app-border)] text-center md:text-right py-1 text-sm bg-white/60 focus-within:bg-white"
+                                                    class="w-12 rounded-md border border-(--ee-app-border) text-center md:text-right py-1 text-sm bg-white/60 focus-within:bg-white"
                                                     wire:model.blur="durationInputs.{{ $item->id }}"
                                                     wire:blur="applyDuration({{ $item->id }})"
                                                     wire:loading.attr="disabled" wire:target="applyDuration" />
-                                                <span class="text-xs text-[color:var(--ee-app-muted)]">
+                                                <span class="text-xs text-(--ee-app-muted)">
                                                     {{ __('minutes') }}
                                                 </span>
                                                 @if ($item->type === 'BREAK')
@@ -255,7 +272,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td class="px-3 py-4 text-xs text-[color:var(--ee-app-muted)]" colspan="3">
+                                    <td class="px-3 py-4 text-xs text-(--ee-app-muted)" colspan="3">
                                         {{ __('Nenhum item para este dia.') }}
                                     </td>
                                 </tr>
@@ -263,13 +280,364 @@
                         </tbody>
                     </table>
                 </div>
+                @php
+                    $planStatus =
+                        $planStatusByDate[$dateKey] ??
+                        \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_UNDER;
+                @endphp
+                @php
+                    $planDiff = $planDiffByDate[$dateKey] ?? ['hours' => 0, 'minutes' => 0];
+                @endphp
+                @if ($planStatus === \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_UNDER)
+                    <div class="text-sm text-amber-600 font-bold flex gap-0.5 items-end">
+                        &#9888;
+                        {{ __('A carga horária prevista para o dia ainda não foi totalmente preenchida') }}
+                        ({{ __('até às') }}
+                        {{ $eventDate->end_time ? substr($eventDate->end_time, 0, 5) : '' }})
+                        - {{ $planDiff['hours'] }}h {{ $planDiff['minutes'] }}m.
+                    </div>
+                @elseif ($planStatus === \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_OVER)
+                    <div class="text-sm text-red-600 font-bold flex gap-0.5 items-end">
+                        &#10060;
+                        {{ __('Uma ou mais sessões excederam o período previsto para o dia') }}
+                        ({{ __('até às') }}
+                        {{ $eventDate->end_time ? substr($eventDate->end_time, 0, 5) : '' }})
+                        - {{ $planDiff['hours'] }}h {{ $planDiff['minutes'] }}m.
+                    </div>
+                @else
+                    <div class="text-sm text-green-600 font-bold flex gap-0.5 items-end">
+                        &#9989;
+                        {{ __('O planejamento do dia atende plenamente à carga horária definida') }}
+                        ({{ __('até às') }}
+                        {{ $eventDate->end_time ? substr($eventDate->end_time, 0, 5) : '' }}).
+                    </div>
+                @endif
             </div>
         @empty
-            <div
-                class="rounded-2xl border border-dashed border-[color:var(--ee-app-border)] p-6 text-sm text-[color:var(--ee-app-muted)]">
+            <div class="rounded-2xl border border-dashed border-(--ee-app-border) p-6 text-sm text-(--ee-app-muted)">
                 {{ __('Nenhuma data cadastrada para este treinamento.') }}
             </div>
         @endforelse
     </section>
 
 </div>
+
+
+{{-- 
+
+
+Horário	Sessão	Duração
+
+18:30 - 19:00
+Boas-vindas
+30
+minutes
+
+19:00 - 19:10
+Devocional
+10
+minutes
+
+19:10 - 19:45
+Unidade 1: Por Que Estamos Aqui?
+35
+de 30-50
+minutes
+
+19:45 - 20:05
+Unidade 2: Aprendendo a Explicação do Evangelho Em Sua Mão
+20
+de 15-25
+minutes
+
+20:05 - 20:15
+Intervalo
+10
+minutes
+
+20:15 - 20:50
+Unidade 3: Vencendo o Medo de Testemunhar
+35
+de 30-50
+minutes
+
+20:50 - 21:30
+Unidade 4: Encontrando Pessoas Receptivas
+40
+de 30-50
+minutes
+✅ O planejamento do dia atende plenamente à carga horária definida (até às 21:30).
+Dia 2:
+Sábado - 07/02
+08:30 - 21:45
+Horário de início das sessões 
+08:30
+Horário de fim das sessões 
+21:45
+
+
+
+
+
+Adicionar intervalo
+Horário	Sessão	Duração
+
+08:30 - 08:40
+Devocional
+10
+minutes
+
+08:40 - 09:20
+Unidade 5: Compartilhando o Evangelho Através de Ilustrações
+40
+de 27-43
+minutes
+
+09:20 - 09:55
+Unidade 6: Levando a Uma Decisão
+35
+de 23-37
+minutes
+
+09:55 - 10:20
+Unidade 7: Desenvolvendo Amor pelos Perdidos
+25
+de 15-25
+minutes
+
+10:20 - 10:35
+Intervalo
+15
+minutes
+
+10:35 - 11:00
+Unidade 8: Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado
+25
+de 15-25
+minutes
+
+11:00 - 11:40
+Encerramento: Juntos na Colheita do Senhor
+40
+de 30-50
+minutes
+
+11:40 - 11:50
+Intervalo
+10
+minutes
+
+11:50 - 12:00
+Orientações da Clínica de Evangelismo Explosivo
+10
+de 8-12
+minutes
+
+12:00 - 13:20
+Almoço
+80
+minutes
+
+13:20 - 13:40
+O Treinamento de e² — Evangelismo Eficaz
+20
+de 15-25
+minutes
+
+13:40 - 14:15
+Elementos-Chave do Treinamento e²
+35
+de 30-50
+minutes
+
+14:15 - 14:45
+O Ensino Semanal no e²
+Devocional Semanal
+30
+de 23-37
+minutes
+
+14:45 - 15:25
+AULA: Saídas de Treinamento Prático (STP)
+40
+de 34-56
+minutes
+
+15:25 - 15:55
+Lanche
+30
+minutes
+
+15:55 - 16:15
+Uso do Questionário de Segurança
+20
+de 15-25
+minutes
+
+16:15 - 16:25
+ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)
+10
+de 8-12
+minutes
+
+16:25 - 17:25
+PRÁTICA 1: Saídas de Treinamento Prático (STP)
+60
+de 45-75
+minutes
+
+17:25 - 17:55
+Relatório Público
+30
+de 23-37
+minutes
+
+17:55 - 18:35
+PRÁTICA 1: Relatório Público
+40
+de 30-50
+minutes
+
+18:35 - 19:35
+Jantar
+60
+minutes
+
+19:35 - 20:35
+Unidade 1 — Conectando
+Conectando-se às Pessoas
+60
+de 45-75
+minutes
+
+20:35 - 21:05
+Unidade 2 — O Evangelho: Graça
+A Graça de Deus
+30
+de 27-43
+minutes
+
+21:05 - 21:15
+ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)
+10
+de 8-12
+minutes
+
+21:15 - 21:45
+Unidade 3 — O Evangelho: Homem
+A Condição do Homem
+30
+de 27-43
+minutes
+✅ O planejamento do dia atende plenamente à carga horária definida (até às 21:45).
+Dia 3:
+Domingo - 08/02
+08:30 - 17:30
+Horário de início das sessões 
+08:30
+Horário de fim das sessões 
+17:30
+
+
+
+
+Adicionar intervalo
+Horário	Sessão	Duração
+
+08:30 - 08:45
+Devocional
+15
+minutes
+
+08:45 - 09:15
+Unidade 4 — Compartilhando Seu Testemunho
+O Poder de Seu Testemunho
+30
+de 27-43
+minutes
+
+09:15 - 09:45
+Unidade 5 — O Evangelho: Deus e Cristo
+Deus e Jesus Cristo
+30
+de 27-43
+minutes
+
+09:45 - 10:15
+Unidade 6 — O Evangelho: Fé
+Entendendo a Fé
+30
+de 27-43
+minutes
+
+10:15 - 10:25
+Intervalo
+10
+minutes
+
+10:25 - 11:35
+PRÁTICA 2: Saídas de Treinamento Prático (STP)
+70
+de 68-112
+minutes
+
+11:35 - 12:15
+PRÁTICA 2: Relatório Público
+40
+de 30-50
+minutes
+
+12:15 - 13:30
+Almoço
+75
+minutes
+
+13:30 - 14:00
+Unidade 7 — Decisão e Acompanhamento
+O Amor de Deus pelos Perdidos
+30
+de 27-43
+minutes
+
+14:00 - 14:10
+ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)
+10
+de 8-12
+minutes
+
+14:10 - 15:10
+Guia de Implementação do Ministério de Evangelismo Explosivo
+60
+de 45-75
+minutes
+
+15:10 - 15:40
+Lanche
+30
+minutes
+
+15:40 - 16:50
+PRÁTICA 3: Saídas de Treinamento Prático (STP)
+70
+de 60-100
+minutes
+
+16:50 - 17:30
+PRÁTICA 3: Relatório Público
+40
+de 30-50
+minutes
+
+17:30 - 18:40
+PRÁTICA 2: Saídas de Treinamento Prático (STP)
+70
+de 68-112
+minutes
+
+18:40 - 19:40
+PRÁTICA 3: Saídas de Treinamento Prático (STP)
+60
+de 60-100
+minutes
+
+--}}
