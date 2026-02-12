@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Training;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Livewire\Component;
 
 class SwiperWrapperEvents extends Component
@@ -16,6 +17,7 @@ class SwiperWrapperEvents extends Component
      */
     public function mount(array|int|null $ministry = null, array|int|null $ministryNot = null): void
     {
+
         $query = Training::query()
             ->with([
                 'course.ministry',
@@ -26,6 +28,9 @@ class SwiperWrapperEvents extends Component
             ])
             ->whereHas('course')
             ->whereHas('eventDates')
+            ->whereDoesntHave('eventDates', function ($query) {
+                $query->whereDate('date', '<', Carbon::today());
+            })
             ->withMin('eventDates', 'date')
             ->orderBy('event_dates_min_date');
 

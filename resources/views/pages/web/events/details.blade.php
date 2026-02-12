@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Facades\Storage;
+
     $title = __('Eventos & treinamentos');
     $description =
         'Confira ou agende eventos e treinamentos do ministério Evangelismo Explosivo no Brasil, participando da expansão do Evangelho.';
@@ -19,6 +21,13 @@
         ? route('app.student.training.show', ['training' => $event->id])
         : route('web.event.register', ['id' => $event->id]);
     $eventAccessLabel = $isEnrolled ? 'Acessar evento' : 'Fazer inscrição';
+    $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
+    $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
+    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+    $hasBannerImage = $bannerPath !== ''
+        && in_array($bannerExtension, $allowedImageExtensions, true)
+        && Storage::disk('public')->exists($bannerPath);
+    $bannerDownloadUrl = $hasBannerImage ? route('web.event.banner.download', ['id' => $event->id]) : null;
 @endphp
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
@@ -121,11 +130,11 @@
                         <div class="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center">
                             <x-src.btn-gold :label="$eventAccessLabel" :route="$eventAccessRoute" />
 
-                            @if ($event->banner != null)
-                                <x-src.btn-silver label="Baixar cartaz" :route="asset($event->banner)" download />
+                            @if ($bannerDownloadUrl)
+                                <x-src.btn-silver label="Baixar cartaz" :route="$bannerDownloadUrl" download />
                             @endif
 
-                            <x-src.btn-silver label="Programação completa" route="#" />
+                            <x-src.btn-silver label="Ver programação" :route="route('web.event.schedule', $event->id)" />
                         </div>
                     </div>
                 </div>
@@ -212,7 +221,7 @@
 
     {{-- CTA fixo (sempre disponível) --}}
     <x-web.events.bar-fixed-cta :course_name="$event->course->name" :course_type="$event->course->type" :start_time="$event->eventDates()->first()->start_time" :end_time="$event->eventDates()->first()->end_time"
-        :date="$event->eventDates()->first()->date" :banner="$event->banner" :route="$eventAccessRoute"
+        :date="$event->eventDates()->first()->date" :banner="$bannerDownloadUrl" :route="$eventAccessRoute"
         :label="$eventAccessLabel" />
 
 

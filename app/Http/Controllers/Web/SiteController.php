@@ -5,45 +5,55 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SiteController extends Controller
 {
-    public function home(): View {
+    public function home(): View
+    {
         return view('pages.web.home');
     }
 
-    public function donate(): View {
+    public function donate(): View
+    {
         return view('pages.web.donate');
     }
 
-    public function faith(): View {
+    public function faith(): View
+    {
         return view('pages.web.about.faith');
     }
 
-    public function history(): View {
+    public function history(): View
+    {
         return view('pages.web.about.history');
     }
 
-    public function vision_mission(): View {
+    public function vision_mission(): View
+    {
         return view('pages.web.about.vision-mission');
     }
 
-    public function everyday_evangelism(): View {
+    public function everyday_evangelism(): View
+    {
         return view('pages.web.ministry.everyday-evangelism');
     }
 
-    public function kids_ee(): View {
+    public function kids_ee(): View
+    {
         return view('pages.web.ministry.kids-ee');
     }
 
-    public function schedule(): View {
-        return view('pages.web.events.schedule');
+    public function schedule(): View
+    {
+        return view('pages.web.events.schedule-request');
     }
 
     public function events(): View
     {
-        return view("pages.web.events.index");
+        return view('pages.web.events.index');
     }
 
     public function details(string $id): View
@@ -58,12 +68,12 @@ class SiteController extends Controller
             ->findOrFail($id);
 
         $workloadMinutes = $event->eventDates->reduce(function (int $total, $eventDate): int {
-            if (!$eventDate->start_time || !$eventDate->end_time) {
+            if (! $eventDate->start_time || ! $eventDate->end_time) {
                 return $total;
             }
 
-            $start = Carbon::parse($eventDate->date . ' ' . $eventDate->start_time);
-            $end = Carbon::parse($eventDate->date . ' ' . $eventDate->end_time);
+            $start = Carbon::parse($eventDate->date.' '.$eventDate->start_time);
+            $end = Carbon::parse($eventDate->date.' '.$eventDate->end_time);
 
             if ($end->lessThanOrEqualTo($start)) {
                 return $total;
@@ -81,7 +91,33 @@ class SiteController extends Controller
                 : sprintf('%02dh', $hours);
         }
 
-        return view("pages.web.events.details", compact("event", "workloadDuration"));
+        return view('pages.web.events.details', compact('event', 'workloadDuration'));
+    }
+
+    public function downloadBanner(string $id): StreamedResponse
+    {
+        $event = Training::query()
+            ->select(['id', 'banner'])
+            ->findOrFail($id);
+
+        $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
+        $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
+        $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+        $hasBannerImage = $bannerPath !== ''
+            && in_array($bannerExtension, $allowedImageExtensions, true)
+            && Storage::disk('public')->exists($bannerPath);
+
+        if (! $hasBannerImage) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('public');
+        $mimeType = $disk->mimeType($bannerPath) ?: 'application/octet-stream';
+        $fileContents = $disk->get($bannerPath);
+
+        return response()->streamDownload(static function () use ($fileContents): void {
+            echo $fileContents;
+        }, basename($bannerPath), ['Content-Type' => $mimeType]);
     }
 
     public function register(string $id)
@@ -95,8 +131,9 @@ class SiteController extends Controller
             ])
             ->findOrFail($id);
 
-        return view("pages.web.events.register", compact('event'));
+        return view('pages.web.events.register', compact('event'));
     }
+
     public function login(string $id)
     {
         $event = Training::query()
@@ -108,9 +145,9 @@ class SiteController extends Controller
             ])
             ->findOrFail($id);
 
-        return view("pages.web.events.login", compact('event'));
+        return view('pages.web.events.login', compact('event'));
     }
-    
+
     public function clinic_base(): View
     {
         return view('pages.web.events.clinic-base');

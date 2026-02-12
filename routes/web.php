@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\PublicEventScheduleController;
 use App\Http\Controllers\Web\SiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,9 +20,12 @@ Route::name('web.')->group(function () {
         Route::get('vision-mission', [SiteController::class, 'vision_mission'])->name('vision-mission');
     });
 
-    Route::prefix( 'event')->name('event.')->group(function () {
-        Route::get('schedule', [SiteController::class, 'schedule'])->name('schedule');
+    Route::prefix('event')->name('event.')->group(function () {
+        Route::get('schedule', [SiteController::class, 'schedule'])->name('schedule-request');
         Route::get('list', [SiteController::class, 'events'])->name('index');
+        Route::get('{training}/programacao', [PublicEventScheduleController::class, 'show'])->name('schedule');
+        Route::get('{training}/programacao/pdf', [PublicEventScheduleController::class, 'pdf'])->name('schedule.pdf');
+        Route::get('{id}/banner-download', [SiteController::class, 'downloadBanner'])->name('banner.download');
         Route::get('{id}/details', [SiteController::class, 'details'])->name('details');
         Route::get('{id}/register', [SiteController::class, 'register'])->name('register');
         Route::get('{id}/login', [SiteController::class, 'login'])->name('login');

@@ -306,7 +306,7 @@
             <span class="btn-sub">Treinamento prático</span>
         </a>
 
-        <a href="{{ route('web.event.schedule') }}" class="btn-cta cta-optional shine">
+        <a href="{{ route('web.event.schedule-request') }}" class="btn-cta cta-optional shine">
             Agendar
             <span class="btn-sub">Evento de Lançamento</span>
         </a>

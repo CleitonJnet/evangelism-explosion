@@ -84,7 +84,7 @@
         </div>
 
         <div id="button-fixed-subscribe" class="flex items-center gap-2 shrink-0">
-            @if ($banner !== null)
+            @if (filled($banner))
                 <a href="{{ $banner }}" download
                     class="items-center justify-center hidden px-4 py-2 text-sm font-semibold text-white transition border shine sm:inline-flex rounded-xl border-white/10 bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-300/50">
                     Baixar cartaz

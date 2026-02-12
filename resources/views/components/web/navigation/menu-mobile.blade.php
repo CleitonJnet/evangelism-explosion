@@ -61,7 +61,7 @@
                     Evangelismo Eficaz
                 </a>
 
-                <a href="{{ route('web.event.schedule') }}"
+                <a href="{{ route('web.event.schedule-request') }}"
                     class="js-close-menu flex-auto shine px-8 py-2 font-semibold text-center rounded-lg text-[#1b1709] bg-linear-to-br from-[#f1d57a] via-[#c7a840] to-[#8a7424] border border-white/20 shadow-md shadow-black/40 transition hover:brightness-110 hover:shadow-black/60 nav-link-textshadow">
                     Agendar Treinamento
                 </a>

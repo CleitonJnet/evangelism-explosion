@@ -1,17 +1,15 @@
 @php
     $title = __('Eventos & treinamentos');
-    $description =
-        'Confira ou agende eventos e treinamentos do ministério de Evangelismo Explosivo no Brasil, participando da expansão do Evangelho.';
+    $description = 'Confira ou agende eventos e treinamentos do ministério de Evangelismo Explosivo no Brasil, participando da expansão do
+Evangelho.';
     $keywords = 'agenda, eventos, treinamentos, evangelismo, EE Brasil';
     $ogImage = asset('images/leadership-meeting.webp');
 @endphp
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
 
-    {{-- FUNDO MAIS CLARO (papel + brilho dourado discreto) --}}
     <div class="relative min-h-screen overflow-hidden bg-linear-to-b from-slate-200 via-slate-50 to-slate-400">
 
-        {{-- Brilhos decorativos (não interferem no layout) --}}
         <div aria-hidden="true" class="pointer-events-none absolute -top-24 -left-24 h-130 w-130 rounded-full blur-3xl"
             style="background: radial-gradient(circle at 30% 30%, rgba(199,168,64,.22), transparent 60%);">
         </div>
@@ -20,14 +18,12 @@
             style="background: radial-gradient(circle at 70% 20%, rgba(138,116,36,.18), transparent 62%);">
         </div>
 
-        {{-- Header já pronto --}}
         <x-web.header :title="$title" subtitle="Lista de eventos e treinamentos disponíveis" :cover="asset('images/clinic-ee.webp')" />
 
         <div class="p-4 max-w-8xl mx-auto sm:px-6 lg:px-8 md:py-10">
 
             <div class="relative">
 
-                {{-- Seção: Jovens e Adultos --}}
                 <div class="relative px-4 py-10 bg-center bg-no-repeat bg-cover max-w-8xl mx-auto sm:px-6 lg:px-10 rounded-2xl z-0 overflow-hidden shadow-md
            before:absolute before:inset-0 before:z-0
            before:bg-linear-to-b before:from-sky-800/70 before:via-black/70 before:to-sky-950/95
@@ -45,8 +41,6 @@
 
                     </h3>
 
-                    {{-- Lista de treinamentos do Evangelismo Eficaz --}}
-                    {{-- <x-src.carousel /> --}}
                     <x-src.carousel :ministry="1" />
 
                 </div>
@@ -93,8 +87,6 @@
                         </span>
                     </h3>
 
-                    {{-- Lista de treinamentos --}}
-                    {{-- @livewire('web.event.index', ['category' => 'evangelismo explosivo']) --}}
                     <x-src.carousel :ministry-not="[1, 2]" />
 
                 </div>
