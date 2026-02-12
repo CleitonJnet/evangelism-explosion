@@ -102,10 +102,51 @@
                     $startTime = $eventDate?->start_time
                         ? \Illuminate\Support\Carbon::parse($eventDate->start_time)->format('H:i')
                         : '--:--';
+
+                    // SOBRE O TREINAMENTO
+                    $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $item['training']->payment)) > 0;
+
+                    $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
+                        $item['training']->eventDates,
+                        $item['training']->scheduleItems,
+                    );
+                    $schedule = !empty($canAccessPublicSchedule);
+
+                    $bannerPath = is_string($item['training']->banner) ? trim($item['training']->banner) : '';
+                    $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
+                    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+                    $hasBannerImage =
+                        $bannerPath !== '' &&
+                        in_array($bannerExtension, $allowedImageExtensions, true) &&
+                        Storage::disk('public')->exists($bannerPath);
+                    $bannerDownloadUrl = $hasBannerImage
+                        ? route('web.event.banner.download', ['id' => $item['training']->id])
+                        : null;
+
+                    $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $item['training']->payment)) > 0;
+
+                    $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
+                        $item['training']->eventDates,
+                        $item['training']->scheduleItems,
+                    );
+                    $schedule = !empty($canAccessPublicSchedule);
+
+                    $bannerPath = is_string($item['training']->banner) ? trim($item['training']->banner) : '';
+                    $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
+                    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+                    $hasBannerImage =
+                        $bannerPath !== '' &&
+                        in_array($bannerExtension, $allowedImageExtensions, true) &&
+                        Storage::disk('public')->exists($bannerPath);
+                    $bannerDownloadUrl = $hasBannerImage
+                        ? route('web.event.banner.download', ['id' => $item['training']->id])
+                        : null;
+
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
-                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.trainings.show', $training->id)" />
+                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.trainings.show', $training->id)" :schedule="$schedule"
+                    :free="$free" :banner="$bannerDownloadUrl" />
             @endforeach
         </div>
         <div class="swiper-button-prev -left-2!"></div>

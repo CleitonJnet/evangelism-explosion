@@ -32,6 +32,7 @@ class SwiperWrapperEvents extends Component
                 $query->whereDate('date', '<', Carbon::today());
             })
             ->withMin('eventDates', 'date')
+            ->where('status', 1)
             ->orderBy('event_dates_min_date');
 
         $query->when(

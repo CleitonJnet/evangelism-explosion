@@ -7,6 +7,9 @@
     'city' => null,
     'state' => null,
     'route' => '#',
+    'banner' => false,
+    'schedule' => false,
+    'free' => false,
 ])
 
 <div class="overflow-hidden swiper-slide shine rounded-2xl"
@@ -21,9 +24,22 @@
 
             <div class="p-3 pt-5">
 
-                <div class="px-2 py-1 mb-2 text-sm truncate border rounded-lg bg-black/20 text-amber-100/90 border-amber-400/20"
+                <div class="px-2 py-1 mb-2 text-sm truncate border rounded-lg bg-black/20 text-amber-100/90 border-amber-400/20 flex justify-between"
                     title="{{ $category }}">
                     {{ $category }}
+                    <div>
+                        @if ($schedule)
+                            <span>&#x2637;</span>
+                        @endif
+                        @if ($banner)
+                            <span>&#x2750;</span>
+                        @endif
+                        @if ($free)
+                            <span>&#x2666;</span>
+                        @else
+                            <span>&#x2662;</span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="p-4 text-center shadow-sm rounded-xl bg-white/85 backdrop-blur-md text-slate-900">

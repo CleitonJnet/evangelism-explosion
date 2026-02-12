@@ -13,6 +13,24 @@
             $startTime = $eventDate?->start_time
                 ? \Illuminate\Support\Carbon::parse($eventDate->start_time)->format('H:i')
                 : '--:--';
+
+            $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $event->payment)) > 0;
+
+            $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
+                $event->eventDates,
+                $event->scheduleItems,
+            );
+            $schedule = !empty($canAccessPublicSchedule);
+
+            $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
+            $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
+            $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+            $hasBannerImage =
+                $bannerPath !== '' &&
+                in_array($bannerExtension, $allowedImageExtensions, true) &&
+                Storage::disk('public')->exists($bannerPath);
+            $bannerDownloadUrl = $hasBannerImage ? route('web.event.banner.download', ['id' => $event->id]) : null;
+
         @endphp
 
         @if (!$course)
@@ -20,7 +38,8 @@
         @endif
 
         <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date" :start_time="$startTime"
-            :city="$event->city" :state="$event->state" :route="route('web.event.details', $event->id)" />
+            :city="$event->city" :state="$event->state" :route="route('web.event.details', $event->id)" :schedule="$schedule" :free="$free"
+            :banner="$bannerDownloadUrl" />
     @endforeach
 
     <div class="swiper-slide">

@@ -34,7 +34,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="https://placehold.co/600x400?text=Década+de+1960"
+                        <img src="{{ asset('images/photo3.jpg') }}"
                             alt="Pastor D. James Kennedy durante seus primeiros anos em Fort Lauderdale"
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
@@ -65,7 +65,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="https://placehold.co/600x400?text=Treinamento+Prático"
+                        <img src="{{ asset('images/photo2.jpg') }}"
                             alt="Grupo de leigos participando do treinamento prático em uma visita domiciliar"
                             class="w-full h-auto border-t-4 border-l-4 border-white rounded-lg shadow-md"
                             style="box-shadow: -3px -3px 0 #c7a840" />
@@ -94,7 +94,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="https://placehold.co/600x400?text=Clínicas+de+Liderança"
+                        <img src="{{ asset('images/photo4.jpg') }}"
                             alt="Primeiras clínicas de treinamento realizadas na Coral Ridge"
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
@@ -123,7 +123,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="https://placehold.co/600x400?text=Expansão+Global"
+                        <img src="{{ asset('images/photo1.jpg') }}"
                             alt="Representantes de várias nações celebrando o alcance global do E.E."
                             class="w-full h-auto border-t-4 border-l-4 border-white rounded-lg shadow-md"
                             style="box-shadow: -3px -3px 0 #c7a840" />
@@ -151,7 +151,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="https://placehold.co/600x400?text=Legado+e+Futuro"
+                        <img src="{{ asset('images/3rd_nations_congress_2016.webp') }}"
                             alt="Imagem contemporânea de uma igreja local envolvida com o E.E."
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
