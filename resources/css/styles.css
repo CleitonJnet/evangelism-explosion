@@ -11,6 +11,10 @@ em {
     font-style: normal;
 }
 
+button {
+    cursor: pointer;
+}
+
 .container-fluid {
     max-width: 96rem;
     margin: auto;

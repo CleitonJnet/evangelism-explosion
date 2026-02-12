@@ -1,12 +1,9 @@
 <x-web.container id="about">
 
     <div class="flex flex-col items-center gap-10 py-10 lg:flex-row group">
-        {{-- COLUNA TEXTO --}}
         <div class="w-full lg:w-1/2">
             <h2 class="relative text-2xl leading-snug" style="font-family: 'Cinzel', serif; font-weight: 400;">
                 O que é o <span class="text-[#8a7424] text-nowrap" style="font-weight: 500;">Evangelismo Explosivo?</span>
-
-                {{-- Linha temática (dourado metálico) --}}
                 <span
                     class="absolute left-0 -bottom-2 h-[2px] w-[min(28rem,100%)]
                        bg-linear-to-r from-[#b79d46] via-[#c7a84099] to-[#8a742455] opacity-90">
@@ -107,18 +104,36 @@
             </div>
         </div>
 
-
         <div class="w-full lg:w-1/2">
-            <figure class="w-full">
+            <figure
+                class="w-full relative overflow-hidden rounded-lg shadow-md ring-1 ring-slate-900/10 border-t-4 border-r-4 border-white"
+                style="box-shadow: 3px -3px 0 #c7a840">
                 <img src="{{ asset('images/3rd_nations_congress_2016.webp') }}"
-                    alt="Foto do Congresso das Nações realizado em 2016"
-                    class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
-                    style="box-shadow: 3px -3px 0 #c7a840" />
-                <figcaption class="mt-2 text-sm text-amber-800">
-                    Foto do 3º Congresso das Nações, realizado em 2016.
-                </figcaption>
+                    alt="Foto do Congresso das Nações realizado em 2016" class="w-full h-auto object-cover"
+                    loading="lazy" decoding="async" />
+
+                <!-- overlay para contraste -->
+                <div class="absolute inset-0 bg-black/25"></div>
+
+                <!-- botão play (cobre a área toda para facilitar clique) -->
+                <button type="button" class="absolute inset-0 flex items-center justify-center group js-video-btn"
+                    aria-label="Assistir vídeo sobre o Evangelismo Explosivo" data-video-id="tfgtlOQ4rGI">
+                    <span
+                        class="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 text-slate-900
+                       shadow-lg ring-1 ring-black/10 transition group-hover:scale-105 group-hover:bg-white">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M8 5v14l11-7z"></path>
+                        </svg>
+                    </span>
+                </button>
             </figure>
+
+            <figcaption class="mt-2 text-sm text-amber-800">
+                Foto do 3º Congresso das Nações, realizado em 2016.
+            </figcaption>
         </div>
+
     </div>
 
+    <x-web.modal-video />
     </x-webweb.container>

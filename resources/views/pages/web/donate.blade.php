@@ -82,11 +82,28 @@
                         </div>
                     </div>
 
-                    <figure class="donate-fade-up donate-delay-2">
+                    {{-- VÍDEO 1 (thumbnail + play) --}}
+                    <figure
+                        class="donate-fade-up donate-delay-2 relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 border-y-[3px] border-r-[3px] border-white"
+                        style="box-shadow: 3px 0 0 #c7a840">
                         <img src="https://placehold.co/600x400?text=Video institucional"
                             alt="Equipe de treinamento reunida em oração e preparação"
-                            class="object-cover w-full h-full rounded-2xl ring-1 ring-slate-900/10 border-y-[3px] border-r-[3px] border-white"
-                            style="box-shadow: 3px 0 0 #c7a840" loading="lazy" decoding="async" />
+                            class="object-cover w-full h-full" loading="lazy" decoding="async" />
+
+                        <div class="absolute inset-0 bg-black/25"></div>
+
+                        <button type="button"
+                            class="absolute inset-0 flex items-center justify-center group js-video-btn"
+                            aria-label="Assistir vídeo institucional" data-video-id="tfgtlOQ4rGI">
+                            <span
+                                class="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 text-slate-900
+                                shadow-lg ring-1 ring-black/10 transition group-hover:scale-105 group-hover:bg-white">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"
+                                    aria-hidden="true">
+                                    <path d="M8 5v14l11-7z"></path>
+                                </svg>
+                            </span>
+                        </button>
                     </figure>
                 </div>
             </div>
@@ -148,16 +165,17 @@
 
         <div class="flex flex-wrap gap-4">
             <div class="rounded-xl border border-slate-200 ee-metal-section px-4 py-4 grow basis-56">
-                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">OFERTA <span
-                        class="font-bold">ÚNICA</span></p>
+                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">
+                    OFERTA <span class="font-bold">ÚNICA</span>
+                </p>
                 <p class="mt-2 text-sm leading-relaxed text-slate-800">
                     Contribua com um valor pontual para apoiar um treinamento, evento ou projeto
                     específico.
                 </p>
             </div>
             <div class="rounded-xl border border-slate-200 ee-metal-section px-4 py-4 grow basis-56">
-                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">PARCEIRO <span
-                        class="font-bold">MENSAL</span>
+                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">
+                    PARCEIRO <span class="font-bold">MENSAL</span>
                 </p>
                 <p class="mt-2 text-sm leading-relaxed text-slate-800">
                     Sustente o ministério continuamente e ajude a manter equipes, viagens e produção
@@ -165,8 +183,8 @@
                 </p>
             </div>
             <div class="rounded-xl border border-slate-200 ee-metal-section px-4 py-4 grow basis-56">
-                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">PROJETOS <span
-                        class="font-bold">ESPECÍFICOS</span>
+                <p class="text-sm text-amber-800 font-light" style="text-shadow: 1px 1px 1px #fff">
+                    PROJETOS <span class="font-bold">ESPECÍFICOS</span>
                 </p>
                 <p class="mt-2 text-sm leading-relaxed text-slate-800">
                     Parcerias estratégicas para projetos regionais, eventos e treinamentos completos.
@@ -180,8 +198,7 @@
 
         <div
             class="relative p-6 flex flex-col md:flex-row gap-6 overflow-hidden border rounded-2xl bg-sky-950 shadow-md border-amber-500/20">
-            <div class="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
-            </div>
+            <div class="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]"></div>
 
             <div class="mx-auto md:mx-0 flex justify-center items-center">
                 <img src="{{ asset('images/qrcode-pix-ee.webp') }}" alt="QR Code PIX do EE-Brasil"
@@ -281,12 +298,32 @@
     <section class="relative py-12">
         <div class="p-4 max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
-                <figure class="donate-fade-up donate-delay-1">
-                    <img src="https://placehold.co/600x400?text=Video de Igreja que foi Equipada"
-                        alt="Momento de oração com equipe ministerial"
-                        class="object-cover w-full h-full shadow-md rounded-2xl ring-1 ring-slate-900/10 border-b-[3px] border-l-[3px] border-white"
-                        style="box-shadow: -3px 3px 0 #c7a840" loading="lazy" decoding="async" />
+
+                {{-- VÍDEO 2 (thumbnail + play) --}}
+                <figure
+                    class="donate-fade-up donate-delay-1 relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 border-b-[3px] border-l-[3px] border-white"
+                    style="box-shadow: -3px 3px 0 #c7a840">
+                    <img src="https://placehold.co/600x400?text=Video+de+Igreja+que+foi+Equipada"
+                        alt="Momento de oração com equipe ministerial" class="object-cover w-full h-full shadow-md"
+                        loading="lazy" decoding="async" />
+
+                    <div class="absolute inset-0 bg-black/25"></div>
+
+                    <button type="button"
+                        class="absolute inset-0 flex items-center justify-center group js-video-btn"
+                        aria-label="Assistir vídeo de testemunho" data-video-id="fbqGL_8AOpw">
+                        {{-- https://youtu.be/fbqGL_8AOpw --}}
+                        <span
+                            class="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 text-slate-900
+                            shadow-lg ring-1 ring-black/10 transition group-hover:scale-105 group-hover:bg-white">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"
+                                aria-hidden="true">
+                                <path d="M8 5v14l11-7z"></path>
+                            </svg>
+                        </span>
+                    </button>
                 </figure>
+
                 <div class="donate-fade-up donate-delay-2">
                     <h3 class="text-2xl text-slate-900 sm:text-3xl" style="font-family: 'Cinzel', serif;">
                         Testemunho pessoal
@@ -357,7 +394,7 @@
                                 </div>
                             </div>
                             <div class="mt-6 flex flex-wrap gap-3">
-                                <x-src.btn-gold label="Quero receber orientações" route="#contato" data-open-wa />
+                                <x-src.btn-gold label="Quero receber orientações" data-open-wa />
                                 <x-src.btn-silver label="Baixar relatório" route="#contato" />
                             </div>
                         </div>
@@ -367,7 +404,68 @@
         </div>
     </section>
 
+    {{-- MODAL ÚNICO REUTILIZÁVEL (serve para todos os vídeos) --}}
+    <div id="videoModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70" data-close-modal></div>
+
+        <div class="relative mx-auto flex min-h-screen max-w-4xl items-center px-4">
+            <div class="relative w-full overflow-hidden rounded-2xl bg-black shadow-2xl">
+                <button type="button"
+                    class="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-slate-900 ring-1 ring-black/10 hover:bg-white"
+                    data-close-modal aria-label="Fechar vídeo">
+                    Fechar ✕
+                </button>
+
+                <div class="aspect-video w-full">
+                    <iframe id="videoFrame" class="h-full w-full" src="" title="Vídeo do YouTube"
+                        frameborder="0" allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('js')
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const modal = document.getElementById("videoModal");
+                const frame = document.getElementById("videoFrame");
+
+                if (!modal || !frame) return;
+
+                function openVideoModal(videoId) {
+                    // autoplay=1 inicia ao abrir; mute=1 aumenta compatibilidade de autoplay
+                    frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0`;
+                    modal.classList.remove("hidden");
+                    document.body.style.overflow = "hidden";
+                }
+
+                function closeVideoModal() {
+                    modal.classList.add("hidden");
+                    frame.src = "";
+                    document.body.style.overflow = "";
+                }
+
+                // Delegação de evento: vale para qualquer .js-video-btn em qualquer lugar da página
+                document.addEventListener("click", (e) => {
+                    const videoBtn = e.target.closest(".js-video-btn");
+                    if (videoBtn) {
+                        const id = videoBtn.dataset.videoId;
+                        if (id) openVideoModal(id);
+                        return;
+                    }
+
+                    if (e.target.closest("[data-close-modal]")) {
+                        closeVideoModal();
+                    }
+                });
+
+                document.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape") closeVideoModal();
+                });
+            });
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const copyButton = document.querySelector('[data-copy-pix]');
@@ -424,4 +522,5 @@
             });
         </script>
     @endpush
+
 </x-layouts.guest>
