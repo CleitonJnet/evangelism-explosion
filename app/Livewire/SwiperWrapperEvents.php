@@ -17,7 +17,6 @@ class SwiperWrapperEvents extends Component
      */
     public function mount(array|int|null $ministry = null, array|int|null $ministryNot = null): void
     {
-
         $query = Training::query()
             ->with([
                 'course.ministry',

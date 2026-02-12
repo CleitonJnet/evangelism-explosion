@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Models\Training;
 use App\TrainingStatus;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -42,6 +43,9 @@ class Index extends Component
                     'course.ministry',
                     'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
                 ])
+                ->whereDoesntHave('eventDates', function ($query) {
+                    $query->whereDate('date', '<', Carbon::today());
+                })
                 ->whereHas('course', function ($query): void {
                     $query->where('execution', 0)
                         ->orWhereIn('id', $this->extraCourseIds);
