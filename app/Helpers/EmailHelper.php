@@ -17,7 +17,6 @@ class EmailHelper
      *  - string normalizada se for válido
      *  - null se for inválido ou vazio
      *
-     * @param string|null $email
      * @return string|null
      *
      * Como usar:

@@ -9,22 +9,25 @@ class Material extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','photo','status','price','description'];
+    protected $fillable = ['name', 'photo', 'status', 'price', 'description'];
 
-    public function categories(){
+    public function categories()
+    {
         return $this->belongsToMany(Category::class);
     }
 
-    public function shippings(){
+    public function shippings()
+    {
         return $this->belongsToMany(Shipping::class);
     }
 
-    public function Inventories(){
-        return $this->belongsToMany(Inventory::class)->withPivot('received_items','current_quantity','lost_items');
+    public function Inventories()
+    {
+        return $this->belongsToMany(Inventory::class)->withPivot('received_items', 'current_quantity', 'lost_items');
     }
 
-    public function suppliers(){
+    public function suppliers()
+    {
         return $this->belongsToMany(Supplier::class);
     }
-
 }

@@ -8,8 +8,9 @@ use Livewire\Component;
 class Edit extends Component
 {
     public $profile;
-    
-    public function mount(User $profile) {
+
+    public function mount(User $profile)
+    {
         $this->profile = $profile;
     }
 

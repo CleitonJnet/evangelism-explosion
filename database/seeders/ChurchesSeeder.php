@@ -120,7 +120,7 @@ class ChurchesSeeder extends Seeder
         );
 
         Church::updateOrCreate(
-        [
+            [
                 'name' => 'First Baptist Church Atlanta',
                 'city' => 'Atlanta',
                 'state' => 'GA',

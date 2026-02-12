@@ -9,13 +9,15 @@ class Section extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'banner', 'name', 'order', 'duration', 'devotional', 'description', 'knowhow', 'course_id' ];
+    protected $fillable = ['banner', 'name', 'order', 'duration', 'devotional', 'description', 'knowhow', 'course_id'];
 
-    public function course(){
+    public function course()
+    {
         return $this->belongsTo(Course::class);
     }
 
-    public function lessonplan(){
+    public function lessonplan()
+    {
         return $this->hasMany(Lessonplan::class);
     }
 }

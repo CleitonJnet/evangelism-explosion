@@ -9,12 +9,15 @@ class Lessonplan extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'day', 'time_start', 'time_end', 'course_id', 'section_id', ];
+    protected $fillable = ['day', 'time_start', 'time_end', 'course_id', 'section_id'];
 
-    public function course(){
+    public function course()
+    {
         return $this->belongsTo(Course::class);
     }
-    public function section(){
+
+    public function section()
+    {
         return $this->belongsTo(Section::class);
     }
 }

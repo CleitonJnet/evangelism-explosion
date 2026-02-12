@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('banner')->nullable();
             $table->string('coordinator')->nullable();
-            $table->string('phone',20)->nullable();
-            $table->string('email',100)->nullable();
-            $table->string('street',100)->nullable();
-            $table->string('number',20)->nullable();
-            $table->string('complement',100)->nullable();
-            $table->string('district',100)->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('email', 100)->nullable();
+            $table->string('street', 100)->nullable();
+            $table->string('number', 20)->nullable();
+            $table->string('complement', 100)->nullable();
+            $table->string('district', 100)->nullable();
             $table->string('city', 100)->nullable();
             $table->string('state')->nullable();
-            $table->string('postal_code',10)->nullable();
+            $table->string('postal_code', 10)->nullable();
             $table->string('url')->nullable();
             $table->string('gpwhatsapp')->nullable();
             $table->string('price')->default('0,00')->nullable(); // Preço da inscrição

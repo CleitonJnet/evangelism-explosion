@@ -49,10 +49,9 @@ class TrainingsSeeder extends Seeder
             ]
         );
 
-        DB::table('event_dates')->insert(['training_id' => 1,'date' => '2026-02-06','start_time' => '18:30:00','end_time' => '21:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 1,'date' => '2026-02-07','start_time' => '08:30:00','end_time' => '21:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 1,'date' => '2026-02-08','start_time' => '08:30:00','end_time' => '18:00:00']);
-
+        DB::table('event_dates')->insert(['training_id' => 1, 'date' => '2026-02-06', 'start_time' => '18:30:00', 'end_time' => '21:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 1, 'date' => '2026-02-07', 'start_time' => '08:30:00', 'end_time' => '21:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 1, 'date' => '2026-02-08', 'start_time' => '08:30:00', 'end_time' => '18:00:00']);
 
         Training::create(
             [
@@ -90,12 +89,12 @@ class TrainingsSeeder extends Seeder
             ]
         );
 
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-02','start_time' => '19:00:00','end_time' => '22:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-03','start_time' => '19:00:00','end_time' => '22:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-04','start_time' => '19:00:00','end_time' => '22:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-05','start_time' => '19:00:00','end_time' => '22:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-06','start_time' => '19:00:00','end_time' => '22:30:00']);
-        DB::table('event_dates')->insert(['training_id' => 2,'date' => '2026-02-07','start_time' => '09:00:00','end_time' => '17:00:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-02', 'start_time' => '19:00:00', 'end_time' => '22:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-03', 'start_time' => '19:00:00', 'end_time' => '22:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-04', 'start_time' => '19:00:00', 'end_time' => '22:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-05', 'start_time' => '19:00:00', 'end_time' => '22:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-06', 'start_time' => '19:00:00', 'end_time' => '22:30:00']);
+        DB::table('event_dates')->insert(['training_id' => 2, 'date' => '2026-02-07', 'start_time' => '09:00:00', 'end_time' => '17:00:00']);
 
         Training::factory()
             ->courseOne()

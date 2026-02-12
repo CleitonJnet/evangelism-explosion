@@ -32,7 +32,7 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
     Route::get('trainings/scheduled', [TrainingController::class, 'indexByStatus'])->name('trainings.scheduled')->defaults('status', 'scheduled');
     Route::get('trainings/canceled', [TrainingController::class, 'indexByStatus'])->name('trainings.canceled')->defaults('status', 'canceled');
     Route::get('trainings/completed', [TrainingController::class, 'indexByStatus'])->name('trainings.completed')->defaults('status', 'completed');
-    
+
     Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])->name('trainings.schedule');
 
     Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);

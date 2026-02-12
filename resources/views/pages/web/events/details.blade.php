@@ -134,7 +134,9 @@
                                 <x-src.btn-silver label="Baixar cartaz" :route="$bannerDownloadUrl" download />
                             @endif
 
-                            <x-src.btn-silver label="Ver programação" :route="route('web.event.schedule', $event->id)" />
+                            @if (!empty($canAccessPublicSchedule))
+                                <x-src.btn-silver label="Ver programação" :route="route('web.event.schedule', $event->id)" />
+                            @endif
                         </div>
                     </div>
                 </div>

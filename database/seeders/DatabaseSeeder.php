@@ -35,9 +35,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(SectionSeeder::class);
 
-        DB::table('course_user')->insert(['course_id'=> 1]);
+        DB::table('course_user')->insert(['course_id' => 1]);
         User::findOrFail(1)->courseAsTeacher()->sync([1, 2, 3, 4, 5, 6, 7, 8]);
-
 
         $this->call(TrainingsSeeder::class);
     }

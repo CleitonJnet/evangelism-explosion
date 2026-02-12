@@ -9,10 +9,10 @@ class Shipping extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','phone','email','street','number','complement','district','city','state','postal_code','notes'];
+    protected $fillable = ['name', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'notes'];
 
-    public function materials(){
+    public function materials()
+    {
         return $this->belongsToMany(Material::class);
     }
-
 }

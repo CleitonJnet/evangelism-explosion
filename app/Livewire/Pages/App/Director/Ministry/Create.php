@@ -9,9 +9,13 @@ use Livewire\Component;
 class Create extends Component
 {
     public string $initials = '';
+
     public string $name = '';
+
     public ?string $logo = null;
+
     public ?string $color = null;
+
     public ?string $description = null;
 
     /**
@@ -55,7 +59,7 @@ class Create extends Component
 
     public function updated(string $property): void
     {
-        if (!array_key_exists($property, $this->rules())) {
+        if (! array_key_exists($property, $this->rules())) {
             return;
         }
 

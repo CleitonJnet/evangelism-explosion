@@ -195,7 +195,7 @@ class ChurchFactory extends Factory
         $ddd = fake()->randomElement(['11', '21', '31', '41', '51', '61', '71', '81', '85', '91']);
         $suffix = str_pad((string) fake()->numberBetween(0, 99999999), 8, '0', STR_PAD_LEFT);
 
-        return $ddd . '9' . $suffix;
+        return $ddd.'9'.$suffix;
     }
 
     private function postalCode(): string
@@ -205,10 +205,10 @@ class ChurchFactory extends Factory
 
     private function churchEmail(string $descriptor, string $city): string
     {
-        $localPart = Str::slug($descriptor . '-' . $city, '.');
+        $localPart = Str::slug($descriptor.'-'.$city, '.');
         $domain = fake()->randomElement(['igreja.org.br', 'ministerio.com.br', 'comunidade.com.br']);
 
-        return $localPart . '@' . $domain;
+        return $localPart.'@'.$domain;
     }
 
     private function contactEmail(string $contactName): string
@@ -216,6 +216,6 @@ class ChurchFactory extends Factory
         $localPart = Str::slug($contactName, '.');
         $domain = fake()->randomElement(['gmail.com', 'hotmail.com', 'outlook.com', 'uol.com.br']);
 
-        return $localPart . '@' . $domain;
+        return $localPart.'@'.$domain;
     }
 }

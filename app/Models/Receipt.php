@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Receipt extends Model
 {
     use HasFactory;
-    protected $filable = ['file','training_id'];
 
-    public function training(){
+    protected $filable = ['file', 'training_id'];
+
+    public function training()
+    {
         return $this->belongsTo(Training::class);
     }
 }

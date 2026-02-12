@@ -10,7 +10,7 @@ class Index extends Component
     public function render()
     {
         return view('livewire.pages.app.director.ministry.index', [
-            'ministries' => Ministry::orderBy('id','desc')->paginate(10),
+            'ministries' => Ministry::orderBy('id', 'desc')->paginate(10),
         ]);
     }
 }

@@ -8,8 +8,9 @@ use Livewire\Component;
 class View extends Component
 {
     public $church;
-    
-    public function mount(Church $church) {
+
+    public function mount(Church $church)
+    {
         $this->church = $church;
     }
 

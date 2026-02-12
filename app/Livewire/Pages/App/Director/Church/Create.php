@@ -9,23 +9,31 @@ use Livewire\Component;
 class Create extends Component
 {
     public ?string $church_logo = null;
+
     public string $church_name = '';
+
     public string $pastor_name = '';
+
     public string $phone_church = '';
+
     public ?string $church_email = null;
+
     public ?string $church_contact = null;
+
     public ?string $church_contact_phone = null;
+
     public ?string $church_contact_email = null;
+
     public ?string $church_notes = null;
 
     public array $churchAddress = [
         'postal_code' => '',
-        'street'      => '',
-        'number'      => '',
-        'complement'  => '',
-        'district'    => '',
-        'city'        => '',
-        'state'       => '',
+        'street' => '',
+        'number' => '',
+        'complement' => '',
+        'district' => '',
+        'city' => '',
+        'state' => '',
     ];
 
     /**
@@ -92,7 +100,7 @@ class Create extends Component
 
     public function updated(string $property): void
     {
-        if (!array_key_exists($property, $this->rules())) {
+        if (! array_key_exists($property, $this->rules())) {
             return;
         }
 

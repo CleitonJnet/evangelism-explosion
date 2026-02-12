@@ -33,8 +33,8 @@ class UserFactory extends Factory
 
         return [
             'pastor' => fake()->optional(0.2)->randomElement([
-                'Pr. ' . $this->personName(),
-                'Pra. ' . $this->personName(),
+                'Pr. '.$this->personName(),
+                'Pra. '.$this->personName(),
             ]),
             'name' => $contactName,
             'birthdate' => fake()->optional(0.8)->date('Y-m-d'),
@@ -93,7 +93,7 @@ class UserFactory extends Factory
         $ddd = fake()->randomElement(['11', '21', '31', '41', '51', '61', '71', '81', '85', '91']);
         $suffix = str_pad((string) fake()->numberBetween(0, 99999999), 8, '0', STR_PAD_LEFT);
 
-        return $ddd . '9' . $suffix;
+        return $ddd.'9'.$suffix;
     }
 
     private function postalCode(): string

@@ -3,7 +3,9 @@
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
+use App\Models\TrainingScheduleItem;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 
@@ -83,4 +85,76 @@ it('downloads the event banner image file', function () {
     expect($response->streamedContent())->toBe('fake-image-content');
     expect((string) $response->headers->get('content-disposition'))->toContain('attachment;');
     expect((string) $response->headers->get('content-disposition'))->toContain('banner.jpg');
+});
+
+it('shows the schedule button when all event day end times match the schedule', function () {
+    $course = Course::factory()->create();
+    $church = Church::factory()->create();
+    $teacher = User::factory()->create();
+
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $eventDate = $training->eventDates()->firstOrFail();
+    $dateValue = Carbon::parse((string) $eventDate->date)->format('Y-m-d');
+    $endTime = Carbon::parse($dateValue.' '.(string) $eventDate->end_time);
+
+    TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => null,
+        'date' => $dateValue,
+        'starts_at' => $endTime->copy()->subHour(),
+        'ends_at' => $endTime->copy(),
+        'type' => 'SECTION',
+        'title' => 'Sessao final',
+        'position' => 1,
+        'planned_duration_minutes' => 60,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+    ]);
+
+    $this->get(route('web.event.details', ['id' => $training->id]))
+        ->assertSuccessful()
+        ->assertSee('Ver programação');
+});
+
+it('hides the schedule button when event day end times do not match the schedule', function () {
+    $course = Course::factory()->create();
+    $church = Church::factory()->create();
+    $teacher = User::factory()->create();
+
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $eventDate = $training->eventDates()->firstOrFail();
+    $dateValue = Carbon::parse((string) $eventDate->date)->format('Y-m-d');
+    $endTime = Carbon::parse($dateValue.' '.(string) $eventDate->end_time);
+
+    TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => null,
+        'date' => $dateValue,
+        'starts_at' => $endTime->copy()->subHours(2),
+        'ends_at' => $endTime->copy()->subHour(),
+        'type' => 'SECTION',
+        'title' => 'Sessao incompleta',
+        'position' => 1,
+        'planned_duration_minutes' => 60,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+    ]);
+
+    $this->get(route('web.event.details', ['id' => $training->id]))
+        ->assertSuccessful()
+        ->assertDontSee('Ver programação');
 });

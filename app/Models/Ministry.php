@@ -9,10 +9,10 @@ class Ministry extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['initials','name','logo','color','description'];
+    protected $fillable = ['initials', 'name', 'logo', 'color', 'description'];
 
-    public function courses(){
+    public function courses()
+    {
         return $this->hasMany(Course::class);
     }
-
 }

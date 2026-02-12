@@ -9,23 +9,25 @@ class MinistryController extends Controller
 {
     public function index()
     {
-        return view("pages.app.roles.teacher.ministry.index");
+        return view('pages.app.roles.teacher.ministry.index');
     }
 
     public function create()
     {
-        return view("pages.app.roles.teacher.ministry.create");
+        return view('pages.app.roles.teacher.ministry.create');
     }
 
     public function show(string $id)
     {
         $ministry = Ministry::findOrFail($id);
-        return view("pages.app.roles.teacher.ministry.show", ['ministry'=>$ministry]);
+
+        return view('pages.app.roles.teacher.ministry.show', ['ministry' => $ministry]);
     }
 
     public function edit(string $id)
     {
         $ministry = Ministry::findOrFail($id);
-        return view("pages.app.roles.teacher.ministry.edit", ['ministry'=>$ministry]);
+
+        return view('pages.app.roles.teacher.ministry.edit', ['ministry' => $ministry]);
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Livewire\Web\Event;
 
 use App\Models\Training;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Illuminate\Validation\ValidationException;
 
 class Registration extends Component
 {
@@ -17,8 +17,11 @@ class Registration extends Component
 
     /** Derivados do evento */
     public bool $isPaid = false;
+
     public float $eventPrice = 0.0;
+
     public string $eventPriceFormatted;
+
     public ?string $whatsappGroupUrl = null;
 
     /** PIX (apenas para eventos pagos) */
@@ -26,20 +29,29 @@ class Registration extends Component
 
     /** Fase 1 */
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
 
     /** Fase 2 */
     public string $ispastor = 'N';
+
     public string $mobile = '';
+
     public ?string $birth_date = null;
+
     public ?string $gender = null;
 
     /** Fase 3 */
     public string $church_name = '';
+
     public string $pastor_name = '';
+
     public string $phone_church = '';
+
     public ?string $church_email = null;
 
     /**
@@ -48,26 +60,27 @@ class Registration extends Component
      */
     public array $participantAddress = [
         'postal_code' => '',
-        'street'      => '',
-        'number'      => '',
-        'complement'  => '',
-        'district'    => '',
-        'city'        => '',
-        'state'       => '',
+        'street' => '',
+        'number' => '',
+        'complement' => '',
+        'district' => '',
+        'city' => '',
+        'state' => '',
     ];
 
     public array $churchAddress = [
         'postal_code' => '',
-        'street'      => '',
-        'number'      => '',
-        'complement'  => '',
-        'district'    => '',
-        'city'        => '',
-        'state'       => '',
+        'street' => '',
+        'number' => '',
+        'complement' => '',
+        'district' => '',
+        'city' => '',
+        'state' => '',
     ];
 
     /** Confirmações */
     public bool $agree_terms = false;
+
     public bool $agree_faith = false;
 
     /** Pagamento */
@@ -103,7 +116,7 @@ class Registration extends Component
                 ($event->whatsapp_link ?? ($event->whatsapp_group ?? ($event->whatsapp ?? null))));
 
         // evento grátis nunca vai para fase 4
-        if (!$this->isPaid && $this->step > 3) {
+        if (! $this->isPaid && $this->step > 3) {
             $this->step = 3;
         }
     }
@@ -116,7 +129,7 @@ class Registration extends Component
         }
 
         // Evento gratuito nunca deve passar da fase 3
-        if (!$this->isPaid && (int) $value > 3) {
+        if (! $this->isPaid && (int) $value > 3) {
             $this->step = 3;
         }
     }
@@ -195,9 +208,11 @@ class Registration extends Component
 
         try {
             $this->validate($this->rulesForStep($step));
+
             return true;
         } catch (ValidationException $e) {
             $this->setErrorBag($e->validator->errors());
+
             return false;
         }
     }
@@ -225,6 +240,7 @@ class Registration extends Component
             ]);
 
             $this->dispatch('toast', type: 'success', message: 'Pagamento confirmado. Inscrição finalizada com sucesso!');
+
             return;
         }
 

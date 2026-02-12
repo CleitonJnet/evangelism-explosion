@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Helpers\PhoneHelper;
 use App\Helpers\PostalCodeHelper;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Church extends Model
 {
@@ -30,23 +30,26 @@ class Church extends Model
         'state',
     ];
 
-        /**
+    /**
      * Aplica mascara no campo telefone da igreja.
-     */public function getPhoneAttribute($value)
+     */
+    public function getPhoneAttribute($value)
     {
         return PhoneHelper::format_phone($value);
     }
 
-        /**
+    /**
      * Aplica mascara no campo telefone do Contato.
-     */public function getContactPhoneAttribute($value)
+     */
+    public function getContactPhoneAttribute($value)
     {
         return PhoneHelper::format_phone($value);
     }
 
-        /**
+    /**
      * Aplica mascara no campo CEP.
-     */public function getPostalCodeAttribute($value)
+     */
+    public function getPostalCodeAttribute($value)
     {
         return PostalCodeHelper::format_postalcode($value);
     }
@@ -61,6 +64,7 @@ class Church extends Model
         }
 
         $digits = preg_replace('/\D+/', '', $value);
+
         return ($digits === '' || $digits === null) ? null : $digits;
     }
 

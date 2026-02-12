@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Helpers\DayScheduleHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use Carbon\Carbon;
@@ -64,6 +65,7 @@ class SiteController extends Controller
                 'church',
                 'teacher',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+                'scheduleItems' => fn ($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
             ])
             ->findOrFail($id);
 
@@ -91,7 +93,9 @@ class SiteController extends Controller
                 : sprintf('%02dh', $hours);
         }
 
-        return view('pages.web.events.details', compact('event', 'workloadDuration'));
+        $canAccessPublicSchedule = $this->hasScheduleMatchForAllDays($event);
+
+        return view('pages.web.events.details', compact('event', 'workloadDuration', 'canAccessPublicSchedule'));
     }
 
     public function downloadBanner(string $id): StreamedResponse
@@ -151,5 +155,10 @@ class SiteController extends Controller
     public function clinic_base(): View
     {
         return view('pages.web.events.clinic-base');
+    }
+
+    private function hasScheduleMatchForAllDays(Training $event): bool
+    {
+        return DayScheduleHelper::hasAllDaysMatch($event->eventDates, $event->scheduleItems);
     }
 }

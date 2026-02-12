@@ -25,7 +25,7 @@ class UsersSeeder extends Seeder
             'id' => 1,
             'name' => 'Cleiton dos Santos',
             'email' => 'csilva@eeworks.org',
-            'phone'=> '21972765535',
+            'phone' => '21972765535',
             'password' => bcrypt('Master@01'),
             'church_id' => 1,
         ]);
@@ -33,14 +33,14 @@ class UsersSeeder extends Seeder
             'id' => 2,
             'name' => 'Jailton Barreto Rangel',
             'email' => 'jailtonbarreto@eeworks.org',
-            'phone'=> '21991046211',
+            'phone' => '21991046211',
             'password' => bcrypt('Master@01'),
             'church_id' => 4,
         ]);
         $userThree = User::create([
             'id' => 3,
             'name' => 'Cleverson Rodrigues',
-            'phone'=> '6692603673',
+            'phone' => '6692603673',
             'email' => 'cleverson@eebrasil.org.br',
             'password' => bcrypt('Master@01'),
             'church_id' => 5,
@@ -49,7 +49,7 @@ class UsersSeeder extends Seeder
         $userFour = User::create([
             'id' => 4,
             'name' => 'Davdsion Freitas',
-            'phone'=> '21992192082',
+            'phone' => '21992192082',
             'email' => 'davidsonfreitas@eebrasil.org.br',
             'password' => bcrypt('Master@01'),
             'church_id' => 3,
@@ -58,7 +58,7 @@ class UsersSeeder extends Seeder
         $userFive = User::create([
             'id' => 5,
             'name' => 'Robert D. Foster',
-            'phone'=> '6787364150',
+            'phone' => '6787364150',
             'email' => 'rfoster@eeworks.org',
             'password' => bcrypt('Master@01'),
             'church_id' => 6,
@@ -70,11 +70,11 @@ class UsersSeeder extends Seeder
             ->count($factoryCount)
             ->create();
 
-        $userOne->roles()->sync([1,2,3,4,5,6,7]);
-        $userTwo->roles()->sync([1,2,3,4,5,6]);
-        $userThree->roles()->sync([3,4,5,6]);
-        $userFour->roles()->sync([1,3,4,5,6]);
-        $userFive->roles()->sync([1,2,3,4,5,6,7]);
+        $userOne->roles()->sync([1, 2, 3, 4, 5, 6, 7]);
+        $userTwo->roles()->sync([1, 2, 3, 4, 5, 6]);
+        $userThree->roles()->sync([3, 4, 5, 6]);
+        $userFour->roles()->sync([1, 3, 4, 5, 6]);
+        $userFive->roles()->sync([1, 2, 3, 4, 5, 6, 7]);
 
         $roleIds = [$board->id, $director->id, $teacher->id, $facilitator->id, $mentor->id, $student->id];
 

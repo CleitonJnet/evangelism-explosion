@@ -23,7 +23,7 @@ class SectionSeeder extends Seeder
                 'description' => 'Esta unidade estabelece o propósito do workshop: recuperar o senso de chamado para compartilhar a fé e formar discípulos, não apenas convertidos. Trabalha motivações, expectativas e fundamentos bíblicos para que o evangelismo volte a ser um estilo de vida, como na igreja primitiva.',
                 'knowhow' => null,
                 'course_id' => 1,
-            ],                
+            ],
 
             [
                 'name' => 'Unidade 2: Aprendendo a Explicação do Evangelho Em Sua Mão',

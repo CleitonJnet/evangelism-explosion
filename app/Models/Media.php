@@ -9,8 +9,10 @@ class Media extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['training_id','name','path_original','path_thumbnail','path_optimized','extension'];
+    protected $fillable = ['training_id', 'name', 'path_original', 'path_thumbnail', 'path_optimized', 'extension'];
 
     public function training()
-    { return $this->belongsTo(Training::class); }
+    {
+        return $this->belongsTo(Training::class);
+    }
 }

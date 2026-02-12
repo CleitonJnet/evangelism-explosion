@@ -82,8 +82,9 @@ class StringHelper
         $result = '';
 
         foreach ($chunks as $chunk) {
-            if ($chunk === "'" || $chunk === "’") {
+            if ($chunk === "'" || $chunk === '’') {
                 $result .= $chunk;
+
                 continue;
             }
 
@@ -106,6 +107,7 @@ class StringHelper
         foreach ($segments as $seg) {
             if ($seg === '-') {
                 $result .= $seg;
+
                 continue;
             }
 
@@ -122,8 +124,8 @@ class StringHelper
         }
 
         $firstChar = mb_substr($string, 0, 1, 'UTF-8');
-        $rest      = mb_substr($string, 1, null, 'UTF-8');
+        $rest = mb_substr($string, 1, null, 'UTF-8');
 
-        return mb_strtoupper($firstChar, 'UTF-8') . mb_strtolower($rest, 'UTF-8');
+        return mb_strtoupper($firstChar, 'UTF-8').mb_strtolower($rest, 'UTF-8');
     }
 }

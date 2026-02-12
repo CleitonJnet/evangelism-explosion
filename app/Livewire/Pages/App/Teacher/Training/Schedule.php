@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Helpers\DayScheduleHelper;
 use App\Models\EventDate;
 use App\Models\Training;
 use App\Models\TrainingScheduleItem;
@@ -539,35 +540,7 @@ class Schedule extends Component
      */
     private function resolvePlanStatus(string $dateKey, ?string $endTime, Collection $items): string
     {
-        if (! $endTime) {
-            return self::PLAN_STATUS_UNDER;
-        }
-
-        $plannedMinutes = $this->timeToMinutes($endTime);
-
-        $lastEndMinutes = $items
-            ->filter(fn (TrainingScheduleItem $item) => $item->ends_at)
-            ->max(function (TrainingScheduleItem $item): int {
-                return ((int) $item->ends_at->format('H')) * 60 + (int) $item->ends_at->format('i');
-            });
-
-        if (! $lastEndMinutes) {
-            return self::PLAN_STATUS_UNDER;
-        }
-
-        if ($lastEndMinutes === null) {
-            return self::PLAN_STATUS_UNDER;
-        }
-
-        if ($lastEndMinutes < $plannedMinutes) {
-            return self::PLAN_STATUS_UNDER;
-        }
-
-        if ($lastEndMinutes > $plannedMinutes) {
-            return self::PLAN_STATUS_OVER;
-        }
-
-        return self::PLAN_STATUS_OK;
+        return DayScheduleHelper::planStatus($dateKey, $endTime, $items);
     }
 
     /**

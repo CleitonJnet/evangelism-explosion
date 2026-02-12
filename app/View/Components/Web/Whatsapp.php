@@ -9,8 +9,10 @@ use Illuminate\View\Component;
 
 class Whatsapp extends Component
 {
-        public ?string $phone;
+    public ?string $phone;
+
     public string $title;
+
     public string $uid;
 
     public array $ddis;
@@ -32,7 +34,7 @@ class Whatsapp extends Component
     ) {
         $this->phone = PhoneHelper::normalize($phone);
         $this->title = $title;
-        $this->uid = 'wa-' . uniqid();
+        $this->uid = 'wa-'.uniqid();
 
         $this->ddis = [
             ['code' => '+27',  'flag' => '🇿🇦', 'name' => 'África do Sul', 'sample' => '0123456789'],
@@ -68,9 +70,9 @@ class Whatsapp extends Component
         ];
 
         // ordenar alfabeticamente pelo nome
-        usort($this->ddis, fn($a, $b) => strcmp($a['name'], $b['name']));
+        usort($this->ddis, fn ($a, $b) => strcmp($a['name'], $b['name']));
     }
-    
+
     public function render(): View|Closure|string
     {
         return view('components.web.whatsapp');

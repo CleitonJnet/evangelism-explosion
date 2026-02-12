@@ -21,7 +21,7 @@ class MoneyHelper
             return is_string($money) ? $money : null;
         }
 
-        return $symbol . ' ' . number_format($normalized, 2, $decimalSeparator, $thousandSeparator);
+        return $symbol.' '.number_format($normalized, 2, $decimalSeparator, $thousandSeparator);
     }
 
     public static function toFloat(string|int|float|null $money): ?float
@@ -64,7 +64,7 @@ class MoneyHelper
             $money = str_replace(',', '', $money);
         }
 
-        if (!is_numeric($money)) {
+        if (! is_numeric($money)) {
             return null;
         }
 

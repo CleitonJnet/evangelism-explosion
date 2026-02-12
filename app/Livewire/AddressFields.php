@@ -2,26 +2,27 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Modelable;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Modelable;
+use Livewire\Component;
 
 class AddressFields extends Component
 {
     #[Modelable]
     public array $address = [
         'postal_code' => '',
-        'street'      => '',
-        'number'      => '',
-        'complement'  => '',
-        'district'    => '',
-        'city'        => '',
-        'state'       => '',
+        'street' => '',
+        'number' => '',
+        'complement' => '',
+        'district' => '',
+        'city' => '',
+        'state' => '',
     ];
 
     public string $title = 'Endereço';
+
     public bool $requireDistrictCityState = true;
 
     public array $stateOptions = [
@@ -56,14 +57,16 @@ class AddressFields extends Component
 
     /** UX */
     public array $note = [
-        'street'   => null,
+        'street' => null,
         'district' => null,
-        'city'     => null,
-        'state'    => null,
+        'city' => null,
+        'state' => null,
     ];
 
     public bool $cepLoading = false;
+
     public ?string $cepError = null;
+
     public ?string $lastCepLookup = null;
 
     public function mount(string $title = 'Endereço'): void
@@ -87,7 +90,9 @@ class AddressFields extends Component
         $digits = preg_replace('/\D+/', '', (string) $cep);
         $digits = substr($digits, 0, 8);
 
-        if (strlen($digits) !== 8) return;
+        if (strlen($digits) !== 8) {
+            return;
+        }
 
         // Evita consultar o mesmo CEP repetidamente
         if ($this->lastCepLookup === $digits) {
@@ -110,15 +115,16 @@ class AddressFields extends Component
             /** @var \Illuminate\Http\Client\Response $response */
             $data = $response->json();
 
-            if (!empty($data['erro'])) {
+            if (! empty($data['erro'])) {
                 $this->cepError = 'CEP não encontrado. Verifique e tente novamente.';
+
                 return;
             }
 
-            $this->address['street']   = $data['logradouro'] ?? '';
+            $this->address['street'] = $data['logradouro'] ?? '';
             $this->address['district'] = $data['bairro'] ?? '';
-            $this->address['city']     = $data['localidade'] ?? '';
-            $this->address['state']    = $data['uf'] ?? '';
+            $this->address['city'] = $data['localidade'] ?? '';
+            $this->address['state'] = $data['uf'] ?? '';
 
             $this->dispatch('reapply-cep-mask');
 
@@ -136,10 +142,10 @@ class AddressFields extends Component
     {
         $msg = $loading ? 'Carregando...' : null;
 
-        $this->note['street']   = $msg;
+        $this->note['street'] = $msg;
         $this->note['district'] = $msg;
-        $this->note['city']     = $msg;
-        $this->note['state']    = $msg;
+        $this->note['city'] = $msg;
+        $this->note['state'] = $msg;
     }
 
     public function render()

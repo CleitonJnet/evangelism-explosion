@@ -9,9 +9,10 @@ class Voucher extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'training_id','name','value' ];
+    protected $fillable = ['training_id', 'name', 'value'];
 
     public function training()
-    { return $this->belongsTo(Training::class); }
-
+    {
+        return $this->belongsTo(Training::class);
+    }
 }

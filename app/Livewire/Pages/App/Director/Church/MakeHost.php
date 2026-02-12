@@ -10,7 +10,9 @@ use Livewire\Component;
 class MakeHost extends Component
 {
     public ?int $church_id = null;
+
     public ?string $since_date = null;
+
     public ?string $notes = null;
 
     /**
@@ -51,7 +53,7 @@ class MakeHost extends Component
 
     public function updated(string $property): void
     {
-        if (!array_key_exists($property, $this->rules())) {
+        if (! array_key_exists($property, $this->rules())) {
             return;
         }
 
