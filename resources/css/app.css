@@ -92,6 +92,11 @@ html {
     color: var(--ee-app-text);
 }
 
+button,
+a {
+    cursor: pointer;
+}
+
 /* Card “metal” com relevo leve */
 .ee-metal-card {
     background: linear-gradient(

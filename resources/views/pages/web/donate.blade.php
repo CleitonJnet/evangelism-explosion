@@ -253,7 +253,7 @@
 
                 <div class="grid gap-6 lg:grid-cols-3">
                     <article class="overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/20">
-                        <img src="https://placehold.co/600x400?text=Foto de Treinamento"
+                        <img src="{{ asset('images/photo-clinic-1.jpg') }}"
                             alt="Equipe em sala de treinamento missionário" class="object-cover w-full h-48"
                             loading="lazy" decoding="async" />
                         <div class="flex flex-col gap-3 p-5">
@@ -265,7 +265,7 @@
                     </article>
 
                     <article class="overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/20">
-                        <img src="https://placehold.co/600x400?text=Foto de igreja recebendo os kits"
+                        <img src="{{ asset('images/photo-clinic-2.jpg') }}"
                             alt="Distribuição de materiais de discipulado" class="object-cover w-full h-48"
                             loading="lazy" decoding="async" />
                         <div class="flex flex-col gap-3 p-5">
@@ -277,9 +277,8 @@
                     </article>
 
                     <article class="overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/20">
-                        <img src="https://placehold.co/600x400?text=Foto de Mentoria pós treinamento"
-                            alt="Equipe de apoio visitando igrejas" class="object-cover w-full h-48" loading="lazy"
-                            decoding="async" />
+                        <img src="{{ asset('images/photo-clinic-3.jpg') }}" alt="Equipe de apoio visitando igrejas"
+                            class="object-cover w-full h-48" loading="lazy" decoding="async" />
                         <div class="flex flex-col gap-3 p-5">
                             <h4 class="text-lg font-semibold text-slate-900">Acompanhamento de igrejas</h4>
                             <p class="text-sm leading-relaxed text-slate-600">
