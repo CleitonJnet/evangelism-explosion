@@ -153,6 +153,65 @@ it('shows day labels when the training has multiple event dates', function () {
         ->assertSee('Dia 2');
 });
 
+it('applies day border colors by schedule plan status', function () {
+    $teacher = User::factory()->create();
+    $role = Role::query()->create(['name' => 'Teacher']);
+    $course = Course::factory()->create();
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-10',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-11',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+    EventDate::query()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-12',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    TrainingScheduleItem::factory()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-10',
+        'starts_at' => '2026-03-10 08:00:00',
+        'ends_at' => '2026-03-10 11:00:00',
+    ]);
+    TrainingScheduleItem::factory()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-11',
+        'starts_at' => '2026-03-11 08:00:00',
+        'ends_at' => '2026-03-11 12:00:00',
+    ]);
+    TrainingScheduleItem::factory()->create([
+        'training_id' => $training->id,
+        'date' => '2026-03-12',
+        'starts_at' => '2026-03-12 08:00:00',
+        'ends_at' => '2026-03-12 12:30:00',
+    ]);
+
+    $teacher->roles()->attach($role->id);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.schedule', $training))
+        ->assertSuccessful()
+        ->assertSee('border-amber-400', false)
+        ->assertSee('border-emerald-500', false)
+        ->assertSee('border-red-400', false);
+});
+
 it('allows changing section duration within the 25 percent rule', function () {
     $teacher = User::factory()->create();
     $role = Role::query()->create(['name' => 'Teacher']);

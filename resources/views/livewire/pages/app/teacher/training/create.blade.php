@@ -1,49 +1,71 @@
-<section
-    class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
+<section x-data="{
+    step: @entangle('step').live,
+    totalSteps: 4,
+    async nextStep() {
+        if (this.step >= this.totalSteps) {
+            return;
+        }
 
-    <form wire:submit="submit">
-        <div class="text-sm font-semibold text-heading">{{ __('Informações do treinamento') }}</div>
+        const canProceed = await this.$wire.canProceedStep(Number(this.step));
 
-        <div class="flex flex-wrap mt-6 gap-y-8 gap-x-4">
-            <x-src.form.select name="course_id" wire:model.live="course_id" label="Curso" width_basic="400"
-                :options="$courses
-                    ->map(fn($course) => ['value' => $course->id, 'label' => $course->type . ': ' . $course->name])
-                    ->toArray()" required />
+        if (canProceed) {
+            this.step++;
+        }
+    },
+    previousStep() {
+        if (this.step > 1) {
+            this.step--;
+        }
+    },
+}"
+    class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg h-full relative max-h-[calc(100vh-240px)]">
 
-            <x-src.form.input name="price" wire:model="price" label="Preço sugerido" width_basic="150" disabled />
-
-            <x-src.form.input name="price_church" wire:model="price_church" label="Preço igreja" width_basic="150" />
-
-            <x-src.form.input name="discount" wire:model="discount" label="Desconto" width_basic="150" />
-
-            <x-src.form.select name="status" wire:model="status" label="Status" width_basic="150" :options="collect($statusOptions)
-                ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
-                ->values()
-                ->toArray()" />
-
-            <x-src.form.input name="welcome_duration_minutes" wire:model="welcome_duration_minutes"
-                label="Boas-vindas (min)" width_basic="180" type="number" min="30" max="60" />
+    <form wire:submit="submit" class="">
+        {{-- SELEÇÃO DO CURSO --}}
+        <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap">
+            <div class="flex-1 ">{{ __('Selecione o Curso desejado:') }}</div>
+            <div class="flex-1 grid gap-4">
+                @foreach ($courses as $course)
+                    <div>
+                        <input type="radio" wire:model.live="course_id" name="course" class="peer sr-only"
+                            id="{{ Str::slug($course->name) }}" value="{{ $course->id }}">
+                        <label for="{{ Str::slug($course->name) }}"
+                            class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 p-4 peer-checked:border-sky-900 peer-checked:[&_.course-check]:inline-flex transition-all hover:bg-white hover:shadow-[0_0_0_2px_#cad5e2]">
+                            <div class="flex gap-2 justify-between">
+                                <div class="font-bold">{{ $course->type }} {{ $course->name }}</div>
+                                <div
+                                    class="course-check hidden size-6 items-center justify-center rounded-full bg-sky-900 text-white">
+                                    <div class="">&#x2713;</div>
+                                </div>
+                            </div>
+                            <div class="text-xs opacity-80">{{ $course->ministry?->name }}</div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
-        <div class="mt-8 flex flex-col gap-4">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
-                <flux:button type="button" variant="outline" wire:click="addEventDate">
-                    {{ __('Adicionar dia') }}
-                </flux:button>
-            </div>
+        {{-- DATA DO EVENTO --}}
+        <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap">
+            <div class="flex-1 ">{{ __('Informe as datas:') }}</div>
+            <div class="max-h-80 space-y-10 overflow-y-auto">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
+                    <flux:button type="button" variant="outline" wire:click="addEventDate">
+                        {{ __('Adicionar dia') }}
+                    </flux:button>
+                </div>
 
-            <div class="flex flex-col gap-4">
                 @foreach ($eventDates as $index => $eventDate)
                     <div class="flex flex-wrap items-end gap-4">
                         <x-src.form.input name="eventDates.{{ $index }}.date"
-                            wire:model="eventDates.{{ $index }}.date" label="Data" type="date"
+                            wire:model.live="eventDates.{{ $index }}.date" label="Data" type="date"
                             width_basic="220" required />
                         <x-src.form.input name="eventDates.{{ $index }}.start_time"
-                            wire:model="eventDates.{{ $index }}.start_time" label="Início" type="time"
+                            wire:model.live="eventDates.{{ $index }}.start_time" label="Início" type="time"
                             width_basic="160" required />
                         <x-src.form.input name="eventDates.{{ $index }}.end_time"
-                            wire:model="eventDates.{{ $index }}.end_time" label="Fim" type="time"
+                            wire:model.live="eventDates.{{ $index }}.end_time" label="Fim" type="time"
                             width_basic="160" required />
                         <flux:button type="button" variant="danger" class="shrink-0"
                             wire:click="removeEventDate({{ $index }})">
@@ -51,64 +73,75 @@
                         </flux:button>
                     </div>
                 @endforeach
+
             </div>
         </div>
 
-        <x-src.line-theme class="my-10" />
-
-        <div class="mt-10 space-y-6">
-            <div class="text-sm font-semibold text-heading">{{ __('Igreja sede') }}</div>
-            <div class="flex flex-wrap gap-8">
+        {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
+        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap">
+            <div class="flex-1 ">{{ __('Selecione a Igreja Base do Evento:') }}</div>
+            <div class="flex-1 grid gap-4">
                 <x-src.form.input name="churchSearch" wire:model.live="churchSearch" label="Buscar igreja"
-                    width_basic="900" />
-                <x-src.form.select name="church_id" wire:model.live="church_id" label="Igreja sede" width_basic="900"
-                    :select="empty($churchSearch)" :options="$churches
-                        ->map(
-                            fn($church) => [
-                                'value' => $church->id,
-                                'label' => $church->name . ' - ' . $church->city,
-                            ],
-                        )
-                        ->toArray()" />
-            </div>
+                    width_basic="900" autofocus="" />
 
-            <livewire:address-fields wire:model="address" title="Endereço do treinamento" wire:key="training-address" />
-        </div>
-
-        <x-src.line-theme class="my-10" />
-
-        <div class="mt-10">
-            <div class="text-sm font-semibold text-heading">{{ __('Informações gerais') }}</div>
-            <div class="mt-6 flex flex-wrap gap-y-8 gap-x-4">
-                <x-src.form.input name="coordinator" wire:model="coordinator" label="Coordenador" width_basic="400" />
-                <x-src.form.input name="email" wire:model="email" label="Email" width_basic="400" />
-                <x-src.form.input name="phone" wire:model="phone" label="Telefone" width_basic="300" />
-                <x-src.form.input name="gpwhatsapp" wire:model="gpwhatsapp" label="WhatsApp" width_basic="300" />
-                <x-src.form.input name="url" wire:model="url" label="Link do evento online" width_basic="320"
-                    type="url" />
-                <x-src.form.input name="totKitsReceived" wire:model="totKitsReceived" label="Kits recebidos"
-                    width_basic="200" type="number" />
-                <x-src.form.textarea name="notes" wire:model="notes" label="Observações" rows="2" />
-                <div class="flex flex-col gap-3" style="flex: 1 1 100%">
-                    <label for="bannerUpload" class="text-sm text-body cursor-pointer">{{ __('Banner') }}</label>
-                    <input id="bannerUpload" name="bannerUpload" type="file" accept="image/*"
-                        wire:model="bannerUpload"
-                        class="block w-full text-sm text-heading file:mr-4 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-neutral-700 hover:file:bg-neutral-200 cursor-pointer" />
-                    @error('bannerUpload')
-                        <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
-                    @enderror
-                    @if ($bannerUpload)
-                        <div class="mt-2">
-                            <img src="{{ $bannerUpload->temporaryUrl() }}" alt="{{ __('Prévia do banner') }}"
-                                class="h-24 w-auto rounded-lg border border-[color:var(--ee-app-border)] object-cover" />
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                    @foreach ($churches as $church)
+                        <div>
+                            <input type="radio" wire:model.live="church_id" name="church" class="peer sr-only"
+                                id="{{ Str::slug($church->name) }}" value="{{ $church->id }}">
+                            <label for="{{ Str::slug($church->name) }}"
+                                class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 py-2 px-4 peer-checked:border-sky-900 peer-checked:[&_.church-check]:inline-flex">
+                                <div class="flex gap-2 justify-between">
+                                    <div class="font-bold">{{ $church->name }}</div>
+                                    <div
+                                        class="church-check hidden size-6 items-center justify-center rounded-full bg-sky-900 text-white">
+                                        <div>&#x2713;</div>
+                                    </div>
+                                </div>
+                                <div class="text-xs uppercase border-b border-sky-950/20 pb-1 mb-1">
+                                    {{ $church->pastor }}
+                                </div>
+                                <div class="text-xs opacity-80">{{ $church->district }}, {{ $church->city }},
+                                    {{ $church->state }}</div>
+                            </label>
                         </div>
-                    @endif
+                    @endforeach
                 </div>
             </div>
         </div>
 
-        <flux:button variant="primary" type="submit" class="mt-8 w-full">
-            {{ __('Salvar treinamento') }}
-        </flux:button>
+        {{-- FINANCEIRO --}}
+        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap">
+            <div class="flex-1 ">{{ __('Selecione a Igreja Base do Evento:') }}</div>
+            <div class="flex-1 grid gap-10">
+                <div class="flex justify-between gap-0.5">
+                    <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
+                    <div class="border-b border-dashed border-sky-950 flex-auto"></div>
+                    <div>{{ __('R$') }} {{ $price }}</div>
+                </div>
+
+                <x-src.form.input name="price_church" wire:model="price_church" label="Despesas extras"
+                    width_basic="150" />
+
+                <x-src.form.input name="discount" wire:model="discount" label="Desconto sobre o valor do curso"
+                    width_basic="150" />
+            </div>
+        </div>
+
+        <div class="absolute bottom-2 inset-x-0 z-10 w-full px-4">
+            <div
+                class="flex items-center justify-between rounded-lg border border-sky-950 bg-white/80 px-6 py-3 shadow">
+                <div class="min-w-24">
+                    <button type="button" x-show="step > 1" x-on:click="previousStep">&#x276E; Voltar</button>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" x-show="step < totalSteps" x-on:click="nextStep"
+                        @disabled(!$this->canProceedToNextStep)
+                        class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
+                        &#x276F;</button>
+                    <button type="submit" x-show="step === totalSteps">{{ __('Salvar evento') }} &#x2713;</button>
+                </div>
+            </div>
+        </div>
     </form>
 </section>

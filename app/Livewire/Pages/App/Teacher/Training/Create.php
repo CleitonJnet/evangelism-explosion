@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -30,6 +31,8 @@ class Create extends Component
     public ?int $teacher_id = null;
 
     public ?int $church_id = null;
+
+    public int $step = 1;
 
     /**
      * @var array<int, array{date: string, start_time: string, end_time: string}>
@@ -54,9 +57,9 @@ class Create extends Component
 
     public ?string $price = null;
 
-    public ?string $price_church = null;
+    public ?string $price_church = '0,00';
 
-    public ?string $discount = null;
+    public ?string $discount = '0,00';
 
     public ?int $kits = null;
 
@@ -271,6 +274,45 @@ class Create extends Component
         }
     }
 
+    public function canProceedStep(int $step): bool
+    {
+        $rules = match ($step) {
+            1 => [
+                'course_id' => ['required', 'integer', 'exists:courses,id'],
+            ],
+            2 => [
+                'eventDates' => ['required', 'array', 'min:1'],
+                'eventDates.*.date' => ['required', 'date_format:Y-m-d', 'distinct'],
+                'eventDates.*.start_time' => ['required', 'date_format:H:i'],
+                'eventDates.*.end_time' => ['required', 'date_format:H:i', 'after:eventDates.*.start_time'],
+            ],
+            3 => [
+                'church_id' => ['required', 'integer', 'exists:churches,id'],
+            ],
+            default => [],
+        };
+
+        if ($rules === []) {
+            return true;
+        }
+
+        return ! Validator::make(
+            [
+                'course_id' => $this->course_id,
+                'church_id' => $this->church_id,
+                'eventDates' => $this->eventDates,
+            ],
+            $rules,
+            $this->messages(),
+            $this->validationAttributes(),
+        )->fails();
+    }
+
+    public function getCanProceedToNextStepProperty(): bool
+    {
+        return $this->canProceedStep($this->step);
+    }
+
     public function submit(TrainingScheduleGenerator $generator): void
     {
         $validated = $this->validate();
@@ -358,15 +400,18 @@ class Create extends Component
         }
 
         return Course::query()
+            ->with('ministry')
+            ->leftJoin('ministries', 'ministries.id', '=', 'courses.ministry_id')
+            ->select('courses.*')
             ->whereHas('teachers', function ($query) use ($teacherId): void {
                 $query->whereKey($teacherId);
             })
             ->where(function ($query): void {
-                $query->where('execution', 0)
-                    ->orWhereIn('id', $this->extraCourseIds);
+                $query->where('courses.execution', 0)
+                    ->orWhereIn('courses.id', $this->extraCourseIds);
             })
-            ->orderBy('type')
-            ->orderBy('name')
+            ->orderBy('ministries.name')
+            ->orderBy('courses.order')
             ->get();
     }
 
@@ -379,11 +424,13 @@ class Create extends Component
             ->when($this->churchSearch !== '', function ($query): void {
                 $search = '%'.$this->churchSearch.'%';
                 $query->where('name', 'like', $search)
+                    ->orWhere('pastor', 'like', $search)
+                    ->orWhere('district', 'like', $search)
                     ->orWhere('city', 'like', $search)
                     ->orWhere('state', 'like', $search);
             })
             ->orderBy('name')
-            ->limit(25)
+            ->limit(5)
             ->get();
     }
 }

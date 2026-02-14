@@ -1,3 +1,14 @@
+@php
+    use App\Helpers\DayScheduleHelper;
+
+    $training->loadMissing([
+        'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time'),
+        'scheduleItems' => fn($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
+    ]);
+
+    $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
+@endphp
+
 <div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6 relative"
     wire:loading.class="pointer-events-none"
     wire:target="regenerate,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak">
@@ -9,7 +20,7 @@
             <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
-                :tooltip="__('Programação do evento')" />
+                :error="$hasScheduleError" :tooltip="__('Programação do evento')" />
         </div>
 
         <label
@@ -51,6 +62,14 @@
             @php
                 $dateKey = $eventDate->date;
                 $items = $scheduleByDate->get($dateKey, collect())->sortBy('position');
+                $planStatus =
+                    $planStatusByDate[$dateKey] ?? \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_UNDER;
+                $dayBorderClass =
+                    $planStatus === \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_OVER
+                        ? 'border-2 border-red-400'
+                        : ($planStatus === \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_OK
+                            ? 'border border-emerald-500'
+                            : 'border-2 border-amber-400');
                 $dayStart = \Carbon\Carbon::parse($eventDate->date . ' ' . $eventDate->start_time)->format(
                     'Y-m-d H:i:s',
                 );
@@ -61,7 +80,7 @@
                 $showDinner = (bool) ($dayUiFlags['showDinner'] ?? false);
             @endphp
             <div id="{{ 'day' . $loop->iteration }}"
-                class="rounded-2xl border border-(--ee-app-border) bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
+                class="rounded-2xl {{ $dayBorderClass }} bg-linear-to-br from-slate-100 via-white to-slate-200 p-4"
                 wire:key="schedule-day-{{ $dateKey }}">
                 <div>
                     <div class="flex flex-wrap items-start justify-between gap-2 pb-2">
@@ -281,11 +300,6 @@
                     </table>
                 </div>
                 @php
-                    $planStatus =
-                        $planStatusByDate[$dateKey] ??
-                        \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_UNDER;
-                @endphp
-                @php
                     $planDiff = $planDiffByDate[$dateKey] ?? ['hours' => 0, 'minutes' => 0];
                 @endphp
                 @if ($planStatus === \App\Livewire\Pages\App\Teacher\Training\Schedule::PLAN_STATUS_UNDER)
@@ -323,7 +337,7 @@
 </div>
 
 
-{{-- 
+{{--
 
 
 Horário	Sessão	Duração
@@ -370,9 +384,9 @@ minutes
 Dia 2:
 Sábado - 07/02
 08:30 - 21:45
-Horário de início das sessões 
+Horário de início das sessões
 08:30
-Horário de fim das sessões 
+Horário de fim das sessões
 21:45
 
 
@@ -533,9 +547,9 @@ minutes
 Dia 3:
 Domingo - 08/02
 08:30 - 17:30
-Horário de início das sessões 
+Horário de início das sessões
 08:30
-Horário de fim das sessões 
+Horário de fim das sessões
 17:30
 
 

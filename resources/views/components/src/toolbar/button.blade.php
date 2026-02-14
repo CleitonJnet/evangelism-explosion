@@ -4,6 +4,7 @@
     'icon' => 'calendar',
     'active' => false,
     'tooltip' => null,
+    'error' => false,
 ])
 
 @php
@@ -14,11 +15,14 @@
         : 'background:rgba(2,6,23,0.04);color:#0f172a;border:1px solid rgba(15,23,42,0.1);';
 @endphp
 
-<a {{ $attributes->merge([
-    'href' => $href,
-    'aria-label' => $label,
-    'style' => $baseStyles,
-])->class('group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition') }}>
+<a
+    {{ $attributes->merge([
+            'href' => $href,
+            'aria-label' => $label,
+            'style' => $baseStyles,
+        ])->class(
+            'group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition',
+        ) }}>
     <span
         class="absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg group-hover:block">
         {{ $tooltipText }}
@@ -30,10 +34,10 @@
                 d="M9 5h10M9 12h10M9 19h10M5 5h.01M5 12h.01M5 19h.01" />
         </svg>
     @elseif ($icon === 'calendar')
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3M4 11h16M5 7h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" />
+        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
+            fill="currentColor" class="h-4 w-4" viewBox="0 0 122.88 118.34">
+            <path
+                d="M95.53,63.65A27.35,27.35,0,1,1,68.19,91,27.35,27.35,0,0,1,95.53,63.65ZM71.59,4.05c0-2.23,2.21-4,4.94-4s4.94,1.82,4.94,4.05V22.9c0,2.24-2.21,4.05-4.94,4.05s-4.94-1.81-4.94-4.05V4.05Zm-44.26,0c0-2.23,2.21-4,4.94-4s4.95,1.82,4.95,4.05V22.9C37.22,25.14,35,27,32.27,27s-4.94-1.81-4.94-4.05V4.05ZM48,77.66H60A38,38,0,0,0,57.62,91c0,.87,0,1.74.09,2.6H48a1.88,1.88,0,0,1-1.87-1.87V79.53A1.88,1.88,0,0,1,48,77.66ZM77.6,51.71H92.27a1.89,1.89,0,0,1,1.81,1.4,37.76,37.76,0,0,0-18.35,5.55V53.57a1.87,1.87,0,0,1,1.87-1.86ZM48,51.71H62.68a1.87,1.87,0,0,1,1.87,1.86V65.78a1.89,1.89,0,0,1-1.87,1.87H48a1.88,1.88,0,0,1-1.87-1.87V53.57A1.88,1.88,0,0,1,48,51.71Zm-29.58,0H33.1A1.87,1.87,0,0,1,35,53.57V65.78a1.89,1.89,0,0,1-1.87,1.87H18.43a1.87,1.87,0,0,1-1.87-1.87V53.57a1.87,1.87,0,0,1,1.87-1.86Zm0,25.95H33.1A1.87,1.87,0,0,1,35,79.53v12.2A1.89,1.89,0,0,1,33.1,93.6H18.43a1.87,1.87,0,0,1-1.87-1.87V79.53a1.87,1.87,0,0,1,1.87-1.87Zm45.48,34.26H10.24A10.28,10.28,0,0,1,0,101.68V20.54A10.29,10.29,0,0,1,10.24,10.3h9.44V22.9a11.24,11.24,0,0,0,4.26,8.75,13.25,13.25,0,0,0,16.67,0,11.24,11.24,0,0,0,4.26-8.75V10.3H63.94V22.9a11.23,11.23,0,0,0,4.25,8.75,13.26,13.26,0,0,0,16.68,0,11.26,11.26,0,0,0,4.25-8.75V10.3H99a10.28,10.28,0,0,1,10.24,10.24V55.63a38.34,38.34,0,0,0-4.37-1.4V39.94H4.37V99.5a8.08,8.08,0,0,0,8.05,8h49a40.11,40.11,0,0,0,2.5,4.37ZM91.74,77.23h3.34a1.12,1.12,0,0,1,1.12,1.12V91.23H108a1.12,1.12,0,0,1,1.12,1.11v3.35A1.12,1.12,0,0,1,108,96.8H90.63V78.35a1.12,1.12,0,0,1,1.11-1.12Zm3.79-7.37A21.14,21.14,0,1,1,74.4,91,21.13,21.13,0,0,1,95.53,69.86Z" />
         </svg>
     @elseif ($icon === 'calendar-check')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -61,30 +65,16 @@
                 d="M18 18.72a9.094 9.094 0 003.741-3.655A3.75 3.75 0 0018 7.5a3.75 3.75 0 00-1.49 7.2M6 18.72a9.094 9.094 0 01-3.741-3.655A3.75 3.75 0 016 7.5a3.75 3.75 0 011.49 7.2M12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zm0 0c-3.314 0-6 1.343-6 3v.75h12v-.75c0-1.657-2.686-3-6-3z" />
         </svg>
     @elseif ($icon === 'users-chat')
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <circle cx="7" cy="11" r="2.25" />
-            <circle cx="15.5" cy="11" r="2.25" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3.5 19a4 4 0 014-4h2" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13.25 15h2a4 4 0 014 4" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9.5 4.5h5.5a3 3 0 013 3v1.5a3 3 0 01-3 3H13l-2 2v-2H9.5a3 3 0 01-3-3V7.5a3 3 0 013-3z" />
-        </svg>
+        <img src="{{ asset('images/svg/people-network.svg') }}" alt="indicator" class="h-4">
     @elseif ($icon === 'person-walking')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 4.5a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9.75 7.5l2.25 1.5-1.5 4.5" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 21l1.5-5.25" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12.75 11.25l4.5 2.25" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15.75 21l-2.25-4.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 7.5l2.25 1.5-1.5 4.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21l1.5-5.25" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.75 11.25l4.5 2.25" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 21l-2.25-4.5" />
         </svg>
     @elseif ($icon === 'user-group')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -101,8 +91,7 @@
     @elseif ($icon === 'chart-bar')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
         </svg>
     @elseif ($icon === 'briefcase')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -154,4 +143,7 @@
     @endif
 
     <span class="w-full truncate text-[9px] text-center uppercase">{{ $label }}</span>
+    @if ($error)
+        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-6 absolute -top-2 right-0">
+    @endif
 </a>

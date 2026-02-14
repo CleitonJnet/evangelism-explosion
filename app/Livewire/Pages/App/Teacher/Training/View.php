@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Helpers\MoneyHelper;
 use App\Models\Training;
 use Illuminate\Support\Collection;
 use Illuminate\View\View as ViewResponse;
@@ -20,6 +21,14 @@ class View extends Component
      * @var Collection<int, \App\Models\User>
      */
     public Collection $students;
+
+    public int $paidStudentsCount = 0;
+
+    public ?string $eeMinistryBalance = null;
+
+    public ?string $hostChurchExpenseBalance = null;
+
+    public ?string $totalReceivedFromRegistrations = null;
 
     /**
      * @var array{
@@ -43,16 +52,66 @@ class View extends Component
             'teacher',
             'church',
             'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+            'scheduleItems' => fn ($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
             'students' => fn ($query) => $query->orderBy('name'),
         ])->loadCount('scheduleItems');
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;
+        $this->paidStudentsCount = $this->training->students()
+            ->wherePivot('payment', true)
+            ->count();
+        $this->totalReceivedFromRegistrations = $this->calculateTotalReceivedFromRegistrations();
+        $this->eeMinistryBalance = $this->calculateEeMinistryBalance();
+        $this->hostChurchExpenseBalance = $this->calculateHostChurchExpenseBalance();
         $this->ojtSummary = $this->training->ojtReportSummary();
     }
 
     public function render(): ViewResponse
     {
         return view('livewire.pages.app.teacher.training.view');
+    }
+
+    private function calculateEeMinistryBalance(): ?string
+    {
+        $price = MoneyHelper::toFloat($this->training->getRawOriginal('price'));
+        $discount = MoneyHelper::toFloat($this->training->getRawOriginal('discount')) ?? 0.0;
+
+        if ($price === null) {
+            return null;
+        }
+
+        $balance = ($price - $discount) * $this->paidStudentsCount;
+
+        return MoneyHelper::format_money($balance);
+    }
+
+    private function calculateHostChurchExpenseBalance(): ?string
+    {
+        $priceChurch = MoneyHelper::toFloat($this->training->getRawOriginal('price_church'));
+
+        if ($priceChurch === null) {
+            return null;
+        }
+
+        $balance = $priceChurch * $this->paidStudentsCount;
+
+        return MoneyHelper::format_money($balance);
+    }
+
+    private function calculateTotalReceivedFromRegistrations(): ?string
+    {
+        $price = MoneyHelper::toFloat($this->training->getRawOriginal('price'));
+        $discount = MoneyHelper::toFloat($this->training->getRawOriginal('discount')) ?? 0.0;
+        $priceChurch = MoneyHelper::toFloat($this->training->getRawOriginal('price_church')) ?? 0.0;
+
+        if ($price === null) {
+            return null;
+        }
+
+        $totalPerRegistration = $price - $discount + $priceChurch;
+        $total = $totalPerRegistration * $this->paidStudentsCount;
+
+        return MoneyHelper::format_money($total);
     }
 }
