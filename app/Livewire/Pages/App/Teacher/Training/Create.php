@@ -90,6 +90,16 @@ class Create extends Component
 
     public string $churchSearch = '';
 
+    public bool $preserveNewChurchSelection = false;
+
+    /**
+     * @var array{id: int|null, name: string}
+     */
+    public array $newChurchSelection = [
+        'id' => null,
+        'name' => '',
+    ];
+
     /**
      * @var array{postal_code: string, street: string, number: string, complement: string, district: string, city: string, state: string}
      */
@@ -212,30 +222,25 @@ class Create extends Component
             return;
         }
 
-        $church = Church::query()->find($value);
-
-        if (! $church) {
-            return;
-        }
-
-        $this->address = [
-            'postal_code' => $church->postal_code ?? '',
-            'street' => $church->street ?? '',
-            'number' => $church->number ?? '',
-            'complement' => $church->complement ?? '',
-            'district' => $church->district ?? '',
-            'city' => $church->city ?? '',
-            'state' => $church->state ?? '',
-        ];
-
-        $this->phone = $church->phone ?? $this->phone;
-        $this->email = $church->email ?? $this->email;
-        $this->gpwhatsapp = $church->contact_phone ?? $this->gpwhatsapp;
-        $this->coordinator = $church->contact ?? $this->coordinator;
+        $this->applySelectedChurchData((int) $value);
     }
 
     public function updatedChurchSearch(string $value): void
     {
+        $selectedNewChurchId = isset($this->newChurchSelection['id']) ? (int) $this->newChurchSelection['id'] : null;
+        $selectedNewChurchName = trim((string) ($this->newChurchSelection['name'] ?? ''));
+
+        if (
+            $this->preserveNewChurchSelection
+            && $selectedNewChurchId
+            && $this->church_id === $selectedNewChurchId
+            && trim($value) === $selectedNewChurchName
+        ) {
+            return;
+        }
+
+        $this->preserveNewChurchSelection = false;
+
         $churches = $this->loadChurches();
         $firstId = $churches->first()?->id;
 
@@ -247,7 +252,26 @@ class Create extends Component
 
         if ($this->church_id !== $firstId) {
             $this->church_id = $firstId;
+            $this->applySelectedChurchData($firstId);
         }
+    }
+
+    /**
+     * @param  array{id?: int|string|null, name?: string|null}  $value
+     */
+    public function updatedNewChurchSelection(array $value): void
+    {
+        $churchId = isset($value['id']) ? (int) $value['id'] : null;
+        $churchName = trim((string) ($value['name'] ?? ''));
+
+        if (! $churchId || $churchName === '') {
+            return;
+        }
+
+        $this->preserveNewChurchSelection = true;
+        $this->churchSearch = $churchName;
+        $this->church_id = $churchId;
+        $this->applySelectedChurchData($churchId);
     }
 
     public function addEventDate(): void
@@ -444,5 +468,29 @@ class Create extends Component
             ->orderBy('name')
             ->limit(5)
             ->get();
+    }
+
+    private function applySelectedChurchData(int $churchId): void
+    {
+        $church = Church::query()->find($churchId);
+
+        if (! $church) {
+            return;
+        }
+
+        $this->address = [
+            'postal_code' => $church->postal_code ?? '',
+            'street' => $church->street ?? '',
+            'number' => $church->number ?? '',
+            'complement' => $church->complement ?? '',
+            'district' => $church->district ?? '',
+            'city' => $church->city ?? '',
+            'state' => $church->state ?? '',
+        ];
+
+        $this->phone = $church->phone ?? $this->phone;
+        $this->email = $church->email ?? $this->email;
+        $this->gpwhatsapp = $church->contact_phone ?? $this->gpwhatsapp;
+        $this->coordinator = $church->contact ?? $this->coordinator;
     }
 }

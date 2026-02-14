@@ -1,23 +1,23 @@
 <section x-data="{
-    {{-- step: @entangle('step').live, --}}
-    step: 3,
-        totalSteps: 4,
-        async nextStep() {
-                if (this.step >= this.totalSteps) {
-                    return;
-                }
+    step: @entangle('step').live,
+    {{-- step: 3, --}}
+    totalSteps: 4,
+    async nextStep() {
+        if (this.step >= this.totalSteps) {
+            return;
+        }
 
-                const canProceed = await this.$wire.canProceedStep(Number(this.step));
+        const canProceed = await this.$wire.canProceedStep(Number(this.step));
 
-                if (canProceed) {
-                    this.step++;
-                }
-            },
-            previousStep() {
-                if (this.step > 1) {
-                    this.step--;
-                }
-            },
+        if (canProceed) {
+            this.step++;
+        }
+    },
+    previousStep() {
+        if (this.step > 1) {
+            this.step--;
+        }
+    },
 }"
     class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg h-full relative max-h-[calc(100vh-240px)]">
 
@@ -83,10 +83,10 @@
             <div class="flex-1 ">
                 {{ __('Selecione a Igreja Base do Evento:') }}
                 <div class="text-justify">
-                    {{ __('Se a igreja não está listada ao lado você pode adicioná-la em nossos registros a partir no botão abaixo:') }}
-                </div>
-                <div class="text-right">
-                    <x-src.btn-silver :label="__('Abrir formulário de registro de novas igrejas')" />
+                    {{ __('Se a igreja não estiver listada, cadastre uma nova e ela será selecionada automaticamente.') }}
+
+                    <livewire:pages.app.teacher.training.create-church-modal wire:model="newChurchSelection"
+                        wire:key="teacher-training-create-church-modal" />
                 </div>
             </div>
             <div class="flex-1 grid gap-4">

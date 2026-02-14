@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\App\Teacher\Training\Create;
+use App\Models\Church;
 use App\Models\Course;
 use App\Models\Ministry;
 use App\Models\User;
@@ -130,5 +131,75 @@ it('prevents native submit and only allows saving through the save button click'
 
     Livewire::test(Create::class)
         ->assertSeeHtml('x-on:submit.prevent')
-        ->assertSeeHtml('type="button" wire:click="submit" x-show="step === totalSteps"');
+        ->assertSeeHtml('wire:click="submit"')
+        ->assertSeeHtml('x-show="step === totalSteps"');
+});
+
+it('selects a newly created church when child modal updates the model', function () {
+    $teacher = User::factory()->create();
+    $church = Church::factory()->create(['name' => 'Igreja Nova Base']);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('newChurchSelection', [
+            'id' => $church->id,
+            'name' => $church->name,
+        ])
+        ->assertSet('churchSearch', 'Igreja Nova Base')
+        ->assertSet('church_id', $church->id);
+});
+
+it('keeps the church selected from modal when search would otherwise auto-select another church', function () {
+    $teacher = User::factory()->create();
+
+    Church::factory()->create(['name' => 'Igreja Alpha']);
+    Church::factory()->create(['name' => 'Igreja Beta']);
+    $newChurch = Church::factory()->create(['name' => 'Igreja']);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('newChurchSelection', [
+            'id' => $newChurch->id,
+            'name' => $newChurch->name,
+        ])
+        ->set('churchSearch', 'Igreja')
+        ->assertSet('church_id', $newChurch->id);
+});
+
+it('hydrates event address fields when church comes from modal selection', function () {
+    $teacher = User::factory()->create();
+    $church = Church::factory()->create([
+        'name' => 'Igreja Base Modal',
+        'street' => 'Rua Transparente',
+        'number' => '45',
+        'district' => 'Centro',
+        'city' => 'Niterói',
+        'state' => 'RJ',
+        'postal_code' => '24000000',
+        'phone' => '21999990000',
+        'email' => 'base@igreja.com',
+        'contact' => 'Ana Responsável',
+        'contact_phone' => '21988887777',
+    ]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('newChurchSelection', [
+            'id' => $church->id,
+            'name' => $church->name,
+        ])
+        ->assertSet('church_id', $church->id)
+        ->assertSet('address.street', 'Rua Transparente')
+        ->assertSet('address.number', '45')
+        ->assertSet('address.district', 'Centro')
+        ->assertSet('address.city', 'Niterói')
+        ->assertSet('address.state', 'RJ')
+        ->assertSet('address.postal_code', '24.000-000')
+        ->assertSet('phone', '(21) 99999-0000')
+        ->assertSet('email', 'base@igreja.com')
+        ->assertSet('coordinator', 'Ana Responsável')
+        ->assertSet('gpwhatsapp', '(21) 98888-7777');
 });
