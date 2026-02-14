@@ -18,7 +18,7 @@
                     inset 0 1px 0 rgba(255, 255, 255, .45);
 
                 transition: filter .18s ease, transform .18s ease, box-shadow .18s ease;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, .9);
+                text-shadow: 0 0 7px #fff;
             }
 
             .ee-btn-gold:hover {
@@ -32,14 +32,17 @@
     @endpush
 @endonce
 
+@php
+    $classes =
+        'inline-flex items-center justify-center px-6 py-3 text-sm font-bold rounded-xl cursor-pointer shine ee-btn-gold focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40';
+@endphp
+
 @if ($route)
-    <a href="{{ $route }}" title="{!! $label ?? '' !!}"
-        {{ $attributes->merge(['class' => 'inline-flex items-center justify-center px-6 py-3 text-sm font-bold rounded-xl cursor-pointer shine ee-btn-gold focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40']) }}>
+    <a href="{{ $route }}" title="{!! $label ?? '' !!}" {{ $attributes->merge(['class' => $classes]) }}>
         {!! $label ?? '' !!} {!! $slot !!}
     </a>
 @else
-    <button type="{{ $type }}" title="{!! $label ?? '' !!}"
-        {{ $attributes->merge(['class' => 'inline-flex items-center justify-center px-6 py-3 text-sm font-bold rounded-xl cursor-pointer shine ee-btn-gold focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/40']) }}>
+    <button type="{{ $type }}" title="{!! $label ?? '' !!}" {{ $attributes->merge(['class' => $classes]) }}>
         {!! $label ?? '' !!} {!! $slot !!}
     </button>
 @endif

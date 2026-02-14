@@ -1,26 +1,27 @@
 <section x-data="{
-    step: @entangle('step').live,
-    totalSteps: 4,
-    async nextStep() {
-        if (this.step >= this.totalSteps) {
-            return;
-        }
+    {{-- step: @entangle('step').live, --}}
+    step: 3,
+        totalSteps: 4,
+        async nextStep() {
+                if (this.step >= this.totalSteps) {
+                    return;
+                }
 
-        const canProceed = await this.$wire.canProceedStep(Number(this.step));
+                const canProceed = await this.$wire.canProceedStep(Number(this.step));
 
-        if (canProceed) {
-            this.step++;
-        }
-    },
-    previousStep() {
-        if (this.step > 1) {
-            this.step--;
-        }
-    },
+                if (canProceed) {
+                    this.step++;
+                }
+            },
+            previousStep() {
+                if (this.step > 1) {
+                    this.step--;
+                }
+            },
 }"
     class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg h-full relative max-h-[calc(100vh-240px)]">
 
-    <form wire:submit="submit" class="">
+    <form x-on:submit.prevent class="">
         {{-- SELEÇÃO DO CURSO --}}
         <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap">
             <div class="flex-1 ">{{ __('Selecione o Curso desejado:') }}</div>
@@ -78,8 +79,16 @@
         </div>
 
         {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
-        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap">
-            <div class="flex-1 ">{{ __('Selecione a Igreja Base do Evento:') }}</div>
+        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
+            <div class="flex-1 ">
+                {{ __('Selecione a Igreja Base do Evento:') }}
+                <div class="text-justify">
+                    {{ __('Se a igreja não está listada ao lado você pode adicioná-la em nossos registros a partir no botão abaixo:') }}
+                </div>
+                <div class="text-right">
+                    <x-src.btn-silver :label="__('Abrir formulário de registro de novas igrejas')" />
+                </div>
+            </div>
             <div class="flex-1 grid gap-4">
                 <x-src.form.input name="churchSearch" wire:model.live="churchSearch" label="Buscar igreja"
                     width_basic="900" autofocus="" />
@@ -112,19 +121,33 @@
 
         {{-- FINANCEIRO --}}
         <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap">
-            <div class="flex-1 ">{{ __('Selecione a Igreja Base do Evento:') }}</div>
+            <div class="flex-1 ">{{ __('Valores para Inscrição:') }}</div>
             <div class="flex-1 grid gap-10">
-                <div class="flex justify-between gap-0.5">
+                <div class="flex justify-between gap-0.5s">
                     <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
                     <div class="border-b border-dashed border-sky-950 flex-auto"></div>
                     <div>{{ __('R$') }} {{ $price }}</div>
                 </div>
 
-                <x-src.form.input name="price_church" wire:model="price_church" label="Despesas extras"
-                    width_basic="150" />
+                <div class="flex flex-wrap gap-2">
+                    <div class="">{{ __('Digite uma taxa para despesas extras') }}</div>
+                    <div class="border-b border-dashed border-sky-950/20 flex-auto"></div>
+                    <x-src.form.input name="price_church" wire:model.live="price_church" label="Despesas extras"
+                        class="text-right" width_basic="10" />
+                </div>
 
-                <x-src.form.input name="discount" wire:model="discount" label="Desconto sobre o valor do curso"
-                    width_basic="150" />
+                <div class="flex flex-wrap gap-2">
+                    <div class="">{{ __('Digite o valor do desconto em cada inscrição') }}</div>
+                    <div class="border-b border-dashed border-sky-950/20 flex-auto"></div>
+                    <x-src.form.input name="discount" wire:model.live="discount" label="Desconto" class="text-right"
+                        width_basic="10" />
+                </div>
+
+                <div class="flex justify-between gap-0.5 font-bold">
+                    <div class="">{{ __('Valor final para cada inscrição:') }}</div>
+                    <div class="border-b border-dashed border-sky-950 flex-auto"></div>
+                    <div>{{ __('R$') }} {{ $this->finalPricePerRegistration }}</div>
+                </div>
             </div>
         </div>
 
@@ -139,7 +162,9 @@
                         @disabled(!$this->canProceedToNextStep)
                         class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
                         &#x276F;</button>
-                    <button type="submit" x-show="step === totalSteps">{{ __('Salvar evento') }} &#x2713;</button>
+                    <button type="button" wire:click="submit"
+                        x-show="step === totalSteps">{{ __('Salvar evento') }}
+                        &#x2713;</button>
                 </div>
             </div>
         </div>

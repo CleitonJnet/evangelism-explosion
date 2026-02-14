@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Helpers\MoneyHelper;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
@@ -311,6 +312,17 @@ class Create extends Component
     public function getCanProceedToNextStepProperty(): bool
     {
         return $this->canProceedStep($this->step);
+    }
+
+    public function getFinalPricePerRegistrationProperty(): string
+    {
+        $price = MoneyHelper::toFloat($this->price) ?? 0.0;
+        $priceChurch = MoneyHelper::toFloat($this->price_church) ?? 0.0;
+        $discount = MoneyHelper::toFloat($this->discount) ?? 0.0;
+
+        $total = $price + $priceChurch - $discount;
+
+        return number_format($total, 2, ',', '.');
     }
 
     public function submit(TrainingScheduleGenerator $generator): void

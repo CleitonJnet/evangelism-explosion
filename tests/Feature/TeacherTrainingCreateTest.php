@@ -101,3 +101,34 @@ it('renders step navigation with alpine controls', function () {
         ->assertSeeHtml('x-on:click="previousStep"')
         ->assertSeeHtml('disabled:cursor-not-allowed');
 });
+
+it('shows the final amount per registration using course price, extra expenses and discount', function () {
+    $teacher = User::factory()->create();
+    $course = Course::factory()->create([
+        'execution' => 0,
+        'price' => '100.00',
+    ]);
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('course_id', $course->id)
+        ->set('price_church', '15,50')
+        ->set('discount', '5,25')
+        ->assertSee('110,25');
+});
+
+it('prevents native submit and only allows saving through the save button click', function () {
+    $teacher = User::factory()->create();
+    $course = Course::factory()->create(['execution' => 0]);
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->assertSeeHtml('x-on:submit.prevent')
+        ->assertSeeHtml('type="button" wire:click="submit" x-show="step === totalSteps"');
+});
