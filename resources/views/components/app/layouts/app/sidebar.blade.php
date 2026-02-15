@@ -5,9 +5,8 @@
     @include('components.app.partials.head')
 </head>
 
-<body class="min-h-screen bg-[color:var(--ee-app-bg)] text-[color:var(--ee-app-text)]">
-    <flux:sidebar sticky collapsible="mobile"
-        class="border-e border-sky-900/60 bg-linear-to-r from-sky-950 via-sky-950 via-95% to-sky-900 text-slate-100">
+<body class="min-h-screen bg-slate-400 select-none">
+    <flux:sidebar sticky collapsible="mobile" class="border-e border-sky-900/60 bg-sky-950 text-slate-100">
         <flux:sidebar.header>
             <x-app.app-logo :sidebar="true" href="{{ route('app.start') }}" wire:navigate />
             <flux:sidebar.collapse class="lg:hidden" />

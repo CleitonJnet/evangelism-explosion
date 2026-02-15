@@ -186,8 +186,6 @@ CREATE TABLE `courses` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `order` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `execution` int DEFAULT '0',
-  `ojt_default_count` smallint unsigned NOT NULL DEFAULT '0',
-  `ojt_default_policy` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `initials` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -228,7 +226,7 @@ CREATE TABLE `event_dates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `event_dates_training_id_date_start_time_unique` (`training_id`,`date`,`start_time`),
   CONSTRAINT `event_dates_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=480 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=460 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -515,7 +513,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -536,132 +534,6 @@ CREATE TABLE `ministries` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ojt_reports`
---
-
-DROP TABLE IF EXISTS `ojt_reports`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ojt_reports` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `ojt_team_id` bigint unsigned NOT NULL,
-  `contact_type` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `contact_type_counts` json DEFAULT NULL,
-  `gospel_presentations` smallint unsigned NOT NULL DEFAULT '0',
-  `listeners_count` smallint unsigned NOT NULL DEFAULT '0',
-  `results_decisions` smallint unsigned NOT NULL DEFAULT '0',
-  `results_interested` smallint unsigned NOT NULL DEFAULT '0',
-  `results_rejection` smallint unsigned NOT NULL DEFAULT '0',
-  `results_assurance` smallint unsigned NOT NULL DEFAULT '0',
-  `follow_up_scheduled` tinyint(1) NOT NULL DEFAULT '0',
-  `outline_participation` json DEFAULT NULL,
-  `lesson_learned` text COLLATE utf8mb4_unicode_ci,
-  `public_report` json DEFAULT NULL,
-  `submitted_at` timestamp NULL DEFAULT NULL,
-  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `ojt_reports_ojt_team_id_index` (`ojt_team_id`),
-  KEY `ojt_reports_submitted_at_index` (`submitted_at`),
-  CONSTRAINT `ojt_reports_ojt_team_id_foreign` FOREIGN KEY (`ojt_team_id`) REFERENCES `ojt_teams` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ojt_sessions`
---
-
-DROP TABLE IF EXISTS `ojt_sessions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ojt_sessions` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `training_id` bigint unsigned NOT NULL,
-  `date` date NOT NULL,
-  `starts_at` time DEFAULT NULL,
-  `ends_at` time DEFAULT NULL,
-  `week_number` smallint unsigned NOT NULL,
-  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'planned',
-  `meta` json DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `ojt_sessions_training_id_date_index` (`training_id`,`date`),
-  KEY `ojt_sessions_training_id_week_number_index` (`training_id`,`week_number`),
-  KEY `ojt_sessions_status_index` (`status`),
-  CONSTRAINT `ojt_sessions_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ojt_team_trainees`
---
-
-DROP TABLE IF EXISTS `ojt_team_trainees`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ojt_team_trainees` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `ojt_team_id` bigint unsigned NOT NULL,
-  `trainee_id` bigint unsigned NOT NULL,
-  `order` tinyint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ojt_team_trainees_ojt_team_id_trainee_id_unique` (`ojt_team_id`,`trainee_id`),
-  KEY `ojt_team_trainees_trainee_id_index` (`trainee_id`),
-  CONSTRAINT `ojt_team_trainees_ojt_team_id_foreign` FOREIGN KEY (`ojt_team_id`) REFERENCES `ojt_teams` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `ojt_team_trainees_trainee_id_foreign` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ojt_teams`
---
-
-DROP TABLE IF EXISTS `ojt_teams`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ojt_teams` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `ojt_session_id` bigint unsigned NOT NULL,
-  `mentor_id` bigint unsigned NOT NULL,
-  `team_number` smallint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ojt_teams_ojt_session_id_mentor_id_unique` (`ojt_session_id`,`mentor_id`),
-  KEY `ojt_teams_mentor_id_foreign` (`mentor_id`),
-  KEY `ojt_teams_ojt_session_id_team_number_index` (`ojt_session_id`,`team_number`),
-  CONSTRAINT `ojt_teams_mentor_id_foreign` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `ojt_teams_ojt_session_id_foreign` FOREIGN KEY (`ojt_session_id`) REFERENCES `ojt_sessions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ojt_training_mentors`
---
-
-DROP TABLE IF EXISTS `ojt_training_mentors`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ojt_training_mentors` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `training_id` bigint unsigned NOT NULL,
-  `mentor_id` bigint unsigned NOT NULL,
-  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ojt_training_mentors_training_id_mentor_id_unique` (`training_id`,`mentor_id`),
-  KEY `ojt_training_mentors_mentor_id_status_index` (`mentor_id`,`status`),
-  CONSTRAINT `ojt_training_mentors_mentor_id_foreign` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `ojt_training_mentors_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -863,7 +735,7 @@ CREATE TABLE `training_schedule_items` (
   KEY `training_schedule_items_position_index` (`training_id`,`date`,`position`),
   CONSTRAINT `training_schedule_items_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `training_schedule_items_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=475 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -931,8 +803,6 @@ CREATE TABLE `trainings` (
   `church_id` bigint unsigned DEFAULT NULL,
   `welcome_duration_minutes` smallint unsigned NOT NULL DEFAULT '30',
   `schedule_settings` json DEFAULT NULL,
-  `ojt_count_override` smallint unsigned DEFAULT NULL,
-  `ojt_policy_override` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `trainings_course_id_foreign` (`course_id`),
   KEY `trainings_teacher_id_foreign` (`teacher_id`),
@@ -1015,4 +885,4 @@ CREATE TABLE `vouchers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-12 22:57:15
+-- Dump completed on 2026-02-15  2:05:36

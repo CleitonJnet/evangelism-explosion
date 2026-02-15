@@ -11,16 +11,18 @@
 
 <x-layouts.app :title="__('Treinamento')">
     <div x-data="{ showDeleteModal: false }" x-on:keydown.escape.window="showDeleteModal = false">
-        <x-src.toolbar.bar :title="__('Detalhes do treinamento')" :description="__('Acompanhe informações, agenda e participantes do treinamento selecionado.')">
+        <x-src.toolbar.header :title="__('Detalhes do treinamento')" :description="__('Acompanhe informações, agenda e participantes do treinamento selecionado.')" />
+        <x-src.toolbar.nav>
             <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button :href="'#'" :label="__('Inscrições')" icon="users-chat" :tooltip="__('Gerenciador de Inscrições')" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
             <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
                 x-on:click.prevent="showDeleteModal = true" />
-        </x-src.toolbar.bar>
+        </x-src.toolbar.nav>
 
         <livewire:pages.app.teacher.training.view :training="$training" />
 

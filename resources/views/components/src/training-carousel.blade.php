@@ -38,7 +38,7 @@
                         const prevEl = root.querySelector('.swiper-button-prev');
 
                         const slidesCount = root.querySelectorAll('.swiper-slide').length;
-                        const isSingleSlide = slidesCount < 2;
+                        const isSingleSlide = slidesCount < 1;
 
                         new Swiper(root, {
                             slidesPerView: isSingleSlide ? 1 : 3,

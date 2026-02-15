@@ -9,12 +9,13 @@
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
 @endphp
 
-<div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" class="space-y-6 relative"
-    wire:loading.class="pointer-events-none"
+<div x-data x-on:schedule-alert.window="window.alert($event.detail.message)" wire:loading.class="pointer-events-none"
     wire:target="regenerate,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak">
     <div class="absolute inset-0 opacity-0 pointer-events-all cursor-wait" wire:loading
         wire:target="regenerate,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak"></div>
-    <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
+
+    <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between" />
+    <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
         </div>
@@ -29,7 +30,7 @@
                 aria-label="{{ __('Regenerar agenda') }}" x-on:click="$wire.regenerate()" wire:loading.attr="disabled"
                 wire:target="regenerate" class="cursor-pointer" />
         </label>
-    </x-src.toolbar.bar>
+    </x-src.toolbar.nav>
 
     @php
         $hasMultipleDays = $eventDates->count() > 1;

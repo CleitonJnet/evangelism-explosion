@@ -10,19 +10,13 @@
 @php
     $isActive = filter_var($active, FILTER_VALIDATE_BOOL);
     $tooltipText = $tooltip ?? $label;
-    $baseStyles = $isActive
-        ? 'background:#082f49;color:#f1d57a;border:1px solid #c7a840;'
-        : 'background:rgba(2,6,23,0.04);color:#0f172a;border:1px solid rgba(15,23,42,0.1);';
 @endphp
 
-<a
+<a href="{{ $href }}"
+    class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition border border-slate-400/50 hover:bg-slate-300/80 {{ $isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200' }}"
     {{ $attributes->merge([
-            'href' => $href,
             'aria-label' => $label,
-            'style' => $baseStyles,
-        ])->class(
-            'group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition',
-        ) }}>
+        ])->class(' ') }}>
     <span
         class="absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg group-hover:block">
         {{ $tooltipText }}
@@ -144,7 +138,7 @@
 
     <span class="w-full truncate text-[9px] text-center uppercase">{{ $label }}</span>
     @if ($error)
-        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-6 absolute -top-2 right-0"
+        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-5 absolute -top-2 right-0"
             style="filter: drop-shadow(0 -1px 1px #ffffffab)">
     @endif
 </a>

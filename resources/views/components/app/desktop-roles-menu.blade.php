@@ -1,5 +1,5 @@
 @if (auth()->user()->roles()->count() > 1)
-    <flux:dropdown position="bottom" align="start">
+    <flux:dropdown position="bottom" align="start" class="bg-white/5 rounded-lg">
         @php
             $currentRoleLabel = match (true) {
                 request()->routeIs('app.board.*') => __('Board Member'),
@@ -26,53 +26,61 @@
             </svg>
         </button>
 
-        <flux:menu>
+        <flux:menu
+            class="border-slate-600! bg-slate-50! dark:border-slate-600! dark:bg-slate-700! text-white! w-56! min-w-56! backdrop-blur-3xl">
             <flux:menu.radio.group>
                 @can('access-board')
-                    <flux:menu.item :href="route('app.board.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.board.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Board Member') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-director')
-                    <flux:menu.item :href="route('app.director.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.director.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('National Director') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-teacher')
-                    <flux:menu.item :href="route('app.teacher.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.teacher.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Teacher') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-facilitator')
-                    <flux:menu.item :href="route('app.facilitator.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.facilitator.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Facilitator') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-fieldworker')
-                    <flux:menu.item :href="route('app.fieldworker.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.fieldworker.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Field Worker') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-mentor')
-                    <flux:menu.item :href="route('app.mentor.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.mentor.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Mentor') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-student')
-                    <flux:menu.item :href="route('app.student.dashboard')" wire:navigate>
+                    <flux:menu.item :href="route('app.student.dashboard')" wire:navigate
+                        class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Student') }}
                     </flux:menu.item>
                 @endcan
 
-                {{-- <flux:menu.item :href="route('app.start')" wire:navigate>
-                &#10023; {{ __('Triagem') }}
-            </flux:menu.item> --}}
+                <flux:menu.item :href="route('app.start')" wire:navigate class="hover:bg-sky-950! hover:text-white!">
+                    &#10023; {{ __('Triagem') }}
+                </flux:menu.item>
             </flux:menu.radio.group>
         </flux:menu>
     </flux:dropdown>
