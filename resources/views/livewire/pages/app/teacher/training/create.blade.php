@@ -1,6 +1,5 @@
 <section x-data="{
     step: @entangle('step').live,
-    {{-- step: 5, --}}
     totalSteps: 5,
     canProceed: false,
     async refreshCanProceed() {
@@ -38,27 +37,10 @@
         }
 
         event.preventDefault();
-        await this.nextStep();
-    },
-    async nextStep() {
-        if (this.step >= this.totalSteps) {
-            return;
-        }
-
+        await this.$wire.nextStep();
         await this.refreshCanProceed();
-
-        if (this.canProceed) {
-            this.step++;
-            await this.refreshCanProceed();
-        }
     },
-    previousStep() {
-        if (this.step > 1) {
-            this.step--;
-        }
-    },
-}"
-    x-on:step-validity-updated.window="refreshCanProceed()"
+}" x-on:step-validity-updated.window="refreshCanProceed()"
     class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg relative h-[calc(100vh-252px)]">
 
     <form x-on:submit.prevent x-on:keydown.enter="handleEnter($event)"
@@ -276,14 +258,14 @@
             <div
                 class="flex items-center justify-between rounded-lg border border-sky-950 bg-white/80 px-6 py-3 shadow">
                 <div class="min-w-24">
-                    <button type="button" x-show="step > 1" x-on:click="previousStep">&#x276E; Voltar</button>
+                    <button type="button" x-show="step > 1" wire:click="previousStep">&#x276E; Voltar</button>
                 </div>
                 <div class="text-sm font-semibold text-sky-950">
                     <span x-text="`Passo ${step} de ${totalSteps}`"></span>
                 </div>
                 <div class="flex justify-end">
                     @if ($step < 5)
-                        <button type="button" x-on:click="nextStep" x-bind:disabled="!canProceed"
+                        <button type="button" wire:click="nextStep" x-bind:disabled="!canProceed"
                             class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
                             &#x276F;</button>
                     @endif

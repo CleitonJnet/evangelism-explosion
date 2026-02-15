@@ -7,6 +7,7 @@ use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
 use App\Services\Schedule\TrainingScheduleGenerator;
+use App\Services\Training\TeacherTrainingCreateService;
 use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
@@ -214,15 +215,13 @@ class Create extends Component
             return;
         }
 
-        $course = Course::query()->find($value);
-
-        $this->price = $course?->price;
+        $this->price = $this->createService()->resolveCoursePrice($value);
         $this->teacher_id = null;
     }
 
     public function updatedStep(mixed $value): void
     {
-        $normalizedStep = max(1, min(5, (int) $value));
+        $normalizedStep = $this->createService()->normalizeStep((int) $value);
 
         if ($this->step !== $normalizedStep) {
             $this->step = $normalizedStep;
@@ -288,7 +287,7 @@ class Create extends Component
             return;
         }
 
-        if (! Church::query()->whereKey($churchId)->exists()) {
+        if (! $this->createService()->churchExists($churchId)) {
             return;
         }
 
@@ -365,6 +364,20 @@ class Create extends Component
             $this->messages(),
             $this->validationAttributes(),
         )->fails();
+    }
+
+    public function nextStep(): void
+    {
+        if (! $this->canProceedStep($this->step)) {
+            return;
+        }
+
+        $this->step = $this->createService()->normalizeStep($this->step + 1);
+    }
+
+    public function previousStep(): void
+    {
+        $this->step = $this->createService()->normalizeStep($this->step - 1);
     }
 
     public function getCanProceedToNextStepProperty(): bool
@@ -506,25 +519,21 @@ class Create extends Component
 
     private function applySelectedChurchData(int $churchId): void
     {
-        $church = Church::query()->find($churchId);
+        $churchSelectionData = $this->createService()->resolveChurchSelectionData($churchId);
 
-        if (! $church) {
+        if (! $churchSelectionData) {
             return;
         }
 
-        $this->address = [
-            'postal_code' => $church->postal_code ?? '',
-            'street' => $church->street ?? '',
-            'number' => $church->number ?? '',
-            'complement' => $church->complement ?? '',
-            'district' => $church->district ?? '',
-            'city' => $church->city ?? '',
-            'state' => $church->state ?? '',
-        ];
+        $this->address = $churchSelectionData['address'];
+        $this->phone = $churchSelectionData['phone'] ?? $this->phone;
+        $this->email = $churchSelectionData['email'] ?? $this->email;
+        $this->gpwhatsapp = $churchSelectionData['gpwhatsapp'] ?? $this->gpwhatsapp;
+        $this->coordinator = $churchSelectionData['coordinator'] ?? $this->coordinator;
+    }
 
-        $this->phone = $church->phone ?? $this->phone;
-        $this->email = $church->email ?? $this->email;
-        $this->gpwhatsapp = $church->contact_phone ?? $this->gpwhatsapp;
-        $this->coordinator = $church->contact ?? $this->coordinator;
+    private function createService(): TeacherTrainingCreateService
+    {
+        return app(TeacherTrainingCreateService::class);
     }
 }

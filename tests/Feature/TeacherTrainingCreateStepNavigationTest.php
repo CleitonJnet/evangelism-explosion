@@ -54,3 +54,19 @@ it('accepts the newly created church id and unlocks step 3 progression', functio
 
     expect($component->instance()->canProceedStep(3))->toBeTrue();
 });
+
+it('advances only when current step is valid', function () {
+    $teacher = User::factory()->create();
+    $course = Course::factory()->create(['execution' => 0]);
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->call('nextStep')
+        ->assertSet('step', 1)
+        ->set('course_id', $course->id)
+        ->call('nextStep')
+        ->assertSet('step', 2);
+});
