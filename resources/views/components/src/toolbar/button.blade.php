@@ -13,7 +13,7 @@
 @endphp
 
 <a href="{{ $href }}"
-    class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition border border-slate-400/50 hover:bg-slate-300/80 {{ $isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200' }}"
+    class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition border border-slate-400/50 {{ $isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200 hover:bg-slate-300/80' }}"
     {{ $attributes->merge([
             'aria-label' => $label,
         ])->class(' ') }}>
@@ -58,6 +58,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M18 18.72a9.094 9.094 0 003.741-3.655A3.75 3.75 0 0018 7.5a3.75 3.75 0 00-1.49 7.2M6 18.72a9.094 9.094 0 01-3.741-3.655A3.75 3.75 0 016 7.5a3.75 3.75 0 011.49 7.2M12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zm0 0c-3.314 0-6 1.343-6 3v.75h12v-.75c0-1.657-2.686-3-6-3z" />
         </svg>
+    @elseif ($icon === 'user-work')
+        <img src="{{ asset('images/svg/user-work.svg') }}" alt="indicator" class="h-4">
     @elseif ($icon === 'users-chat')
         <img src="{{ asset('images/svg/people-network.svg') }}" alt="indicator" class="h-4">
     @elseif ($icon === 'person-walking')
@@ -85,7 +87,8 @@
     @elseif ($icon === 'chart-bar')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
         </svg>
     @elseif ($icon === 'briefcase')
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"

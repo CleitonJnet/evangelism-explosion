@@ -15,7 +15,7 @@
         <x-src.toolbar.nav>
             <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-            <x-src.toolbar.button :href="'#'" :label="__('Inscrições')" icon="users-chat" :tooltip="__('Gerenciador de Inscrições')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
             <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />

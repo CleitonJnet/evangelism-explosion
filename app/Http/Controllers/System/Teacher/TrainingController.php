@@ -42,6 +42,13 @@ class TrainingController extends Controller
         ]);
     }
 
+    public function registrations(Training $training): View
+    {
+        return view('pages.app.roles.teacher.trainings.registrations', [
+            'training' => $training,
+        ]);
+    }
+
     public function destroy(Training $training): RedirectResponse
     {
         $training->delete();

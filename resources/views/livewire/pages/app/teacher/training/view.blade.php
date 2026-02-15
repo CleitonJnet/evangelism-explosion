@@ -232,30 +232,17 @@
             </div>
 
             <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 flex-auto basis-52">
-                <h3
-                    class="text-sm font-semibold text-slate-900 uppercase text-center border-b-2 border-sky-800/30 pb-2 mb-2">
-                    {{ __('Indicadores') }}
+                <h3 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
+                    {{ __('Materiais') }}
                 </h3>
                 <div class="mt-3 grid gap-3 text-sm text-slate-700">
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Kits') }}</span>
+                        <span class="text-slate-500">{{ __('Kits recebidos para o evento') }}</span>
                         <span class="font-semibold text-slate-900">{{ $training->kits ?? '-' }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Total alunos') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $training->totStudents ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Total igrejas') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $training->totChurches ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Novas igrejas') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $training->totNewChurches ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Pastores') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $training->totPastors ?? '-' }}</span>
+                        <span class="text-slate-500">{{ __('Kits usados no evento') }}</span>
+                        <span class="font-semibold text-slate-900">{{-- Aqui deve informar o numero de pessoas que receberam seus kits do treinamento --}}</span>
                     </div>
                 </div>
             </div>
