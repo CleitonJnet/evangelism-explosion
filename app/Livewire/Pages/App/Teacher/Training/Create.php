@@ -205,6 +205,8 @@ class Create extends Component
 
     public function updatedCourseId(?string $value): void
     {
+        $this->step = 1;
+
         if (! $value) {
             $this->price = null;
             $this->teacher_id = null;
@@ -218,6 +220,15 @@ class Create extends Component
         $this->teacher_id = null;
     }
 
+    public function updatedStep(mixed $value): void
+    {
+        $normalizedStep = max(1, min(5, (int) $value));
+
+        if ($this->step !== $normalizedStep) {
+            $this->step = $normalizedStep;
+        }
+    }
+
     public function updatedChurchId(?string $value): void
     {
         if (! $value) {
@@ -225,6 +236,13 @@ class Create extends Component
         }
 
         $this->applySelectedChurchData((int) $value);
+    }
+
+    public function selectChurch(int $churchId): void
+    {
+        $this->preserveNewChurchSelection = false;
+        $this->church_id = $churchId;
+        $this->applySelectedChurchData($churchId);
     }
 
     public function updatedChurchSearch(string $value): void
@@ -270,10 +288,15 @@ class Create extends Component
             return;
         }
 
+        if (! Church::query()->whereKey($churchId)->exists()) {
+            return;
+        }
+
         $this->preserveNewChurchSelection = true;
         $this->churchSearch = $churchName;
         $this->church_id = $churchId;
         $this->applySelectedChurchData($churchId);
+        $this->dispatch('step-validity-updated');
     }
 
     #[On('church-created')]

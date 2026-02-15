@@ -2,7 +2,22 @@
     step: @entangle('step').live,
     {{-- step: 5, --}}
     totalSteps: 5,
+    canProceed: false,
+    async refreshCanProceed() {
+        this.canProceed = await this.$wire.canProceedStep(Number(this.step));
+    },
+    async init() {
+        await this.refreshCanProceed();
+
+        this.$watch('step', async () => {
+            await this.refreshCanProceed();
+        });
+    },
     async handleEnter(event) {
+        if (event.target?.closest?.('[data-church-modal-root]')) {
+            return;
+        }
+
         const tagName = (event.target?.tagName || '').toLowerCase();
         const inputType = (event.target?.getAttribute?.('type') || '').toLowerCase();
 
@@ -30,10 +45,11 @@
             return;
         }
 
-        const canProceed = await this.$wire.canProceedStep(Number(this.step));
+        await this.refreshCanProceed();
 
-        if (canProceed) {
+        if (this.canProceed) {
             this.step++;
+            await this.refreshCanProceed();
         }
     },
     previousStep() {
@@ -42,13 +58,18 @@
         }
     },
 }"
+    x-on:step-validity-updated.window="refreshCanProceed()"
     class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg relative h-[calc(100vh-252px)]">
 
-    <form x-on:submit.prevent x-on:keydown.enter="handleEnter($event)" class="h-full pb-20">
+    <form x-on:submit.prevent x-on:keydown.enter="handleEnter($event)"
+        x-on:input.debounce.150ms="if ($event.target.closest('[data-church-modal-root]')) return; refreshCanProceed()"
+        x-on:change="if ($event.target.closest('[data-church-modal-root]')) return; refreshCanProceed()"
+        class="h-full pb-20">
         {{-- SELEÇÃO DO CURSO --}}
         <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+1+-+Curso" alt="Ilustração do passo de seleção de curso"
+                <img src="https://placehold.co/600x120?text=Passo+1+-+Curso"
+                    alt="Ilustração do passo de seleção de curso"
                     class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
                 <div class="text-sm text-slate-700">
@@ -57,10 +78,10 @@
             </div>
             <div class="flex-1 grid gap-4">
                 @foreach ($courses as $course)
-                    <div>
-                        <input type="radio" wire:model.live="course_id" name="course" class="peer sr-only"
-                            id="{{ Str::slug($course->name) }}" value="{{ $course->id }}">
-                        <label for="{{ Str::slug($course->name) }}"
+                    <div wire:key="course-option-{{ $course->id }}">
+                        <input type="radio" wire:model.change="course_id" name="course" class="peer sr-only"
+                            id="course-{{ $course->id }}" value="{{ $course->id }}">
+                        <label for="course-{{ $course->id }}"
                             class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 p-4 peer-checked:border-sky-900 peer-checked:[&_.course-check]:inline-flex transition-all hover:bg-white hover:shadow-[0_0_0_2px_#cad5e2]">
                             <div class="flex gap-2 justify-between">
                                 <div class="font-bold">{{ $course->type }} {{ $course->name }}</div>
@@ -96,7 +117,7 @@
                 </div>
 
                 @foreach ($eventDates as $index => $eventDate)
-                    <div class="flex flex-wrap items-end gap-4">
+                    <div wire:key="event-date-{{ $index }}" class="flex flex-wrap items-end gap-4">
                         <x-src.form.input name="eventDates.{{ $index }}.date"
                             wire:model.live="eventDates.{{ $index }}.date" label="Data" type="date"
                             width_basic="220" required />
@@ -136,10 +157,11 @@
 
                 <div class="max-h-80 space-y-2 overflow-y-auto">
                     @foreach ($churches as $church)
-                        <div>
-                            <input type="radio" wire:model.live="church_id" name="church" class="peer sr-only"
-                                id="{{ Str::slug($church->name) }}" value="{{ $church->id }}">
-                            <label for="{{ Str::slug($church->name) }}"
+                        <div wire:key="church-option-{{ $church->id }}">
+                            <input type="radio" name="church" class="peer sr-only" id="church-{{ $church->id }}"
+                                value="{{ $church->id }}" wire:click="selectChurch({{ $church->id }})"
+                                @checked((int) $church_id === (int) $church->id)>
+                            <label for="church-{{ $church->id }}"
                                 class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 py-2 px-4 peer-checked:border-sky-900 peer-checked:[&_.church-check]:inline-flex">
                                 <div class="flex gap-2 justify-between">
                                     <div class="font-bold">{{ $church->name }}</div>
@@ -260,13 +282,14 @@
                     <span x-text="`Passo ${step} de ${totalSteps}`"></span>
                 </div>
                 <div class="flex justify-end">
-                    <button type="button" x-show="step < totalSteps" x-on:click="nextStep"
-                        @disabled(!$this->canProceedToNextStep)
-                        class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
-                        &#x276F;</button>
-                    <button type="button" wire:click="submit"
-                        x-show="step === totalSteps">{{ __('Salvar evento') }}
-                        &#x2713;</button>
+                    @if ($step < 5)
+                        <button type="button" x-on:click="nextStep" x-bind:disabled="!canProceed"
+                            class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
+                            &#x276F;</button>
+                    @endif
+                    @if ($step === 5)
+                        <button type="button" wire:click="submit">{{ __('Salvar evento') }} &#x2713;</button>
+                    @endif
                 </div>
             </div>
         </div>

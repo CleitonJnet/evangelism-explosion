@@ -1,6 +1,13 @@
 import "./modules/postal_code-mask";
 import "./modules/tel-mask";
 import "./schedule-sortable";
+import { initDropdowns } from "./modules/dropdowns";
+import { initHeader } from "./modules/navigation";
+
+function initNavigation() {
+    initHeader();
+    initDropdowns();
+}
 
 // DOM ready
 document.addEventListener("DOMContentLoaded", initNavigation);
