@@ -29,9 +29,9 @@ class Registrations extends Component
      *         phone: ?string,
      *         is_pastor: bool,
      *         pastor_label: string,
-     *         accredited: bool,
-     *         kit: bool,
      *         has_payment_receipt: bool,
+     *         kit: bool,
+     *         accredited: bool,
      *         payment_receipt_url: ?string
      *     }>
      * }>
@@ -181,12 +181,12 @@ class Registrations extends Component
                     'key' => md5($churchName),
                     'church_name' => $churchName,
                     'summary' => sprintf(
-                        '%d inscritos, %d pastor(es), %d credenciados, %d kits entregues, %d comprovantes',
+                        '%d inscritos, %d pastor(es), %d comprovantes, %d kits entregues, %d credenciados',
                         $totals['registrations'],
                         $totals['pastors'],
-                        $totals['accredited'],
-                        $totals['kits'],
                         $totals['payment_receipts'],
+                        $totals['kits'],
+                        $totals['accredited'],
                     ),
                     'totals' => $totals,
                     'registrations' => $registrations,

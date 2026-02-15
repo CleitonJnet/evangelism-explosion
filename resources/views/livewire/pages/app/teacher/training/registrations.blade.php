@@ -1,4 +1,4 @@
-<div x-data wire:loading.class="pointer-events-none opacity-80"
+<div x-data wire:loading.class="pointer-events-none"
     wire:target="togglePaymentReceipt,toggleAccredited,toggleKit,removeRegistration">
     <section class="flex gap-4 flex-wrap">
         <article
