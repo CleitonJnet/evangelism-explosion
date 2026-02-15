@@ -9,7 +9,7 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order', 'execution', 'ojt_default_count', 'ojt_default_policy', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color', 'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id'];
+    protected $fillable = ['order', 'execution', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color', 'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id'];
 
     /**
      * @return array<string, string>
@@ -18,7 +18,6 @@ class Course extends Model
     {
         return [
             'execution' => 'integer',
-            'ojt_default_count' => 'integer',
         ];
     }
 

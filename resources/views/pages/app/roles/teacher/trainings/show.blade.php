@@ -16,7 +16,7 @@
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
-            <x-src.toolbar.button :href="route('app.teacher.trainings.ojt.sessions.index', $training)" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
+            <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
                 x-on:click.prevent="showDeleteModal = true" />
