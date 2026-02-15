@@ -5,7 +5,6 @@
         <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Schedule')" icon="calendar" :tooltip="__('Training schedule')" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.ojt.sessions.index', $training)" :label="__('OJT')" icon="users-chat" :active="true"
             :tooltip="__('On-The-Job Training')" />
-        <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Edit')" icon="pencil" :tooltip="__('Edit training')" />
     </x-src.toolbar.bar>
 
     <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm">

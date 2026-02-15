@@ -16,11 +16,7 @@
         wire:target="regenerate,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak"></div>
     <x-src.toolbar.bar :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
-            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Voltar')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
-            <x-src.toolbar.button :href="route('app.teacher.trainings.edit', $training)" :label="__('Editar')" icon="pencil" :tooltip="__('Editar treinamento')" />
-            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-            <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :active="true"
-                :error="$hasScheduleError" :tooltip="__('Programação do evento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
         </div>
 
         <label

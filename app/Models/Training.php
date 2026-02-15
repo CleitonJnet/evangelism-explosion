@@ -69,6 +69,11 @@ class Training extends Model
         return MoneyHelper::format_money($value);
     }
 
+    public function getDiscountAttribute(string|int|float|null $value): ?string
+    {
+        return MoneyHelper::format_money($value);
+    }
+
     public function getPaymentAttribute(): ?string
     {
         $rawPrice = $this->attributes['price'] ?? $this->getRawOriginal('price');

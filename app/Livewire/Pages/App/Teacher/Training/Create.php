@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -126,7 +127,6 @@ class Create extends Component
         return [
             'course_id' => ['required', 'integer', 'exists:courses,id'],
             'church_id' => ['nullable', 'integer', 'exists:churches,id'],
-            'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'banner' => ['nullable', 'string', 'max:255'],
             'coordinator' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
@@ -136,6 +136,7 @@ class Create extends Component
             'price' => ['nullable', 'string', 'max:50'],
             'price_church' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'string', 'max:50'],
+            'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'kits' => ['nullable', 'integer', 'min:0'],
             'totStudents' => ['nullable', 'integer', 'min:0'],
             'totChurches' => ['nullable', 'integer', 'min:0'],
@@ -197,6 +198,7 @@ class Create extends Component
             'course_id' => 'curso',
             'teacher_id' => 'professor',
             'church_id' => 'igreja',
+            'bannerUpload' => 'arquivo de divulgação',
             'welcome_duration_minutes' => 'boas-vindas',
         ];
     }
@@ -272,6 +274,15 @@ class Create extends Component
         $this->churchSearch = $churchName;
         $this->church_id = $churchId;
         $this->applySelectedChurchData($churchId);
+    }
+
+    #[On('church-created')]
+    public function handleChurchCreated(int $churchId, string $churchName): void
+    {
+        $this->updatedNewChurchSelection([
+            'id' => $churchId,
+            'name' => $churchName,
+        ]);
     }
 
     public function addEventDate(): void

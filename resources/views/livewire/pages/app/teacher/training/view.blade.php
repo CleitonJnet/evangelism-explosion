@@ -315,7 +315,7 @@
                         <span class="font-semibold text-slate-900">{{ $training->discount ?? '-' }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <span class="text-slate-500">{{ __('Total') }}</span>
+                        <span class="text-slate-500">{{ __('Total por cada inscrição') }}</span>
                         <span class="font-semibold text-slate-900">{{ $training->payment ?? '-' }}</span>
                     </div>
                 </div>

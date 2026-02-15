@@ -161,6 +161,7 @@ class CreateChurchModal extends Component
             'name' => $church->name,
         ];
 
+        $this->dispatch('church-created', churchId: $church->id, churchName: $church->name);
         $this->showModal = false;
         $this->resetChurchForm();
     }

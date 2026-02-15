@@ -1,4 +1,4 @@
-<div class="flex justify-end">
+<div class="flex justify-end pt-6">
     <x-src.btn-silver type="button" wire:click="openModal">
         {{ __('Igreja não encontrada? Cadastrar nova') }}
     </x-src.btn-silver>
@@ -13,7 +13,7 @@
                 </p>
             </header>
 
-            <form wire:submit="submit" class="max-h-[calc(100vh-150px)] overflow-y-auto">
+            <form x-data x-on:submit.prevent.stop="$wire.submit()" class="max-h-[calc(100vh-150px)] overflow-y-auto">
                 <div class="space-y-8 px-6 py-6">
                     <section class="space-y-5">
                         <div>

@@ -35,7 +35,7 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
 
     Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])->name('trainings.schedule');
 
-    Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);
+    Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'destroy']);
 
     Route::prefix('trainings/{training}/ojt')->name('trainings.ojt.')->group(function () {
         Route::get('sessions', [OjtSessionController::class, 'index'])->name('sessions.index');

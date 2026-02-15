@@ -42,13 +42,6 @@ class TrainingController extends Controller
         ]);
     }
 
-    public function edit(string $id)
-    {
-        $training = Training::findOrFail($id);
-
-        return view('pages.app.roles.teacher.trainings.edit', ['training' => $training]);
-    }
-
     public function destroy(Training $training): RedirectResponse
     {
         $training->delete();

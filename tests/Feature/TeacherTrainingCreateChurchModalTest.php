@@ -34,3 +34,9 @@ it('creates a church and exposes it as the selected church', function () {
     expect($church)->not->toBeNull();
     expect($church?->state)->toBe('RJ');
 });
+
+it('handles modal submit with alpine and livewire without relying on parent form submit', function () {
+    Livewire::test(CreateChurchModal::class)
+        ->assertSeeHtml('x-on:submit.prevent.stop="$wire.submit()"')
+        ->assertDontSeeHtml('wire:submit="submit"');
+});

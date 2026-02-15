@@ -94,6 +94,9 @@ it('renders step navigation with alpine controls', function () {
     Livewire::test(Create::class)
         ->assertSeeHtml('x-data="{')
         ->assertSeeHtml("entangle('step').live")
+        ->assertSeeHtml('class="h-full pb-20"')
+        ->assertSeeHtml('x-on:keydown.enter="handleEnter($event)"')
+        ->assertSeeHtml('Passo ${step} de ${totalSteps}')
         ->assertSeeHtml('canProceedStep(Number(this.step))')
         ->assertSeeHtml('x-show="step === 1"')
         ->assertSeeHtml('x-show="step === 2"')
@@ -202,4 +205,56 @@ it('hydrates event address fields when church comes from modal selection', funct
         ->assertSet('email', 'base@igreja.com')
         ->assertSet('coordinator', 'Ana Responsável')
         ->assertSet('gpwhatsapp', '(21) 98888-7777');
+});
+
+it('updates church selection when child dispatches church-created event', function () {
+    $teacher = User::factory()->create();
+    $church = Church::factory()->create(['name' => 'Igreja Evento']);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->dispatch('church-created', churchId: $church->id, churchName: $church->name)
+        ->assertSet('churchSearch', 'Igreja Evento')
+        ->assertSet('church_id', $church->id);
+});
+
+it('shows clear guidance text for each event creation step', function () {
+    $teacher = User::factory()->create();
+    $course = Course::factory()->create(['execution' => 0]);
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->assertSee('Escolha o curso do treinamento')
+        ->assertSee('Defina os dias e horários')
+        ->assertSee('Escolha a igreja base do evento')
+        ->assertSee('Revise os valores da inscrição')
+        ->assertSee('Arquivo de divulgação')
+        ->assertSeeHtml('https://placehold.co/600x120?text=Passo+1+-+Curso')
+        ->assertSeeHtml('https://placehold.co/600x120?text=Passo+2+-+Datas')
+        ->assertSeeHtml('https://placehold.co/600x120?text=Passo+3+-+Igreja+Base')
+        ->assertSeeHtml('https://placehold.co/600x120?text=Passo+4+-+Valores')
+        ->assertSeeHtml('https://placehold.co/600x120?text=Passo+5+-+Divulgacao');
+});
+
+it('accepts event submission without a promotion image upload', function () {
+    $teacher = User::factory()->create();
+    $course = Course::factory()->create(['execution' => 0]);
+    $church = Church::factory()->create();
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('course_id', $course->id)
+        ->set('church_id', $church->id)
+        ->set('eventDates', [
+            ['date' => '2026-03-10', 'start_time' => '08:00', 'end_time' => '12:00'],
+        ])
+        ->call('submit')
+        ->assertHasNoErrors(['bannerUpload']);
 });

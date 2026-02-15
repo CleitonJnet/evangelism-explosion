@@ -144,6 +144,7 @@
 
     <span class="w-full truncate text-[9px] text-center uppercase">{{ $label }}</span>
     @if ($error)
-        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-6 absolute -top-2 right-0">
+        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-6 absolute -top-2 right-0"
+            style="filter: drop-shadow(0 -1px 1px #ffffffab)">
     @endif
 </a>

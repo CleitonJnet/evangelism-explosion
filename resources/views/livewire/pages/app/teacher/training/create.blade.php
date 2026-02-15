@@ -1,7 +1,30 @@
 <section x-data="{
     step: @entangle('step').live,
-    {{-- step: 3, --}}
-    totalSteps: 4,
+    {{-- step: 5, --}}
+    totalSteps: 5,
+    async handleEnter(event) {
+        const tagName = (event.target?.tagName || '').toLowerCase();
+        const inputType = (event.target?.getAttribute?.('type') || '').toLowerCase();
+
+        if (tagName === 'textarea' || event.target?.isContentEditable) {
+            return;
+        }
+
+        if (inputType === 'button' || inputType === 'submit') {
+            return;
+        }
+
+        if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
+
+        if (this.step >= this.totalSteps) {
+            return;
+        }
+
+        event.preventDefault();
+        await this.nextStep();
+    },
     async nextStep() {
         if (this.step >= this.totalSteps) {
             return;
@@ -19,12 +42,19 @@
         }
     },
 }"
-    class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg h-full relative max-h-[calc(100vh-240px)]">
+    class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg relative h-[calc(100vh-252px)]">
 
-    <form x-on:submit.prevent class="">
+    <form x-on:submit.prevent x-on:keydown.enter="handleEnter($event)" class="h-full pb-20">
         {{-- SELEÇÃO DO CURSO --}}
-        <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap">
-            <div class="flex-1 ">{{ __('Selecione o Curso desejado:') }}</div>
+        <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="https://placehold.co/600x120?text=Passo+1+-+Curso" alt="Ilustração do passo de seleção de curso"
+                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Selecione o curso que será realizado neste evento. Essa escolha define a base do conteúdo e o valor inicial da inscrição.') }}
+                </div>
+            </div>
             <div class="flex-1 grid gap-4">
                 @foreach ($courses as $course)
                     <div>
@@ -47,8 +77,16 @@
         </div>
 
         {{-- DATA DO EVENTO --}}
-        <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap">
-            <div class="flex-1 ">{{ __('Informe as datas:') }}</div>
+        <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="https://placehold.co/600x120?text=Passo+2+-+Datas"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Defina os dias e horários') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Adicione todos os dias do treinamento com horário de início e fim. Revise os horários antes de avançar para evitar conflitos na programação.') }}
+                </div>
+            </div>
             <div class="max-h-80 space-y-10 overflow-y-auto">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
@@ -80,10 +118,13 @@
 
         {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
         <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
-            <div class="flex-1 ">
-                {{ __('Selecione a Igreja Base do Evento:') }}
-                <div class="text-justify">
-                    {{ __('Se a igreja não estiver listada, cadastre uma nova e ela será selecionada automaticamente.') }}
+            <div class="flex-1">
+                <img src="https://placehold.co/600x120?text=Passo+3+-+Igreja+Base"
+                    alt="Ilustração do passo de seleção da igreja base"
+                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
+                <div class="text-slate-700 text-justify ">
+                    {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
 
                     <livewire:pages.app.teacher.training.create-church-modal wire:model="newChurchSelection"
                         wire:key="teacher-training-create-church-modal" />
@@ -120,8 +161,16 @@
         </div>
 
         {{-- FINANCEIRO --}}
-        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap">
-            <div class="flex-1 ">{{ __('Valores para Inscrição:') }}</div>
+        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="https://placehold.co/600x120?text=Passo+4+-+Valores"
+                    alt="Ilustração do passo de valores do evento"
+                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Revise os valores da inscrição') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Confira o preço base do curso, informe despesas extras e desconto por inscrição. O valor final é calculado automaticamente para conferência antes de salvar o evento.') }}
+                </div>
+            </div>
             <div class="flex-1 grid gap-10">
                 <div class="flex justify-between gap-0.5s">
                     <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
@@ -151,11 +200,64 @@
             </div>
         </div>
 
+        {{-- DIVULGAÇÃO --}}
+        <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="https://placehold.co/600x120?text=Passo+5+-+Divulgacao"
+                    alt="Ilustração do passo de divulgação do evento"
+                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Arquivo de divulgação') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Você já possui uma arte para divulgar este evento nas redes sociais? Se sim, envie a imagem agora para anexá-la ao cadastro.') }}
+                </div>
+            </div>
+            <div class="flex-1 grid gap-6">
+                <div class="grid gap-4 rounded-xl border border-slate-300 bg-white/70 p-4">
+                    <div class="text-sm font-semibold text-sky-950">
+                        {{ __('Upload da arte de divulgação (opcional)') }}</div>
+                    <div class="text-sm text-slate-700">
+                        {{ __('Se você já possui uma imagem de divulgação, envie o arquivo abaixo.') }}
+                    </div>
+
+                    <div class="flex flex-wrap items-start gap-4">
+                        <div class="min-w-0 flex-auto basis-48">
+                            <input id="event-promotion-upload" type="file" accept="image/*"
+                                wire:model.live="bannerUpload" class="sr-only">
+
+                            <label for="event-promotion-upload"
+                                class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-sky-950 bg-sky-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-900">
+                                {{ __('Selecionar imagem do computador') }}
+                            </label>
+
+                            <div class="mt-2 text-xs text-slate-600">
+                                {{ __('Formatos aceitos: JPG e PNG. Tamanho máximo: 5MB.') }}
+                            </div>
+
+                            @error('bannerUpload')
+                                <p class="mt-2 text-sm font-semibold text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($bannerUpload && str_starts_with($bannerUpload->getMimeType(), 'image/'))
+                            <div
+                                class="w-56 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                                <img src="{{ $bannerUpload->temporaryUrl() }}" alt="Arte de divulgação"
+                                    class="max-h-52 w-auto rounded object-contain">
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="absolute bottom-2 inset-x-0 z-10 w-full px-4">
             <div
                 class="flex items-center justify-between rounded-lg border border-sky-950 bg-white/80 px-6 py-3 shadow">
                 <div class="min-w-24">
                     <button type="button" x-show="step > 1" x-on:click="previousStep">&#x276E; Voltar</button>
+                </div>
+                <div class="text-sm font-semibold text-sky-950">
+                    <span x-text="`Passo ${step} de ${totalSteps}`"></span>
                 </div>
                 <div class="flex justify-end">
                     <button type="button" x-show="step < totalSteps" x-on:click="nextStep"
@@ -166,6 +268,13 @@
                         x-show="step === totalSteps">{{ __('Salvar evento') }}
                         &#x2713;</button>
                 </div>
+            </div>
+        </div>
+
+        <div wire:loading.flex wire:target="bannerUpload"
+            class="absolute inset-0 z-40 items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
+            <div class="rounded-xl bg-white px-5 py-4 text-sm font-semibold text-sky-950 shadow-lg">
+                {{ __('Enviando arquivo. Aguarde...') }}
             </div>
         </div>
     </form>
