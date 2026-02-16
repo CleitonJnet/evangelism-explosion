@@ -13,6 +13,7 @@
         <x-app.menu-sidebar-item label="Ministérios" :route="route('app.director.ministry.index')" :current="request()->routeIs('app.director.ministry.*')" icon="home" />
         <x-app.menu-sidebar-item label="Treinamentos" :route="route('app.director.training.index')" :current="request()->routeIs('app.director.training.*')" icon="home" />
         <x-app.menu-sidebar-item label="Estoque" :route="route('app.director.inventory.index')" :current="request()->routeIs('app.director.inventory.*')" icon="home" />
+        <x-app.menu-sidebar-item label="Website" :route="route('app.director.testimonials')" :current="request()->routeIs('app.director.testimonials')" icon="home" />
     @endcan
 
 </flux:sidebar.group>

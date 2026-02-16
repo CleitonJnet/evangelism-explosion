@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -59,6 +60,42 @@ it('renders the registrations page grouped by church', function () {
 it('updates participant statuses on the training pivot', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
+    Storage::fake('public');
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+    ]);
+    $student = User::factory()->create(['church_id' => $church->id]);
+    Storage::disk('public')->put('training-receipts/123/comprovante.png', 'fake-image-content');
+
+    $training->students()->attach($student->id, [
+        'payment_receipt' => 'training-receipts/123/comprovante.png',
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training])
+        ->call('togglePayment', $student->id, true)
+        ->call('toggleAccredited', $student->id, true)
+        ->call('toggleKit', $student->id, true);
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $student->id,
+        'payment_receipt' => 'training-receipts/123/comprovante.png',
+        'payment' => 1,
+        'accredited' => 1,
+        'kit' => 1,
+    ]);
+});
+
+it('does not confirm payment when receipt file is missing', function () {
+    $teacher = createTeacher();
+    $church = Church::factory()->create();
+    Storage::fake('public');
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -67,7 +104,7 @@ it('updates participant statuses on the training pivot', function () {
     $student = User::factory()->create(['church_id' => $church->id]);
 
     $training->students()->attach($student->id, [
-        'payment_receipt' => null,
+        'payment_receipt' => 'training-receipts/999/arquivo-ausente.png',
         'accredited' => 0,
         'kit' => 0,
         'payment' => 0,
@@ -75,16 +112,13 @@ it('updates participant statuses on the training pivot', function () {
 
     Livewire::actingAs($teacher)
         ->test(Registrations::class, ['training' => $training])
-        ->call('togglePaymentReceipt', $student->id, true)
-        ->call('toggleAccredited', $student->id, true)
-        ->call('toggleKit', $student->id, true);
+        ->call('togglePayment', $student->id, true)
+        ->assertHasErrors(['paymentConfirmation']);
 
     $this->assertDatabaseHas('training_user', [
         'training_id' => $training->id,
         'user_id' => $student->id,
-        'payment_receipt' => '__teacher_confirmed__',
-        'accredited' => 1,
-        'kit' => 1,
+        'payment' => 0,
     ]);
 });
 

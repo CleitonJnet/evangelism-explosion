@@ -5,6 +5,7 @@ use App\Http\Controllers\System\Director\CourseController;
 use App\Http\Controllers\System\Director\InventoryController;
 use App\Http\Controllers\System\Director\MinistryController;
 use App\Http\Controllers\System\Director\ProfileController;
+use App\Http\Controllers\System\Director\SiteController;
 use App\Http\Controllers\System\Director\TrainingController;
 use App\Http\Controllers\TrainingScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -46,4 +47,5 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
     });
 
     Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'create', 'edit']);
+    Route::get('testimonials', [SiteController::class, 'testimonials'])->name('testimonials');
 });

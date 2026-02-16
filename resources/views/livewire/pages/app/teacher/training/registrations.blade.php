@@ -1,5 +1,8 @@
-<div x-data wire:loading.class="pointer-events-none"
-    wire:target="togglePaymentReceipt,toggleAccredited,toggleKit,removeRegistration">
+<div wire:loading.class="pointer-events-none"
+    wire:target="togglePayment,toggleAccredited,toggleKit,removeRegistration,openReceiptModal">
+    @php
+        $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
+    @endphp
     <section class="flex gap-4 flex-wrap">
         <article
             class="rounded-2xl border border-sky-950/45 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-3 flex-auto min-w-fit">
@@ -61,7 +64,7 @@
                                     <th class="px-3 py-2 w-20">{{ __('Pastor') }}</th>
                                     <th class="px-3 py-2">{{ __('Nome') }}</th>
                                     <th class="px-3 py-2">{{ __('Contato') }}</th>
-                                    <th class="px-3 py-2 w-32 text-center">{{ __('Comprovante') }}</th>
+                                    <th class="px-3 py-2 w-44 text-center">{{ __('Comprovante') }}</th>
                                     <th class="px-3 py-2 w-28 text-center">{{ __('Kit') }}</th>
                                     <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
                                     <th class="px-3 py-2 w-20 text-center">{{ __('Acao') }}</th>
@@ -78,27 +81,56 @@
                                             </span>
                                         </td>
                                         <td class="px-3 py-2">
-                                            <div class="font-semibold text-slate-900">
+                                            <div class="font-semibold select-text text-slate-900">
                                                 {{ $registration['name'] }}
                                             </div>
                                         </td>
                                         <td class="px-3 py-2">
-                                            <div class="grid gap-0.5 text-xs text-slate-600">
+                                            <div class="grid gap-0.5 text-xs text-slate-600 select-text">
                                                 <span>{{ $registration['email'] ?: __('Sem email') }}</span>
                                                 <span>{{ $registration['phone'] ?: __('Sem telefone') }}</span>
                                             </div>
                                         </td>
-                                        <td class="px-3 py-2 align-top">
-                                            <div class="grid justify-items-center gap-1">
-                                                <x-app.switch-schedule :label="__('Comp.')" :key="'receipt-' . $registration['id']"
-                                                    :checked="$registration['has_payment_receipt']"
-                                                    wire:change="togglePaymentReceipt({{ $registration['id'] }}, $event.target.checked)"
-                                                    wire:loading.attr="disabled" wire:target="togglePaymentReceipt" />
-                                                @if ($registration['payment_receipt_url'])
-                                                    <a href="{{ $registration['payment_receipt_url'] }}"
-                                                        class="text-[10px] font-semibold text-sky-700 underline"
-                                                        target="_blank">{{ __('Abrir') }}</a>
-                                                @endif
+                                        <td class="px-3 py-2 align-middle">
+                                            <div class="grid justify-items-center">
+                                                @php
+                                                    $paymentBorderClass = $registration['payment_confirmed']
+                                                        ? 'border-emerald-500'
+                                                        : ($registration['has_payment_receipt']
+                                                            ? 'border-amber-500'
+                                                            : 'border-red-500');
+                                                    $paymentStatusTooltip = $registration['payment_confirmed']
+                                                        ? __('Pagamento confirmado')
+                                                        : ($registration['has_payment_receipt']
+                                                            ? __('Comprovante enviado. Pagamento em análise')
+                                                            : __('Pagamento pendente. Comprovante não enviado'));
+                                                @endphp
+                                                <button type="button"
+                                                    class="group relative cursor-pointer rounded-xl border-4 p-0.5 {{ $paymentBorderClass }}"
+                                                    aria-label="{{ $paymentStatusTooltip }}"
+                                                    wire:click="openReceiptModal({{ $registration['id'] }})">
+                                                    @if ($registration['has_payment_receipt'] && $registration['payment_receipt_is_image'])
+                                                        <img src="{{ $registration['payment_receipt_url'] }}"
+                                                            alt="{{ __('Comprovante de pagamento') }}"
+                                                            class="h-9 w-9 rounded-lg object-cover shadow-sm transition group-hover:scale-105">
+                                                    @elseif ($registration['has_payment_receipt'] && $registration['payment_receipt_is_pdf'])
+                                                        <div
+                                                            class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-[11px] font-bold text-slate-700 shadow-sm transition group-hover:scale-105">
+                                                            PDF
+                                                        </div>
+                                                    @else
+                                                        <div
+                                                            class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 p-2 shadow-sm transition group-hover:scale-105">
+                                                            <img src="{{ $genericReceiptThumbnail }}"
+                                                                alt="{{ __('Sem comprovante') }}"
+                                                                class="h-full w-full object-contain">
+                                                        </div>
+                                                    @endif
+                                                    <span
+                                                        class="pointer-events-none absolute -top-2 left-1/2 z-20 w-max max-w-44 -translate-x-1/2 -translate-y-full rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                                                        {{ $paymentStatusTooltip }}
+                                                    </span>
+                                                </button>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2 align-top">
@@ -142,4 +174,64 @@
             </article>
         @endforelse
     </section>
+
+    <flux:modal name="training-payment-receipt-modal" wire:model="showReceiptModal" class="max-w-4xl">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">{{ __('Comprovante de pagamento') }}</flux:heading>
+                <flux:subheading>{{ $selectedRegistrationName }}</flux:subheading>
+            </div>
+
+            @if ($selectedHasPaymentReceipt && $selectedPaymentReceiptUrl)
+                <div class="max-h-[75vh] overflow-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
+                    @if ($selectedPaymentReceiptIsImage)
+                        <img src="{{ $selectedPaymentReceiptUrl }}" alt="{{ __('Comprovante de pagamento') }}"
+                            class="mx-auto h-auto max-h-[70vh] w-auto rounded-lg object-contain">
+                    @elseif ($selectedPaymentReceiptIsPdf)
+                        <iframe src="{{ $selectedPaymentReceiptUrl }}" class="h-[70vh] w-full rounded-lg bg-white"
+                            title="{{ __('Comprovante em PDF') }}"></iframe>
+                    @else
+                        <iframe src="{{ $selectedPaymentReceiptUrl }}" class="h-[70vh] w-full rounded-lg bg-white"
+                            title="{{ __('Comprovante de pagamento') }}"></iframe>
+                    @endif
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="{{ $selectedPaymentReceiptUrl }}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                        {{ __('Abrir em nova aba') }}
+                    </a>
+                </div>
+            @else
+                <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    {{ __('Este aluno ainda não enviou comprovante válido.') }}
+                </div>
+            @endif
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="text-xs font-semibold text-slate-600">{{ __('Confirmacao do professor') }}</div>
+                <div class="mt-2 flex items-center justify-between gap-3">
+                    <div class="text-sm text-slate-700">
+                        {{ __('Marque somente após validar o comprovante enviado.') }}
+                    </div>
+
+                    @if ($selectedRegistrationId)
+                        <x-app.switch-schedule :label="__('Pago')" :key="'payment-modal-' . $selectedRegistrationId" :checked="$selectedPaymentConfirmed"
+                            wire:change="togglePayment({{ $selectedRegistrationId }}, $event.target.checked)"
+                            wire:loading.attr="disabled" wire:target="togglePayment" />
+                    @endif
+                </div>
+
+                @error('paymentConfirmation')
+                    <div class="mt-2 text-xs font-semibold text-red-600">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="flex justify-end">
+                <flux:button type="button" variant="ghost" wire:click="closeReceiptModal">
+                    {{ __('Fechar') }}
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

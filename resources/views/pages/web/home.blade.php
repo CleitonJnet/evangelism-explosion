@@ -11,7 +11,7 @@
     <x-web.home.hero />
     <x-web.home.about />
     <x-web.home.list-events />
-    <x-web.home.gallery-instagram />
     @livewire('web.home.testimonials')
+    <x-web.home.gallery-instagram />
     <x-web.home.faq-accordion />
 </x-layouts.guest>

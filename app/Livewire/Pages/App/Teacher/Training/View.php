@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Helpers\MoneyHelper;
 use App\Models\Training;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\View\View as ViewResponse;
 use Livewire\Component;
@@ -24,6 +25,14 @@ class View extends Component
 
     public int $paidStudentsCount = 0;
 
+    public int $totalRegistrations = 0;
+
+    public int $totalParticipatingChurches = 0;
+
+    public int $totalPastors = 0;
+
+    public int $totalUsedKits = 0;
+
     public ?string $eeMinistryBalance = null;
 
     public ?string $hostChurchExpenseBalance = null;
@@ -43,6 +52,18 @@ class View extends Component
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;
+        $this->totalRegistrations = $this->students->count();
+        $this->totalParticipatingChurches = $this->students
+            ->pluck('church_id')
+            ->filter()
+            ->unique()
+            ->count();
+        $this->totalPastors = $this->students
+            ->filter(fn (User $student): bool => $student->pastor === 'Y')
+            ->count();
+        $this->totalUsedKits = $this->students
+            ->filter(fn (User $student): bool => (bool) $student->pivot?->kit)
+            ->count();
         $this->paidStudentsCount = $this->training->students()
             ->wherePivot('payment', true)
             ->count();

@@ -80,6 +80,32 @@
                 </div>
             @else
                 <div
+                    class="mt-6 rounded-2xl border border-sky-200 bg-sky-50/80 p-5 text-sm text-sky-900 shadow-sm dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-200">
+                    <div class="flex flex-col gap-2">
+                        @if ($paymentReceiptPath)
+                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                Pagamento em análise
+                            </div>
+                            <div class="text-sm font-medium">
+                                Recebemos seu comprovante e ele está aguardando a confirmação da coordenação do evento.
+                            </div>
+                            <div class="text-xs text-sky-800/90 dark:text-sky-200/90">
+                                Assim que a validação for concluída, seu status será atualizado automaticamente para
+                                pagamento confirmado.
+                            </div>
+                        @else
+                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                Aguardando comprovante
+                            </div>
+                            <div class="text-sm font-medium">
+                                Após realizar o pagamento, envie o comprovante para iniciar a validação da coordenação
+                                do evento.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div
                     class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <img src="{{ $pixQr }}" alt="QR Code PIX EE Brasil"
@@ -115,35 +141,94 @@
                 </div>
             @endif
 
-            <div
-                class="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
-                <form wire:submit="uploadPaymentReceipt" class="flex flex-col gap-3">
-                    <div class="text-xs font-semibold uppercase text-neutral-500">Comprovante de pagamento</div>
+            @if (! $paymentConfirmed)
+                <div
+                    class="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                    <form wire:submit="uploadPaymentReceipt" class="flex flex-col gap-3">
+                        <div class="text-xs font-semibold uppercase text-neutral-500">Comprovante de pagamento</div>
 
-                    <input type="file" wire:model="paymentReceipt" accept=".jpg,.jpeg,.png,.pdf"
-                        class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:file:bg-neutral-700" />
-
-                    @error('paymentReceipt')
-                        <div class="text-xs text-red-600 dark:text-red-400">{{ $message }}</div>
-                    @enderror
-
-                    @if ($paymentReceiptPath)
-                        <div class="text-xs text-amber-700">
-                            <span class="font-bold">Comprovante enviado.</span> Aguardando confirmação do professor.
+                        <input type="file" wire:model="paymentReceipt" accept=".jpg,.jpeg,.png,.webp,.pdf"
+                            class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:file:bg-neutral-700" />
+                        <div class="text-[11px] text-neutral-500">
+                            {{ __('Formatos aceitos: JPG, PNG, WEBP ou PDF (até 5MB).') }}
                         </div>
-                    @endif
 
-                    <div class="flex flex-wrap items-center gap-3">
-                        <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
-                            Enviar comprovante
-                        </flux:button>
+                        @error('paymentReceipt')
+                            <div class="text-xs text-red-600 dark:text-red-400">{{ $message }}</div>
+                        @enderror
 
-                        <x-app.action-message on="payment-receipt-uploaded">
-                            Comprovante enviado.
-                        </x-app.action-message>
-                    </div>
-                </form>
-            </div>
+                        @if ($paymentReceipt)
+                            @php
+                                $selectedReceiptExtension = strtolower((string) $paymentReceipt->getClientOriginalExtension());
+                                $selectedReceiptName = (string) $paymentReceipt->getClientOriginalName();
+                                $selectedReceiptIsImage = in_array(
+                                    $selectedReceiptExtension,
+                                    ['jpg', 'jpeg', 'png', 'webp'],
+                                    true,
+                                );
+                                $selectedReceiptIsPdf = $selectedReceiptExtension === 'pdf';
+                            @endphp
+
+                            <div class="rounded-xl border border-neutral-200 bg-white p-3">
+                                <div class="mb-2 text-xs font-semibold uppercase text-neutral-500">
+                                    {{ __('Arquivo selecionado') }}
+                                </div>
+
+                                @if ($selectedReceiptIsImage)
+                                    <img src="{{ $paymentReceipt->temporaryUrl() }}" alt="{{ __('Pré-visualização do comprovante') }}"
+                                        class="h-auto max-h-56 w-auto rounded-lg border border-neutral-200 object-contain" />
+                                @elseif ($selectedReceiptIsPdf)
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex h-14 w-14 items-center justify-center rounded-lg border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700">
+                                            PDF
+                                        </div>
+                                        <div class="text-xs font-medium text-slate-700">
+                                            {{ $selectedReceiptName }}
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @elseif ($paymentReceiptUrl)
+                            <div class="rounded-xl border border-neutral-200 bg-white p-3">
+                                <div class="mb-2 text-xs font-semibold uppercase text-neutral-500">
+                                    {{ __('Comprovante enviado') }}
+                                </div>
+
+                                @if ($paymentReceiptIsImage)
+                                    <img src="{{ $paymentReceiptUrl }}" alt="{{ __('Comprovante de pagamento') }}"
+                                        class="h-auto max-h-56 w-auto rounded-lg border border-neutral-200 object-contain" />
+                                @elseif ($paymentReceiptIsPdf)
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <span
+                                            class="inline-flex rounded-md border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                                            PDF
+                                        </span>
+                                        <a href="{{ $paymentReceiptUrl }}" target="_blank" rel="noopener noreferrer"
+                                            class="text-xs font-semibold text-sky-700 underline">
+                                            {{ __('Abrir comprovante') }}
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @elseif ($paymentReceiptPath)
+                            <div class="text-xs text-amber-700">
+                                <span class="font-bold">{{ __('Comprovante registrado, mas indisponível no momento.') }}</span>
+                            </div>
+                        @endif
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                                Enviar comprovante
+                            </flux:button>
+
+                            <x-app.action-message on="payment-receipt-uploaded">
+                                Comprovante enviado. Pagamento em análise.
+                            </x-app.action-message>
+                        </div>
+                    </form>
+                </div>
+            @endif
         @endif
 
         <div

@@ -60,15 +60,7 @@ class Edit extends Component
 
     public ?int $kits = null;
 
-    public ?int $totStudents = null;
-
-    public ?int $totChurches = null;
-
     public ?int $totNewChurches = null;
-
-    public ?int $totPastors = null;
-
-    public ?int $totKitsUsed = null;
 
     public ?int $totListeners = null;
 
@@ -115,11 +107,7 @@ class Edit extends Component
         $this->price_church = $training->price_church;
         $this->discount = $training->discount;
         $this->kits = $training->kits;
-        $this->totStudents = $training->totStudents;
-        $this->totChurches = $training->totChurches;
         $this->totNewChurches = $training->totNewChurches;
-        $this->totPastors = $training->totPastors;
-        $this->totKitsUsed = $training->totKitsUsed;
         $this->totListeners = $training->totListeners;
         $this->totKitsReceived = $training->totKitsReceived;
         $this->totApproaches = $training->totApproaches;
@@ -182,11 +170,7 @@ class Edit extends Component
             'price_church' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'string', 'max:50'],
             'kits' => ['nullable', 'integer', 'min:0'],
-            'totStudents' => ['nullable', 'integer', 'min:0'],
-            'totChurches' => ['nullable', 'integer', 'min:0'],
             'totNewChurches' => ['nullable', 'integer', 'min:0'],
-            'totPastors' => ['nullable', 'integer', 'min:0'],
-            'totKitsUsed' => ['nullable', 'integer', 'min:0'],
             'totListeners' => ['nullable', 'integer', 'min:0'],
             'totKitsReceived' => ['nullable', 'integer', 'min:0'],
             'totApproaches' => ['nullable', 'integer', 'min:0'],
@@ -349,11 +333,7 @@ class Edit extends Component
                 'price_church' => $validated['price_church'] ?? null,
                 'discount' => $validated['discount'] ?? null,
                 'kits' => $validated['kits'] ?? null,
-                'totStudents' => $validated['totStudents'] ?? 0,
-                'totChurches' => $validated['totChurches'] ?? 0,
                 'totNewChurches' => $validated['totNewChurches'] ?? 0,
-                'totPastors' => $validated['totPastors'] ?? 0,
-                'totKitsUsed' => $validated['totKitsUsed'] ?? 0,
                 'totListeners' => $validated['totListeners'] ?? 0,
                 'totKitsReceived' => $validated['totKitsReceived'] ?? 0,
                 'totApproaches' => $validated['totApproaches'] ?? 0,

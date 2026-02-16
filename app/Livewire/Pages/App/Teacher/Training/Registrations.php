@@ -11,9 +11,23 @@ use Livewire\Component;
 
 class Registrations extends Component
 {
-    private const MANUAL_PAYMENT_RECEIPT_TOKEN = '__teacher_confirmed__';
-
     public Training $training;
+
+    public bool $showReceiptModal = false;
+
+    public ?int $selectedRegistrationId = null;
+
+    public string $selectedRegistrationName = '';
+
+    public ?string $selectedPaymentReceiptUrl = null;
+
+    public bool $selectedPaymentReceiptIsImage = false;
+
+    public bool $selectedPaymentReceiptIsPdf = false;
+
+    public bool $selectedHasPaymentReceipt = false;
+
+    public bool $selectedPaymentConfirmed = false;
 
     /**
      * @var array<int, array{
@@ -30,9 +44,13 @@ class Registrations extends Component
      *         is_pastor: bool,
      *         pastor_label: string,
      *         has_payment_receipt: bool,
+     *         payment_confirmed: bool,
      *         kit: bool,
      *         accredited: bool,
-     *         payment_receipt_url: ?string
+     *         payment_receipt_path: ?string,
+     *         payment_receipt_url: ?string,
+     *         payment_receipt_is_image: bool,
+     *         payment_receipt_is_pdf: bool
      *     }>
      * }>
      */
@@ -59,25 +77,21 @@ class Registrations extends Component
         $this->refreshRegistrations();
     }
 
-    public function togglePaymentReceipt(int $userId, bool $enabled): void
+    public function togglePayment(int $userId, bool $enabled): void
     {
-        $student = $this->training->students->firstWhere('id', $userId);
+        if ($enabled && ! $this->studentHasPaymentReceipt($userId)) {
+            $this->addError('paymentConfirmation', __('O aluno ainda não enviou um comprovante válido.'));
+            $this->selectedPaymentConfirmed = false;
 
-        if (! $student) {
             return;
         }
 
-        $currentReceipt = is_string($student->pivot?->payment_receipt)
-            ? trim($student->pivot->payment_receipt)
-            : '';
+        $this->resetErrorBag('paymentConfirmation');
+        $this->updateEnrollment($userId, ['payment' => $enabled]);
 
-        if ($enabled && $currentReceipt !== '') {
-            return;
+        if ($this->selectedRegistrationId === $userId) {
+            $this->selectedPaymentConfirmed = $enabled;
         }
-
-        $newValue = $enabled ? self::MANUAL_PAYMENT_RECEIPT_TOKEN : null;
-
-        $this->updateEnrollment($userId, ['payment_receipt' => $newValue]);
     }
 
     public function toggleAccredited(int $userId, bool $enabled): void
@@ -114,6 +128,40 @@ class Registrations extends Component
     public function render(): View
     {
         return view('livewire.pages.app.teacher.training.registrations');
+    }
+
+    public function openReceiptModal(int $userId): void
+    {
+        $student = $this->training->students->firstWhere('id', $userId);
+
+        if (! $student) {
+            return;
+        }
+
+        $registration = $this->mapRegistration($student);
+
+        $this->selectedRegistrationId = $registration['id'];
+        $this->selectedRegistrationName = $registration['name'];
+        $this->selectedPaymentReceiptUrl = $registration['payment_receipt_url'];
+        $this->selectedPaymentReceiptIsImage = $registration['payment_receipt_is_image'];
+        $this->selectedPaymentReceiptIsPdf = $registration['payment_receipt_is_pdf'];
+        $this->selectedHasPaymentReceipt = $registration['has_payment_receipt'];
+        $this->selectedPaymentConfirmed = $registration['payment_confirmed'];
+        $this->resetErrorBag('paymentConfirmation');
+        $this->showReceiptModal = true;
+    }
+
+    public function closeReceiptModal(): void
+    {
+        $this->showReceiptModal = false;
+        $this->selectedRegistrationId = null;
+        $this->selectedRegistrationName = '';
+        $this->selectedPaymentReceiptUrl = null;
+        $this->selectedPaymentReceiptIsImage = false;
+        $this->selectedPaymentReceiptIsPdf = false;
+        $this->selectedHasPaymentReceipt = false;
+        $this->selectedPaymentConfirmed = false;
+        $this->resetErrorBag('paymentConfirmation');
     }
 
     /**
@@ -200,9 +248,12 @@ class Registrations extends Component
         $this->totalPastors = $students->filter(fn (User $student): bool => filled($student->pastor))->count();
         $this->totalAccredited = $students->filter(fn (User $student): bool => (bool) $student->pivot?->accredited)->count();
         $this->totalKits = $students->filter(fn (User $student): bool => (bool) $student->pivot?->kit)->count();
-        $this->totalPaymentReceipts = $students
-            ->filter(fn (User $student): bool => filled($student->pivot?->payment_receipt))
-            ->count();
+        $this->totalPaymentReceipts = (int) collect($this->churchGroups)
+            ->sum(fn (array $churchGroup): int => (int) ($churchGroup['totals']['payment_receipts'] ?? 0));
+
+        if ($this->showReceiptModal && $this->selectedRegistrationId) {
+            $this->syncSelectedRegistration($this->selectedRegistrationId);
+        }
     }
 
     /**
@@ -217,7 +268,11 @@ class Registrations extends Component
      *     accredited: bool,
      *     kit: bool,
      *     has_payment_receipt: bool,
-     *     payment_receipt_url: ?string
+     *     payment_confirmed: bool,
+     *     payment_receipt_path: ?string,
+     *     payment_receipt_url: ?string,
+     *     payment_receipt_is_image: bool,
+     *     payment_receipt_is_pdf: bool
      * }
      */
     private function mapRegistration(User $student): array
@@ -225,8 +280,11 @@ class Registrations extends Component
         $receipt = is_string($student->pivot?->payment_receipt)
             ? trim($student->pivot->payment_receipt)
             : '';
-        $hasPaymentReceipt = $receipt !== '';
-        $isManualReceipt = $receipt === self::MANUAL_PAYMENT_RECEIPT_TOKEN;
+        $receiptExtension = strtolower(pathinfo($receipt, PATHINFO_EXTENSION));
+        $paymentReceiptIsImage = in_array($receiptExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+        $paymentReceiptIsPdf = $receiptExtension === 'pdf';
+        $hasPaymentReceipt = $receipt !== '' && Storage::disk('public')->exists($receipt);
+        $paymentReceiptUrl = $hasPaymentReceipt ? Storage::disk('public')->url($receipt) : null;
 
         return [
             'id' => $student->id,
@@ -234,15 +292,51 @@ class Registrations extends Component
             'church_name' => $student->church?->name ?? 'Sem igreja vinculada',
             'email' => $student->email,
             'phone' => $student->phone,
-            'is_pastor' => filled($student->pastor),
-            'pastor_label' => filled($student->pastor) ? 'Sim' : 'Nao',
+            'is_pastor' => $student->pastor == 'Y',
+            'pastor_label' => $student->pastor == 'Y' ? 'Sim' : 'Nao',
             'accredited' => (bool) $student->pivot?->accredited,
             'kit' => (bool) $student->pivot?->kit,
             'has_payment_receipt' => $hasPaymentReceipt,
-            'payment_receipt_url' => (! $isManualReceipt && $hasPaymentReceipt)
-                ? Storage::disk('public')->url($receipt)
-                : null,
+            'payment_confirmed' => (bool) $student->pivot?->payment,
+            'payment_receipt_path' => $hasPaymentReceipt ? $receipt : null,
+            'payment_receipt_url' => $paymentReceiptUrl,
+            'payment_receipt_is_image' => $hasPaymentReceipt && $paymentReceiptIsImage,
+            'payment_receipt_is_pdf' => $hasPaymentReceipt && $paymentReceiptIsPdf,
         ];
+    }
+
+    private function studentHasPaymentReceipt(int $userId): bool
+    {
+        $student = $this->training->students->firstWhere('id', $userId);
+
+        if (! $student) {
+            return false;
+        }
+
+        $receipt = is_string($student->pivot?->payment_receipt)
+            ? trim($student->pivot->payment_receipt)
+            : '';
+
+        return $receipt !== '' && Storage::disk('public')->exists($receipt);
+    }
+
+    private function syncSelectedRegistration(int $userId): void
+    {
+        $student = $this->training->students->firstWhere('id', $userId);
+
+        if (! $student) {
+            $this->closeReceiptModal();
+
+            return;
+        }
+
+        $registration = $this->mapRegistration($student);
+        $this->selectedRegistrationName = $registration['name'];
+        $this->selectedPaymentReceiptUrl = $registration['payment_receipt_url'];
+        $this->selectedPaymentReceiptIsImage = $registration['payment_receipt_is_image'];
+        $this->selectedPaymentReceiptIsPdf = $registration['payment_receipt_is_pdf'];
+        $this->selectedHasPaymentReceipt = $registration['has_payment_receipt'];
+        $this->selectedPaymentConfirmed = $registration['payment_confirmed'];
     }
 
     private function authorizeTraining(Training $training): void

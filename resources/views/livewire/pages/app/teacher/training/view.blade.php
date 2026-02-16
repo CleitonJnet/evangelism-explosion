@@ -85,7 +85,7 @@
             <div><img src="{{ asset('images/svg/people-network.svg') }}" alt="indicator" class="h-10"></div>
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de alunos:') }}</div>
-                {{ $training->totStudents ?? '-' }}
+                {{ $totalRegistrations }}
             </div>
         </div>
         <div
@@ -93,7 +93,7 @@
             <div><img src="{{ asset('images/svg/church.svg') }}" alt="indicator" class="h-10"></div>
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de igrejas:') }}</div>
-                {{ $training->totChurches ?? '-' }}
+                {{ $totalParticipatingChurches }}
             </div>
         </div>
         <div
@@ -109,7 +109,7 @@
             <div><img src="{{ asset('images/svg/pastor.svg') }}" alt="indicator" class="h-10"></div>
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de pastores:') }}</div>
-                {{ $training->totPastors ?? '-' }}
+                {{ $totalPastors }}
             </div>
         </div>
     </section>
@@ -242,7 +242,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Kits usados no evento') }}</span>
-                        <span class="font-semibold text-slate-900">{{-- Aqui deve informar o numero de pessoas que receberam seus kits do treinamento --}}</span>
+                        <span class="font-semibold text-slate-900">{{ $totalUsedKits }}</span>
                     </div>
                 </div>
             </div>

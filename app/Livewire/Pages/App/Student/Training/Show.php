@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\App\Student\Training;
 use App\Models\Training;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -22,6 +23,12 @@ class Show extends Component
     public bool $paymentConfirmed = false;
 
     public ?string $paymentReceiptPath = null;
+
+    public ?string $paymentReceiptUrl = null;
+
+    public bool $paymentReceiptIsImage = false;
+
+    public bool $paymentReceiptIsPdf = false;
 
     public mixed $paymentReceipt = null;
 
@@ -68,6 +75,7 @@ class Show extends Component
 
         $this->paymentConfirmed = (bool) $enrollment->pivot?->payment;
         $this->paymentReceiptPath = $enrollment->pivot?->payment_receipt;
+        $this->syncPaymentReceiptMeta();
     }
 
     public function render(): View
@@ -98,7 +106,13 @@ class Show extends Component
         }
 
         $this->validate([
-            'paymentReceipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'paymentReceipt' => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,webp,pdf',
+                'mimetypes:image/jpeg,image/png,image/webp,application/pdf',
+                'max:5120',
+            ],
         ]);
 
         $path = $this->paymentReceipt->store("training-receipts/{$this->training->id}", 'public');
@@ -108,8 +122,30 @@ class Show extends Component
         ]);
 
         $this->paymentReceiptPath = $path;
+        $this->syncPaymentReceiptMeta();
         $this->reset('paymentReceipt');
         $this->dispatch('payment-receipt-uploaded');
+    }
+
+    private function syncPaymentReceiptMeta(): void
+    {
+        $receipt = is_string($this->paymentReceiptPath)
+            ? trim($this->paymentReceiptPath)
+            : '';
+
+        if ($receipt === '' || ! Storage::disk('public')->exists($receipt)) {
+            $this->paymentReceiptUrl = null;
+            $this->paymentReceiptIsImage = false;
+            $this->paymentReceiptIsPdf = false;
+
+            return;
+        }
+
+        $extension = strtolower(pathinfo($receipt, PATHINFO_EXTENSION));
+
+        $this->paymentReceiptUrl = Storage::disk('public')->url($receipt);
+        $this->paymentReceiptIsImage = in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true);
+        $this->paymentReceiptIsPdf = $extension === 'pdf';
     }
 
     private function calculateWorkloadDuration(Training $training): ?string

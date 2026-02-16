@@ -1,38 +1,40 @@
-@push('css')
-    <style>
-        .Swiper-Testimonials .swiper-button-next,
-        .Swiper-Testimonials .swiper-button-prev {
-            color: #8a7424;
-        }
-
-        .Swiper-Testimonials .swiper-button-next:after,
-        .Swiper-Testimonials .swiper-button-prev:after {
-            font-size: 16px;
-            font-weight: 900;
-        }
-
-        .Swiper-Testimonials .swiper-pagination-bullet {
-            background: #c7a840;
-            opacity: .35;
-        }
-
-        .Swiper-Testimonials .swiper-pagination-bullet-active {
-            opacity: 1;
-        }
-
-        .photo {
-            box-shadow: 0px -4px 0 4px #c7a840;
-        }
-
-        @media (min-width: 768px) {
-            .photo {
-                box-shadow: -4px 0 0 4px #c7a840;
+<div>
+    @if ($testimonials->isNotEmpty())
+        @push('css')
+        <style>
+            .Swiper-Testimonials .swiper-button-next,
+            .Swiper-Testimonials .swiper-button-prev {
+                color: #8a7424;
             }
-        }
-    </style>
-@endpush
 
-<x-web.container id="testimonials" class="overflow-hidden">
+            .Swiper-Testimonials .swiper-button-next:after,
+            .Swiper-Testimonials .swiper-button-prev:after {
+                font-size: 16px;
+                font-weight: 900;
+            }
+
+            .Swiper-Testimonials .swiper-pagination-bullet {
+                background: #c7a840;
+                opacity: .35;
+            }
+
+            .Swiper-Testimonials .swiper-pagination-bullet-active {
+                opacity: 1;
+            }
+
+            .photo {
+                box-shadow: 0px -4px 0 4px #c7a840;
+            }
+
+            @media (min-width: 768px) {
+                .photo {
+                    box-shadow: -4px 0 0 4px #c7a840;
+                }
+            }
+        </style>
+        @endpush
+
+        <x-web.container id="testimonials" class="overflow-hidden">
 
     <div aria-hidden="true"
         class="absolute w-1/3 rounded-full pointer-events-none -top-24 -right-24 h-4/5 blur-3xl opacity-70"
@@ -60,57 +62,53 @@
         outros.
     </p>
 
-    <div class="swiper Swiper-Testimonials">
+    <div class="swiper Swiper-Testimonials max-w-6xl mx-auto">
         <div class="swiper-wrapper">
 
             {{-- Slides --}}
             @foreach ($testimonials as $t)
-                <div class="relative swiper-slide">
+                <figure
+                    class="relative w-full overflow-hidden bg-white border shadow-md rounded-2xl border-amber-500/20 shadow-black/5 swiper-slide">
+                    <div aria-hidden="true"
+                        class="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-2xl opacity-60 bg-[radial-gradient(circle_at_30%_30%,rgba(241,213,122,.33),transparent_100%)]">
+                    </div>
 
-                    <figure
-                        class="relative w-full overflow-hidden bg-white border shadow-md rounded-2xl border-amber-500/20 shadow-black/5">
-                        <div aria-hidden="true"
-                            class="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-2xl opacity-60 bg-[radial-gradient(circle_at_30%_30%,rgba(241,213,122,.33),transparent_100%)]">
-                        </div>
+                    <div class="p-4 sm:p-6 lg:p-10">
+                        <div class="flex gap-4 flex-wrap justify-center">
 
-                        <div class="p-4 sm:p-6 lg:p-10">
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-stretch">
-
-                                {{-- Foto --}}
-                                <div class="relative overflow-hidden bg-center bg-cover border-4 border-white rounded-lg md:col-span-5 lg:col-span-4 photo"
-                                    style="aspect-ratio: 16 / 11; background-image: url({{ asset('images/profile.webp') }})">
-                                    {{-- Texto na foto --}}
-                                    <div
-                                        class="absolute inset-x-0 bottom-0 px-4 py-3 bg-linear-to-t from-black via-black/50 to-transparent">
-                                        <div class="text-sm font-semibold text-white truncate sm:text-base drop-shadow">
-                                            {{ $t['name'] }}
-                                        </div>
-                                        <div class="text-xs text-white truncate sm:text-sm drop-shadow">
-                                            {{ $t['meta'] }}
-                                        </div>
+                            {{-- Foto --}}
+                            <div class="relative overflow-hidden bg-center bg-cover border-4 border-white rounded-lg basis-80 photo aspect-16/13"
+                                style="background-image: url('{{ $t['photo'] }}')">
+                                {{-- Texto na foto --}}
+                                <div
+                                    class="absolute inset-x-0 bottom-0 px-4 py-3 bg-linear-to-t from-black via-black/50 to-transparent text-right">
+                                    <div class="text-sm font-semibold text-white truncate sm:text-base drop-shadow">
+                                        {{ $t['name'] }}
                                     </div>
-                                </div>
-
-                                {{-- Conteúdo --}}
-                                <div class="flex flex-col justify-center md:col-span-7 lg:col-span-8">
-
-                                    {{-- Comentário mais destacado --}}
-                                    <div
-                                        class="z-10 flex items-start gap-2 p-5 overflow-hidden bg-white border shadow-sm rounded-2xl border-amber-500/15 sm:p-6 lg:p-7 shadow-black/5">
-                                        <span class="text-6xl leading-none select-none text-amber-700/80">“</span>
-
-                                        <blockquote
-                                            class="text-slate-900 leading-relaxed text-base sm:text-base lg:text-lg font-semibold tracking-[0.01em]">
-                                            {{ $t['quote'] }}
-                                        </blockquote>
+                                    <div class="text-xs text-white truncate sm:text-sm drop-shadow">
+                                        {{ $t['meta'] }}
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
-                    </figure>
 
-                </div>
+                            {{-- Conteúdo --}}
+                            <div class="flex flex-col justify-center basis-96 w-full flex-auto">
+
+                                {{-- Comentário mais destacado --}}
+                                <div
+                                    class="z-10 flex items-start gap-2 p-5 overflow-hidden bg-white border shadow-sm rounded-2xl border-amber-500/15 sm:p-6 lg:p-7 shadow-black/5">
+                                    <span class="text-6xl leading-none select-none text-amber-700/80">“</span>
+
+                                    <blockquote
+                                        class="text-slate-900 leading-relaxed text-base sm:text-base lg:text-lg font-semibold tracking-[0.01em]">
+                                        {{ $t['quote'] }}
+                                    </blockquote>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </figure>
             @endforeach
 
         </div>
@@ -120,30 +118,32 @@
         <div class="swiper-button-next !right-2"></div>
         <div class="swiper-pagination !relative !mt-6"></div>
     </div>
-</x-web.container>
+        </x-web.container>
 
-@push('js')
-    <script>
-        var swiper_testimonials = new Swiper(".Swiper-Testimonials", {
-            slidesPerView: 1,
-            spaceBetween: 5,
-            loop: true,
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: true,
-            },
-            observer: true,
-            observeParents: true,
-            updateOnWindowResize: true,
-            pagination: {
-                el: ".Swiper-Testimonials .swiper-pagination",
-                clickable: true,
-                dynamicBullets: true,
-            },
-            navigation: {
-                nextEl: ".Swiper-Testimonials .swiper-button-next",
-                prevEl: ".Swiper-Testimonials .swiper-button-prev",
-            },
-        });
-    </script>
-@endpush
+        @push('js')
+        <script>
+            var swiper_testimonials = new Swiper(".Swiper-Testimonials", {
+                slidesPerView: 1,
+                spaceBetween: 5,
+                loop: true,
+                autoplay: {
+                    delay: 2500,
+                    disableOnInteraction: true,
+                },
+                observer: true,
+                observeParents: true,
+                updateOnWindowResize: true,
+                pagination: {
+                    el: ".Swiper-Testimonials .swiper-pagination",
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: ".Swiper-Testimonials .swiper-button-next",
+                    prevEl: ".Swiper-Testimonials .swiper-button-prev",
+                },
+            });
+        </script>
+        @endpush
+    @endif
+</div>
