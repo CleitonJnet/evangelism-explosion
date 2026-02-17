@@ -170,3 +170,87 @@ it('removes a participant from the training registrations', function () {
         'user_id' => $student->id,
     ]);
 });
+
+it('marks registration groups with pending or missing church as issues', function () {
+    $teacher = createTeacher();
+    $hostChurch = Church::factory()->create();
+    $officialChurch = Church::factory()->create(['name' => 'Igreja Oficial']);
+    $pendingChurchTemp = ChurchTemp::query()->create([
+        'name' => 'Igreja Pendente',
+        'city' => 'Recife',
+        'state' => 'PE',
+        'status' => 'pending',
+        'normalized_name' => 'igreja pendente',
+    ]);
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $hostChurch->id,
+    ]);
+
+    $officialStudent = User::factory()->create([
+        'church_id' => $officialChurch->id,
+        'church_temp_id' => null,
+    ]);
+    $pendingStudent = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => $pendingChurchTemp->id,
+    ]);
+    $noChurchStudent = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $training->students()->attach($officialStudent->id);
+    $training->students()->attach($pendingStudent->id);
+    $training->students()->attach($noChurchStudent->id);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training]);
+
+    $churchGroups = collect($component->get('churchGroups'));
+
+    expect($churchGroups->firstWhere('church_name', 'Igreja Oficial')['has_church_issue'])->toBeFalse();
+    expect($churchGroups->firstWhere('church_name', '(PENDING) Igreja Pendente')['has_church_issue'])->toBeTrue();
+    expect($churchGroups->firstWhere('church_name', 'No church')['has_church_issue'])->toBeTrue();
+});
+
+it('sorts pending church issues before validated registrations', function () {
+    $teacher = createTeacher();
+    $hostChurch = Church::factory()->create();
+    $officialChurch = Church::factory()->create(['name' => 'Igreja Oficial']);
+    $pendingChurchTemp = ChurchTemp::query()->create([
+        'name' => 'Igreja Pendente',
+        'city' => 'Recife',
+        'state' => 'PE',
+        'status' => 'pending',
+        'normalized_name' => 'igreja pendente',
+    ]);
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $hostChurch->id,
+    ]);
+
+    $validatedStudent = User::factory()->create(['church_id' => $officialChurch->id, 'church_temp_id' => null]);
+    $pendingStudent = User::factory()->create(['church_id' => null, 'church_temp_id' => $pendingChurchTemp->id]);
+    $noChurchStudent = User::factory()->create(['church_id' => null, 'church_temp_id' => null]);
+
+    $training->students()->attach($validatedStudent->id);
+    $training->students()->attach($pendingStudent->id);
+    $training->students()->attach($noChurchStudent->id);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training]);
+
+    $groupNames = collect($component->get('churchGroups'))
+        ->pluck('church_name')
+        ->values()
+        ->all();
+
+    expect($groupNames)->toBe([
+        '(PENDING) Igreja Pendente',
+        'No church',
+        'Igreja Oficial',
+    ]);
+});

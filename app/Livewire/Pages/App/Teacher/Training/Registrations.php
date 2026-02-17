@@ -34,6 +34,7 @@ class Registrations extends Component
      * @var array<int, array{
      *     key: string,
      *     church_name: string,
+     *     has_church_issue: bool,
      *     summary: string,
      *     totals: array{registrations: int, pastors: int, accredited: int, kits: int, payment_receipts: int},
      *     registrations: array<int, array{
@@ -47,6 +48,7 @@ class Registrations extends Component
      *         pastor_label: string,
      *         has_payment_receipt: bool,
      *         payment_confirmed: bool,
+     *         has_church_issue: bool,
      *         kit: bool,
      *         accredited: bool,
      *         payment_receipt_path: ?string,
@@ -212,8 +214,9 @@ class Registrations extends Component
         $students = $this->training->students
             ->sortBy(function (User $student): string {
                 $churchName = $this->resolveChurchLabel($student);
+                $priority = $this->hasChurchIssue($student) ? '0' : '1';
 
-                return strtolower($churchName.' '.$student->name);
+                return strtolower($priority.' '.$churchName.' '.$student->name);
             })
             ->values();
 
@@ -238,6 +241,8 @@ class Registrations extends Component
                 return [
                     'key' => md5($churchName),
                     'church_name' => $churchName,
+                    'has_church_issue' => collect($registrations)
+                        ->contains(fn (array $registration): bool => (bool) ($registration['has_church_issue'] ?? false)),
                     'summary' => sprintf(
                         '%d inscritos, %d pastor(es), %d comprovantes, %d kits entregues, %d credenciados',
                         $totals['registrations'],
@@ -249,6 +254,11 @@ class Registrations extends Component
                     'totals' => $totals,
                     'registrations' => $registrations,
                 ];
+            })
+            ->sortBy(function (array $churchGroup): string {
+                $priority = $churchGroup['has_church_issue'] ? '0' : '1';
+
+                return strtolower($priority.' '.($churchGroup['church_name'] ?? ''));
             })
             ->values()
             ->all();
@@ -286,6 +296,7 @@ class Registrations extends Component
      *     kit: bool,
      *     has_payment_receipt: bool,
      *     payment_confirmed: bool,
+     *     has_church_issue: bool,
      *     payment_receipt_path: ?string,
      *     payment_receipt_url: ?string,
      *     payment_receipt_is_image: bool,
@@ -316,11 +327,20 @@ class Registrations extends Component
             'kit' => (bool) $student->pivot?->kit,
             'has_payment_receipt' => $hasPaymentReceipt,
             'payment_confirmed' => (bool) $student->pivot?->payment,
+            'has_church_issue' => $this->hasChurchIssue($student),
             'payment_receipt_path' => $hasPaymentReceipt ? $receipt : null,
             'payment_receipt_url' => $paymentReceiptUrl,
             'payment_receipt_is_image' => $hasPaymentReceipt && $paymentReceiptIsImage,
             'payment_receipt_is_pdf' => $hasPaymentReceipt && $paymentReceiptIsPdf,
         ];
+    }
+
+    private function hasChurchIssue(User $student): bool
+    {
+        $hasNoChurch = $student->church_id === null && $student->church_temp_id === null;
+        $hasPendingChurchValidation = $student->church_id === null && $student->church_temp?->status === 'pending';
+
+        return $hasNoChurch || $hasPendingChurchValidation;
     }
 
     private function studentHasPaymentReceipt(int $userId): bool

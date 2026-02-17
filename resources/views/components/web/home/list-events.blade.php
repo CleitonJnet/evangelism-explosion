@@ -46,7 +46,7 @@
         {{-- Lista de treinamentos --}}
 
         <div class="my-6 min-h-80">
-            <x-src.carousel :ministry="$ministry_id" />
+            <x-src.carousel />
         </div>
 
         {{-- CTA: Igreja Base --}}

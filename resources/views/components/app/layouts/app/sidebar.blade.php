@@ -6,7 +6,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-400 select-none">
-    <flux:sidebar sticky collapsible="mobile" class="border-e border-sky-900/60 bg-sky-950 text-slate-100">
+    <flux:sidebar sticky collapsible="mobile" class="border-e border-sky-900/60 bg-sky-950 text-slate-100 z-9999!">
         <flux:sidebar.header>
             <x-app.app-logo :sidebar="true" href="{{ route('app.start') }}" wire:navigate />
             <flux:sidebar.collapse class="lg:hidden" />

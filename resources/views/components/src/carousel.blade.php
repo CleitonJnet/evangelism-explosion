@@ -1,4 +1,4 @@
-@props(['ministry' => null, 'ministryNot' => null])
+@props(['ministry' => null, 'ministryNot' => null, 'audience' => null])
 
 @once
     @push('css')
@@ -104,7 +104,7 @@
 <div class="relative">
     <div class="px-3! swiper js-swiper-events SwiperCarouselEvent">
 
-        <livewire:swiper-wrapper-events :ministry="$ministry" :ministry-not="$ministryNot" />
+        <livewire:swiper-wrapper-events :ministry="$ministry" :ministry-not="$ministryNot" :audience="$audience" />
 
         <div class="swiper-button-prev -left-2!"></div>
         <div class="swiper-button-next -right-2!"></div>

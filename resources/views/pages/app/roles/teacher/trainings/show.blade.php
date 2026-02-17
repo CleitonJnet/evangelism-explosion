@@ -4,9 +4,16 @@
     $training->loadMissing([
         'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time'),
         'scheduleItems' => fn($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
+        'students' => fn($query) => $query->with('church_temp:id,status'),
     ]);
 
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
+    $hasRegistrationsError = $training->students->contains(function ($student): bool {
+        $hasNoChurch = $student->church_id === null && $student->church_temp_id === null;
+        $hasPendingChurchValidation = $student->church_id === null && $student->church_temp?->status === 'pending';
+
+        return $hasNoChurch || $hasPendingChurchValidation;
+    });
 @endphp
 
 <x-layouts.app :title="__('Treinamento')">
@@ -15,7 +22,8 @@
         <x-src.toolbar.nav>
             <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
+                :error="$hasRegistrationsError" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
             <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />

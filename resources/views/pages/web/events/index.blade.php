@@ -1,9 +1,57 @@
 @php
+    use App\Models\Training;
+    use Illuminate\Support\Carbon;
+
     $title = __('Eventos & treinamentos');
     $description = 'Confira ou agende eventos e treinamentos do ministério de Evangelismo Explosivo no Brasil, participando da expansão do
 Evangelho.';
     $keywords = 'agenda, eventos, treinamentos, evangelismo, EE Brasil';
     $ogImage = asset('images/leadership-meeting.webp');
+    $extraCourseIds = [2];
+
+    $hasAudienceEvents = function (?int $ministryId, ?array $ministryNotIds, string $audience) use (
+        $extraCourseIds,
+    ): bool {
+        $query = Training::query()
+            ->whereHas('course', function ($query) use ($extraCourseIds): void {
+                $query->where('execution', 0)->orWhereIn('id', $extraCourseIds);
+            })
+            ->whereHas('eventDates')
+            ->whereDoesntHave('eventDates', function ($query): void {
+                $query->whereDate('date', '<', Carbon::today());
+            })
+            ->where('status', 1);
+
+        if ($ministryId !== null) {
+            $query->whereHas('course', function ($query) use ($ministryId): void {
+                $query->where('ministry_id', $ministryId);
+            });
+        }
+
+        if ($ministryNotIds !== null) {
+            $query->whereDoesntHave('course', function ($query) use ($ministryNotIds): void {
+                $query->whereIn('ministry_id', $ministryNotIds);
+            });
+        }
+
+        if ($audience === 'leaders') {
+            $query->whereHas('course', function ($query): void {
+                $query->where('execution', 0);
+            });
+        }
+
+        if ($audience === 'members') {
+            $query->whereHas('course', function ($query): void {
+                $query->where('execution', '>', 0);
+            });
+        }
+
+        return $query->exists();
+    };
+
+    $hasMembersMinistry1 = $hasAudienceEvents(1, null, 'members');
+    $hasMembersMinistry2 = $hasAudienceEvents(2, null, 'members');
+    $hasMembersOthers = $hasAudienceEvents(null, [1, 2], 'members');
 @endphp
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
@@ -41,7 +89,27 @@ Evangelho.';
 
                     </h3>
 
-                    <x-src.carousel :ministry="1" />
+                    <div class="relative z-10 space-y-8">
+                        <div class="space-y-3">
+                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
+                            <p class="text-sm text-white/80">
+                                Eventos com foco em liderança e implementação ministerial.
+                            </p>
+                            <x-src.carousel :ministry="1" audience="leaders" />
+                        </div>
+
+                        @if ($hasMembersMinistry1)
+                            <div class="pt-4 border-t border-white/15 space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para toda a
+                                    Igreja
+                                </h4>
+                                {{-- <p class="text-sm text-white/80">
+                                    Eventos abertos para toda a igreja.
+                                </p> --}}
+                                <x-src.carousel :ministry="1" audience="members" />
+                            </div>
+                        @endif
+                    </div>
 
                 </div>
 
@@ -61,8 +129,26 @@ Evangelho.';
                         class="object-contain w-full max-w-lg px-2 mb-4 -mt-4 md:-mt-6"
                         style="filter: drop-shadow(0 0 4px #fff)">
 
-                    {{-- Lista de treinamentos --}}
-                    <x-src.carousel :ministry="2" />
+                    <div class="relative z-10 space-y-8">
+                        <div class="space-y-3">
+                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
+                            {{-- <p class="text-sm text-white/80">
+                                Eventos com foco em liderança e implementação ministerial.
+                            </p> --}}
+                            <x-src.carousel :ministry="2" audience="leaders" />
+                        </div>
+
+                        @if ($hasMembersMinistry2)
+                            <div class="pt-4 border-t border-white/15 space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Membros
+                                </h4>
+                                <p class="text-sm text-white/80">
+                                    Eventos abertos para todos os membros da igreja.
+                                </p>
+                                <x-src.carousel :ministry="2" audience="members" />
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Linha temática --}}
@@ -87,7 +173,26 @@ Evangelho.';
                         </span>
                     </h3>
 
-                    <x-src.carousel :ministry-not="[1, 2]" />
+                    <div class="relative z-10 space-y-8">
+                        <div class="space-y-3">
+                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
+                            <p class="text-sm text-white/80">
+                                Eventos com foco em liderança e implementação ministerial.
+                            </p>
+                            <x-src.carousel :ministry-not="[1, 2]" audience="leaders" />
+                        </div>
+
+                        @if ($hasMembersOthers)
+                            <div class="pt-4 border-t border-white/15 space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Membros
+                                </h4>
+                                <p class="text-sm text-white/80">
+                                    Eventos abertos para todos os membros da igreja.
+                                </p>
+                                <x-src.carousel :ministry-not="[1, 2]" audience="members" />
+                            </div>
+                        @endif
+                    </div>
 
                 </div>
 
