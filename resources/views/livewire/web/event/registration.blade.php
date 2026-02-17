@@ -248,6 +248,8 @@
                             @elseif(!empty($pix['qr_base64']))
                                 <img class="w-56 h-56" alt="QR Code PIX"
                                     src="data:image/png;base64,{{ $pix['qr_base64'] }}">
+                            @elseif(!empty($pix['qr_image_url']))
+                                <img class="w-56 h-56 object-contain" alt="QR Code PIX" src="{{ $pix['qr_image_url'] }}">
                             @else
                                 <div class="flex items-center justify-center w-56 h-56 text-sm text-slate-400">
                                     O QR Code será exibido após gerar o pagamento.

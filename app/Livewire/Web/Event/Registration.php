@@ -251,10 +251,11 @@ class Registration extends Component
     protected function buildPixPayload(): array
     {
         return [
-            'key' => '',
+            'key' => $this->event->pixKeyForPayment(),
             'emv' => null,
             'qr_svg' => null,
             'qr_base64' => null,
+            'qr_image_url' => $this->event->pixQrCodeUrlForPayment(),
         ];
     }
 

@@ -63,8 +63,8 @@ new class extends Component {
                     $dates = $training->eventDates;
                     $firstDate = $dates->first();
                     $isPaid = (float) preg_replace('/\D/', '', (string) $training->payment) > 0;
-                    $pixKey = 'eebrasil@eebrasil.org.br';
-                    $pixQr = asset('images/qrcode-pix-ee.webp');
+                    $pixKey = $training->pixKeyForPayment();
+                    $pixQr = $training->pixQrCodeUrlForPayment();
                     $addressParts = array_filter([
                         $training?->street,
                         $training?->number,
@@ -115,7 +115,7 @@ new class extends Component {
                         <div
                             class="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <img src="{{ $pixQr }}" alt="QR Code PIX EE Brasil"
+                                <img src="{{ $pixQr }}" alt="QR Code PIX"
                                     class="h-16 w-16 rounded-xl border border-amber-200 bg-white p-1">
                                 <div class="space-y-1">
                                     <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">

@@ -183,18 +183,51 @@
                     <div>{{ __('R$') }} {{ $price }}</div>
                 </div>
 
-                <div class="flex flex-wrap gap-2">
-                    <div class="">{{ __('Digite uma taxa para despesas extras') }}</div>
-                    <div class="border-b border-dashed border-sky-950/20 flex-auto"></div>
+                <div class="grid gap-4 md:grid-cols-2">
                     <x-src.form.input name="price_church" wire:model.live="price_church" label="Despesas extras"
+                        class="text-right" width_basic="10" />
+                    <x-src.form.input name="discount" wire:model.live="discount" label="Desconto por inscrição"
                         class="text-right" width_basic="10" />
                 </div>
 
-                <div class="flex flex-wrap gap-2">
-                    <div class="">{{ __('Digite o valor do desconto em cada inscrição') }}</div>
-                    <div class="border-b border-dashed border-sky-950/20 flex-auto"></div>
-                    <x-src.form.input name="discount" wire:model.live="discount" label="Desconto" class="text-right"
-                        width_basic="10" />
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="grid gap-3 rounded-xl border border-slate-300 bg-white/70 p-4">
+                        <div class="text-sm font-semibold text-sky-950">
+                            {{ __('QR Code PIX da igreja sede (opcional)') }}
+                        </div>
+
+                        <input id="event-church-pix-qr-upload" type="file" accept="image/*"
+                            wire:model.live="pixQrCodeUpload" class="sr-only">
+
+                        <label for="event-church-pix-qr-upload"
+                            class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-sky-950 bg-sky-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-900">
+                            {{ __('Selecionar QR Code') }}
+                        </label>
+
+                        <div class="text-xs text-slate-600">
+                            {{ __('Se não enviar imagem, o sistema usa o QR Code padrão do Ministério de Evangelismo Explosivo.') }}
+                        </div>
+
+                        @error('pixQrCodeUpload')
+                            <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                        @enderror
+
+                        @if ($pixQrCodeUpload && str_starts_with($pixQrCodeUpload->getMimeType(), 'image/'))
+                            <div
+                                class="w-40 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                                <img src="{{ $pixQrCodeUpload->temporaryUrl() }}" alt="QR Code PIX da igreja sede"
+                                    class="max-h-32 w-auto rounded object-contain">
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="grid content-start gap-2">
+                        <x-src.form.input name="pix_key" wire:model.live="pix_key" label="Chave PIX da igreja sede"
+                            width_basic="900" />
+                        <div class="text-xs text-slate-600">
+                            {{ __('Se não informar a chave, o sistema usa a chave PIX padrão do Ministério de Evangelismo Explosivo.') }}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-between gap-0.5 font-bold">
@@ -277,7 +310,7 @@
             </div>
         </div>
 
-        <div wire:loading.flex wire:target="bannerUpload"
+        <div wire:loading.flex wire:target="bannerUpload,pixQrCodeUpload"
             class="absolute inset-0 z-40 items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
             <div class="rounded-xl bg-white px-5 py-4 text-sm font-semibold text-sky-950 shadow-lg">
                 {{ __('Enviando arquivo. Aguarde...') }}

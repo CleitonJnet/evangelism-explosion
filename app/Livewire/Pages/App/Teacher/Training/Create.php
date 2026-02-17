@@ -64,6 +64,10 @@ class Create extends Component
 
     public ?string $discount = '0,00';
 
+    public mixed $pixQrCodeUpload = null;
+
+    public ?string $pix_key = null;
+
     public ?int $kits = null;
 
     public ?int $totNewChurches = null;
@@ -129,6 +133,8 @@ class Create extends Component
             'price' => ['nullable', 'string', 'max:50'],
             'price_church' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'string', 'max:50'],
+            'pixQrCodeUpload' => ['nullable', 'image', 'max:5120'],
+            'pix_key' => ['nullable', 'string', 'max:255'],
             'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'kits' => ['nullable', 'integer', 'min:0'],
             'totNewChurches' => ['nullable', 'integer', 'min:0'],
@@ -188,6 +194,8 @@ class Create extends Component
             'teacher_id' => 'professor',
             'church_id' => 'igreja',
             'bannerUpload' => 'arquivo de divulgação',
+            'pixQrCodeUpload' => 'QR Code PIX da igreja sede',
+            'pix_key' => 'chave PIX da igreja sede',
             'welcome_duration_minutes' => 'boas-vindas',
         ];
     }
@@ -402,6 +410,7 @@ class Create extends Component
                 'price' => $validated['price'] ?? null,
                 'price_church' => $validated['price_church'] ?? null,
                 'discount' => $validated['discount'] ?? null,
+                'pix_key' => filled($validated['pix_key'] ?? null) ? trim((string) $validated['pix_key']) : null,
                 'kits' => $validated['kits'] ?? null,
                 'totNewChurches' => $validated['totNewChurches'] ?? 0,
                 'totListeners' => $validated['totListeners'] ?? 0,
@@ -438,6 +447,11 @@ class Create extends Component
             $path = $this->bannerUpload->store("training-banners/{$training->id}", 'public');
             $training->update(['banner' => $path]);
             $this->banner = $path;
+        }
+
+        if ($this->pixQrCodeUpload) {
+            $path = $this->pixQrCodeUpload->store("training-pix-qrcodes/{$training->id}", 'public');
+            $training->update(['pix_qr_code' => $path]);
         }
 
         $generator->generate($training);

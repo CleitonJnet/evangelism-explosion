@@ -47,6 +47,8 @@ class TrainingFactory extends Factory
             'price' => $this->moneyValue(),
             'price_church' => $this->moneyValue(),
             'discount' => fake()->optional(0.4)->randomElement(['5,00', '10,00', '15,00', '20,00']),
+            'pix_qr_code' => null,
+            'pix_key' => null,
             'kits' => fake()->numberBetween(0, 300),
             'totNewChurches' => fake()->numberBetween(0, 60),
             'totListeners' => fake()->numberBetween(0, 300),

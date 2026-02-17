@@ -11,12 +11,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Training extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings'];
+    private const DEFAULT_PIX_KEY = 'eebrasil@eebrasil.org.br';
+
+    private const DEFAULT_PIX_QR_CODE_ASSET_PATH = 'images/qrcode-pix-ee.webp';
+
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings'];
 
     /**
      * @return array<string, string>
@@ -85,6 +90,28 @@ class Training extends Model
         $total = ($price ?? 0.0) + ($priceChurch ?? 0.0) - ($discount ?? 0.0);
 
         return MoneyHelper::format_money($total);
+    }
+
+    public function pixKeyForPayment(): string
+    {
+        $pixKey = trim((string) ($this->pix_key ?? ''));
+
+        if ($pixKey !== '') {
+            return $pixKey;
+        }
+
+        return self::DEFAULT_PIX_KEY;
+    }
+
+    public function pixQrCodeUrlForPayment(): string
+    {
+        $pixQrCodePath = trim((string) ($this->pix_qr_code ?? ''));
+
+        if ($pixQrCodePath !== '' && Storage::disk('public')->exists($pixQrCodePath)) {
+            return Storage::disk('public')->url($pixQrCodePath);
+        }
+
+        return asset(self::DEFAULT_PIX_QR_CODE_ASSET_PATH);
     }
 
     public function church(): BelongsTo
