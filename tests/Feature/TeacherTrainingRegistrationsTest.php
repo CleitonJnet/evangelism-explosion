@@ -49,7 +49,7 @@ it('renders the registrations page grouped by church', function () {
         ->get(route('app.teacher.trainings.registrations', $training));
 
     $response->assertOk();
-    $response->assertSeeText('Gerenciamento de inscricoes');
+    $response->assertSeeText('Gerenciamento de inscrições');
     $response->assertSeeText('Igreja Alfa');
     $response->assertSeeText('Igreja Beta');
     $response->assertSeeText('Pastor');

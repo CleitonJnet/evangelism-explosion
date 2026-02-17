@@ -67,7 +67,7 @@
                                     <th class="px-3 py-2 w-44 text-center">{{ __('Comprovante') }}</th>
                                     <th class="px-3 py-2 w-28 text-center">{{ __('Kit') }}</th>
                                     <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
-                                    <th class="px-3 py-2 w-20 text-center">{{ __('Acao') }}</th>
+                                    <th class="px-3 py-2 w-20 text-center">{{ __('Ação') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200">
@@ -169,7 +169,7 @@
                 class="rounded-2xl border border-slate-300 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 text-sm text-slate-700">
                 <h2 class="text-base font-semibold text-slate-900">{{ __('Nenhum inscrito encontrado') }}</h2>
                 <p class="mt-2">
-                    {{ __('Ainda nao existem participantes vinculados a este evento. Quando houver inscricoes, voce podera atualizar comprovante, credenciamento e kit nesta tela.') }}
+                    {{ __('Ainda nao existem participantes vinculados a este evento. Quando houver inscrições, voce podera atualizar comprovante, credenciamento e kit nesta tela.') }}
                 </p>
             </article>
         @endforelse

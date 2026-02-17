@@ -6,14 +6,15 @@ Plataforma web para comunicacao publica e operacao administrativa do Evangelismo
 
 O sistema e dividido em duas frentes:
 
-1) Pagina Web Publica: informacoes institucionais, eventos e inscricoes.
-2) Parte Administrativa: area autenticada com funcoes por role (Board, Director, Teacher, Facilitator, FieldWorker, Mentor, Student).
+1. Pagina Web Publica: informacoes institucionais, eventos e inscrições.
+2. Parte Administrativa: area autenticada com funcoes por role (Board, Director, Teacher, Facilitator, FieldWorker, Mentor, Student).
 
 Esta documentacao foi escrita para crescer junto com o projeto. Novas rotas, roles, modelos e processos devem ser adicionados nas secoes correspondentes.
 
 ## Stack e bibliotecas
 
 Backend
+
 - Laravel 12
 - PHP 8.4
 - Fortify (autenticacao)
@@ -21,12 +22,14 @@ Backend
 - Flux UI (componentes de UI)
 
 Frontend
+
 - Tailwind CSS 4
 - Vite
 - Axios
 - SwiperJS (carousels)
 
 Dev/Qualidade
+
 - Pest
 - Laravel Pint
 - Laravel Boost
@@ -35,6 +38,7 @@ Dev/Qualidade
 ## Arquitetura do sistema
 
 Camadas principais
+
 - Rotas: `routes/web.php` (publico) e `routes/app/*.php` (admin).
 - Controllers: `app/Http/Controllers/Web` e `app/Http/Controllers/System`.
 - Views/Livewire: `resources/views` e componentes Livewire/Volt.
@@ -42,32 +46,34 @@ Camadas principais
 - Autorizacao: gates em `app/Providers/AppServiceProvider.php` + policy em `app/Policies/RoleAccessPolicy.php`.
 
 Fluxo de acesso (admin)
-1) Usuario autenticado entra em `/start`.
-2) O role e verificado; se tiver apenas um role, redireciona para o dashboard correspondente.
-3) Cada area e protegida por gate: `access-board`, `access-director`, etc.
+
+1. Usuario autenticado entra em `/start`.
+2. O role e verificado; se tiver apenas um role, redireciona para o dashboard correspondente.
+3. Cada area e protegida por gate: `access-board`, `access-director`, etc.
 
 ## Parte 1: Pagina Web Publica
 
 Rotas e telas principais (routes/web.php + SiteController)
 
-| Rota | Controller | View | Descricao |
-| --- | --- | --- | --- |
-| `/` | `SiteController@home` | `pages.web.home` | Home institucional |
-| `/donate` | `SiteController@donate` | `pages.web.donate` | Doacoes |
-| `/ministry/everyday-evangelism` | `SiteController@everyday_evangelism` | `pages.web.ministry.everyday-evangelism` | Ministerio |
-| `/ministry/kids-ee` | `SiteController@kids_ee` | `pages.web.ministry.kids-ee` | Ministerio kids |
-| `/ministry/kids-ee2` | `SiteController@kids_ee2` | `pages.web.ministry.kids-ee2` | Ministerio kids (variante) |
-| `/about-ee/history` | `SiteController@history` | `pages.web.about.history` | Historia |
-| `/about-ee/faith` | `SiteController@faith` | `pages.web.about.faith` | Fe |
-| `/about-ee/vision-mission` | `SiteController@vision_mission` | `pages.web.about.vision-mission` | Visao e missao |
-| `/event/schedule` | `SiteController@schedule` | `pages.web.events.schedule` | Calendario |
-| `/event/list` | `SiteController@events` | `pages.web.events.index` | Lista de eventos |
-| `/event/{id}/details` | `SiteController@details` | `pages.web.events.details` | Detalhes do treinamento |
-| `/event/{id}/register` | `SiteController@register` | `pages.web.events.register` | Inscricao em evento |
-| `/event/{id}/login` | `SiteController@login` | `pages.web.events.login` | Acesso vinculado ao evento |
-| `/event/training-host-church` | `SiteController@clinic_base` | `pages.web.events.clinic-base` | Clinica base |
+| Rota                            | Controller                           | View                                     | Descricao                  |
+| ------------------------------- | ------------------------------------ | ---------------------------------------- | -------------------------- |
+| `/`                             | `SiteController@home`                | `pages.web.home`                         | Home institucional         |
+| `/donate`                       | `SiteController@donate`              | `pages.web.donate`                       | Doacoes                    |
+| `/ministry/everyday-evangelism` | `SiteController@everyday_evangelism` | `pages.web.ministry.everyday-evangelism` | Ministerio                 |
+| `/ministry/kids-ee`             | `SiteController@kids_ee`             | `pages.web.ministry.kids-ee`             | Ministerio kids            |
+| `/ministry/kids-ee2`            | `SiteController@kids_ee2`            | `pages.web.ministry.kids-ee2`            | Ministerio kids (variante) |
+| `/about-ee/history`             | `SiteController@history`             | `pages.web.about.history`                | Historia                   |
+| `/about-ee/faith`               | `SiteController@faith`               | `pages.web.about.faith`                  | Fe                         |
+| `/about-ee/vision-mission`      | `SiteController@vision_mission`      | `pages.web.about.vision-mission`         | Visao e missao             |
+| `/event/schedule`               | `SiteController@schedule`            | `pages.web.events.schedule`              | Calendario                 |
+| `/event/list`                   | `SiteController@events`              | `pages.web.events.index`                 | Lista de eventos           |
+| `/event/{id}/details`           | `SiteController@details`             | `pages.web.events.details`               | Detalhes do treinamento    |
+| `/event/{id}/register`          | `SiteController@register`            | `pages.web.events.register`              | Inscricao em evento        |
+| `/event/{id}/login`             | `SiteController@login`               | `pages.web.events.login`                 | Acesso vinculado ao evento |
+| `/event/training-host-church`   | `SiteController@clinic_base`         | `pages.web.events.clinic-base`           | Clinica base               |
 
 Principais recursos publicos
+
 - Eventos e treinamentos carregados de `Training` com `EventDate`, `Course`, `Church`, `Teacher`.
 - Paginas institucionais segmentadas por ministerio e sobre o EEI.
 - Componentes web reutilizaveis em `resources/views/components/web`.
@@ -75,22 +81,24 @@ Principais recursos publicos
 ## Parte 2: Area Administrativa (roles)
 
 Entrada e navegacao
+
 - `/start`: seleciona o painel quando o usuario possui multiplos roles.
 - Cada role possui um namespace e middleware de acesso (gates).
 
 Roles e acessos (rotas atuais)
 
-| Role | Gate | Rota base | Tela |
-| --- | --- | --- | --- |
-| Board | `access-board` | `/board` | `pages.app.roles.board.dashboard` |
-| Director | `access-director` | `/director` | `pages.app.roles.director.dashboard` |
-| Teacher | `access-teacher` | `/teacher` | `pages.app.roles.teacher.dashboard` |
+| Role        | Gate                 | Rota base      | Tela                                    |
+| ----------- | -------------------- | -------------- | --------------------------------------- |
+| Board       | `access-board`       | `/board`       | `pages.app.roles.board.dashboard`       |
+| Director    | `access-director`    | `/director`    | `pages.app.roles.director.dashboard`    |
+| Teacher     | `access-teacher`     | `/teacher`     | `pages.app.roles.teacher.dashboard`     |
 | Facilitator | `access-facilitator` | `/facilitator` | `pages.app.roles.facilitator.dashboard` |
 | FieldWorker | `access-fieldworker` | `/fieldworker` | `pages.app.roles.fieldworker.dashboard` |
-| Mentor | `access-mentor` | `/mentor` | `pages.app.roles.mentor.dashboard` |
-| Student | `access-student` | `/student` | `pages.app.roles.student.dashboard` |
+| Mentor      | `access-mentor`      | `/mentor`      | `pages.app.roles.mentor.dashboard`      |
+| Student     | `access-student`     | `/student`     | `pages.app.roles.student.dashboard`     |
 
 Funcionalidades do Director (rotas ativas)
+
 - Setup de roles (Volt): `/director/setup` -> `resources/views/livewire/director/setup.blade.php`.
 - Igrejas: listagem, visualizacao e edicao basica (`ChurchController`).
 - Perfis por igreja: criacao/visualizacao/edicao (`ProfileController`).
@@ -100,6 +108,7 @@ Funcionalidades do Director (rotas ativas)
 - Fluxos especificos de "host church": `make_host`, `view_host`, `edit_host`.
 
 Observacao sobre telas prontas
+
 - Existem views para outras roles e modulos (ex: `resources/views/pages/app/roles/fieldworker/...`), mesmo que algumas rotas ainda nao estejam expostas no backend. Ao habilitar novas rotas, atualize esta secao.
 
 ## Autenticacao e seguranca
@@ -112,18 +121,23 @@ Observacao sobre telas prontas
 ## Dominio e modelos principais
 
 Usuarios e acesso
+
 - `User`, `Role`, relacao muitos-para-muitos.
 
 Ministerio e treinamento
+
 - `Ministry`, `Course`, `Training`, `EventDate`, `Schedule`.
 
 Igrejas e perfis
+
 - `Church`, `ChurchTemp`, `HostChurch`, `HostChurchAdmin` (views de perfis em `resources/views/pages/app/roles/*/profiles`).
 
 Inventario e logistica
+
 - `Inventory`, `Material`, `Supplier`, `Shipping`, `Voucher`, `Receipt`.
 
 Conteudo
+
 - `Category`, `Section`, `Lessonplan`, `Media`, `Help`.
 
 ## Estrutura de arquivos (mapa)
@@ -199,6 +213,7 @@ Observacao: `vendor/` e `node_modules/` sao gerados por dependencias e nao devem
 ```
 
 Detalhamento de pastas chave
+
 - `app/Http/Controllers/System`: controllers da area administrativa.
 - `app/Http/Controllers/Web`: controllers da pagina publica.
 - `app/Livewire` + `resources/views/livewire`: componentes Livewire/Volt.
@@ -217,6 +232,7 @@ Detalhamento de pastas chave
 ## Configuracao local (dev)
 
 Comandos principais
+
 - `composer run setup`
 - `composer run dev`
 - `npm run dev` (quando precisar apenas do frontend)
@@ -229,12 +245,14 @@ Comandos principais
 ## Crescimento desta documentacao
 
 Atualize sempre que houver:
+
 - Novas rotas publicas ou administrativas.
 - Novos roles ou gates.
 - Novos modelos, migracoes ou jobs.
 - Mudancas em processos (ex: cadastro, eventos, inventario).
 
 Sugestao de proximas secoes
+
 - Roadmap por modulo
 - Regras de negocio por role
 - Diagrama de dados (ER)
