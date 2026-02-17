@@ -43,6 +43,7 @@ class Index extends Component
                     'course.ministry',
                     'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
                 ])
+                ->withCount('newChurches')
                 ->whereDoesntHave('eventDates', function ($query) {
                     $query->whereDate('date', '<', Carbon::today());
                 })

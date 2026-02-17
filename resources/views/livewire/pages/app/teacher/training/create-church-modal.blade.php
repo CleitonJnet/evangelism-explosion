@@ -80,10 +80,16 @@
                     <x-src.btn-silver type="button" wire:click="closeModal">
                         {{ __('Cancelar') }}
                     </x-src.btn-silver>
-                    <x-src.btn-gold type="button" wire:click="submit" wire:loading.attr="disabled"
-                        wire:target="submit">
-                        {{ __('Salvar igreja') }}
-                    </x-src.btn-gold>
+                    <div class="flex items-center gap-2">
+                        <x-src.btn-silver type="button" wire:click="submit" wire:loading.attr="disabled"
+                            wire:target="submit,approveAndUseNow">
+                            {{ __('Salvar igreja') }}
+                        </x-src.btn-silver>
+                        <x-src.btn-gold type="button" wire:click="approveAndUseNow" wire:loading.attr="disabled"
+                            wire:target="submit,approveAndUseNow">
+                            {{ __('Approve and Use Now') }}
+                        </x-src.btn-gold>
+                    </div>
                 </div>
             </div>
         </div>

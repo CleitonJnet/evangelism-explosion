@@ -16,14 +16,14 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
 
     Volt::route('setup', 'pages.app.director.setup')->name('setup');
 
-    Route::prefix('church')->name('church.')->group(function () {
+    Route::middleware('can:manageChurches')->prefix('church')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
         Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
     });
-    Route::resource('church', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
+    Route::middleware('can:manageChurches')->resource('church', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
 
-    Route::prefix('church/{church}')->name('church.')->group(function () {
+    Route::middleware('can:manageChurches')->prefix('church/{church}')->name('church.')->group(function () {
         Route::resource('profile', ProfileController::class)->only(['create', 'show', 'edit']);
     });
 

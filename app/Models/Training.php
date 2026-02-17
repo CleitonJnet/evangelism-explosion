@@ -132,4 +132,9 @@ class Training extends Model
         return $this->belongsToMany(User::class, 'training_user')
             ->withPivot('accredited', 'kit', 'payment', 'payment_receipt');
     }
+
+    public function newChurches(): HasMany
+    {
+        return $this->hasMany(TrainingNewChurch::class);
+    }
 }

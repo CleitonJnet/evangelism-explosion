@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->group(function () {
     Route::view('/', 'pages.app.roles.teacher.dashboard')->name('dashboard');
 
-    Route::prefix('churches')->name('church.')->group(function () {
+    Route::middleware('can:manageChurches')->prefix('churches')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
         Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
         Route::resource('{church}/profile', ProfileController::class)->only(['create', 'show', 'edit']);
     });
-    Route::resource('churches', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
+    Route::middleware('can:manageChurches')->resource('churches', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
 
     Route::resource('ministry', MinistryController::class)->only(['index', 'show', 'create', 'edit']);
     Route::prefix('ministries/{ministry}')->name('ministry.')->group(function () {

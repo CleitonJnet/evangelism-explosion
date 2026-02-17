@@ -17,21 +17,6 @@ use Illuminate\Support\Str;
 class TrainingFactory extends Factory
 {
     /**
-     * @var array<int, int>
-     */
-    protected static array $courseIds = [];
-
-    /**
-     * @var array<int, int>
-     */
-    protected static array $teacherIds = [];
-
-    /**
-     * @var array<int, int>
-     */
-    protected static array $churchIds = [];
-
-    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -289,40 +274,16 @@ class TrainingFactory extends Factory
 
     private function randomCourseId(): ?int
     {
-        if (self::$courseIds === []) {
-            self::$courseIds = Course::query()->pluck('id')->all();
-        }
-
-        if (self::$courseIds === []) {
-            return null;
-        }
-
-        return fake()->randomElement(self::$courseIds);
+        return Course::query()->inRandomOrder()->value('id');
     }
 
     private function randomTeacherId(): ?int
     {
-        if (self::$teacherIds === []) {
-            self::$teacherIds = User::query()->pluck('id')->all();
-        }
-
-        if (self::$teacherIds === []) {
-            return null;
-        }
-
-        return fake()->randomElement(self::$teacherIds);
+        return User::query()->inRandomOrder()->value('id');
     }
 
     private function randomChurchId(): ?int
     {
-        if (self::$churchIds === []) {
-            self::$churchIds = Church::query()->pluck('id')->all();
-        }
-
-        if (self::$churchIds === []) {
-            return null;
-        }
-
-        return fake()->randomElement(self::$churchIds);
+        return Church::query()->inRandomOrder()->value('id');
     }
 }

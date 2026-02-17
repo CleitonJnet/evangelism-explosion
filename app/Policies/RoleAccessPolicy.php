@@ -40,4 +40,11 @@ class RoleAccessPolicy
     {
         return $user->hasRole('Student');
     }
+
+    public function manageChurches(User $user): bool
+    {
+        return $user->hasRole('Teacher')
+            || $user->hasRole('Director')
+            || $user->hasRole('FieldWorker');
+    }
 }

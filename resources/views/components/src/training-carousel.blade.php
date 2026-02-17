@@ -146,7 +146,7 @@
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
                     :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.trainings.show', $training->id)" :schedule="$schedule"
-                    :free="$free" :banner="$bannerDownloadUrl" />
+                    :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0" />
             @endforeach
         </div>
         <div class="swiper-button-prev -left-2!"></div>

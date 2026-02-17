@@ -18,11 +18,6 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
-     * @var array<int, int>
-     */
-    protected static array $churchIds = [];
-
-    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -219,14 +214,6 @@ class UserFactory extends Factory
 
     private function randomChurchId(): ?int
     {
-        if (self::$churchIds === []) {
-            self::$churchIds = Church::query()->pluck('id')->all();
-        }
-
-        if (self::$churchIds === []) {
-            return null;
-        }
-
-        return fake()->randomElement(self::$churchIds);
+        return Church::query()->inRandomOrder()->value('id');
     }
 }

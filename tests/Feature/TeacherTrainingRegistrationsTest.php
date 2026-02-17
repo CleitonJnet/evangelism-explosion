@@ -2,6 +2,7 @@
 
 use App\Livewire\Pages\App\Teacher\Training\Registrations;
 use App\Models\Church;
+use App\Models\ChurchTemp;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -24,6 +25,13 @@ it('renders the registrations page grouped by church', function () {
     $teacher = createTeacher();
     $churchA = Church::factory()->create(['name' => 'Igreja Alfa']);
     $churchB = Church::factory()->create(['name' => 'Igreja Beta']);
+    $churchTemp = ChurchTemp::query()->create([
+        'name' => 'Igreja Pendente',
+        'city' => 'Recife',
+        'state' => 'PE',
+        'status' => 'pending',
+        'normalized_name' => 'igreja pendente',
+    ]);
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -40,9 +48,23 @@ it('renders the registrations page grouped by church', function () {
         'church_id' => $churchB->id,
         'pastor' => null,
     ]);
+    $studentPending = User::factory()->create([
+        'name' => 'Aluno Pendente',
+        'church_id' => null,
+        'church_temp_id' => $churchTemp->id,
+        'pastor' => null,
+    ]);
+    $studentNoChurch = User::factory()->create([
+        'name' => 'Aluno Sem Igreja',
+        'church_id' => null,
+        'church_temp_id' => null,
+        'pastor' => null,
+    ]);
 
     $training->students()->attach($studentA->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
     $training->students()->attach($studentB->id, ['accredited' => 1, 'kit' => 1, 'payment' => 1]);
+    $training->students()->attach($studentPending->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+    $training->students()->attach($studentNoChurch->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
 
     $response = $this
         ->actingAs($teacher)
@@ -52,9 +74,14 @@ it('renders the registrations page grouped by church', function () {
     $response->assertSeeText('Gerenciamento de inscrições');
     $response->assertSeeText('Igreja Alfa');
     $response->assertSeeText('Igreja Beta');
+    $response->assertSeeText('(PENDING) Igreja Pendente');
+    $response->assertSeeText('No church');
+    $response->assertSeeText('Validate Churches');
     $response->assertSeeText('Pastor');
     $response->assertSeeText('Aluno Um');
     $response->assertSeeText('Aluno Dois');
+    $response->assertSeeText('Aluno Pendente');
+    $response->assertSeeText('Aluno Sem Igreja');
 });
 
 it('updates participant statuses on the training pivot', function () {

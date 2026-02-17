@@ -37,6 +37,18 @@
     </section>
 
     <section class="mt-4 grid gap-5">
+        @if ($pendingChurchTempsCount > 0)
+            <article
+                class="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-sm font-semibold">
+                    {{ $pendingChurchTempsCount }} {{ __('igreja(s) pendente(s) de validação para este treinamento.') }}
+                </div>
+                <x-src.btn-gold type="button" wire:click="$dispatch('open-church-temp-review-modal')" class="px-4 py-2">
+                    {{ __('Validate Churches') }}
+                </x-src.btn-gold>
+            </article>
+        @endif
+
         @forelse ($churchGroups as $churchGroup)
             <article x-data="{ open: true }"
                 class="rounded-2xl border border-slate-300 bg-white shadow-sm overflow-hidden"
@@ -234,4 +246,9 @@
             </div>
         </div>
     </flux:modal>
+
+    <livewire:pages.app.teacher.training.church-temp-review-modal :training="$training"
+        wire:key="church-temp-review-modal-{{ $training->id }}" />
+    <livewire:pages.app.teacher.training.approve-church-temp-modal :training="$training"
+        wire:key="approve-church-temp-modal-{{ $training->id }}" />
 </div>

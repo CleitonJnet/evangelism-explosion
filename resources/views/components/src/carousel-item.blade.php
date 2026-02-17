@@ -10,6 +10,7 @@
     'banner' => false,
     'schedule' => false,
     'free' => false,
+    'newChurchesCount' => 0,
 ])
 
 <div class="overflow-hidden swiper-slide shine rounded-2xl"
@@ -76,6 +77,10 @@
                     <div class="py-2 mt-2 text-sm font-bold leading-5 truncate text-nowrap"
                         title="{{ $city }}, {{ $state }}">
                         {{ $city }}, {{ $state }}
+                    </div>
+
+                    <div class="text-xs font-semibold text-slate-700">
+                        {{ __('New churches: :count', ['count' => (int) $newChurchesCount]) }}
                     </div>
 
                 </div>

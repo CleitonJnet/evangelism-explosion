@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Registrations extends Component
@@ -38,6 +39,7 @@ class Registrations extends Component
      *     registrations: array<int, array{
      *         id: int,
      *         name: string,
+     *         church_label: string,
      *         church_name: string,
      *         email: ?string,
      *         phone: ?string,
@@ -67,6 +69,8 @@ class Registrations extends Component
     public int $totalKits = 0;
 
     public int $totalPaymentReceipts = 0;
+
+    public int $pendingChurchTempsCount = 0;
 
     public bool $busy = false;
 
@@ -128,6 +132,12 @@ class Registrations extends Component
     public function render(): View
     {
         return view('livewire.pages.app.teacher.training.registrations');
+    }
+
+    #[On('church-temp-reviewed')]
+    public function handleChurchTempReviewed(): void
+    {
+        $this->refreshRegistrations();
     }
 
     public function openReceiptModal(int $userId): void
@@ -194,14 +204,14 @@ class Registrations extends Component
             ->with([
                 'church',
                 'students' => fn ($query) => $query
-                    ->with('church')
+                    ->with(['church', 'church_temp'])
                     ->orderBy('name'),
             ])
             ->findOrFail($this->training->id);
 
         $students = $this->training->students
             ->sortBy(function (User $student): string {
-                $churchName = $student->church?->name ?? 'Sem igreja vinculada';
+                $churchName = $this->resolveChurchLabel($student);
 
                 return strtolower($churchName.' '.$student->name);
             })
@@ -209,7 +219,7 @@ class Registrations extends Component
 
         $this->churchGroups = $students
             ->groupBy(function (User $student): string {
-                return $student->church?->name ?? 'Sem igreja vinculada';
+                return $this->resolveChurchLabel($student);
             })
             ->map(function ($group, string $churchName): array {
                 $registrations = $group
@@ -250,6 +260,12 @@ class Registrations extends Component
         $this->totalKits = $students->filter(fn (User $student): bool => (bool) $student->pivot?->kit)->count();
         $this->totalPaymentReceipts = (int) collect($this->churchGroups)
             ->sum(fn (array $churchGroup): int => (int) ($churchGroup['totals']['payment_receipts'] ?? 0));
+        $this->pendingChurchTempsCount = $students
+            ->filter(fn (User $student): bool => $student->church_temp?->status === 'pending')
+            ->map(fn (User $student): ?int => $student->church_temp?->id)
+            ->filter()
+            ->unique()
+            ->count();
 
         if ($this->showReceiptModal && $this->selectedRegistrationId) {
             $this->syncSelectedRegistration($this->selectedRegistrationId);
@@ -260,6 +276,7 @@ class Registrations extends Component
      * @return array{
      *     id: int,
      *     name: string,
+     *     church_label: string,
      *     church_name: string,
      *     email: ?string,
      *     phone: ?string,
@@ -289,7 +306,8 @@ class Registrations extends Component
         return [
             'id' => $student->id,
             'name' => $student->name,
-            'church_name' => $student->church?->name ?? 'Sem igreja vinculada',
+            'church_label' => $this->resolveChurchLabel($student),
+            'church_name' => $this->resolveChurchLabel($student),
             'email' => $student->email,
             'phone' => $student->phone,
             'is_pastor' => $student->pastor == 'Y',
@@ -337,6 +355,19 @@ class Registrations extends Component
         $this->selectedPaymentReceiptIsPdf = $registration['payment_receipt_is_pdf'];
         $this->selectedHasPaymentReceipt = $registration['has_payment_receipt'];
         $this->selectedPaymentConfirmed = $registration['payment_confirmed'];
+    }
+
+    private function resolveChurchLabel(User $student): string
+    {
+        if ($student->church?->name) {
+            return $student->church->name;
+        }
+
+        if ($student->church_temp?->name) {
+            return '(PENDING) '.$student->church_temp->name;
+        }
+
+        return 'No church';
     }
 
     private function authorizeTraining(Training $training): void

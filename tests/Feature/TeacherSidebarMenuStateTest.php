@@ -24,8 +24,8 @@ it('renders dashboard menu item as active and trainings as inactive on dashboard
         ->get(route('app.teacher.dashboard'));
 
     $response->assertOk();
-    $response->assertSee('text-amber-200/90 hover:text-amber-100 border border-amber-200/30 bg-white/20', false);
-    $response->assertSee('text-amber-200/90 hover:text-amber-100 border-0 bg-transparent', false);
+    $response->assertSee('text-amber-200/90 hover:text-amber-100 border border-amber-200/30 bg-white/10', false);
+    $response->assertSee('text-slate-200/90 hover:text-amber-100 border-0 bg-transparent', false);
     $response->assertSeeText('Dashboard');
     $response->assertSeeText('Treinamentos');
 });
@@ -38,8 +38,8 @@ it('renders trainings menu item as active and dashboard as inactive on trainings
         ->get(route('app.teacher.trainings.index'));
 
     $response->assertOk();
-    $response->assertSee('text-amber-200/90 hover:text-amber-100 border border-amber-200/30 bg-white/20', false);
-    $response->assertSee('text-amber-200/90 hover:text-amber-100 border-0 bg-transparent', false);
+    $response->assertSee('text-amber-200/90 hover:text-amber-100 border border-amber-200/30 bg-white/10', false);
+    $response->assertSee('text-slate-200/90 hover:text-amber-100 border-0 bg-transparent', false);
     $response->assertSeeText('Dashboard');
     $response->assertSeeText('Treinamentos');
 });

@@ -18,11 +18,11 @@ class EnsureChurchLinked
         $user = $request->user();
 
         if ($user && $user->church_id === null && $user->church_temp_id === null) {
-            if (! $request->session()->has('church_modal_seen')) {
+            if (! $request->session()->has('church_modal_prompted')) {
                 $request->session()->put('church_modal_open', true);
             }
         } else {
-            $request->session()->forget(['church_modal_open', 'church_modal_seen']);
+            $request->session()->forget(['church_modal_open', 'church_modal_prompted']);
         }
 
         return $next($request);

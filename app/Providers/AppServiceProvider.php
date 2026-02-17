@@ -60,5 +60,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-fieldworker', [RoleAccessPolicy::class, 'accessFieldworker']);
         Gate::define('access-mentor', [RoleAccessPolicy::class, 'accessMentor']);
         Gate::define('access-student', [RoleAccessPolicy::class, 'accessStudent']);
+        Gate::define('manageChurches', [RoleAccessPolicy::class, 'manageChurches']);
     }
 }
