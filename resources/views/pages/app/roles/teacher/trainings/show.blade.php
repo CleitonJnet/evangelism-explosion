@@ -26,6 +26,9 @@
                 :error="$hasRegistrationsError" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
+            <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group"
+                :tooltip="__('Gerenciador de mentores')"
+                x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })" />
             <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
@@ -33,6 +36,10 @@
         </x-src.toolbar.nav>
 
         <livewire:pages.app.teacher.training.view :training="$training" />
+        <livewire:pages.app.teacher.training.manage-mentors-modal :trainingId="$training->id"
+            wire:key="manage-mentors-modal-{{ $training->id }}" />
+        <livewire:pages.app.teacher.training.create-mentor-user-modal :trainingId="$training->id"
+            wire:key="create-mentor-user-modal-{{ $training->id }}" />
 
         <div x-cloak x-show="showDeleteModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"

@@ -52,7 +52,7 @@ it('shows members carousel header when there are members events', function () {
     ]);
     $courseMembers = Course::factory()->create([
         'execution' => 1,
-        'name' => 'Curso Membros',
+        'name' => 'Curso Membros Especial',
         'ministry_id' => $ministry->id,
     ]);
 
@@ -73,5 +73,5 @@ it('shows members carousel header when there are members events', function () {
     $response = $this->get(route('web.event.index'));
 
     $response->assertOk();
-    $response->assertSeeText('Treinamentos para Membros');
+    $response->assertSeeText('Curso Membros Especial');
 });

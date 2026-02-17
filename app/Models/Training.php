@@ -164,4 +164,16 @@ class Training extends Model
     {
         return $this->hasMany(TrainingNewChurch::class);
     }
+
+    public function mentors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'mentors')
+            ->withPivot('created_by')
+            ->withTimestamps();
+    }
+
+    public function mentorsPivot(): HasMany
+    {
+        return $this->hasMany(Mentor::class);
+    }
 }

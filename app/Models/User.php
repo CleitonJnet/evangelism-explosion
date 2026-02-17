@@ -191,4 +191,11 @@ class User extends Authenticatable
             ->withPivot(['certified_at', 'status'])
             ->withTimestamps();
     }
+
+    public function mentoredTrainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'mentors')
+            ->withPivot('created_by')
+            ->withTimestamps();
+    }
 }
