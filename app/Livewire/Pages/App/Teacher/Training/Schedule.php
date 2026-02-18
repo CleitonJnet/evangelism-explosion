@@ -16,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Schedule extends Component
@@ -318,6 +319,16 @@ class Schedule extends Component
             'planStatusByDate' => $planStatusByDate,
             'planDiffByDate' => $planDiffByDate,
         ]);
+    }
+
+    #[On('training-dates-updated')]
+    public function handleDatesUpdated(int $trainingId): void
+    {
+        if (! isset($this->training) || $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->refreshSchedule();
     }
 
     private function refreshSchedule(): void

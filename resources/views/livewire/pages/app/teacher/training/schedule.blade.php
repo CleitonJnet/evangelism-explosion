@@ -18,8 +18,8 @@
     <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
-            {{-- O botão abaixo deve abrir a modal de edição de datas do evento --}}
-            <x-src.toolbar.button :label="__('Datas do Evento')" icon="eye" :tooltip="__('Editar datas do Treinamento')" />
+            <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
+                x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
         </div>
 
         <label
@@ -332,6 +332,9 @@
             </div>
         @endforelse
     </section>
+
+    <livewire:pages.app.teacher.training.edit-event-dates-modal :trainingId="$training->id"
+        wire:key="edit-event-dates-modal-{{ $training->id }}" />
 
 </div>
 
