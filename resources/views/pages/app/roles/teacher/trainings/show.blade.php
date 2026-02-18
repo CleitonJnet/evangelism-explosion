@@ -5,7 +5,9 @@
         'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time'),
         'scheduleItems' => fn($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
         'students' => fn($query) => $query->with('church_temp:id,status'),
+        'mentors:id',
     ]);
+    $mentorsCount = $training->mentors->count();
 
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
     $hasRegistrationsError = $training->students->contains(function ($student): bool {
@@ -22,13 +24,19 @@
         <x-src.toolbar.nav>
             <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
-                :error="$hasRegistrationsError" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
-            <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group"
-                :tooltip="__('Gerenciador de mentores')"
-                x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })" />
+            <x-src.toolbar.button href="#" :label="__('Finceiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
+                x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />
+            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
+                :error="$hasRegistrationsError" />
+            <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group" :tooltip="__('Gerenciador de mentores')"
+                x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })">
+                <div class="absolute -top-2.5 -right-0.5 text-blue-800 z-20 text-base bg-white/75 rounded px-1">
+                    {{ $mentorsCount }}
+                </div>
+            </x-src.toolbar.button>
             <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
@@ -40,6 +48,8 @@
             wire:key="manage-mentors-modal-{{ $training->id }}" />
         <livewire:pages.app.teacher.training.create-mentor-user-modal :trainingId="$training->id"
             wire:key="create-mentor-user-modal-{{ $training->id }}" />
+        <livewire:pages.app.teacher.training.edit-finance-modal :trainingId="$training->id"
+            wire:key="edit-finance-modal-{{ $training->id }}" />
 
         <div x-cloak x-show="showDeleteModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"

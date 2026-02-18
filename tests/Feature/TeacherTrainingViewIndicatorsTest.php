@@ -3,6 +3,7 @@
 use App\Livewire\Pages\App\Teacher\Training\View as TrainingView;
 use App\Models\Church;
 use App\Models\Training;
+use App\Models\TrainingNewChurch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -35,9 +36,27 @@ it('builds registration indicators from enrolled students instead of training co
     $training->students()->attach($regularStudent->id, ['kit' => 0, 'accredited' => 0, 'payment' => 0]);
     $training->students()->attach($pastorFromAnotherChurch->id, ['kit' => 1, 'accredited' => 0, 'payment' => 0]);
 
+    $newChurchA = Church::factory()->create();
+    $newChurchB = Church::factory()->create();
+    $actor = User::factory()->create();
+
+    TrainingNewChurch::query()->create([
+        'training_id' => $training->id,
+        'church_id' => $newChurchA->id,
+        'source_church_temp_id' => null,
+        'created_by' => $actor->id,
+    ]);
+    TrainingNewChurch::query()->create([
+        'training_id' => $training->id,
+        'church_id' => $newChurchB->id,
+        'source_church_temp_id' => null,
+        'created_by' => $actor->id,
+    ]);
+
     Livewire::test(TrainingView::class, ['training' => $training])
         ->assertSet('totalRegistrations', 3)
         ->assertSet('totalParticipatingChurches', 2)
         ->assertSet('totalPastors', 2)
-        ->assertSet('totalUsedKits', 2);
+        ->assertSet('totalUsedKits', 2)
+        ->assertSet('totalNewChurches', 2);
 });

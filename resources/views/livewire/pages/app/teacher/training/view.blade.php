@@ -101,7 +101,7 @@
             <div><img src="{{ asset('images/svg/new-church.svg') }}" alt="indicator" class="h-10"></div>
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de igrejas novas:') }}</div>
-                {{ $training->totNewChurches ?? '-' }}
+                {{ $totalNewChurches }}
             </div>
         </div>
         <div
@@ -110,6 +110,15 @@
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de pastores:') }}</div>
                 {{ $totalPastors }}
+            </div>
+        </div>
+        <div
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/dove.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de decisões:') }}</div>
+                {{-- Total de pessoas que decidiram seguir Jesus --}}
+                0
             </div>
         </div>
     </section>

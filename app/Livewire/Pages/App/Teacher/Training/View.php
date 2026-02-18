@@ -7,6 +7,7 @@ use App\Models\Training;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\View\View as ViewResponse;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class View extends Component
@@ -33,6 +34,8 @@ class View extends Component
 
     public int $totalUsedKits = 0;
 
+    public int $totalNewChurches = 0;
+
     public ?string $eeMinistryBalance = null;
 
     public ?string $hostChurchExpenseBalance = null;
@@ -41,14 +44,34 @@ class View extends Component
 
     public function mount(Training $training): void
     {
-        $this->training = $training->load([
+        $this->loadTrainingData($training->id);
+    }
+
+    #[On('training-finance-updated')]
+    public function handleFinanceUpdated(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->loadTrainingData($this->training->id);
+    }
+
+    public function render(): ViewResponse
+    {
+        return view('livewire.pages.app.teacher.training.view');
+    }
+
+    private function loadTrainingData(int $trainingId): void
+    {
+        $this->training = Training::query()->with([
             'course.ministry',
             'teacher',
             'church',
             'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             'scheduleItems' => fn ($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
             'students' => fn ($query) => $query->orderBy('name'),
-        ])->loadCount('scheduleItems');
+        ])->findOrFail($trainingId)->loadCount('scheduleItems');
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;
@@ -64,17 +87,13 @@ class View extends Component
         $this->totalUsedKits = $this->students
             ->filter(fn (User $student): bool => (bool) $student->pivot?->kit)
             ->count();
+        $this->totalNewChurches = $this->training->newChurches()->count();
         $this->paidStudentsCount = $this->training->students()
             ->wherePivot('payment', true)
             ->count();
         $this->totalReceivedFromRegistrations = $this->calculateTotalReceivedFromRegistrations();
         $this->eeMinistryBalance = $this->calculateEeMinistryBalance();
         $this->hostChurchExpenseBalance = $this->calculateHostChurchExpenseBalance();
-    }
-
-    public function render(): ViewResponse
-    {
-        return view('livewire.pages.app.teacher.training.view');
     }
 
     private function calculateEeMinistryBalance(): ?string
