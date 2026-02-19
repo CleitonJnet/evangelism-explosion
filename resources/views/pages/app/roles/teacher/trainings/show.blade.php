@@ -37,7 +37,8 @@
                     {{ $mentorsCount }}
                 </div>
             </x-src.toolbar.button>
-            <x-src.toolbar.button :href="'#'" :label="__('OJT')" icon="users-chat" :tooltip="__('On-The-Job Training')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat"
+                :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
                 x-on:click.prevent="showDeleteModal = true" />
