@@ -36,13 +36,13 @@ class StpApproachesBoard extends Component
      *     mentor: array{id: int, name: string},
      *     students: array<int, array{id: int, name: string}>,
      *     students_label: string,
-     *     approaches: array<int, array{id: int, person_name: string, type: string, status: string}>
+     *     approaches: array<int, array{id: int, person_name: string, type: string, type_label: string, status: string, status_label: string}>
      * }>
      */
     public array $teams = [];
 
     /**
-     * @var array<int, array{id: int, person_name: string, type: string, status: string}>
+     * @var array<int, array{id: int, person_name: string, type: string, type_label: string, status: string, status_label: string}>
      */
     public array $queue = [];
 
@@ -63,6 +63,10 @@ class StpApproachesBoard extends Component
     public bool $canReview = false;
 
     public ?string $editingApproachTypeLabel = null;
+
+    private const LISTENER_DIAGNOSTIC_ANSWERS = ['christ', 'works'];
+
+    private const LISTENER_RESULTS = ['decision', 'no_decision_interested', 'rejection', 'already_christian'];
 
     public function mount(Training $training): void
     {
@@ -202,6 +206,7 @@ class StpApproachesBoard extends Component
         $reportService->updateDraft($approach, $validated, $actor);
 
         $this->openApproachModal($approach->id);
+        $this->dispatch('approach-draft-saved', message: 'Alteração salva com sucesso.', duration: 3000);
         $this->loadBoard();
     }
 
@@ -225,6 +230,38 @@ class StpApproachesBoard extends Component
 
         $this->closeModal();
         $this->loadBoard();
+    }
+
+    public function deleteApproach(): void
+    {
+        $approach = $this->editableApproach();
+
+        if (! $approach) {
+            return;
+        }
+
+        if (! $this->canDeleteApproach()) {
+            return;
+        }
+
+        $this->authorize('delete', $approach);
+
+        $approach->delete();
+
+        $this->closeModal();
+        $this->loadBoard();
+    }
+
+    public function canDeleteApproach(): bool
+    {
+        return data_get($this->editingApproach, 'status') === StpApproachStatus::Planned->value
+            && ! filled($this->form['stp_team_id'] ?? null);
+    }
+
+    public function canShowReviewButton(): bool
+    {
+        return $this->canReview
+            && data_get($this->editingApproach, 'status') === StpApproachStatus::Done->value;
     }
 
     public function markAsReviewed(StpApproachReportService $reportService): void
@@ -284,7 +321,7 @@ class StpApproachesBoard extends Component
             'type' => $type,
             'status' => StpApproachStatus::Planned->value,
             'position' => $lastPosition + 1,
-            'person_name' => 'Nova visita planejada',
+            'person_name' => '',
             'created_by_user_id' => $creatorId,
         ]);
 
@@ -384,7 +421,7 @@ class StpApproachesBoard extends Component
                         ])
                         ->values()
                         ->all(),
-                    'students_label' => $team->students->pluck('name')->join(', '),
+                    'students_label' => $team->students->pluck('name')->join(' / '),
                     'approaches' => $team->approaches
                         ->map(fn (StpApproach $approach): array => $this->mapApproach($approach))
                         ->values()
@@ -396,7 +433,7 @@ class StpApproachesBoard extends Component
     }
 
     /**
-     * @return array{id: int, person_name: string, type: string, status: string}
+     * @return array{id: int, person_name: string, type: string, type_label: string, status: string, status_label: string}
      */
     private function mapApproach(StpApproach $approach): array
     {
@@ -404,7 +441,9 @@ class StpApproachesBoard extends Component
             'id' => $approach->id,
             'person_name' => $approach->person_name,
             'type' => $approach->type->value,
+            'type_label' => $this->translateApproachType($approach->type->value),
             'status' => $approach->status->value,
+            'status_label' => $this->translateApproachStatus($approach->status->value),
         ];
     }
 
@@ -448,9 +487,11 @@ class StpApproachesBoard extends Component
      */
     private function validateApproachForm(bool $finalizing): array
     {
-        $validated = $this->validate([
+        $listenerDiagnosticAnswers = implode(',', self::LISTENER_DIAGNOSTIC_ANSWERS);
+        $listenerResults = implode(',', self::LISTENER_RESULTS);
+
+        $rules = [
             'form.person_name' => ['required', 'string', 'min:3', 'max:255'],
-            'form.approach_date' => ['required', 'date'],
             'form.phone' => ['nullable', 'string', 'max:255'],
             'form.email' => ['nullable', 'string', 'max:255'],
             'form.address.street' => ['nullable', 'string', 'max:255'],
@@ -463,20 +504,35 @@ class StpApproachesBoard extends Component
             'form.reference_point' => ['nullable', 'string', 'max:255'],
             'form.means_growth' => ['boolean'],
             'form.follow_up_scheduled_at' => ['nullable', 'date'],
-            'form.payload.listeners' => ['array', 'min:1'],
-            'form.payload.listeners.*.name' => ['required', 'string', 'min:3', 'max:255'],
-            'form.payload.listeners.*.diagnostic_answer' => ['required', 'string', 'in:christ,works'],
-            'form.payload.listeners.*.result' => ['required', 'string', 'in:decision,no_decision_interested,rejection,already_christian'],
+            'form.payload.listeners' => ['array'],
             'form.payload.notes' => ['nullable', 'string'],
-        ], [
+        ];
+
+        $messages = [
             'form.person_name.required' => 'Informe o nome da pessoa visitada.',
             'form.person_name.min' => 'O nome da pessoa visitada deve ter ao menos 3 caracteres.',
-            'form.approach_date.required' => 'Informe a data da abordagem.',
-            'form.payload.listeners.min' => 'Informe ao menos um ouvinte nesta abordagem.',
-            'form.payload.listeners.*.name.required' => 'Informe o nome de cada ouvinte.',
-            'form.payload.listeners.*.diagnostic_answer.required' => 'Selecione a resposta diagnóstica de cada ouvinte.',
-            'form.payload.listeners.*.result.required' => 'Selecione o resultado de cada ouvinte.',
-        ]);
+        ];
+
+        if ($finalizing) {
+            $rules['form.approach_date'] = ['required', 'date'];
+            $rules['form.payload.listeners'][] = 'min:1';
+            $rules['form.payload.listeners.*.name'] = ['required', 'string', 'min:3', 'max:255'];
+            $rules['form.payload.listeners.*.diagnostic_answer'] = ['required', 'string', 'in:'.$listenerDiagnosticAnswers];
+            $rules['form.payload.listeners.*.result'] = ['required', 'string', 'in:'.$listenerResults];
+
+            $messages['form.approach_date.required'] = 'Informe a data da abordagem.';
+            $messages['form.payload.listeners.min'] = 'Informe ao menos um ouvinte nesta abordagem.';
+            $messages['form.payload.listeners.*.name.required'] = 'Informe o nome de cada ouvinte.';
+            $messages['form.payload.listeners.*.diagnostic_answer.required'] = 'Selecione a resposta diagnóstica de cada ouvinte.';
+            $messages['form.payload.listeners.*.result.required'] = 'Selecione o resultado de cada ouvinte.';
+        } else {
+            $rules['form.approach_date'] = ['nullable', 'date'];
+            $rules['form.payload.listeners.*.name'] = ['nullable', 'string', 'min:3', 'max:255'];
+            $rules['form.payload.listeners.*.diagnostic_answer'] = ['nullable', 'string', 'in:'.$listenerDiagnosticAnswers];
+            $rules['form.payload.listeners.*.result'] = ['nullable', 'string', 'in:'.$listenerResults];
+        }
+
+        $validated = $this->validate($rules, $messages);
 
         $extraErrors = [];
 
@@ -491,6 +547,57 @@ class StpApproachesBoard extends Component
         $validated['form']['payload']['approach_date'] = $validated['form']['approach_date'];
 
         return $validated['form'];
+    }
+
+    public function canMarkAsDone(): bool
+    {
+        if (! filled($this->form['stp_team_id'] ?? null)) {
+            return false;
+        }
+
+        if (! filled($this->form['approach_date'] ?? null)) {
+            return false;
+        }
+
+        if (! is_string($this->form['person_name'] ?? null) || mb_strlen(trim($this->form['person_name'])) < 3) {
+            return false;
+        }
+
+        $listeners = data_get($this->form, 'payload.listeners', []);
+
+        if (! is_array($listeners)) {
+            return false;
+        }
+
+        $hasAtLeastOneListener = false;
+
+        foreach ($listeners as $listener) {
+            if (! is_array($listener)) {
+                continue;
+            }
+
+            $name = trim((string) ($listener['name'] ?? ''));
+            $diagnosticAnswer = $listener['diagnostic_answer'] ?? null;
+            $result = $listener['result'] ?? null;
+
+            $isEmptyListener = $name === '' && ! filled($diagnosticAnswer) && ! filled($result);
+
+            if ($isEmptyListener) {
+                continue;
+            }
+
+            $hasAtLeastOneListener = true;
+
+            if (
+                $name === ''
+                || ! in_array($diagnosticAnswer, self::LISTENER_DIAGNOSTIC_ANSWERS, true)
+                || ! in_array($result, self::LISTENER_RESULTS, true)
+            ) {
+                return false;
+            }
+        }
+
+        return $hasAtLeastOneListener;
     }
 
     private function editableApproach(): ?StpApproach
@@ -605,6 +712,17 @@ class StpApproachesBoard extends Component
             StpApproachType::Indication->value => 'Indicação',
             StpApproachType::Lifestyle->value => 'Estilo de Vida',
             default => 'Visita',
+        };
+    }
+
+    private function translateApproachStatus(string $status): string
+    {
+        return match ($status) {
+            StpApproachStatus::Planned->value => 'Planejada',
+            StpApproachStatus::Assigned->value => 'Atribuída',
+            StpApproachStatus::Done->value => 'Concluída',
+            StpApproachStatus::Reviewed->value => 'Revisada',
+            default => 'Desconhecido',
         };
     }
 }

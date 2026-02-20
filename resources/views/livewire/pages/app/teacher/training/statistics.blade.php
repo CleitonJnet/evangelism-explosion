@@ -12,14 +12,12 @@
         <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
     </x-src.toolbar.nav>
 
-    <div class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
+    <div
+        class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
         <div class="mb-4 flex flex-wrap items-center gap-2">
             <label for="stp-session-select" class="text-xs font-semibold text-slate-700">Sessão STP:</label>
-            <select
-                id="stp-session-select"
-                class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-                wire:change="selectSession($event.target.value)"
-            >
+            <select id="stp-session-select" class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                wire:change="selectSession($event.target.value)">
                 <option value="">Selecione</option>
                 @foreach ($sessions as $session)
                     <option value="{{ $session['id'] }}" @selected($activeSessionId === $session['id'])>
@@ -28,44 +26,37 @@
                 @endforeach
             </select>
 
-            <button
-                type="button"
+            <button type="button"
                 class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                wire:click="createSession"
-                @disabled(! $canCreateSession)
-                title="{{ $createSessionBlockedReason ?? '' }}"
-            >
+                wire:click="createSession" @disabled(!$canCreateSession) title="{{ $createSessionBlockedReason ?? '' }}">
                 Criar sessão STP
             </button>
 
             @if ($activeSessionId !== null && count($teams) === 0)
-                <button
-                    type="button"
+                <button type="button"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    wire:click="formTeams"
-                >
+                    wire:click="formTeams">
                     Formar equipes
                 </button>
             @endif
 
             @if ($activeSessionId !== null)
-                <button
-                    type="button"
+                <button type="button"
                     class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                    wire:click="removeSession({{ $activeSessionId }})"
-                >
+                    wire:click="removeSession({{ $activeSessionId }})">
                     Remover sessão
                 </button>
             @endif
 
             @if (count($pendingStudents) > 0)
-                <span class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                <span
+                    class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
                     Pendências STP: {{ count($pendingStudents) }}
                 </span>
             @endif
         </div>
 
-        @if (! $canCreateSession && $createSessionBlockedReason)
+        @if (!$canCreateSession && $createSessionBlockedReason)
             <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
                 {{ $createSessionBlockedReason }}
             </div>
@@ -175,13 +166,15 @@
                 <tbody>
                     @if ($activeSessionId === null)
                         <tr>
-                            <td colspan="15" class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
+                            <td colspan="15"
+                                class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
                                 Nenhuma sessão STP criada.
                             </td>
                         </tr>
                     @elseif (count($teams) === 0)
                         <tr>
-                            <td colspan="15" class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
+                            <td colspan="15"
+                                class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
                                 Sessão selecionada sem equipes formadas.
                             </td>
                         </tr>
@@ -195,10 +188,12 @@
 
                                 <td
                                     class="border border-y-4 border-y-white border-l-yellow-300 border-r-yellow-300 bg-yellow-50 px-1 group-hover:bg-yellow-100 min-w-fit">
-                                    <div class="js-statistics-mentor-list flex flex-wrap" data-team-id="{{ $team['id'] }}">
-                                        <div class="js-statistics-mentor-item rounded pl-7 border border-orange-500 pr-2 py-2 bg-linear-to-br from-orange-100 via-white to-orange-200 font-semibold truncate w-32 flex items-center gap-1 cursor-grab! relative"
+                                    <div class="js-statistics-mentor-list flex flex-wrap"
+                                        data-team-id="{{ $team['id'] }}">
+                                        <div class="js-statistics-mentor-item rounded pl-7 border border-orange-500 pr-2 py-2 bg-linear-to-br from-orange-100 via-white to-orange-200 font-semibold truncate w-32 flex items-center gap-1 cursor-pointer relative"
                                             data-mentor-id="{{ $team['mentor']['id'] }}"
-                                            title="Mentor(a): {{ $team['mentor']['name'] }}">
+                                            title="Mentor(a): {{ $team['mentor']['name'] }}"
+                                            wire:click="openMentorSelector({{ $team['id'] }})">
                                             <button type="button"
                                                 class="js-statistics-mentor-handle inline-flex absolute left-0 inset-y-0 h-full w-5 items-center justify-center border-r border-orange-300 bg-white/70 text-[10px] text-orange-700 cursor-grab!"
                                                 title="{{ __('Mover mentor') }}"
@@ -212,7 +207,8 @@
 
                                 <td
                                     class="border border-y-4 border-y-white border-l-yellow-300 border-r-white bg-yellow-50 px-1 group-hover:bg-yellow-100 min-w-fit">
-                                    <div class="js-statistics-student-list flex gap-1 flex-wrap" data-team-id="{{ $team['id'] }}">
+                                    <div class="js-statistics-student-list flex gap-1 flex-wrap"
+                                        data-team-id="{{ $team['id'] }}">
                                         @foreach ($team['students'] as $student)
                                             <div class="js-statistics-student-item relative rounded border border-sky-500 pl-7 pr-2 py-2 bg-linear-to-br from-sky-100 via-white to-sky-200 font-semibold truncate max-w-32 min-w-24 flex items-center gap-1 cursor-grab!"
                                                 wire:key="student-{{ $team['id'] }}-{{ $student['id'] }}"
@@ -230,21 +226,45 @@
                                     </div>
                                 </td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['visitant'] }}</td>
-                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['questionnaire'] }}</td>
-                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['indication'] }}</td>
-                                <td class="border border-y-4 border-y-white border-l-green-300 border-r-white bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['lifeway'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-white border-r-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['visitant'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['questionnaire'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['indication'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-green-300 border-r-white bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['lifeway'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-fuchsia-300 bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totExplained'] }}</td>
-                                <td class="border border-y-4 border-y-white border-l-fuchsia-300 border-r-white bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totPeople'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-white border-r-fuchsia-300 bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totExplained'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-fuchsia-300 border-r-white bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totPeople'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totDecision'] }}</td>
-                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totInteresting'] }}</td>
-                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totReject'] }}</td>
-                                <td class="border border-y-4 border-y-white border-l-red-300 border-r-white bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totChristian'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-white border-r-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totDecision'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totInteresting'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totReject'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-red-300 border-r-white bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['totChristian'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-blue-300 bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['meansGrowth'] }}</td>
-                                <td class="border border-y-4 border-y-white border-l-blue-300 border-r-white bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['folowship'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-white border-r-blue-300 bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['meansGrowth'] }}</td>
+                                <td
+                                    class="border border-y-4 border-y-white border-l-blue-300 border-r-white bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">
+                                    {{ $team['folowship'] }}</td>
                             </tr>
                         @endforeach
 
@@ -282,4 +302,36 @@
             </table>
         </div>
     </div>
+
+    <flux:modal name="statistics-mentor-selector" wire:model="showMentorSelectorModal" class="max-w-lg w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Alterar mentor da equipe') }}</flux:heading>
+                <flux:subheading>{{ __('Selecione um mentor cadastrado neste treinamento.') }}</flux:subheading>
+            </div>
+
+            <div class="space-y-2">
+                <label for="mentor-selection" class="text-sm font-medium text-slate-700">
+                    {{ __('Mentores disponíveis') }}
+                </label>
+
+                <select id="mentor-selection" wire:model="selectedMentorId"
+                    class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
+                    <option value="">{{ __('Selecione') }}</option>
+                    @foreach ($mentorSelectionOptions as $mentor)
+                        <option value="{{ $mentor['id'] }}">{{ $mentor['name'] }}</option>
+                    @endforeach
+                </select>
+
+                @error('selectedMentorId')
+                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="closeMentorSelector" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="assignMentorToTeam" :label="__('Salvar mentor')" />
+            </div>
+        </div>
+    </flux:modal>
 </div>

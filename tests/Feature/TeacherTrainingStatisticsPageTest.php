@@ -233,6 +233,56 @@ it('swaps mentors between teams and keeps students intact', function () {
     expect($teamTwo->students()->count())->toBe(1);
 });
 
+it('assigns a new mentor to a team from training mentors without removing from other teams', function () {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+
+    $mentorA = User::factory()->create(['name' => 'Mentor A']);
+    $mentorB = User::factory()->create(['name' => 'Mentor B']);
+    $mentorC = User::factory()->create(['name' => 'Mentor C']);
+
+    $training->mentors()->attach($mentorA->id, ['created_by' => $teacher->id]);
+    $training->mentors()->attach($mentorB->id, ['created_by' => $teacher->id]);
+    $training->mentors()->attach($mentorC->id, ['created_by' => $teacher->id]);
+
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    $teamOne = StpTeam::query()->create([
+        'stp_session_id' => $session->id,
+        'mentor_user_id' => $mentorA->id,
+        'name' => 'Equipe 01',
+        'position' => 0,
+    ]);
+
+    $teamTwo = StpTeam::query()->create([
+        'stp_session_id' => $session->id,
+        'mentor_user_id' => $mentorB->id,
+        'name' => 'Equipe 02',
+        'position' => 1,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->call('selectSession', $session->id)
+        ->call('openMentorSelector', $teamTwo->id)
+        ->assertSet('showMentorSelectorModal', true)
+        ->assertSet('mentorSelectionCurrentMentorId', $mentorB->id)
+        ->assertSet(
+            'mentorSelectionOptions',
+            fn (array $options): bool => collect($options)->pluck('id')->sort()->values()->all() === [$mentorA->id, $mentorC->id],
+        )
+        ->assertSet('selectedMentorId', $mentorA->id)
+        ->set('selectedMentorId', $mentorA->id)
+        ->call('assignMentorToTeam')
+        ->assertSet('showMentorSelectorModal', false);
+
+    expect($teamOne->fresh()->mentor_user_id)->toBe($mentorA->id);
+    expect($teamTwo->fresh()->mentor_user_id)->toBe($mentorA->id);
+});
+
 it('calculates real team totals from stp approaches', function () {
     $teacher = createTeacherForStatisticsPage();
     $training = createTrainingForStatisticsPage($teacher);

@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Models\StpSession;
 use App\Models\StpTeam;
 use App\Models\Training;
+use App\Models\User;
 use App\Services\Stp\StpSessionService;
 use App\Services\Stp\StpStatisticsService;
 use App\Services\Stp\StpTeamFormationService;
@@ -99,6 +100,19 @@ class Statistics extends Component
     public ?string $createSessionBlockedReason = null;
 
     public int $mentorsCount = 0;
+
+    public bool $showMentorSelectorModal = false;
+
+    public ?int $mentorSelectionTeamId = null;
+
+    public ?int $mentorSelectionCurrentMentorId = null;
+
+    public ?int $selectedMentorId = null;
+
+    /**
+     * @var array<int, array{id: int, name: string}>
+     */
+    public array $mentorSelectionOptions = [];
 
     public function mount(Training $training): void
     {
@@ -280,6 +294,97 @@ class Statistics extends Component
             $toTeam->save();
         });
 
+        $this->loadTeamsAndStats();
+    }
+
+    public function openMentorSelector(int $teamId): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->with('mentor')
+            ->find($teamId);
+
+        if (! $team) {
+            return;
+        }
+
+        $currentMentorId = (int) $team->mentor_user_id;
+        $mentorOptions = $this->loadTrainingMentorsForSelector($currentMentorId);
+
+        if ($mentorOptions === []) {
+            return;
+        }
+
+        $this->mentorSelectionTeamId = $team->id;
+        $this->mentorSelectionCurrentMentorId = $currentMentorId;
+        $this->mentorSelectionOptions = $mentorOptions;
+        $this->selectedMentorId = $mentorOptions[0]['id'] ?? null;
+        $this->showMentorSelectorModal = true;
+        $this->resetErrorBag('selectedMentorId');
+    }
+
+    public function closeMentorSelector(): void
+    {
+        $this->showMentorSelectorModal = false;
+        $this->mentorSelectionTeamId = null;
+        $this->mentorSelectionCurrentMentorId = null;
+        $this->selectedMentorId = null;
+        $this->mentorSelectionOptions = [];
+        $this->resetErrorBag('selectedMentorId');
+    }
+
+    public function assignMentorToTeam(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session || $this->mentorSelectionTeamId === null) {
+            return;
+        }
+
+        $validated = $this->validate(
+            [
+                'selectedMentorId' => ['required', 'integer'],
+            ],
+            [
+                'selectedMentorId.required' => 'Selecione um mentor para continuar.',
+            ],
+        );
+
+        $selectedMentorId = (int) $validated['selectedMentorId'];
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->find($this->mentorSelectionTeamId);
+
+        if (! $team) {
+            return;
+        }
+
+        $availableMentorIds = collect($this->mentorSelectionOptions)
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if (! in_array($selectedMentorId, $availableMentorIds, true)) {
+            $this->addError('selectedMentorId', 'Mentor selecionado inválido.');
+
+            return;
+        }
+
+        $team->mentor_user_id = $selectedMentorId;
+        $team->save();
+
+        $this->closeMentorSelector();
         $this->loadTeamsAndStats();
     }
 
@@ -543,5 +648,27 @@ class Statistics extends Component
                     'updated_at' => now(),
                 ]);
         }
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string}>
+     */
+    private function loadTrainingMentorsForSelector(int $currentMentorId): array
+    {
+        $mentors = $this->training->mentors()
+            ->select('users.id', 'users.name')
+            ->orderBy('users.name')
+            ->get()
+            ->map(fn (User $mentor): array => [
+                'id' => (int) $mentor->id,
+                'name' => $mentor->name,
+            ])
+            ->values()
+            ->all();
+
+        return array_values(array_filter(
+            $mentors,
+            fn (array $mentor): bool => $mentor['id'] !== $currentMentorId,
+        ));
     }
 }
