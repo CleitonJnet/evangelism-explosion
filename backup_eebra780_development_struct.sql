@@ -122,7 +122,19 @@ CREATE TABLE `church_temps` (
   `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `normalized_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resolved_church_id` bigint unsigned DEFAULT NULL,
+  `resolved_by` bigint unsigned DEFAULT NULL,
+  `resolved_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `church_temps_resolved_church_id_foreign` (`resolved_church_id`),
+  KEY `church_temps_resolved_by_foreign` (`resolved_by`),
+  KEY `church_temps_status_index` (`status`),
+  KEY `church_temps_normalized_name_index` (`normalized_name`),
+  KEY `church_temps_resolved_at_index` (`resolved_at`),
+  CONSTRAINT `church_temps_resolved_by_foreign` FOREIGN KEY (`resolved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `church_temps_resolved_church_id_foreign` FOREIGN KEY (`resolved_church_id`) REFERENCES `churches` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -202,6 +214,7 @@ CREATE TABLE `courses` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `ministry_id` bigint unsigned DEFAULT NULL,
+  `min_stp_sessions` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `courses_ministry_id_foreign` (`ministry_id`),
   CONSTRAINT `courses_ministry_id_foreign` FOREIGN KEY (`ministry_id`) REFERENCES `ministries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -226,7 +239,7 @@ CREATE TABLE `event_dates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `event_dates_training_id_date_start_time_unique` (`training_id`,`date`,`start_time`),
   CONSTRAINT `event_dates_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=460 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=444 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -502,6 +515,30 @@ CREATE TABLE `media` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `mentors`
+--
+
+DROP TABLE IF EXISTS `mentors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `mentors` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `training_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `created_by` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mentors_training_id_user_id_unique` (`training_id`,`user_id`),
+  KEY `mentors_user_id_index` (`user_id`),
+  KEY `mentors_created_by_index` (`created_by`),
+  CONSTRAINT `mentors_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mentors_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mentors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `migrations`
 --
 
@@ -513,7 +550,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=375 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -676,6 +713,133 @@ CREATE TABLE `shippings` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `stp_approaches`
+--
+
+DROP TABLE IF EXISTS `stp_approaches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stp_approaches` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `training_id` bigint unsigned NOT NULL,
+  `stp_session_id` bigint unsigned NOT NULL,
+  `stp_team_id` bigint unsigned DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` int NOT NULL DEFAULT '0',
+  `person_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference_point` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gospel_explained_times` smallint unsigned DEFAULT NULL,
+  `people_count` smallint unsigned DEFAULT NULL,
+  `result` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `means_growth` tinyint(1) NOT NULL DEFAULT '0',
+  `follow_up_scheduled_at` datetime DEFAULT NULL,
+  `public_q2_answer` text COLLATE utf8mb4_unicode_ci,
+  `public_lesson` text COLLATE utf8mb4_unicode_ci,
+  `created_by_user_id` bigint unsigned NOT NULL,
+  `reported_by_user_id` bigint unsigned DEFAULT NULL,
+  `reviewed_by_user_id` bigint unsigned DEFAULT NULL,
+  `reviewed_at` datetime DEFAULT NULL,
+  `payload` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `stp_approaches_created_by_user_id_foreign` (`created_by_user_id`),
+  KEY `stp_approaches_reported_by_user_id_foreign` (`reported_by_user_id`),
+  KEY `stp_approaches_reviewed_by_user_id_foreign` (`reviewed_by_user_id`),
+  KEY `stp_approaches_training_id_index` (`training_id`),
+  KEY `stp_approaches_stp_session_id_index` (`stp_session_id`),
+  KEY `stp_approaches_stp_team_id_index` (`stp_team_id`),
+  KEY `stp_approaches_type_index` (`type`),
+  KEY `stp_approaches_status_index` (`status`),
+  CONSTRAINT `stp_approaches_created_by_user_id_foreign` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `stp_approaches_reported_by_user_id_foreign` FOREIGN KEY (`reported_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `stp_approaches_reviewed_by_user_id_foreign` FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `stp_approaches_stp_session_id_foreign` FOREIGN KEY (`stp_session_id`) REFERENCES `stp_sessions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `stp_approaches_stp_team_id_foreign` FOREIGN KEY (`stp_team_id`) REFERENCES `stp_teams` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `stp_approaches_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stp_sessions`
+--
+
+DROP TABLE IF EXISTS `stp_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stp_sessions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `training_id` bigint unsigned NOT NULL,
+  `sequence` int NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `starts_at` datetime DEFAULT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stp_sessions_training_id_sequence_unique` (`training_id`,`sequence`),
+  KEY `stp_sessions_training_id_index` (`training_id`),
+  CONSTRAINT `stp_sessions_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stp_team_students`
+--
+
+DROP TABLE IF EXISTS `stp_team_students`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stp_team_students` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `stp_team_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `position` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stp_team_students_stp_team_id_user_id_unique` (`stp_team_id`,`user_id`),
+  KEY `stp_team_students_user_id_index` (`user_id`),
+  CONSTRAINT `stp_team_students_stp_team_id_foreign` FOREIGN KEY (`stp_team_id`) REFERENCES `stp_teams` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `stp_team_students_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stp_teams`
+--
+
+DROP TABLE IF EXISTS `stp_teams`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stp_teams` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `stp_session_id` bigint unsigned NOT NULL,
+  `mentor_user_id` bigint unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `stp_teams_stp_session_id_index` (`stp_session_id`),
+  KEY `stp_teams_mentor_user_id_index` (`mentor_user_id`),
+  CONSTRAINT `stp_teams_mentor_user_id_foreign` FOREIGN KEY (`mentor_user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `stp_teams_stp_session_id_foreign` FOREIGN KEY (`stp_session_id`) REFERENCES `stp_sessions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `suppliers`
 --
 
@@ -698,6 +862,55 @@ CREATE TABLE `suppliers` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `testimonials`
+--
+
+DROP TABLE IF EXISTS `testimonials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `testimonials` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `meta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quote` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position` int unsigned NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `testimonials_is_active_position_index` (`is_active`,`position`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `training_new_churches`
+--
+
+DROP TABLE IF EXISTS `training_new_churches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `training_new_churches` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `training_id` bigint unsigned NOT NULL,
+  `church_id` bigint unsigned NOT NULL,
+  `source_church_temp_id` bigint unsigned DEFAULT NULL,
+  `created_by` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `training_new_churches_training_id_church_id_unique` (`training_id`,`church_id`),
+  KEY `training_new_churches_church_id_foreign` (`church_id`),
+  KEY `training_new_churches_source_church_temp_id_foreign` (`source_church_temp_id`),
+  KEY `training_new_churches_created_by_foreign` (`created_by`),
+  CONSTRAINT `training_new_churches_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `training_new_churches_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `training_new_churches_source_church_temp_id_foreign` FOREIGN KEY (`source_church_temp_id`) REFERENCES `church_temps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `training_new_churches_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -735,7 +948,7 @@ CREATE TABLE `training_schedule_items` (
   KEY `training_schedule_items_position_index` (`training_id`,`date`,`position`),
   CONSTRAINT `training_schedule_items_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `training_schedule_items_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -784,12 +997,10 @@ CREATE TABLE `trainings` (
   `price` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '0,00',
   `price_church` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '0,00',
   `discount` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '0,00',
+  `pix_qr_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pix_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `kits` int DEFAULT '0',
-  `totStudents` int NOT NULL DEFAULT '0',
-  `totChurches` int NOT NULL DEFAULT '0',
   `totNewChurches` int NOT NULL DEFAULT '0',
-  `totPastors` int NOT NULL DEFAULT '0',
-  `totKitsUsed` int NOT NULL DEFAULT '0',
   `totListeners` int NOT NULL DEFAULT '0',
   `totKitsReceived` int NOT NULL DEFAULT '0',
   `totApproaches` int NOT NULL DEFAULT '0',
@@ -810,7 +1021,7 @@ CREATE TABLE `trainings` (
   CONSTRAINT `trainings_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `trainings_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `trainings_teacher_id_foreign` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=312 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=314 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -853,7 +1064,7 @@ CREATE TABLE `users` (
   KEY `users_church_temp_id_foreign` (`church_temp_id`),
   CONSTRAINT `users_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `users_church_temp_id_foreign` FOREIGN KEY (`church_temp_id`) REFERENCES `church_temps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -885,4 +1096,4 @@ CREATE TABLE `vouchers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-15  2:05:36
+-- Dump completed on 2026-02-19 23:50:35

@@ -107,49 +107,34 @@
         @if ($editingApproachId !== null && $editingApproach)
             <div class="space-y-4">
                 <div>
-                    <flux:heading size="lg">{{ __('Relatório da Visita') }}</flux:heading>
+                    <flux:heading size="lg">{{ __('Relatório da Visita') }}: {{ $editingApproachTypeLabel }}</flux:heading>
                     <flux:subheading>
-                        {{ __('Atualize dados da pessoa, resultado e informações públicas da abordagem.') }}
+                        {{ __('Registre os dados da abordagem e o resultado individual de cada ouvinte.') }}
                     </flux:subheading>
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                        <div class="text-sm font-semibold text-sky-950">Dados da pessoa</div>
+                        <div class="text-sm font-semibold text-sky-950">Dados da abordagem</div>
                         <div class="grid gap-3 md:grid-cols-2">
                             <x-src.form.input name="form.person_name" wire:model.live="form.person_name" label="Nome" width_basic="1000" />
-                            <x-src.form.input name="form.phone" wire:model.live="form.phone" label="Telefone" width_basic="1000" />
+                            <x-src.form.input name="form.approach_date" wire:model.live="form.approach_date" label="Data da abordagem" width_basic="1000" type="date" />
+                            <x-src.form.input name="form.phone" wire:model.live="form.phone" label="Telefone" width_basic="1000" type="tel" />
                             <x-src.form.input name="form.email" wire:model.live="form.email" label="Email" width_basic="1000" />
                             <x-src.form.input name="form.reference_point" wire:model.live="form.reference_point" label="Ponto de referência" width_basic="1000" />
-                            <x-src.form.input name="form.street" wire:model.live="form.street" label="Rua" width_basic="1000" />
-                            <x-src.form.input name="form.number" wire:model.live="form.number" label="Número" width_basic="1000" />
-                            <x-src.form.input name="form.complement" wire:model.live="form.complement" label="Complemento" width_basic="1000" />
-                            <x-src.form.input name="form.district" wire:model.live="form.district" label="Bairro" width_basic="1000" />
-                            <x-src.form.input name="form.city" wire:model.live="form.city" label="Cidade" width_basic="1000" />
-                            <x-src.form.input name="form.state" wire:model.live="form.state" label="Estado" width_basic="1000" />
-                            <x-src.form.input name="form.postal_code" wire:model.live="form.postal_code" label="CEP" width_basic="1000" />
                         </div>
+
+                        <livewire:address-fields
+                            wire:model="form.address"
+                            title="Endereço da pessoa visitada"
+                            :require-district-city-state="false"
+                            wire:key="stp-address-fields-{{ $editingApproachId }}"
+                        />
                     </div>
 
                     <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
                         <div class="text-sm font-semibold text-sky-950">Resultado e acompanhamento</div>
                         <div class="grid gap-3 md:grid-cols-2">
-                            <x-src.form.input name="form.type" wire:model.live="form.type" label="Tipo" width_basic="1000" disabled />
-                            <x-src.form.input name="form.status" wire:model.live="form.status" label="Status" width_basic="1000" disabled />
-                            <x-src.form.input name="form.gospel_explained_times" wire:model.live="form.gospel_explained_times" label="Quantas vezes explicou" width_basic="1000" type="number" />
-                            <x-src.form.input name="form.people_count" wire:model.live="form.people_count" label="Para quantas pessoas" width_basic="1000" type="number" />
-
-                            <label class="grid gap-1 text-sm">
-                                <span class="font-medium text-slate-700">Resultado</span>
-                                <select class="h-10 rounded-lg border border-slate-300 bg-white px-3" wire:model.live="form.result">
-                                    <option value="">Selecione</option>
-                                    <option value="decision">Decisão</option>
-                                    <option value="no_decision_interested">Sem decisão / interessado</option>
-                                    <option value="rejection">Rejeição</option>
-                                    <option value="already_christian">Já cristão</option>
-                                </select>
-                            </label>
-
                             <label class="grid gap-1 text-sm">
                                 <span class="font-medium text-slate-700">Follow-up agendado</span>
                                 <input type="datetime-local" class="h-10 rounded-lg border border-slate-300 bg-white px-3" wire:model.live="form.follow_up_scheduled_at">
@@ -159,6 +144,10 @@
                                 <input type="checkbox" wire:model.live="form.means_growth" class="rounded border-slate-300">
                                 Informou meios de crescimento
                             </label>
+
+                            <div class="md:col-span-2">
+                                <x-src.form.textarea name="form.payload.notes" wire:model.live="form.payload.notes" label="Observações da abordagem" width_basic="1000" />
+                            </div>
                         </div>
 
                         @error('form.stp_team_id')
@@ -168,59 +157,50 @@
                 </div>
 
                 <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                    <div class="text-sm font-semibold text-sky-950">Relatório público</div>
-                    <div class="grid gap-3 md:grid-cols-2">
-                        <x-src.form.textarea name="form.public_q2_answer" wire:model.live="form.public_q2_answer" label="Resposta pública Q2" width_basic="1000" />
-                        <x-src.form.textarea name="form.public_lesson" wire:model.live="form.public_lesson" label="Lição pública" width_basic="1000" />
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="text-sm font-semibold text-sky-950">
+                            Ouvintes presentes ({{ count(data_get($form, 'payload.listeners', [])) }})
+                        </div>
+                        <x-src.btn-silver type="button" wire:click="addListener">+ Adicionar ouvinte</x-src.btn-silver>
+                    </div>
+
+                    <div class="space-y-3">
+                        @foreach (data_get($form, 'payload.listeners', []) as $index => $listener)
+                            <div class="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-3" wire:key="listener-row-{{ $index }}">
+                                <x-src.form.input name="form.payload.listeners.{{ $index }}.name" wire:model.live="form.payload.listeners.{{ $index }}.name" label="Nome do ouvinte" width_basic="1000" />
+
+                                <label class="grid gap-1 text-sm">
+                                    <span class="font-medium text-slate-700">Resposta diagnóstica</span>
+                                    <select class="h-10 rounded-lg border border-slate-300 bg-white px-3" wire:model.live="form.payload.listeners.{{ $index }}.diagnostic_answer">
+                                        <option value="">Selecione</option>
+                                        <option value="christ">Confia em Cristo</option>
+                                        <option value="works">Confia em boas obras</option>
+                                    </select>
+                                </label>
+
+                                <label class="grid gap-1 text-sm">
+                                    <span class="font-medium text-slate-700">Resultado</span>
+                                    <select class="h-10 rounded-lg border border-slate-300 bg-white px-3" wire:model.live="form.payload.listeners.{{ $index }}.result">
+                                        <option value="">Selecione</option>
+                                        <option value="decision">Decisão</option>
+                                        <option value="no_decision_interested">Sem decisão / interessado</option>
+                                        <option value="rejection">Rejeição</option>
+                                        <option value="already_christian">Já cristão</option>
+                                    </select>
+                                </label>
+
+                                <div class="md:col-span-3 flex justify-end">
+                                    <x-src.btn-silver type="button" wire:click="removeListener({{ $index }})">Remover ouvinte</x-src.btn-silver>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
-                @if (($form['type'] ?? null) === 'security_questionnaire')
-                    <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                        <div class="text-sm font-semibold text-sky-950">Questionário de segurança</div>
-                        <div class="grid gap-3 md:grid-cols-2">
-                            <x-src.form.input name="form.payload.security_questionnaire.q1" wire:model.live="form.payload.security_questionnaire.q1" label="Q1" width_basic="1000" />
-                            <x-src.form.input name="form.payload.security_questionnaire.q2" wire:model.live="form.payload.security_questionnaire.q2" label="Q2 (obrigatória para concluir)" width_basic="1000" />
-                            <x-src.form.input name="form.payload.security_questionnaire.q3" wire:model.live="form.payload.security_questionnaire.q3" label="Q3" width_basic="1000" />
-                            <x-src.form.input name="form.payload.security_questionnaire.q4" wire:model.live="form.payload.security_questionnaire.q4" label="Q4" width_basic="1000" />
-                            <x-src.form.input name="form.payload.security_questionnaire.q5" wire:model.live="form.payload.security_questionnaire.q5" label="Q5" width_basic="1000" />
-                        </div>
-                        @error('form.payload.security_questionnaire.q2')
-                            <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                @endif
-
-                @if (($form['type'] ?? null) === 'indication')
-                    <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                        <div class="text-sm font-semibold text-sky-950">Indicação</div>
-                        <div class="grid gap-3 md:grid-cols-2">
-                            <x-src.form.input name="form.payload.indication.age" wire:model.live="form.payload.indication.age" label="Idade" width_basic="1000" />
-                            <x-src.form.input name="form.payload.indication.profession" wire:model.live="form.payload.indication.profession" label="Profissão" width_basic="1000" />
-                            <x-src.form.input name="form.payload.indication.religion" wire:model.live="form.payload.indication.religion" label="Religião" width_basic="1000" />
-                            <x-src.form.textarea name="form.payload.indication.notes" wire:model.live="form.payload.indication.notes" label="Observações" width_basic="1000" />
-                        </div>
-                    </div>
-                @endif
-
-                @if (($form['type'] ?? null) === 'visitor')
-                    <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                        <div class="text-sm font-semibold text-sky-950">Visitante</div>
-                        <x-src.form.textarea name="form.payload.visitor.notes" wire:model.live="form.payload.visitor.notes" label="Observações" width_basic="1000" />
-                    </div>
-                @endif
-
-                @if (($form['type'] ?? null) === 'lifestyle')
-                    <div class="rounded-xl border border-slate-300 bg-white/70 p-4 space-y-3">
-                        <div class="text-sm font-semibold text-sky-950">Estilo de Vida</div>
-                        <x-src.form.textarea name="form.payload.lifestyle.notes" wire:model.live="form.payload.lifestyle.notes" label="Observações" width_basic="1000" />
-                    </div>
-                @endif
-
                 <div class="flex justify-end gap-3">
                     <x-src.btn-silver type="button" wire:click="closeModal">{{ __('Close') }}</x-src.btn-silver>
-                    <x-src.btn-silver type="button" wire:click="saveApproachDraft">Salvar rascunho</x-src.btn-silver>
-                    <x-src.btn-gold type="button" wire:click="markAsDone">Concluir</x-src.btn-gold>
+                    <x-src.btn-silver type="button" wire:click="saveApproachDraft">Salvar</x-src.btn-silver>
+                    <x-src.btn-gold type="button" wire:click="markAsDone">Concluir visita e fechar relatório</x-src.btn-gold>
                     @if ($canReview)
                         <x-src.btn-gold type="button" wire:click="markAsReviewed">Revisar</x-src.btn-gold>
                     @endif

@@ -90,26 +90,22 @@ class StpStatisticsService
             }
 
             $statsByTeam[$teamId]['totExplained'] += (int) ($approach->gospel_explained_times ?? 0);
-            $statsByTeam[$teamId]['totPeople'] += (int) ($approach->people_count ?? 0);
+            $listeners = collect(data_get($approach->payload, 'listeners', []))
+                ->filter(fn (mixed $listener): bool => is_array($listener))
+                ->values();
 
-            if ($approach->result !== null) {
-                $resultKey = $approach->result->value;
+            if ($listeners->isNotEmpty()) {
+                $statsByTeam[$teamId]['totPeople'] += $listeners->count();
 
-                if ($resultKey === StpApproachResult::Decision->value) {
-                    $statsByTeam[$teamId]['totDecision']++;
+                foreach ($listeners as $listener) {
+                    $resultKey = data_get($listener, 'result');
+                    $this->incrementResultTotals($statsByTeam[$teamId], is_string($resultKey) ? $resultKey : null);
                 }
+            } else {
+                $statsByTeam[$teamId]['totPeople'] += (int) ($approach->people_count ?? 0);
 
-                if ($resultKey === StpApproachResult::NoDecisionInterested->value) {
-                    $statsByTeam[$teamId]['totInteresting']++;
-                }
-
-                if ($resultKey === StpApproachResult::Rejection->value) {
-                    $statsByTeam[$teamId]['totReject']++;
-                }
-
-                if ($resultKey === StpApproachResult::AlreadyChristian->value) {
-                    $statsByTeam[$teamId]['totChristian']++;
-                }
+                $resultKey = $approach->result?->value;
+                $this->incrementResultTotals($statsByTeam[$teamId], $resultKey);
             }
 
             if ((bool) $approach->means_growth) {
@@ -122,6 +118,32 @@ class StpStatisticsService
         }
 
         return array_values($statsByTeam);
+    }
+
+    /**
+     * @param  array<string, mixed>  $teamTotals
+     */
+    private function incrementResultTotals(array &$teamTotals, ?string $resultKey): void
+    {
+        if ($resultKey === null) {
+            return;
+        }
+
+        if ($resultKey === StpApproachResult::Decision->value) {
+            $teamTotals['totDecision']++;
+        }
+
+        if ($resultKey === StpApproachResult::NoDecisionInterested->value) {
+            $teamTotals['totInteresting']++;
+        }
+
+        if ($resultKey === StpApproachResult::Rejection->value) {
+            $teamTotals['totReject']++;
+        }
+
+        if ($resultKey === StpApproachResult::AlreadyChristian->value) {
+            $teamTotals['totChristian']++;
+        }
     }
 
     /**

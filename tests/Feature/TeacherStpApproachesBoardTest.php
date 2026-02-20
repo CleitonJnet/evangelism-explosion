@@ -133,13 +133,20 @@ it('saves approach draft through the report modal', function () {
         ->call('selectSession', $session->id)
         ->call('openApproachModal', $approach->id)
         ->set('form.person_name', 'Pessoa Atualizada')
-        ->set('form.payload.visitor.notes', 'Observação visitante')
+        ->set('form.approach_date', now()->toDateString())
+        ->set('form.payload.notes', 'Observação visitante')
+        ->set('form.payload.listeners.0.name', 'Ouvidor 1')
+        ->set('form.payload.listeners.0.diagnostic_answer', 'christ')
+        ->set('form.payload.listeners.0.result', 'decision')
         ->call('saveApproachDraft');
 
     $approach->refresh();
 
     expect($approach->person_name)->toBe('Pessoa Atualizada')
-        ->and(data_get($approach->payload, 'visitor.notes'))->toBe('Observação visitante')
+        ->and(data_get($approach->payload, 'notes'))->toBe('Observação visitante')
+        ->and(data_get($approach->payload, 'listeners.0.name'))->toBe('Ouvidor 1')
+        ->and($approach->people_count)->toBe(1)
+        ->and($approach->gospel_explained_times)->toBe(1)
         ->and($approach->status->value)->toBe('planned')
         ->and($approach->reported_by_user_id)->toBe($teacher->id);
 });
@@ -177,12 +184,16 @@ it('marks approach as done and fills reported by', function () {
         ->test(StpApproachesBoard::class, ['training' => $training])
         ->call('selectSession', $session->id)
         ->call('openApproachModal', $approach->id)
-        ->set('form.payload.security_questionnaire.q2', 'Resposta obrigatória')
+        ->set('form.approach_date', now()->toDateString())
+        ->set('form.payload.listeners.0.name', 'Ouvidor 1')
+        ->set('form.payload.listeners.0.diagnostic_answer', 'works')
+        ->set('form.payload.listeners.0.result', 'no_decision_interested')
         ->call('markAsDone');
 
     $approach->refresh();
 
     expect($approach->status->value)->toBe('done')
+        ->and($approach->people_count)->toBe(1)
         ->and($approach->reported_by_user_id)->toBe($teacher->id);
 });
 
@@ -212,6 +223,10 @@ it('requires team assignment before concluding approach', function () {
         ->test(StpApproachesBoard::class, ['training' => $training])
         ->call('selectSession', $session->id)
         ->call('openApproachModal', $approach->id)
+        ->set('form.approach_date', now()->toDateString())
+        ->set('form.payload.listeners.0.name', 'Ouvidor 1')
+        ->set('form.payload.listeners.0.diagnostic_answer', 'christ')
+        ->set('form.payload.listeners.0.result', 'decision')
         ->call('markAsDone')
         ->assertHasErrors(['form.stp_team_id']);
 });

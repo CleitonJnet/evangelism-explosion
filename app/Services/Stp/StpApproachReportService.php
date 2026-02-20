@@ -68,26 +68,27 @@ class StpApproachReportService
      */
     private function extractAttributes(array $data): array
     {
+        $listeners = $this->normalizeListeners($data['payload']['listeners'] ?? null);
+        $firstListenerResult = $listeners[0]['result'] ?? null;
+        $address = is_array($data['address'] ?? null) ? $data['address'] : [];
+
         return [
             'person_name' => $data['person_name'] ?? null,
             'phone' => $data['phone'] ?? null,
             'email' => $data['email'] ?? null,
-            'street' => $data['street'] ?? null,
-            'number' => $data['number'] ?? null,
-            'complement' => $data['complement'] ?? null,
-            'district' => $data['district'] ?? null,
-            'city' => $data['city'] ?? null,
-            'state' => $data['state'] ?? null,
-            'postal_code' => $data['postal_code'] ?? null,
+            'street' => $address['street'] ?? null,
+            'number' => $address['number'] ?? null,
+            'complement' => $address['complement'] ?? null,
+            'district' => $address['district'] ?? null,
+            'city' => $address['city'] ?? null,
+            'state' => $address['state'] ?? null,
+            'postal_code' => $address['postal_code'] ?? null,
             'reference_point' => $data['reference_point'] ?? null,
-            'gospel_explained_times' => $data['gospel_explained_times'] ?? null,
-            'people_count' => $data['people_count'] ?? null,
-            'result' => $data['result'] ?? null,
+            'gospel_explained_times' => 1,
+            'people_count' => count($listeners),
+            'result' => $firstListenerResult,
             'means_growth' => (bool) ($data['means_growth'] ?? false),
             'follow_up_scheduled_at' => $this->normalizeDateTime($data['follow_up_scheduled_at'] ?? null),
-            'public_q2_answer' => $data['public_q2_answer'] ?? null,
-            'public_lesson' => $data['public_lesson'] ?? null,
-            'type' => $data['type'] ?? null,
         ];
     }
 
@@ -100,7 +101,11 @@ class StpApproachReportService
             return null;
         }
 
-        return $payload;
+        return [
+            'approach_date' => $this->normalizeDate($payload['approach_date'] ?? null),
+            'listeners' => $this->normalizeListeners($payload['listeners'] ?? null),
+            'notes' => $payload['notes'] ?? null,
+        ];
     }
 
     private function normalizeDateTime(mixed $value): ?string
@@ -112,5 +117,42 @@ class StpApproachReportService
         }
 
         return str_contains($value, 'T') ? str_replace('T', ' ', $value).':00' : $value;
+    }
+
+    private function normalizeDate(mixed $value): ?string
+    {
+        $value = is_string($value) ? trim($value) : null;
+
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return array<int, array{name: ?string, diagnostic_answer: ?string, result: ?string}>
+     */
+    private function normalizeListeners(mixed $listeners): array
+    {
+        if (! is_array($listeners)) {
+            return [];
+        }
+
+        return collect($listeners)
+            ->map(function (mixed $row): ?array {
+                if (! is_array($row)) {
+                    return null;
+                }
+
+                return [
+                    'name' => data_get($row, 'name'),
+                    'diagnostic_answer' => data_get($row, 'diagnostic_answer'),
+                    'result' => data_get($row, 'result'),
+                ];
+            })
+            ->filter(fn (?array $row): bool => $row !== null)
+            ->values()
+            ->all();
     }
 }

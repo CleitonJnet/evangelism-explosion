@@ -62,6 +62,8 @@ class StpApproachesBoard extends Component
 
     public bool $canReview = false;
 
+    public ?string $editingApproachTypeLabel = null;
+
     public function mount(Training $training): void
     {
         $this->authorize('view', $training);
@@ -135,6 +137,7 @@ class StpApproachesBoard extends Component
         $this->editingApproach = $this->mapApproach($approach);
         $this->form = $this->buildForm($approach);
         $this->canReview = $this->isOwnerTeacher();
+        $this->editingApproachTypeLabel = $this->translateApproachType($approach->type->value);
         $this->showModal = true;
         $this->resetValidation();
     }
@@ -145,8 +148,39 @@ class StpApproachesBoard extends Component
         $this->editingApproach = null;
         $this->form = [];
         $this->canReview = false;
+        $this->editingApproachTypeLabel = null;
         $this->showModal = false;
         $this->resetValidation();
+    }
+
+    public function addListener(): void
+    {
+        $listeners = data_get($this->form, 'payload.listeners', []);
+
+        if (! is_array($listeners)) {
+            $listeners = [];
+        }
+
+        $listeners[] = $this->emptyListenerRow();
+        data_set($this->form, 'payload.listeners', array_values($listeners));
+    }
+
+    public function removeListener(int $index): void
+    {
+        $listeners = data_get($this->form, 'payload.listeners', []);
+
+        if (! is_array($listeners)) {
+            return;
+        }
+
+        unset($listeners[$index]);
+        $listeners = array_values($listeners);
+
+        if ($listeners === []) {
+            $listeners[] = $this->emptyListenerRow();
+        }
+
+        data_set($this->form, 'payload.listeners', $listeners);
     }
 
     public function saveApproachDraft(StpApproachReportService $reportService): void
@@ -386,43 +420,25 @@ class StpApproachesBoard extends Component
             'type' => $approach->type->value,
             'status' => $approach->status->value,
             'stp_team_id' => $approach->stp_team_id,
+            'approach_date' => $this->resolveApproachDateValue($payload, $approach),
             'phone' => $approach->phone,
             'email' => $approach->email,
-            'street' => $approach->street,
-            'number' => $approach->number,
-            'complement' => $approach->complement,
-            'district' => $approach->district,
-            'city' => $approach->city,
-            'state' => $approach->state,
-            'postal_code' => $approach->postal_code,
+            'address' => [
+                'street' => $approach->street,
+                'number' => $approach->number,
+                'complement' => $approach->complement,
+                'district' => $approach->district,
+                'city' => $approach->city,
+                'state' => $approach->state,
+                'postal_code' => $approach->postal_code,
+            ],
             'reference_point' => $approach->reference_point,
-            'gospel_explained_times' => $approach->gospel_explained_times,
-            'people_count' => $approach->people_count,
             'result' => $approach->result?->value,
             'means_growth' => (bool) $approach->means_growth,
             'follow_up_scheduled_at' => $approach->follow_up_scheduled_at?->format('Y-m-d\TH:i'),
-            'public_q2_answer' => $approach->public_q2_answer,
-            'public_lesson' => $approach->public_lesson,
             'payload' => [
-                'security_questionnaire' => [
-                    'q1' => data_get($payload, 'security_questionnaire.q1'),
-                    'q2' => data_get($payload, 'security_questionnaire.q2'),
-                    'q3' => data_get($payload, 'security_questionnaire.q3'),
-                    'q4' => data_get($payload, 'security_questionnaire.q4'),
-                    'q5' => data_get($payload, 'security_questionnaire.q5'),
-                ],
-                'indication' => [
-                    'age' => data_get($payload, 'indication.age'),
-                    'profession' => data_get($payload, 'indication.profession'),
-                    'religion' => data_get($payload, 'indication.religion'),
-                    'notes' => data_get($payload, 'indication.notes'),
-                ],
-                'visitor' => [
-                    'notes' => data_get($payload, 'visitor.notes'),
-                ],
-                'lifestyle' => [
-                    'notes' => data_get($payload, 'lifestyle.notes'),
-                ],
+                'listeners' => $this->normalizeListenersForForm($payload),
+                'notes' => data_get($payload, 'notes'),
             ],
         ];
     }
@@ -432,46 +448,34 @@ class StpApproachesBoard extends Component
      */
     private function validateApproachForm(bool $finalizing): array
     {
-        $typeValues = array_map(fn (StpApproachType $type): string => $type->value, StpApproachType::cases());
-        $statusValues = array_map(fn (StpApproachStatus $status): string => $status->value, StpApproachStatus::cases());
-
         $validated = $this->validate([
             'form.person_name' => ['required', 'string', 'min:3', 'max:255'],
-            'form.type' => ['required', 'string', 'in:'.implode(',', $typeValues)],
-            'form.status' => ['required', 'string', 'in:'.implode(',', $statusValues)],
+            'form.approach_date' => ['required', 'date'],
             'form.phone' => ['nullable', 'string', 'max:255'],
             'form.email' => ['nullable', 'string', 'max:255'],
-            'form.street' => ['nullable', 'string', 'max:255'],
-            'form.number' => ['nullable', 'string', 'max:255'],
-            'form.complement' => ['nullable', 'string', 'max:255'],
-            'form.district' => ['nullable', 'string', 'max:255'],
-            'form.city' => ['nullable', 'string', 'max:255'],
-            'form.state' => ['nullable', 'string', 'max:255'],
-            'form.postal_code' => ['nullable', 'string', 'max:255'],
+            'form.address.street' => ['nullable', 'string', 'max:255'],
+            'form.address.number' => ['nullable', 'string', 'max:255'],
+            'form.address.complement' => ['nullable', 'string', 'max:255'],
+            'form.address.district' => ['nullable', 'string', 'max:255'],
+            'form.address.city' => ['nullable', 'string', 'max:255'],
+            'form.address.state' => ['nullable', 'string', 'max:255'],
+            'form.address.postal_code' => ['nullable', 'string', 'max:255'],
             'form.reference_point' => ['nullable', 'string', 'max:255'],
-            'form.gospel_explained_times' => ['nullable', 'integer', 'min:0'],
-            'form.people_count' => ['nullable', 'integer', 'min:0'],
-            'form.result' => ['nullable', 'string', 'in:decision,no_decision_interested,rejection,already_christian'],
             'form.means_growth' => ['boolean'],
             'form.follow_up_scheduled_at' => ['nullable', 'date'],
-            'form.public_q2_answer' => ['nullable', 'string'],
-            'form.public_lesson' => ['nullable', 'string'],
-            'form.payload.security_questionnaire.q1' => ['nullable', 'string'],
-            'form.payload.security_questionnaire.q2' => ['nullable', 'string'],
-            'form.payload.security_questionnaire.q3' => ['nullable', 'string'],
-            'form.payload.security_questionnaire.q4' => ['nullable', 'string'],
-            'form.payload.security_questionnaire.q5' => ['nullable', 'string'],
-            'form.payload.indication.age' => ['nullable', 'string', 'max:50'],
-            'form.payload.indication.profession' => ['nullable', 'string', 'max:255'],
-            'form.payload.indication.religion' => ['nullable', 'string', 'max:255'],
-            'form.payload.indication.notes' => ['nullable', 'string'],
-            'form.payload.visitor.notes' => ['nullable', 'string'],
-            'form.payload.lifestyle.notes' => ['nullable', 'string'],
+            'form.payload.listeners' => ['array', 'min:1'],
+            'form.payload.listeners.*.name' => ['required', 'string', 'min:3', 'max:255'],
+            'form.payload.listeners.*.diagnostic_answer' => ['required', 'string', 'in:christ,works'],
+            'form.payload.listeners.*.result' => ['required', 'string', 'in:decision,no_decision_interested,rejection,already_christian'],
+            'form.payload.notes' => ['nullable', 'string'],
         ], [
             'form.person_name.required' => 'Informe o nome da pessoa visitada.',
             'form.person_name.min' => 'O nome da pessoa visitada deve ter ao menos 3 caracteres.',
-            'form.type.in' => 'Tipo de abordagem inválido.',
-            'form.status.in' => 'Status de abordagem inválido.',
+            'form.approach_date.required' => 'Informe a data da abordagem.',
+            'form.payload.listeners.min' => 'Informe ao menos um ouvinte nesta abordagem.',
+            'form.payload.listeners.*.name.required' => 'Informe o nome de cada ouvinte.',
+            'form.payload.listeners.*.diagnostic_answer.required' => 'Selecione a resposta diagnóstica de cada ouvinte.',
+            'form.payload.listeners.*.result.required' => 'Selecione o resultado de cada ouvinte.',
         ]);
 
         $extraErrors = [];
@@ -480,17 +484,11 @@ class StpApproachesBoard extends Component
             $extraErrors['form.stp_team_id'] = 'A visita precisa estar atribuída a uma equipe para concluir.';
         }
 
-        if (
-            $finalizing
-            && ($this->form['type'] ?? null) === StpApproachType::SecurityQuestionnaire->value
-            && blank(data_get($this->form, 'payload.security_questionnaire.q2'))
-        ) {
-            $extraErrors['form.payload.security_questionnaire.q2'] = 'Preencha ao menos a pergunta Q2 do questionário de segurança para concluir.';
-        }
-
         if ($extraErrors !== []) {
             throw ValidationException::withMessages($extraErrors);
         }
+
+        $validated['form']['payload']['approach_date'] = $validated['form']['approach_date'];
 
         return $validated['form'];
     }
@@ -543,5 +541,70 @@ class StpApproachesBoard extends Component
     private function isOwnerTeacher(): bool
     {
         return (int) Auth::id() === (int) $this->training->teacher_id;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<int, array{name: ?string, diagnostic_answer: ?string, result: ?string}>
+     */
+    private function normalizeListenersForForm(array $payload): array
+    {
+        $listeners = data_get($payload, 'listeners', []);
+
+        if (! is_array($listeners) || $listeners === []) {
+            return [$this->emptyListenerRow()];
+        }
+
+        return collect($listeners)
+            ->map(function (mixed $row): array {
+                if (! is_array($row)) {
+                    return $this->emptyListenerRow();
+                }
+
+                return [
+                    'name' => data_get($row, 'name'),
+                    'diagnostic_answer' => data_get($row, 'diagnostic_answer'),
+                    'result' => data_get($row, 'result'),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function resolveApproachDateValue(array $payload, StpApproach $approach): string
+    {
+        $storedDate = data_get($payload, 'approach_date');
+
+        if (is_string($storedDate) && trim($storedDate) !== '') {
+            return $storedDate;
+        }
+
+        return $approach->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+    }
+
+    /**
+     * @return array{name: ?string, diagnostic_answer: ?string, result: ?string}
+     */
+    private function emptyListenerRow(): array
+    {
+        return [
+            'name' => null,
+            'diagnostic_answer' => null,
+            'result' => null,
+        ];
+    }
+
+    private function translateApproachType(string $type): string
+    {
+        return match ($type) {
+            StpApproachType::Visitor->value => 'Visitante',
+            StpApproachType::SecurityQuestionnaire->value => 'Questionário de Segurança',
+            StpApproachType::Indication->value => 'Indicação',
+            StpApproachType::Lifestyle->value => 'Estilo de Vida',
+            default => 'Visita',
+        };
     }
 }
