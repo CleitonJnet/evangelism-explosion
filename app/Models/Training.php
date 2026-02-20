@@ -176,4 +176,9 @@ class Training extends Model
     {
         return $this->hasMany(Mentor::class);
     }
+
+    public function stpSessions(): HasMany
+    {
+        return $this->hasMany(StpSession::class);
+    }
 }

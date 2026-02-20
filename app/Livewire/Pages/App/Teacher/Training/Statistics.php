@@ -2,14 +2,29 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Models\StpSession;
+use App\Models\StpTeam;
 use App\Models\Training;
-use Carbon\Carbon;
+use App\Services\Stp\StpSessionService;
+use App\Services\Stp\StpStatisticsService;
+use App\Services\Stp\StpTeamFormationService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Component;
 
 class Statistics extends Component
 {
+    use AuthorizesRequests;
+
     public Training $training;
+
+    public ?int $activeSessionId = null;
+
+    /**
+     * @var array<int, array{id: int, label: string}>
+     */
+    public array $sessions = [];
 
     /**
      * @var array<int, array{
@@ -27,16 +42,11 @@ class Statistics extends Component
      *     totInteresting: int,
      *     totReject: int,
      *     totChristian: int,
-     *     meansGrowth: bool,
+     *     meansGrowth: int,
      *     folowship: int
      * }>
      */
-    public array $approaches = [];
-
-    /**
-     * @var array<int, string>
-     */
-    public array $sessions = [];
+    public array $teams = [];
 
     /**
      * @var array<int, string>
@@ -79,75 +89,213 @@ class Statistics extends Component
      */
     public array $columnTotals = [];
 
+    /**
+     * @var array<int, array{student_id: int, name: string, participated: int, missing: int}>
+     */
+    public array $pendingStudents = [];
+
+    public bool $canCreateSession = true;
+
+    public ?string $createSessionBlockedReason = null;
+
+    public int $mentorsCount = 0;
+
     public function mount(Training $training): void
     {
-        $this->training = $training->loadMissing(['eventDates']);
-        $this->approaches = $this->buildApproaches();
-        $this->sessions = $this->buildSessions();
-        $this->columnTotals = $this->calculateColumnTotals($this->approaches);
+        $this->authorize('view', $training);
+        $this->training = $training;
+
+        $this->refreshSessionsAndTeams();
     }
 
-    public function moveStudent(int $studentId, int $fromApproachId, int $toApproachId, ?int $afterStudentId = null): void
+    /**
+     * @param  array{label?: ?string, starts_at?: mixed, ends_at?: mixed, status?: ?string}  $data
+     */
+    public function createSession(array $data = []): void
     {
-        $fromApproachIndex = $this->findApproachIndexById($fromApproachId);
-        $toApproachIndex = $this->findApproachIndexById($toApproachId);
+        $this->authorize('view', $this->training);
+        $this->refreshCreateSessionState();
 
-        if ($fromApproachIndex === null || $toApproachIndex === null) {
+        if (! $this->canCreateSession) {
+            $this->addError('sessionCreation', $this->createSessionBlockedReason ?? 'Não foi possível criar a sessão STP.');
+
             return;
         }
 
-        $studentIndex = collect($this->approaches[$fromApproachIndex]['students'])
-            ->search(fn (array $student): bool => $student['id'] === $studentId);
+        $session = app(StpSessionService::class)->createNextSession($this->training, $data);
+        $this->activeSessionId = $session->id;
+        $this->resetErrorBag('sessionCreation');
 
-        if ($studentIndex === false) {
+        $this->refreshSessionsAndTeams();
+    }
+
+    public function removeSession(int $sessionId): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = StpSession::query()
+            ->where('training_id', $this->training->id)
+            ->find($sessionId);
+
+        if (! $session) {
             return;
         }
 
-        $student = $this->approaches[$fromApproachIndex]['students'][$studentIndex];
-        array_splice($this->approaches[$fromApproachIndex]['students'], (int) $studentIndex, 1);
+        $session->delete();
 
-        if ($afterStudentId === null) {
-            array_unshift($this->approaches[$toApproachIndex]['students'], $student);
-        } else {
-            $afterIndex = collect($this->approaches[$toApproachIndex]['students'])
-                ->search(fn (array $item): bool => $item['id'] === $afterStudentId);
+        if ($this->activeSessionId === $sessionId) {
+            $this->activeSessionId = null;
+        }
 
-            if ($afterIndex === false) {
-                $this->approaches[$toApproachIndex]['students'][] = $student;
-            } else {
-                array_splice($this->approaches[$toApproachIndex]['students'], (int) $afterIndex + 1, 0, [$student]);
+        $this->refreshSessionsAndTeams();
+    }
+
+    public function formTeams(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        try {
+            app(StpTeamFormationService::class)->formTeams($session);
+            $this->resetErrorBag('teamFormation');
+        } catch (\RuntimeException $exception) {
+            $this->addError('teamFormation', $exception->getMessage());
+        }
+
+        $this->refreshSessionsAndTeams();
+    }
+
+    public function moveStudent(int $studentId, int $fromTeamId, int $toTeamId, ?int $afterStudentId = null): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        DB::transaction(function () use ($session, $studentId, $fromTeamId, $toTeamId, $afterStudentId): void {
+            $teamIds = StpTeam::query()
+                ->where('stp_session_id', $session->id)
+                ->pluck('id')
+                ->map(fn (mixed $id): int => (int) $id)
+                ->all();
+
+            if (! in_array($fromTeamId, $teamIds, true) || ! in_array($toTeamId, $teamIds, true)) {
+                return;
             }
-        }
 
-        $this->sortStudentsByName($fromApproachIndex);
+            DB::table('stp_team_students')
+                ->whereIn('stp_team_id', $teamIds)
+                ->where('user_id', $studentId)
+                ->delete();
 
-        if ($fromApproachIndex !== $toApproachIndex) {
-            $this->sortStudentsByName($toApproachIndex);
-        }
+            $destinationIds = DB::table('stp_team_students')
+                ->where('stp_team_id', $toTeamId)
+                ->orderBy('position')
+                ->orderBy('id')
+                ->pluck('user_id')
+                ->map(fn (mixed $id): int => (int) $id)
+                ->all();
+
+            $destinationIds = array_values(array_filter(
+                $destinationIds,
+                fn (int $id): bool => $id !== $studentId,
+            ));
+
+            $insertIndex = 0;
+
+            if ($afterStudentId !== null) {
+                $afterIndex = array_search($afterStudentId, $destinationIds, true);
+                $insertIndex = $afterIndex === false ? count($destinationIds) : ((int) $afterIndex + 1);
+            }
+
+            array_splice($destinationIds, $insertIndex, 0, [$studentId]);
+
+            $now = now();
+
+            foreach ($destinationIds as $position => $id) {
+                DB::table('stp_team_students')->updateOrInsert(
+                    [
+                        'stp_team_id' => $toTeamId,
+                        'user_id' => $id,
+                    ],
+                    [
+                        'position' => $position,
+                        'updated_at' => $now,
+                        'created_at' => $now,
+                    ],
+                );
+            }
+
+            $this->normalizeTeamStudentPositions($fromTeamId);
+
+            if ($fromTeamId !== $toTeamId) {
+                $this->normalizeTeamStudentPositions($toTeamId);
+            }
+        });
+
+        $this->loadTeamsAndStats();
     }
 
-    public function swapMentor(int $mentorId, int $fromApproachId, int $toApproachId): void
+    public function swapMentor(int $mentorId, int $fromTeamId, int $toTeamId): void
     {
-        $fromApproachIndex = $this->findApproachIndexById($fromApproachId);
-        $toApproachIndex = $this->findApproachIndexById($toApproachId);
+        $this->authorize('view', $this->training);
 
-        if ($fromApproachIndex === null || $toApproachIndex === null) {
+        $session = $this->activeSession();
+
+        if (! $session || $fromTeamId === $toTeamId) {
             return;
         }
 
-        if ($fromApproachIndex === $toApproachIndex) {
+        DB::transaction(function () use ($session, $mentorId, $fromTeamId, $toTeamId): void {
+            $fromTeam = StpTeam::query()
+                ->where('stp_session_id', $session->id)
+                ->find($fromTeamId);
+            $toTeam = StpTeam::query()
+                ->where('stp_session_id', $session->id)
+                ->find($toTeamId);
+
+            if (! $fromTeam || ! $toTeam) {
+                return;
+            }
+
+            if ((int) $fromTeam->mentor_user_id !== $mentorId) {
+                return;
+            }
+
+            $sourceMentorId = (int) $fromTeam->mentor_user_id;
+            $targetMentorId = (int) $toTeam->mentor_user_id;
+
+            $fromTeam->mentor_user_id = $targetMentorId;
+            $toTeam->mentor_user_id = $sourceMentorId;
+
+            $fromTeam->save();
+            $toTeam->save();
+        });
+
+        $this->loadTeamsAndStats();
+    }
+
+    public function selectSession(int|string $sessionId): void
+    {
+        $sessionId = (int) $sessionId;
+
+        $exists = collect($this->sessions)
+            ->contains(fn (array $session): bool => $session['id'] === $sessionId);
+
+        if (! $exists) {
             return;
         }
 
-        if ($this->approaches[$fromApproachIndex]['mentor']['id'] !== $mentorId) {
-            return;
-        }
-
-        $sourceMentor = $this->approaches[$fromApproachIndex]['mentor'];
-        $targetMentor = $this->approaches[$toApproachIndex]['mentor'];
-
-        $this->approaches[$fromApproachIndex]['mentor'] = $targetMentor;
-        $this->approaches[$toApproachIndex]['mentor'] = $sourceMentor;
+        $this->activeSessionId = $sessionId;
+        $this->loadTeamsAndStats();
     }
 
     public function render(): View
@@ -155,225 +303,245 @@ class Statistics extends Component
         return view('livewire.pages.app.teacher.training.statistics');
     }
 
-    /**
-     * @return array<int, array{
-     *     id: int,
-     *     name: string,
-     *     mentor: array{id: int, name: string},
-     *     students: array<int, array{id: int, name: string}>,
-     *     visitant: int,
-     *     questionnaire: int,
-     *     indication: int,
-     *     lifeway: int,
-     *     totExplained: int,
-     *     totPeople: int,
-     *     totDecision: int,
-     *     totInteresting: int,
-     *     totReject: int,
-     *     totChristian: int,
-     *     meansGrowth: bool,
-     *     folowship: int
-     * }>
-     */
-    private function buildApproaches(): array
+    private function refreshSessionsAndTeams(): void
     {
-        return [
-            [
-                'id' => 1,
-                'name' => 'Fernando Pedrosa',
-                'mentor' => ['id' => 1001, 'name' => 'Dc. Antonio Maia'],
-                'students' => [
-                    ['id' => 2001, 'name' => 'Pb. Gabriel Ferreira'],
-                    ['id' => 2002, 'name' => 'Maria Jose'],
-                ],
-                'visitant' => 0,
-                'questionnaire' => 3,
-                'indication' => 1,
-                'lifeway' => 0,
-                'totExplained' => 4,
-                'totPeople' => 10,
-                'totDecision' => 5,
-                'totInteresting' => 3,
-                'totReject' => 1,
-                'totChristian' => 1,
-                'meansGrowth' => true,
-                'folowship' => 9,
-            ],
-            [
-                'id' => 2,
-                'name' => 'Joao Batista',
-                'mentor' => ['id' => 1002, 'name' => 'Pr. Cleverson Pereira Rodrigues'],
-                'students' => [
-                    ['id' => 2003, 'name' => 'Ana Paula Souza'],
-                    ['id' => 2004, 'name' => 'Carlos Eduardo Lima'],
-                ],
-                'visitant' => 1,
-                'questionnaire' => 1,
-                'indication' => 1,
-                'lifeway' => 0,
-                'totExplained' => 4,
-                'totPeople' => 10,
-                'totDecision' => 5,
-                'totInteresting' => 3,
-                'totReject' => 1,
-                'totChristian' => 1,
-                'meansGrowth' => true,
-                'folowship' => 9,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Fernando Galego',
-                'mentor' => ['id' => 1003, 'name' => 'Mariana Chagas'],
-                'students' => [
-                    ['id' => 2005, 'name' => 'Joao Pedro Martins'],
-                    ['id' => 2006, 'name' => 'Juliana Alves'],
-                ],
-                'visitant' => 0,
-                'questionnaire' => 3,
-                'indication' => 0,
-                'lifeway' => 2,
-                'totExplained' => 4,
-                'totPeople' => 10,
-                'totDecision' => 5,
-                'totInteresting' => 3,
-                'totReject' => 1,
-                'totChristian' => 1,
-                'meansGrowth' => true,
-                'folowship' => 9,
-            ],
-            [
-                'id' => 4,
-                'name' => 'Thomas Ropkings',
-                'mentor' => ['id' => 1004, 'name' => 'Laender Souza'],
-                'students' => [
-                    ['id' => 2007, 'name' => 'Rafael Henrique Silva'],
-                    ['id' => 2008, 'name' => 'Camila Rodrigues'],
-                ],
-                'visitant' => 0,
-                'questionnaire' => 3,
-                'indication' => 1,
-                'lifeway' => 0,
-                'totExplained' => 4,
-                'totPeople' => 10,
-                'totDecision' => 5,
-                'totInteresting' => 3,
-                'totReject' => 1,
-                'totChristian' => 1,
-                'meansGrowth' => true,
-                'folowship' => 9,
-            ],
-            [
-                'id' => 5,
-                'name' => 'Willian Tyndale',
-                'mentor' => ['id' => 1005, 'name' => 'Marcelo Ponce'],
-                'students' => [
-                    ['id' => 2009, 'name' => 'Bruno Vieira'],
-                    ['id' => 2010, 'name' => 'Patricia Nascimento'],
-                ],
-                'visitant' => 0,
-                'questionnaire' => 3,
-                'indication' => 1,
-                'lifeway' => 0,
-                'totExplained' => 4,
-                'totPeople' => 10,
-                'totDecision' => 5,
-                'totInteresting' => 3,
-                'totReject' => 1,
-                'totChristian' => 1,
-                'meansGrowth' => true,
-                'folowship' => 9,
-            ],
-        ];
-    }
+        $this->training = Training::query()
+            ->with([
+                'course',
+                'stpSessions' => fn ($query) => $query->orderBy('sequence')->orderBy('id'),
+            ])
+            ->withCount('mentors')
+            ->findOrFail($this->training->id);
 
-    /**
-     * @return array<int, string>
-     */
-    private function buildSessions(): array
-    {
-        $eventDates = $this->training->eventDates->sortBy('date')->values();
+        $this->mentorsCount = (int) $this->training->mentors_count;
 
-        if ($eventDates->isNotEmpty()) {
-            return $eventDates
-                ->map(function ($eventDate, int $index): string {
-                    $dateLabel = Carbon::parse((string) $eventDate->date)->format('d/m/Y');
+        $this->sessions = $this->training->stpSessions
+            ->map(function (StpSession $session): array {
+                return [
+                    'id' => $session->id,
+                    'label' => $this->formatSessionLabel($session),
+                ];
+            })
+            ->values()
+            ->all();
 
-                    return sprintf('Sessão %d: %s', $index + 1, $dateLabel);
-                })
-                ->all();
-        }
+        if ($this->activeSessionId === null) {
+            $this->activeSessionId = $this->training->stpSessions->last()?->id;
+        } else {
+            $activeSessionExists = $this->training->stpSessions
+                ->contains(fn (StpSession $session): bool => $session->id === $this->activeSessionId);
 
-        return [
-            'Sessão 1: 01/01/2026',
-            'Sessão 2: 02/01/2026',
-            'Sessão 3: 03/01/2026',
-        ];
-    }
-
-    /**
-     * @param  array<int, array{
-     *     id: int,
-     *     name: string,
-     *     mentor: array{id: int, name: string},
-     *     students: array<int, array{id: int, name: string}>,
-     *     visitant: int,
-     *     questionnaire: int,
-     *     indication: int,
-     *     lifeway: int,
-     *     totExplained: int,
-     *     totPeople: int,
-     *     totDecision: int,
-     *     totInteresting: int,
-     *     totReject: int,
-     *     totChristian: int,
-     *     meansGrowth: bool,
-     *     folowship: int
-     * }>  $approaches
-     * @return array<int, int>
-     */
-    private function calculateColumnTotals(array $approaches): array
-    {
-        $totals = array_fill(0, 12, 0);
-
-        foreach ($approaches as $approach) {
-            $values = [
-                $approach['visitant'],
-                $approach['questionnaire'],
-                $approach['indication'],
-                $approach['lifeway'],
-                $approach['totExplained'],
-                $approach['totPeople'],
-                $approach['totDecision'],
-                $approach['totInteresting'],
-                $approach['totReject'],
-                $approach['totChristian'],
-                $approach['meansGrowth'] ? 1 : 0,
-                $approach['folowship'],
-            ];
-
-            foreach ($values as $index => $value) {
-                $totals[$index] += $value;
+            if (! $activeSessionExists) {
+                $this->activeSessionId = $this->training->stpSessions->last()?->id;
             }
         }
 
-        return $totals;
+        $this->pendingStudents = app(StpStatisticsService::class)->studentsBelowMinimum($this->training);
+        $this->refreshCreateSessionState();
+
+        $this->loadTeamsAndStats();
     }
 
-    private function findApproachIndexById(int $approachId): ?int
+    private function refreshCreateSessionState(): void
     {
-        $index = collect($this->approaches)
-            ->search(fn (array $approach): bool => $approach['id'] === $approachId);
+        $training = Training::query()
+            ->withCount(['mentors', 'students'])
+            ->findOrFail($this->training->id);
 
-        return $index === false ? null : (int) $index;
+        if ($training->mentors_count < 1 || $training->students_count < 1) {
+            $this->canCreateSession = false;
+            $this->createSessionBlockedReason = 'Cadastre ao menos 1 mentor e 1 aluno no treinamento antes de criar sessões STP.';
+
+            return;
+        }
+
+        $lastSession = StpSession::query()
+            ->with(['teams.students'])
+            ->where('training_id', $this->training->id)
+            ->orderByDesc('sequence')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $lastSession) {
+            $this->canCreateSession = true;
+            $this->createSessionBlockedReason = null;
+
+            return;
+        }
+
+        $hasMentors = $lastSession->teams->isNotEmpty();
+        $hasStudents = $lastSession->teams->sum(fn (StpTeam $team): int => $team->students->count()) > 0;
+
+        if (! $hasMentors || ! $hasStudents) {
+            $this->canCreateSession = false;
+            $this->createSessionBlockedReason = 'A sessão anterior precisa ter mentores e alunos distribuídos antes de criar uma nova.';
+
+            return;
+        }
+
+        $this->canCreateSession = true;
+        $this->createSessionBlockedReason = null;
     }
 
-    private function sortStudentsByName(int $approachIndex): void
+    private function loadTeamsAndStats(): void
     {
-        usort($this->approaches[$approachIndex]['students'], function (array $left, array $right): int {
-            return strcmp(
-                mb_strtolower($left['name']),
-                mb_strtolower($right['name']),
-            );
-        });
+        $session = $this->activeSession();
+
+        if (! $session) {
+            $this->teams = [];
+            $this->columnTotals = array_fill(0, 12, 0);
+
+            return;
+        }
+
+        $session = StpSession::query()
+            ->with([
+                'teams' => fn ($query) => $query
+                    ->with([
+                        'mentor',
+                        'students' => fn ($studentsQuery) => $studentsQuery
+                            ->orderBy('stp_team_students.position')
+                            ->orderBy('name'),
+                    ])
+                    ->orderBy('position')
+                    ->orderBy('id'),
+            ])
+            ->findOrFail($session->id);
+
+        $statsByTeam = collect(app(StpStatisticsService::class)->teamStats($session))
+            ->keyBy('team_id');
+
+        $this->teams = $session->teams
+            ->map(function (StpTeam $team) use ($statsByTeam): array {
+                /** @var array<string, mixed> $stats */
+                $stats = $statsByTeam->get($team->id, [
+                    'visitant' => 0,
+                    'questionnaire' => 0,
+                    'indication' => 0,
+                    'lifeway' => 0,
+                    'totExplained' => 0,
+                    'totPeople' => 0,
+                    'totDecision' => 0,
+                    'totInteresting' => 0,
+                    'totReject' => 0,
+                    'totChristian' => 0,
+                    'meansGrowth' => 0,
+                    'folowship' => 0,
+                ]);
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'mentor' => [
+                        'id' => (int) $team->mentor_user_id,
+                        'name' => $team->mentor?->name ?? 'Mentor não definido',
+                    ],
+                    'students' => $team->students
+                        ->map(fn ($student): array => [
+                            'id' => $student->id,
+                            'name' => $student->name,
+                        ])
+                        ->values()
+                        ->all(),
+                    'visitant' => (int) ($stats['visitant'] ?? 0),
+                    'questionnaire' => (int) ($stats['questionnaire'] ?? 0),
+                    'indication' => (int) ($stats['indication'] ?? 0),
+                    'lifeway' => (int) ($stats['lifeway'] ?? 0),
+                    'totExplained' => (int) ($stats['totExplained'] ?? 0),
+                    'totPeople' => (int) ($stats['totPeople'] ?? 0),
+                    'totDecision' => (int) ($stats['totDecision'] ?? 0),
+                    'totInteresting' => (int) ($stats['totInteresting'] ?? 0),
+                    'totReject' => (int) ($stats['totReject'] ?? 0),
+                    'totChristian' => (int) ($stats['totChristian'] ?? 0),
+                    'meansGrowth' => (int) ($stats['meansGrowth'] ?? 0),
+                    'folowship' => (int) ($stats['folowship'] ?? 0),
+                ];
+            })
+            ->values()
+            ->all();
+
+        $this->recomputeTotals();
+    }
+
+    private function recomputeTotals(): void
+    {
+        $totals = array_fill(0, 12, 0);
+
+        foreach ($this->teams as $team) {
+            $values = [
+                $team['visitant'],
+                $team['questionnaire'],
+                $team['indication'],
+                $team['lifeway'],
+                $team['totExplained'],
+                $team['totPeople'],
+                $team['totDecision'],
+                $team['totInteresting'],
+                $team['totReject'],
+                $team['totChristian'],
+                $team['meansGrowth'],
+                $team['folowship'],
+            ];
+
+            foreach ($values as $index => $value) {
+                $totals[$index] += (int) $value;
+            }
+        }
+
+        $this->columnTotals = $totals;
+    }
+
+    private function activeSession(): ?StpSession
+    {
+        if ($this->activeSessionId === null) {
+            return null;
+        }
+
+        return StpSession::query()
+            ->where('training_id', $this->training->id)
+            ->find($this->activeSessionId);
+    }
+
+    private function formatSessionLabel(StpSession $session): string
+    {
+        $base = sprintf('Sessão %d', (int) $session->sequence);
+
+        if ($session->label) {
+            return $base.': '.$session->label;
+        }
+
+        if ($session->starts_at || $session->ends_at) {
+            $startsAt = $session->starts_at?->format('d/m H:i');
+            $endsAt = $session->ends_at?->format('d/m H:i');
+            $timeLabel = trim(($startsAt ?? '').' - '.($endsAt ?? ''), ' -');
+
+            if ($timeLabel !== '') {
+                return $base.': '.$timeLabel;
+            }
+        }
+
+        return $base;
+    }
+
+    private function normalizeTeamStudentPositions(int $teamId): void
+    {
+        $rows = DB::table('stp_team_students')
+            ->where('stp_team_id', $teamId)
+            ->orderBy('position')
+            ->orderBy('id')
+            ->get(['id', 'position']);
+
+        foreach ($rows as $position => $row) {
+            if ((int) $row->position === $position) {
+                continue;
+            }
+
+            DB::table('stp_team_students')
+                ->where('id', $row->id)
+                ->update([
+                    'position' => $position,
+                    'updated_at' => now(),
+                ]);
+        }
     }
 }

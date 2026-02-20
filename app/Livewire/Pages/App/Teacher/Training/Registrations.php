@@ -4,7 +4,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Models\Training;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -12,6 +12,8 @@ use Livewire\Component;
 
 class Registrations extends Component
 {
+    use AuthorizesRequests;
+
     public Training $training;
 
     public bool $showReceiptModal = false;
@@ -78,7 +80,7 @@ class Registrations extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorizeTraining($training);
+        $this->authorize('view', $training);
         $this->training = $training;
         $this->refreshRegistrations();
     }
@@ -116,7 +118,7 @@ class Registrations extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -185,7 +187,7 @@ class Registrations extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -388,14 +390,5 @@ class Registrations extends Component
         }
 
         return 'No church';
-    }
-
-    private function authorizeTraining(Training $training): void
-    {
-        $teacherId = Auth::id();
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
     }
 }

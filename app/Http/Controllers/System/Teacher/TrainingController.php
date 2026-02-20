@@ -28,15 +28,17 @@ class TrainingController extends Controller
         return view('pages.app.roles.teacher.trainings.create');
     }
 
-    public function show(string $id)
+    public function show(Training $training): View
     {
-        $training = Training::findOrFail($id);
+        $this->authorize('view', $training);
 
         return view('pages.app.roles.teacher.trainings.show', ['training' => $training]);
     }
 
     public function schedule(Training $training): View
     {
+        $this->authorize('view', $training);
+
         return view('pages.app.roles.teacher.trainings.schedule', [
             'training' => $training,
         ]);
@@ -44,6 +46,8 @@ class TrainingController extends Controller
 
     public function registrations(Training $training): View
     {
+        $this->authorize('view', $training);
+
         return view('pages.app.roles.teacher.trainings.registrations', [
             'training' => $training,
         ]);
@@ -51,6 +55,8 @@ class TrainingController extends Controller
 
     public function destroy(Training $training): RedirectResponse
     {
+        $this->authorize('delete', $training);
+
         $training->delete();
 
         return redirect()->route('app.teacher.trainings.index');

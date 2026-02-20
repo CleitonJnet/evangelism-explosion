@@ -85,10 +85,10 @@ export function initStatisticsSortable(root = document) {
                 }
 
                 const mentorId = toNumber(itemEl.dataset.mentorId);
-                const fromApproachId = toNumber(fromList.dataset.approachId);
-                const toApproachId = toNumber(toList.dataset.approachId);
+                const fromTeamId = toNumber(fromList.dataset.teamId);
+                const toTeamId = toNumber(toList.dataset.teamId);
 
-                if (!mentorId || !fromApproachId || !toApproachId) {
+                if (!mentorId || !fromTeamId || !toTeamId) {
                     return;
                 }
 
@@ -101,8 +101,8 @@ export function initStatisticsSortable(root = document) {
                 Livewire.find(componentId).call(
                     "swapMentor",
                     mentorId,
-                    fromApproachId,
-                    toApproachId
+                    fromTeamId,
+                    toTeamId
                 );
             },
         });
@@ -129,11 +129,11 @@ export function initStatisticsSortable(root = document) {
                 }
 
                 const studentId = toNumber(itemEl.dataset.studentId);
-                const fromApproachId = toNumber(fromList.dataset.approachId);
-                const toApproachId = toNumber(toList.dataset.approachId);
+                const fromTeamId = toNumber(fromList.dataset.teamId);
+                const toTeamId = toNumber(toList.dataset.teamId);
                 const newIndex = typeof evt.newIndex === "number" ? evt.newIndex : 0;
 
-                if (!studentId || !fromApproachId || !toApproachId) {
+                if (!studentId || !fromTeamId || !toTeamId) {
                     return;
                 }
 
@@ -153,8 +153,8 @@ export function initStatisticsSortable(root = document) {
                 Livewire.find(componentId).call(
                     "moveStudent",
                     studentId,
-                    fromApproachId,
-                    toApproachId,
+                    fromTeamId,
+                    toTeamId,
                     afterStudentId
                 );
             },

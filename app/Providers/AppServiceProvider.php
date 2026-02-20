@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\StpApproach;
+use App\Models\Training;
 use App\Models\User;
 use App\Policies\RoleAccessPolicy;
+use App\Policies\StpApproachPolicy;
+use App\Policies\TrainingPolicy;
 use App\Policies\UserPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -53,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAccessGates(): void
     {
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Training::class, TrainingPolicy::class);
+        Gate::policy(StpApproach::class, StpApproachPolicy::class);
         Gate::define('access-board', [RoleAccessPolicy::class, 'accessBoard']);
         Gate::define('access-director', [RoleAccessPolicy::class, 'accessDirector']);
         Gate::define('access-teacher', [RoleAccessPolicy::class, 'accessTeacher']);

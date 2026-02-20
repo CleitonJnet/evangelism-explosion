@@ -12,8 +12,8 @@ use App\Services\Schedule\TrainingScheduleDayBlocksApplier;
 use App\Services\Schedule\TrainingScheduleResetService;
 use App\Services\Schedule\TrainingScheduleTimelineService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -21,6 +21,8 @@ use Livewire\Component;
 
 class Schedule extends Component
 {
+    use AuthorizesRequests;
+
     public const PLAN_STATUS_UNDER = 'under';
 
     public const PLAN_STATUS_OVER = 'over';
@@ -63,7 +65,7 @@ class Schedule extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorizeTraining($training);
+        $this->authorize('view', $training);
         $this->training = $training;
         $this->refreshSchedule();
     }
@@ -74,7 +76,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -96,7 +98,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -119,7 +121,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -171,7 +173,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -217,7 +219,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -283,7 +285,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -376,7 +378,7 @@ class Schedule extends Component
             return;
         }
 
-        $this->authorizeTraining($this->training);
+        $this->authorize('view', $this->training);
         $this->busy = true;
 
         try {
@@ -590,15 +592,6 @@ class Schedule extends Component
             : Carbon::createFromFormat('H:i:s', $time);
 
         return ((int) $value->format('H')) * 60 + (int) $value->format('i');
-    }
-
-    private function authorizeTraining(Training $training): void
-    {
-        $teacherId = Auth::id();
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
     }
 
     private function dispatchScheduleAlert(string $message): void

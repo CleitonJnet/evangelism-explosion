@@ -2,11 +2,87 @@
     <x-src.toolbar.header :title="__('Saidas de Treinamento Praticos')" :description="__('Detalhes sobre as saidas de Treinamento Pratico.')" />
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+        <x-src.toolbar.button :href="route('app.teacher.trainings.stp.approaches', $training)" :label="__('Visitas')" icon="list" :tooltip="__('Distribuição de visitas STP')" />
+        <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group" :tooltip="__('Gerenciador de mentores')"
+            x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })">
+            <div class="absolute -top-2.5 -right-0.5 text-blue-800 z-20 text-base bg-white/75 rounded px-1">
+                {{ $mentorsCount }}
+            </div>
+        </x-src.toolbar.button>
         <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
     </x-src.toolbar.nav>
 
-    <div
-        class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
+    <div class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+            <label for="stp-session-select" class="text-xs font-semibold text-slate-700">Sessão STP:</label>
+            <select
+                id="stp-session-select"
+                class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                wire:change="selectSession($event.target.value)"
+            >
+                <option value="">Selecione</option>
+                @foreach ($sessions as $session)
+                    <option value="{{ $session['id'] }}" @selected($activeSessionId === $session['id'])>
+                        {{ $session['label'] }}
+                    </option>
+                @endforeach
+            </select>
+
+            <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                wire:click="createSession"
+                @disabled(! $canCreateSession)
+                title="{{ $createSessionBlockedReason ?? '' }}"
+            >
+                Criar sessão STP
+            </button>
+
+            @if ($activeSessionId !== null && count($teams) === 0)
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    wire:click="formTeams"
+                >
+                    Formar equipes
+                </button>
+            @endif
+
+            @if ($activeSessionId !== null)
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                    wire:click="removeSession({{ $activeSessionId }})"
+                >
+                    Remover sessão
+                </button>
+            @endif
+
+            @if (count($pendingStudents) > 0)
+                <span class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                    Pendências STP: {{ count($pendingStudents) }}
+                </span>
+            @endif
+        </div>
+
+        @if (! $canCreateSession && $createSessionBlockedReason)
+            <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                {{ $createSessionBlockedReason }}
+            </div>
+        @endif
+
+        @error('sessionCreation')
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $message }}
+            </div>
+        @enderror
+
+        @error('teamFormation')
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $message }}
+            </div>
+        @enderror
+
         <div class="min-w-280 overflow-hidden rounded-xl">
             <table
                 class="w-full table-fixed text-xs text-black rounded-xl [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0 [&_thead_tr:first-child>*]:border-t-0 [&_tfoot_tr:last-child>*]:border-b-0">
@@ -97,16 +173,21 @@
                 </thead>
 
                 <tbody>
-                    @foreach ($sessions as $sessionLabel)
+                    @if ($activeSessionId === null)
                         <tr>
-                            <th colspan="15" class="text-left px-2 pt-2 pb-1 align-bottom bg-slate-50 font-bold">
-                                {{ $sessionLabel }}
-                            </th>
+                            <td colspan="15" class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
+                                Nenhuma sessão STP criada.
+                            </td>
                         </tr>
-
-                        @foreach ($approaches as $approach)
-                            <tr class="h-10 relative group"
-                                wire:key="approach-{{ $loop->parent->index }}-{{ $approach['id'] }}">
+                    @elseif (count($teams) === 0)
+                        <tr>
+                            <td colspan="15" class="border border-white bg-white px-4 py-6 text-center text-sm text-slate-500">
+                                Sessão selecionada sem equipes formadas.
+                            </td>
+                        </tr>
+                    @else
+                        @foreach ($teams as $team)
+                            <tr class="h-10 relative group" wire:key="team-{{ $team['id'] }}">
                                 <th
                                     class="border border-y-4 border-y-white border-l-white border-r-yellow-300 bg-yellow-50 group-hover:bg-yellow-100 px-1 text-center">
                                     {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}.
@@ -114,29 +195,27 @@
 
                                 <td
                                     class="border border-y-4 border-y-white border-l-yellow-300 border-r-yellow-300 bg-yellow-50 px-1 group-hover:bg-yellow-100 min-w-fit">
-                                    <div class="js-statistics-mentor-list flex flex-wrap"
-                                        data-approach-id="{{ $approach['id'] }}">
+                                    <div class="js-statistics-mentor-list flex flex-wrap" data-team-id="{{ $team['id'] }}">
                                         <div class="js-statistics-mentor-item rounded pl-7 border border-orange-500 pr-2 py-2 bg-linear-to-br from-orange-100 via-white to-orange-200 font-semibold truncate w-32 flex items-center gap-1 cursor-grab! relative"
-                                            data-mentor-id="{{ $approach['mentor']['id'] }}"
-                                            title="Mentor(a): {{ $approach['mentor']['name'] }}">
+                                            data-mentor-id="{{ $team['mentor']['id'] }}"
+                                            title="Mentor(a): {{ $team['mentor']['name'] }}">
                                             <button type="button"
                                                 class="js-statistics-mentor-handle inline-flex absolute left-0 inset-y-0 h-full w-5 items-center justify-center border-r border-orange-300 bg-white/70 text-[10px] text-orange-700 cursor-grab!"
                                                 title="{{ __('Mover mentor') }}"
                                                 aria-label="{{ __('Mover mentor') }}">
                                                 ::
                                             </button>
-                                            <span class="truncate">{{ $approach['mentor']['name'] }}</span>
+                                            <span class="truncate">{{ $team['mentor']['name'] }}</span>
                                         </div>
                                     </div>
                                 </td>
 
                                 <td
                                     class="border border-y-4 border-y-white border-l-yellow-300 border-r-white bg-yellow-50 px-1 group-hover:bg-yellow-100 min-w-fit">
-                                    <div class="js-statistics-student-list flex gap-1 flex-wrap"
-                                        data-approach-id="{{ $approach['id'] }}">
-                                        @foreach ($approach['students'] as $student)
+                                    <div class="js-statistics-student-list flex gap-1 flex-wrap" data-team-id="{{ $team['id'] }}">
+                                        @foreach ($team['students'] as $student)
                                             <div class="js-statistics-student-item relative rounded border border-sky-500 pl-7 pr-2 py-2 bg-linear-to-br from-sky-100 via-white to-sky-200 font-semibold truncate max-w-32 min-w-24 flex items-center gap-1 cursor-grab!"
-                                                wire:key="student-{{ $approach['id'] }}-{{ $student['id'] }}"
+                                                wire:key="student-{{ $team['id'] }}-{{ $student['id'] }}"
                                                 data-student-id="{{ $student['id'] }}"
                                                 title="Aluno(a): {{ $student['name'] }}">
                                                 <button type="button"
@@ -151,64 +230,28 @@
                                     </div>
                                 </td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Visitante da Igreja">
-                                    {{ $approach['visitant'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Questionario de Seguranca">
-                                    {{ $approach['questionnaire'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Visita indicada">
-                                    {{ $approach['indication'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-l-green-300 border-r-white bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Estilo de Vida">
-                                    {{ $approach['lifeway'] }}
-                                </td>
+                                <td class="border border-y-4 border-y-white border-l-white border-r-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['visitant'] }}</td>
+                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['questionnaire'] }}</td>
+                                <td class="border border-y-4 border-y-white border-x-green-300 bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['indication'] }}</td>
+                                <td class="border border-y-4 border-y-white border-l-green-300 border-r-white bg-green-100 group-hover:bg-green-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['lifeway'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-fuchsia-300 bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantas vezes o Evangelho foi Explicado?">
-                                    {{ $approach['totExplained'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-l-fuchsia-300 border-r-white bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Para quantas pessoas?">
-                                    {{ $approach['totPeople'] }}
-                                </td>
+                                <td class="border border-y-4 border-y-white border-l-white border-r-fuchsia-300 bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totExplained'] }}</td>
+                                <td class="border border-y-4 border-y-white border-l-fuchsia-300 border-r-white bg-fuchsia-200 group-hover:bg-fuchsia-300 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totPeople'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantas decisoes?">
-                                    {{ $approach['totDecision'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantos ficaram apenas interessados?">
-                                    {{ $approach['totInteresting'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantos rejeitaram o Evangelho?">
-                                    {{ $approach['totReject'] }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-l-red-300 border-r-white bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantos ja eram cristaos?">
-                                    {{ $approach['totChristian'] }}
-                                </td>
+                                <td class="border border-y-4 border-y-white border-l-white border-r-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totDecision'] }}</td>
+                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totInteresting'] }}</td>
+                                <td class="border border-y-4 border-y-white border-x-red-300 bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totReject'] }}</td>
+                                <td class="border border-y-4 border-y-white border-l-red-300 border-r-white bg-red-100 group-hover:bg-red-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['totChristian'] }}</td>
 
-                                <td class="border border-y-4 border-y-white border-l-white border-r-blue-300 bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Quantos ouviram os meios de crescimento">
-                                    {{ $approach['meansGrowth'] ? 1 : 0 }}
-                                </td>
-                                <td class="border border-y-4 border-y-white border-l-blue-300 border-r-white bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800"
-                                    title="Discipulado para quantas pessoas?">
-                                    {{ $approach['folowship'] }}
-                                </td>
+                                <td class="border border-y-4 border-y-white border-l-white border-r-blue-300 bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['meansGrowth'] }}</td>
+                                <td class="border border-y-4 border-y-white border-l-blue-300 border-r-white bg-blue-100 group-hover:bg-blue-200 align-middle text-center text-sm font-bold text-blue-800">{{ $team['folowship'] }}</td>
                             </tr>
                         @endforeach
 
                         <tr class="h-7">
                             <td colspan="3"
                                 class="border border-y-4 border-y-white border-x-black/20 bg-[#E5E5E5] pr-4 text-right italic font-semibold">
-                                Total de cada coluna por periodo:
+                                Total de cada coluna por sessão:
                             </td>
 
                             @foreach ($columnTotals as $columnTotal)
@@ -218,20 +261,20 @@
                                 </td>
                             @endforeach
                         </tr>
-                    @endforeach
+                    @endif
                 </tbody>
 
                 <tfoot>
                     <tr class="h-8">
                         <td colspan="3"
                             class="border border-t-4 border-t-white border-x-black/20 bg-slate-700 text-white pr-4 text-right italic font-semibold">
-                            Total de cada coluna (todas as sessões):
+                            Total geral (sessão ativa):
                         </td>
 
                         @foreach ($columnTotals as $columnTotal)
                             <td
                                 class="border border-t-4 border-t-white border-x-black/20 bg-slate-700 align-middle text-center text-sm font-bold text-blue-300">
-                                {{ $columnTotal * count($sessions) }}
+                                {{ $columnTotal }}
                             </td>
                         @endforeach
                     </tr>
