@@ -50,9 +50,9 @@
         {{-- SELEÇÃO DO CURSO --}}
         <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+1+-+Curso"
+                <img src="{{ asset(path: 'images/banner-create-training-course.png') }}"
                     alt="Ilustração do passo de seleção de curso"
-                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Selecione o curso que será realizado neste evento. Essa escolha define a base do conteúdo e o valor inicial da inscrição.') }}
@@ -82,9 +82,9 @@
         {{-- DATA DO EVENTO --}}
         <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+2+-+Datas"
+                <img src="{{ asset(path: 'images/banner-create-training-datetime.png') }}"
                     alt="Ilustração do passo de datas do evento"
-                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Defina os dias e horários') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Adicione todos os dias do treinamento com horário de início e fim. Revise os horários antes de avançar para evitar conflitos na programação.') }}
@@ -122,9 +122,9 @@
         {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
         <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+3+-+Igreja+Base"
-                    alt="Ilustração do passo de seleção da igreja base"
-                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <img src="{{ asset(path: 'images/banner-create-training-base.png') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
                 <div class="text-slate-700 text-justify ">
                     {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
@@ -167,9 +167,9 @@
         {{-- FINANCEIRO --}}
         <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+4+-+Valores"
-                    alt="Ilustração do passo de valores do evento"
-                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <img src="{{ asset(path: 'images/banner-create-training-finance.png') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Revise os valores da inscrição') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Confira o preço base do curso, informe despesas extras e desconto por inscrição. O valor final é calculado automaticamente para conferência antes de salvar o evento.') }}
@@ -240,9 +240,9 @@
         {{-- DIVULGAÇÃO --}}
         <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="https://placehold.co/600x120?text=Passo+5+-+Divulgacao"
-                    alt="Ilustração do passo de divulgação do evento"
-                    class="mb-4 h-auto w-full rounded-lg border border-sky-950/10 object-cover" />
+                <img src="{{ asset(path: 'images/banner-create-training-banner.png') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 h-40 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Arquivo de divulgação') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Você já possui uma arte para divulgar este evento nas redes sociais? Se sim, envie a imagem agora para anexá-la ao cadastro.') }}
