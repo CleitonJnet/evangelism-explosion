@@ -41,37 +41,15 @@
                         const isSingleSlide = slidesCount < 1;
 
                         new Swiper(root, {
-                            slidesPerView: isSingleSlide ? 1 : 3,
+                            slidesPerView: 'auto',
                             spaceBetween: 10,
                             loop: false,
                             grabCursor: true,
                             autoplay: false,
-                            pagination: {
-                                el: ".swiper-pagination",
-                                dynamicBullets: true,
-                            },
                             navigation: {
                                 nextEl,
                                 prevEl
                             },
-                            breakpoints: isSingleSlide ? {} : {
-                                // 320: {
-                                //     slidesPerView: 1,
-                                //     spaceBetween: 6
-                                // },
-                                640: {
-                                    slidesPerView: 1,
-                                    spaceBetween: 6
-                                },
-                                870: {
-                                    slidesPerView: 2,
-                                    spaceBetween: 10
-                                },
-                                1280: {
-                                    slidesPerView: 3,
-                                    spaceBetween: 30
-                                }
-                            }
                         });
                     });
                 }

@@ -1,7 +1,7 @@
 @props(['ministry_id' => null])
 
 <section id="events"
-    class="relative z-0 overflow-hidden bg-center bg-cover shadow-md
+    class="relative z-10 overflow-hidden bg-center bg-cover shadow-md
            before:absolute before:inset-0 before:z-0
            before:bg-linear-to-b before:from-sky-800/70 before:via-black/70 before:to-sky-950/95
            before:backdrop-blur-[2px]"

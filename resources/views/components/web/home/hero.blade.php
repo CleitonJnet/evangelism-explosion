@@ -1,8 +1,8 @@
 @push('css')
     <style>
         /* =========================================================
-                                                                                HERO MISSION — Evangelismo Explosivo no Brasil
-                                                                                ========================================================= */
+                                                                                    HERO MISSION — Evangelismo Explosivo no Brasil
+                                                                                    ========================================================= */
 
         /* ---------- Variáveis Globais ---------- */
         :root {
@@ -254,7 +254,7 @@
     </style>
 @endpush
 
-<section class="hero-mission">
+<section class="hero-mission z-10 relative">
 
     <div class="hero-bg is-active"></div>
     <div class="hero-bg"></div>

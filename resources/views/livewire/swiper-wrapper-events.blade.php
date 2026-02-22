@@ -48,8 +48,7 @@
                 class="relative flex flex-col justify-center p-3 overflow-hidden text-center text-white transition border shadow-lg shine border-white/10 h-72 group rounded-2xl backdrop-blur-md ring-1 ring-white/10 shadow-black/30"
                 style="background: linear-gradient(180deg, #082f49 0%, #05273d 55%, #041b2d 100%);">
 
-                <div
-                    class="absolute inset-x-0 top-0 h-0.75 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
+                <div class="absolute inset-x-0 top-0 h-0.75 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
                 </div>
 
                 <h4 class="text-2xl" style="font-family: 'Cinzel', serif;">

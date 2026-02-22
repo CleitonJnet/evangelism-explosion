@@ -10,7 +10,7 @@
 
                 <p class="mt-5 text-lg leading-relaxed reveal">
                     Participe de um de nossos <strong>Workshops de Liderança Esperança Para Crianças</strong>,
-                    um treinamento de <strong>12 horas</strong> ao longo de <strong>dois dias</strong>,
+                    um treinamento de <strong>20 horas</strong> ao longo de <strong>dois dias</strong>,
                     e veja seus líderes de ministérios infantis/pastores saírem com as habilidades e materiais
                     necessários para equipar crianças e equipe com o Evangelho.
                 </p>
@@ -34,7 +34,7 @@
                             style="background-image:url('{{ asset('images/ee-kids/kids-bg-blue.png') }}'); background-size:contaobject-contain; background-position:center;">
                         </div>
                         <div class="relative">
-                            <p class="text-lg font-extrabold">Clínica EE-Kids (1-3 líderes-chave)</p>
+                            <p class="text-lg font-extrabold">Clínica EE-Kids (1 a 3 líderes-chave)</p>
                             <p class="mt-2 text-white/85">
                                 Treinamento focado em liderança e implementação, com materiais e suporte.
                             </p>

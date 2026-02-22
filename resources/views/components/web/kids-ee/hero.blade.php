@@ -47,7 +47,7 @@
                             <div class="p-4 bg-white border rounded-2xl border-sky-200">
                                 <p class="text-xs font-semibold text-sky-500">Etapa 1</p>
                                 <p class="mt-1 font-extrabold text-sky-950">Workshop de Liderança</p>
-                                <p class="mt-1 text-sm text-sky-900">12h em 2 dias</p>
+                                <p class="mt-1 text-sm text-sky-900">20h em 2 dias</p>
                             </div>
                             <div class="p-4 bg-white border rounded-2xl border-sky-200">
                                 <p class="text-xs font-semibold text-sky-500">Etapa 2</p>

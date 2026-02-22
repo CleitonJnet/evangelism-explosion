@@ -31,10 +31,10 @@
                     </p>
 
                     <div class="flex flex-col gap-3 mt-8 reveal sm:flex-row">
-                        <a href="#o-que-e"
+                        {{-- <a href="#o-que-e"
                             class="inline-flex items-center justify-center px-5 py-3 font-bold text-white transition shadow shine rounded-xl bg-amber-400 hover:shadow-lg">
                             Começar a apresentação
-                        </a>
+                        </a> --}}
                         <button type="button" data-open-wa
                             class="inline-flex items-center justify-center px-5 py-3 font-semibold transition border text-amber-950 rounded-xl shine bg-white/25 border-white/50 hover:bg-white/40">
                             Solicitar Workshop de Liderança
@@ -45,12 +45,12 @@
                     <div class="grid gap-4 mt-10 reveal sm:grid-cols-3 text-shadow-dark">
                         <div class="p-4 border rounded-2xl bg-white/8 border-white/15">
                             <p class="text-xs text-white/70">Treinamento base</p>
-                            <p class="mt-1 text-2xl font-extrabold text-white">12h</p>
+                            <p class="mt-1 text-2xl font-extrabold text-white">20h</p>
                             <p class="text-xs text-white/70">em 2 dias</p>
                         </div>
                         <div class="p-4 border rounded-2xl bg-white/8 border-white/15">
-                            <p class="text-xs text-white/70">Foco</p>
-                            <p class="mt-1 text-2xl font-extrabold text-white">1–3</p>
+                            <p class="text-xs text-white/70">Comece com</p>
+                            <p class="mt-1 text-2xl font-extrabold text-white">1 a 3</p>
                             <p class="text-xs text-white/70">líderes-chave</p>
                         </div>
                         <div class="p-4 border rounded-2xl bg-white/8 border-white/15">

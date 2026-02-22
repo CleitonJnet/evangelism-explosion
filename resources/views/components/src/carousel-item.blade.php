@@ -12,7 +12,7 @@
     'free' => false,
 ])
 
-<div class="overflow-hidden swiper-slide shine rounded-2xl"
+<div class="overflow-hidden swiper-slide shine rounded-2xl max-w-sm"
     style="background: linear-gradient(180deg, #082f49 0%, #05273d 55%, #041b2d 100%);">
     <a href="{{ $route }}" class="block h-full group">
 

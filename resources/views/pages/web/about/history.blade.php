@@ -34,7 +34,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="{{ asset('images/photo3.jpg') }}"
+                        <img src="{{ asset('images/photo2.jpg') }}"
                             alt="Pastor D. James Kennedy durante seus primeiros anos em Fort Lauderdale"
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
@@ -65,7 +65,7 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="{{ asset('images/photo2.jpg') }}"
+                        <img src="{{ asset('images/photo3.jpg') }}"
                             alt="Grupo de leigos participando do treinamento prático em uma visita domiciliar"
                             class="w-full h-auto border-t-4 border-l-4 border-white rounded-lg shadow-md"
                             style="box-shadow: -3px -3px 0 #c7a840" />

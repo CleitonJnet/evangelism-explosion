@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <p class="mt-8 leading-relaxed text-[#574815]">
+        <p class="mt-8 leading-relaxed text-[#574815] max-w-5xl mx-auto text-center">
             Esta declaração reflete a convicção de que o Evangelho deve ser proclamado em unidade,
             sem substituir as convicções denominacionais, e que cada crente pode se unir na simplicidade
             e profundidade da mensagem de Jesus.
