@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTrainingScheduleItemRequest extends FormRequest
 {
+    private const MAX_SECTION_DURATION_MINUTES = 120;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -51,7 +53,9 @@ class UpdateTrainingScheduleItemRequest extends FormRequest
             }
 
             $min = (int) ceil($suggested * 0.8);
-            $max = (int) floor($suggested * 1.2);
+            $min = min(self::MAX_SECTION_DURATION_MINUTES, $min);
+            $max = min(self::MAX_SECTION_DURATION_MINUTES, (int) floor($suggested * 1.2));
+            $max = max($min, $max);
             $value = (int) $this->input('planned_duration_minutes');
 
             if ($value < $min || $value > $max) {

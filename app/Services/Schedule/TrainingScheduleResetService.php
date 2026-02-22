@@ -23,15 +23,21 @@ class TrainingScheduleResetService
                 ->with('eventDates')
                 ->findOrFail($trainingId);
 
-            $training->scheduleItems()->delete();
-
-            $this->generator->generate($training);
-
-            $training->load('eventDates');
-
             $dayBlocks = $this->dayBlocksService->defaultsForTraining($training);
             $dayUi = $this->dayBlocksService->computeDayUi($training);
             $dayBlocks = $this->dayBlocksService->normalizeDayBlocksForVisibility($training, $dayBlocks, $dayUi);
+
+            $training->schedule_settings = [
+                'days' => $this->buildGeneratorDaysSettings($dayBlocks),
+            ];
+            $training->save();
+
+            $training->scheduleItems()->delete();
+
+            $this->generator->generate($training);
+            $this->generator->normalizeGeneratedDurationsToFive($training->fresh());
+
+            $training->load('eventDates');
 
             $training->schedule_settings = [
                 'day_blocks' => $dayBlocks,
@@ -55,15 +61,49 @@ class TrainingScheduleResetService
 
                 $this->cleanupHiddenMeals($trainingId, $dateKey, $dayUi[$dateKey] ?? []);
 
-                $this->generator->normalizeGeneratedDurationsToFive($training->fresh());
-
                 if (! ($blocksForDay['snack'] ?? true)) {
-                    $this->breakPolicy->suggestBreakIfLongRun($trainingId, $dateKey, '15:30:00', 'snack_off');
+                    $this->breakPolicy->suggestBreakIfLongRun($trainingId, $dateKey, '15:00:00', 'snack_off');
                 }
 
-                $this->timelineService->reflowDay($trainingId, $dateKey);
             }
         });
+    }
+
+    /**
+     * @param  array<string, array<string, bool>>  $dayBlocks
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildGeneratorDaysSettings(array $dayBlocks): array
+    {
+        $days = [];
+
+        foreach ($dayBlocks as $dateKey => $blocks) {
+            $days[$dateKey] = [
+                'welcome_enabled' => (bool) ($blocks['welcome'] ?? false),
+                'devotional_enabled' => (bool) ($blocks['devotional'] ?? true),
+                'meals' => [
+                    'breakfast' => [
+                        'enabled' => (bool) ($blocks['breakfast'] ?? false),
+                        'duration_minutes' => 30,
+                    ],
+                    'lunch' => [
+                        'enabled' => (bool) ($blocks['lunch'] ?? false),
+                        'duration_minutes' => 60,
+                    ],
+                    'afternoon_snack' => [
+                        'enabled' => (bool) ($blocks['snack'] ?? false),
+                        'duration_minutes' => 30,
+                    ],
+                    'dinner' => [
+                        'enabled' => (bool) ($blocks['dinner'] ?? false),
+                        'duration_minutes' => 60,
+                        'substitute_snack' => false,
+                    ],
+                ],
+            ];
+        }
+
+        return $days;
     }
 
     /**

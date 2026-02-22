@@ -3,6 +3,7 @@
 namespace App\Services\Schedule;
 
 use App\Models\EventDate;
+use App\Models\Training;
 use App\Models\TrainingScheduleItem;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -46,7 +47,7 @@ class TrainingScheduleDayBlocksApplier
             $items->splice($insertIndex, 0, [$newItem]);
             $this->syncPositions($items);
 
-            $this->timelineService->reflowDay($trainingId, $dateKey);
+            $this->timelineService->rebalanceDayToEventWindow($trainingId, $dateKey);
         });
     }
 
@@ -72,7 +73,7 @@ class TrainingScheduleDayBlocksApplier
             $remaining = $items->reject(fn (TrainingScheduleItem $item): bool => in_array($item->id, $idsToDelete, true))->values();
             $this->syncPositions($remaining);
 
-            $this->timelineService->reflowDay($trainingId, $dateKey);
+            $this->timelineService->rebalanceDayToEventWindow($trainingId, $dateKey);
         });
     }
 
@@ -101,15 +102,16 @@ class TrainingScheduleDayBlocksApplier
     private function resolveBlockSpec(string $blockKey, string $dateKey, int $trainingId): array
     {
         $dayStart = $this->resolveDayStart($trainingId, $dateKey);
+        $welcomeDuration = $this->resolveWelcomeDurationMinutes($trainingId);
 
         return match ($blockKey) {
             'welcome' => [
                 'type' => 'WELCOME',
                 'title' => 'Boas-vindas',
-                'duration' => 20,
+                'duration' => $welcomeDuration,
                 'meta' => ['block' => 'welcome', 'anchor' => 'welcome'],
                 'starts_at' => $dayStart->copy(),
-                'ends_at' => $dayStart->copy()->addMinutes(20),
+                'ends_at' => $dayStart->copy()->addMinutes($welcomeDuration),
                 'target_time' => null,
             ],
             'devotional' => [
@@ -122,8 +124,8 @@ class TrainingScheduleDayBlocksApplier
                 'target_time' => null,
             ],
             'breakfast' => $this->mealSpec('Café', $dateKey, 'breakfast', '07:50:00', 40, $dayStart),
-            'lunch' => $this->mealSpec('Almoço', $dateKey, 'lunch', '12:00:00', 90, $dayStart),
-            'snack' => $this->mealSpec('Lanche', $dateKey, 'snack', '15:30:00', 30, $dayStart, 'afternoon_snack'),
+            'lunch' => $this->mealSpec('Almoço', $dateKey, 'lunch', '12:00:00', 60, $dayStart),
+            'snack' => $this->mealSpec('Lanche', $dateKey, 'snack', '15:00:00', 30, $dayStart, 'afternoon_snack'),
             'dinner' => $this->mealSpec('Jantar', $dateKey, 'dinner', '18:00:00', 60, $dayStart),
             default => [
                 'type' => 'SECTION',
@@ -292,5 +294,20 @@ class TrainingScheduleDayBlocksApplier
         $startTime = is_string($startTime) && $startTime !== '' ? $startTime : '00:00:00';
 
         return Carbon::parse($dateKey.' '.$startTime);
+    }
+
+    private function resolveWelcomeDurationMinutes(int $trainingId): int
+    {
+        $duration = (int) (Training::query()->whereKey($trainingId)->value('welcome_duration_minutes') ?? 30);
+
+        if ($duration < 30) {
+            return 30;
+        }
+
+        if ($duration > 60) {
+            return 60;
+        }
+
+        return $duration;
     }
 }

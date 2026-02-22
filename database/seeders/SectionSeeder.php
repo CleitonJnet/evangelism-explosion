@@ -29,7 +29,7 @@ class SectionSeeder extends Seeder
                 'name' => 'Unidade 2: Aprendendo a Explicação do Evangelho Em Sua Mão',
                 'banner' => null,
                 'order' => 2,
-                'duration' => '20 min',
+                'duration' => '25 min',
                 'devotional' => null,
                 'description' => 'Esta unidade ensina uma ferramenta prática e memorável para apresentar o Evangelho usando a própria mão, tornando a explicação simples, natural e fácil de reproduzir. O foco é capacitar o aluno a comunicar com clareza e segurança.',
                 'knowhow' => null,

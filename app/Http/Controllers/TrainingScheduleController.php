@@ -68,10 +68,10 @@ class TrainingScheduleController extends Controller
             $this->syncPositionsForDate($training->id, $oldDate);
         }
 
-        $timelineService->reflowDay($training->id, $dateKey);
+        $timelineService->rebalanceDayToEventWindow($training->id, $dateKey);
 
         if ($oldDate && $oldDate !== $dateKey) {
-            $timelineService->reflowDay($training->id, $oldDate);
+            $timelineService->rebalanceDayToEventWindow($training->id, $oldDate);
         }
 
         return response()->json([
@@ -108,7 +108,7 @@ class TrainingScheduleController extends Controller
         ]);
 
         $this->syncPositionsForDate($training->id, $date->format('Y-m-d'));
-        $timelineService->reflowDay($training->id, $date->format('Y-m-d'));
+        $timelineService->rebalanceDayToEventWindow($training->id, $date->format('Y-m-d'));
 
         return response()->json([
             'ok' => true,
@@ -129,7 +129,7 @@ class TrainingScheduleController extends Controller
 
         if ($dateKey) {
             $this->syncPositionsForDate($training->id, $dateKey);
-            $timelineService->reflowDay($training->id, $dateKey);
+            $timelineService->rebalanceDayToEventWindow($training->id, $dateKey);
         }
 
         return response()->json([

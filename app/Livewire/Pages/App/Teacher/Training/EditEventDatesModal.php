@@ -87,19 +87,26 @@ class EditEventDatesModal extends Component
         $this->busy = true;
 
         try {
-            DB::transaction(function () use ($validated): void {
-                $rows = collect($validated['eventDates'])
-                    ->sortBy(fn (array $eventDate): string => $eventDate['date'].' '.$eventDate['start_time'])
-                    ->values()
-                    ->map(function (array $eventDate): array {
-                        return [
-                            'date' => $eventDate['date'],
-                            'start_time' => $eventDate['start_time'].':00',
-                            'end_time' => $eventDate['end_time'].':00',
-                        ];
-                    })
-                    ->all();
+            $rows = collect($validated['eventDates'])
+                ->sortBy(fn (array $eventDate): string => $eventDate['date'].' '.$eventDate['start_time'])
+                ->values()
+                ->map(function (array $eventDate): array {
+                    return [
+                        'date' => $eventDate['date'],
+                        'start_time' => $eventDate['start_time'].':00',
+                        'end_time' => $eventDate['end_time'].':00',
+                    ];
+                })
+                ->all();
 
+            if (! $this->hasEventDateChanges($rows)) {
+                $this->closeModal();
+                $this->dispatch('training-dates-updated', trainingId: $this->training->id);
+
+                return;
+            }
+
+            DB::transaction(function () use ($rows): void {
                 $this->training->eventDates()->delete();
                 $this->training->eventDates()->createMany($rows);
             });
@@ -199,5 +206,27 @@ class EditEventDatesModal extends Component
         if (Auth::id() !== $training->teacher_id) {
             abort(403);
         }
+    }
+
+    /**
+     * @param  array<int, array{date: string, start_time: string, end_time: string}>  $newRows
+     */
+    private function hasEventDateChanges(array $newRows): bool
+    {
+        $currentRows = $this->training->eventDates()
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get(['date', 'start_time', 'end_time'])
+            ->map(function ($eventDate): array {
+                return [
+                    'date' => is_string($eventDate->date) ? $eventDate->date : $eventDate->date?->format('Y-m-d') ?? '',
+                    'start_time' => (string) $eventDate->start_time,
+                    'end_time' => (string) $eventDate->end_time,
+                ];
+            })
+            ->values()
+            ->all();
+
+        return $currentRows !== $newRows;
     }
 }

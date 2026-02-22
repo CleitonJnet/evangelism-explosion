@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class TrainingScheduleBreakPolicy
 {
-    private const MIN_WINDOW_MINUTES = 80;
+    private const MIN_WINDOW_MINUTES = 120;
 
     private const MAX_WINDOW_MINUTES = 140;
 
     private const DEFAULT_BREAK_MINUTES = 10;
+
+    private const MIN_BREAK_DISTANCE_MINUTES = 60;
 
     public function __construct(
         public TrainingDayBlocksService $dayBlocksService,
@@ -68,6 +70,10 @@ class TrainingScheduleBreakPolicy
                 (int) floor($run['starts_at']->diffInSeconds($run['ends_at']) / 2)
             );
 
+        if ($this->hasNearbyPause($items, $insertTime)) {
+            return;
+        }
+
         DB::transaction(function () use ($trainingId, $dateKey, $items, $insertTime, $reasonKey): void {
             $insertIndex = $this->resolveInsertIndex($items, $insertTime);
 
@@ -93,7 +99,7 @@ class TrainingScheduleBreakPolicy
             $items->splice($insertIndex, 0, [$breakItem]);
             $this->syncPositions($items);
 
-            $this->timelineService->reflowDay($trainingId, $dateKey);
+            $this->timelineService->rebalanceDayToEventWindow($trainingId, $dateKey);
         });
     }
 
@@ -212,6 +218,21 @@ class TrainingScheduleBreakPolicy
             $meta = is_array($item->meta) ? $item->meta : [];
 
             return ($meta['auto_reason'] ?? null) === $reasonKey;
+        });
+    }
+
+    private function hasNearbyPause(Collection $items, Carbon $insertTime): bool
+    {
+        return $items->contains(function (TrainingScheduleItem $item) use ($insertTime): bool {
+            if (! in_array($item->type, ['BREAK', 'MEAL'], true)) {
+                return false;
+            }
+
+            if (! $item->starts_at) {
+                return false;
+            }
+
+            return abs($item->starts_at->diffInMinutes($insertTime, false)) < self::MIN_BREAK_DISTANCE_MINUTES;
         });
     }
 

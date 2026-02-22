@@ -93,7 +93,10 @@ class TrainingDayBlocksService
                 continue;
             }
 
-            $defaults[$dateKey] = $this->defaultDayBlocks();
+            $defaults[$dateKey] = array_replace(
+                $this->defaultDayBlocks(),
+                $this->resolveMealDefaultsForDay($dateKey, $eventDate->start_time, $eventDate->end_time),
+            );
             $defaults[$dateKey]['welcome'] = $dateKey === $firstDateKey;
         }
 
@@ -119,7 +122,7 @@ class TrainingDayBlocksService
             $ui[$dateKey] = [
                 'showBreakfast' => $this->isWithinDayWindow($dateKey, $eventDate->start_time, $eventDate->end_time, '07:50:00'),
                 'showLunch' => $this->isWithinDayWindow($dateKey, $eventDate->start_time, $eventDate->end_time, '12:00:00'),
-                'showSnack' => $this->isWithinDayWindow($dateKey, $eventDate->start_time, $eventDate->end_time, '15:30:00'),
+                'showSnack' => $this->isWithinDayWindow($dateKey, $eventDate->start_time, $eventDate->end_time, '15:00:00'),
                 'showDinner' => $this->isWithinDayWindow($dateKey, $eventDate->start_time, $eventDate->end_time, '18:00:00'),
             ];
         }
@@ -260,6 +263,39 @@ class TrainingDayBlocksService
         $target = Carbon::parse($dateKey.' '.$targetTime);
 
         return $dayStart->lte($target) && $target->lt($dayEnd);
+    }
+
+    /**
+     * @return array{lunch: bool, snack: bool, dinner: bool}
+     */
+    private function resolveMealDefaultsForDay(string $dateKey, ?string $startTime, ?string $endTime): array
+    {
+        if (! $startTime || ! $endTime) {
+            return [
+                'lunch' => false,
+                'snack' => false,
+                'dinner' => false,
+            ];
+        }
+
+        $dayStart = Carbon::parse($dateKey.' '.$startTime);
+        $dayEnd = Carbon::parse($dateKey.' '.$endTime);
+        $twelve = Carbon::parse($dateKey.' 12:00:00');
+        $eighteen = Carbon::parse($dateKey.' 18:00:00');
+        $twentyOne = Carbon::parse($dateKey.' 21:00:00');
+        $snackTarget = Carbon::parse($dateKey.' 15:00:00');
+        $lunchTarget = Carbon::parse($dateKey.' 12:00:00');
+        $dinnerTarget = Carbon::parse($dateKey.' 18:00:00');
+
+        $isMorningToAfternoon = $dayStart->lt($twelve) && $dayEnd->gt($twelve);
+        $isBetweenNoonAndSix = $dayStart->gte($twelve) && $dayEnd->lte($eighteen);
+        $isAfternoonToNight = $dayStart->gte($twelve) && $dayEnd->gte($twentyOne);
+
+        return [
+            'lunch' => $isMorningToAfternoon && $dayStart->lte($lunchTarget) && $lunchTarget->lt($dayEnd),
+            'snack' => $isBetweenNoonAndSix && $dayStart->lte($snackTarget) && $snackTarget->lt($dayEnd),
+            'dinner' => $isAfternoonToNight && $dayStart->lte($dinnerTarget) && $dinnerTarget->lt($dayEnd),
+        ];
     }
 
     private function resolveDateKey(CarbonInterface|string|null $date): ?string

@@ -239,16 +239,16 @@
                                     <td class="px-3 py-2 whitespace-nowrap">
                                         @if ($item->type === 'SECTION' && $item->suggested_duration_minutes)
                                             @php
-                                                $minDuration = (int) ceil($item->suggested_duration_minutes * 0.75);
-                                                $maxDuration = (int) floor($item->suggested_duration_minutes * 1.25);
+                                                $minDuration = min(120, (int) ceil($item->suggested_duration_minutes * 0.8));
+                                                $maxDuration = min(120, (int) floor($item->suggested_duration_minutes * 1.2));
+                                                $maxDuration = max($minDuration, $maxDuration);
                                             @endphp
                                             <div class="flex items-center gap-2">
                                                 <input type="number" min="{{ $minDuration }}"
                                                     max="{{ $maxDuration }}"
                                                     class="w-12 rounded-md border border-(--ee-app-border) text-right py-1 text-sm bg-white/60 focus-within:bg-white"
-                                                    wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})"
-                                                    wire:loading.attr="disabled" wire:target="applyDuration" />
+                                                    wire:model.live.debounce.700ms="durationInputs.{{ $item->id }}"
+                                                    wire:loading.attr="disabled" wire:target="durationInputs.{{ $item->id }}" />
                                                 <div class="text-[10px] text-(--ee-app-muted) flex flex-col">
                                                     <div>
                                                         {{ __('de') }}<span class="font-bold">
@@ -262,9 +262,8 @@
                                             <div class="flex items-center gap-2">
                                                 <input type="number" min="1" max="720"
                                                     class="w-12 rounded-md border border-(--ee-app-border) text-center md:text-right py-1 text-sm bg-white/60 focus-within:bg-white"
-                                                    wire:model.blur="durationInputs.{{ $item->id }}"
-                                                    wire:blur="applyDuration({{ $item->id }})"
-                                                    wire:loading.attr="disabled" wire:target="applyDuration" />
+                                                    wire:model.live.debounce.700ms="durationInputs.{{ $item->id }}"
+                                                    wire:loading.attr="disabled" wire:target="durationInputs.{{ $item->id }}" />
                                                 <span class="text-xs text-(--ee-app-muted)">
                                                     {{ __('minutes') }}
                                                 </span>

@@ -23,6 +23,8 @@ class Schedule extends Component
 {
     use AuthorizesRequests;
 
+    private const MAX_SECTION_DURATION_MINUTES = 120;
+
     public const PLAN_STATUS_UNDER = 'under';
 
     public const PLAN_STATUS_OVER = 'over';
@@ -106,7 +108,7 @@ class Schedule extends Component
             $applier->apply($this->training->id, $dateKey, $blockKey, $enabled);
 
             if ($blockKey === 'snack' && ! $enabled) {
-                $breakPolicy->suggestBreakIfLongRun($this->training->id, $dateKey, '15:30:00', 'snack_off');
+                $breakPolicy->suggestBreakIfLongRun($this->training->id, $dateKey, '15:00:00', 'snack_off');
             }
 
             $this->refreshSchedule();
@@ -157,7 +159,7 @@ class Schedule extends Component
             $items->splice($insertIndex, 0, [$breakItem]);
             $this->syncPositions($items);
 
-            $timelineService->reflowDay($this->training->id, $dateKey);
+            $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -200,7 +202,7 @@ class Schedule extends Component
                     ->get();
 
                 $this->syncPositions($remaining);
-                $timelineService->reflowDay($this->training->id, $dateKey);
+                $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
             }
 
             if ($dateKey && $reasonKey === 'snack_off') {
@@ -243,11 +245,12 @@ class Schedule extends Component
             }
 
             if ($item->section_id && $item->suggested_duration_minutes) {
-                $min = (int) ceil($item->suggested_duration_minutes * 0.75);
-                $max = (int) floor($item->suggested_duration_minutes * 1.25);
+                $min = min(self::MAX_SECTION_DURATION_MINUTES, (int) ceil($item->suggested_duration_minutes * 0.8));
+                $max = min(self::MAX_SECTION_DURATION_MINUTES, (int) floor($item->suggested_duration_minutes * 1.2));
+                $max = max($min, $max);
 
                 if ($duration < $min || $duration > $max) {
-                    $this->dispatchScheduleAlert('A duração deve estar dentro de 25% do valor sugerido.');
+                    $this->dispatchScheduleAlert('A duração deve estar dentro de 20% do valor sugerido.');
 
                     return;
                 }
@@ -266,13 +269,28 @@ class Schedule extends Component
             $dateKey = $item->date?->format('Y-m-d');
 
             if ($dateKey) {
-                $timelineService->reflowDay($this->training->id, $dateKey);
+                $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
             }
 
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
         }
+    }
+
+    public function updatedDurationInputs(mixed $value, string $key): void
+    {
+        if ($this->busy) {
+            return;
+        }
+
+        $id = (int) $key;
+
+        if ($id <= 0 || ! is_numeric($value)) {
+            return;
+        }
+
+        $this->applyDuration(app(TrainingScheduleTimelineService::class), $id);
     }
 
     public function moveAfter(
@@ -442,10 +460,7 @@ class Schedule extends Component
             if ($value.':00' !== $eventDate->$field) {
                 $eventDate->$field = $value.':00';
                 $eventDate->save();
-
-                if ($field === 'start_time') {
-                    app(TrainingScheduleTimelineService::class)->reflowDay($this->training->id, $dateKey);
-                }
+                app(TrainingScheduleTimelineService::class)->rebalanceDayToEventWindow($this->training->id, $dateKey);
             }
 
             $this->refreshSchedule();
@@ -674,7 +689,7 @@ class Schedule extends Component
         }
 
         foreach (array_unique($reflowDates) as $dateKey) {
-            $timelineService->reflowDay($this->training->id, $dateKey);
+            $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
         }
 
         return $reflowDates !== [];
