@@ -68,12 +68,12 @@ it('prioritizes students with fewer previous participations', function (): void 
     $training->mentors()->attach($mentorA->id, ['created_by' => $teacher->id]);
     $training->mentors()->attach($mentorB->id, ['created_by' => $teacher->id]);
 
-    $student1 = User::factory()->create(['name' => 'Aluno 01']);
-    $student2 = User::factory()->create(['name' => 'Aluno 02']);
-    $student3 = User::factory()->create(['name' => 'Aluno 03']);
-    $student4 = User::factory()->create(['name' => 'Aluno 04']);
-    $student5 = User::factory()->create(['name' => 'Aluno 98']);
-    $student6 = User::factory()->create(['name' => 'Aluno 99']);
+    $student1 = User::factory()->create(['name' => 'Aluno 01', 'gender' => null]);
+    $student2 = User::factory()->create(['name' => 'Aluno 02', 'gender' => null]);
+    $student3 = User::factory()->create(['name' => 'Aluno 03', 'gender' => null]);
+    $student4 = User::factory()->create(['name' => 'Aluno 04', 'gender' => null]);
+    $student5 = User::factory()->create(['name' => 'Aluno 98', 'gender' => null]);
+    $student6 = User::factory()->create(['name' => 'Aluno 99', 'gender' => null]);
 
     $training->students()->attach([
         $student1->id,
@@ -124,4 +124,157 @@ it('prioritizes students with fewer previous participations', function (): void 
         });
 
     expect($highParticipationRows->every(fn ($row): bool => $row !== null && (int) $row->position === 2))->toBeTrue();
+});
+
+it('distributes women and men across teams to keep mixed groups when possible', function (): void {
+    [$training, $teacher] = createTrainingForStpFormation();
+
+    $mentorA = User::factory()->create(['name' => 'Mentor A', 'gender' => 'M']);
+    $mentorB = User::factory()->create(['name' => 'Mentor B', 'gender' => 'F']);
+    $mentorC = User::factory()->create(['name' => 'Mentor C', 'gender' => 'M']);
+
+    $training->mentors()->attach([$mentorA->id, $mentorB->id, $mentorC->id], ['created_by' => $teacher->id]);
+
+    $femaleStudents = User::factory()->count(3)->create(['gender' => 'F']);
+    $maleStudents = User::factory()->count(3)->create(['gender' => 'M']);
+
+    $training->students()->attach($femaleStudents->pluck('id')->all());
+    $training->students()->attach($maleStudents->pluck('id')->all());
+
+    $session = StpSession::factory()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    app(StpTeamFormationService::class)->formTeams($session);
+
+    $teams = StpTeam::query()
+        ->where('stp_session_id', $session->id)
+        ->with(['mentor', 'students'])
+        ->orderBy('position')
+        ->get();
+
+    expect($teams)->toHaveCount(3);
+
+    foreach ($teams as $team) {
+        $combinedGenders = $team->students
+            ->pluck('gender')
+            ->push((string) ($team->mentor?->gender ?? ''))
+            ->map(fn (string $gender): string => strtoupper($gender))
+            ->all();
+        expect($combinedGenders)->toContain('F');
+        expect($combinedGenders)->toContain('M');
+    }
+});
+
+it('allows homogeneous teams only when one gender count is lower than teams count', function (): void {
+    [$training, $teacher] = createTrainingForStpFormation();
+
+    $mentorA = User::factory()->create(['name' => 'Mentor A']);
+    $mentorB = User::factory()->create(['name' => 'Mentor B']);
+    $mentorC = User::factory()->create(['name' => 'Mentor C']);
+
+    $training->mentors()->attach([$mentorA->id, $mentorB->id, $mentorC->id], ['created_by' => $teacher->id]);
+
+    $femaleStudents = User::factory()->count(2)->create(['gender' => 'Feminino']);
+    $maleStudents = User::factory()->count(5)->create(['gender' => 'Masculino']);
+
+    $training->students()->attach($femaleStudents->pluck('id')->all());
+    $training->students()->attach($maleStudents->pluck('id')->all());
+
+    $session = StpSession::factory()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    app(StpTeamFormationService::class)->formTeams($session);
+
+    $teams = StpTeam::query()
+        ->where('stp_session_id', $session->id)
+        ->with('students')
+        ->orderBy('position')
+        ->get();
+
+    expect($teams)->toHaveCount(3);
+
+    $femaleTeamCount = $teams
+        ->filter(fn (StpTeam $team): bool => $team->students->contains(fn (User $student): bool => in_array($student->gender, ['F', 'Feminino'], true)))
+        ->count();
+
+    expect($femaleTeamCount)->toBe(2);
+});
+
+it('considers mentor and students genders to keep each team mixed when possible', function (): void {
+    [$training, $teacher] = createTrainingForStpFormation();
+
+    $mentorMale = User::factory()->create(['name' => 'Mentor Homem', 'gender' => 'M']);
+    $mentorFemale = User::factory()->create(['name' => 'Mentora Mulher', 'gender' => 'F']);
+
+    $training->mentors()->attach([$mentorMale->id, $mentorFemale->id], ['created_by' => $teacher->id]);
+
+    $femaleStudents = User::factory()->count(2)->create(['gender' => 'F']);
+    $maleStudents = User::factory()->count(2)->create(['gender' => 'M']);
+
+    $training->students()->attach($femaleStudents->pluck('id')->all());
+    $training->students()->attach($maleStudents->pluck('id')->all());
+
+    $session = StpSession::factory()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    app(StpTeamFormationService::class)->formTeams($session);
+
+    $teams = StpTeam::query()
+        ->where('stp_session_id', $session->id)
+        ->with(['mentor', 'students'])
+        ->orderBy('position')
+        ->get();
+
+    expect($teams)->toHaveCount(2);
+
+    foreach ($teams as $team) {
+        $combinedGenders = $team->students
+            ->pluck('gender')
+            ->push((string) ($team->mentor?->gender ?? ''))
+            ->map(fn (string $gender): string => strtoupper($gender))
+            ->all();
+
+        expect($combinedGenders)->toContain('F');
+        expect($combinedGenders)->toContain('M');
+    }
+});
+
+it('distributes students uniformly between mentors when randomizing', function (): void {
+    [$training, $teacher] = createTrainingForStpFormation();
+
+    $mentors = User::factory()->count(3)->create();
+    $students = User::factory()->count(8)->create();
+
+    foreach ($mentors as $mentor) {
+        $training->mentors()->attach($mentor->id, ['created_by' => $teacher->id]);
+    }
+
+    $training->students()->attach($students->pluck('id')->all());
+
+    $session = StpSession::factory()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    app(StpTeamFormationService::class)->formTeams($session, true);
+
+    $teams = StpTeam::query()
+        ->where('stp_session_id', $session->id)
+        ->withCount('students')
+        ->orderBy('position')
+        ->get();
+
+    expect($teams)->toHaveCount(3);
+
+    $counts = $teams->pluck('students_count')->map(fn (int $count): int => (int) $count)->all();
+    $maxCount = max($counts);
+    $minCount = min($counts);
+
+    expect($maxCount - $minCount)->toBeLessThanOrEqual(1);
 });

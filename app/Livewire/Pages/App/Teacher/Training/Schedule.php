@@ -14,6 +14,7 @@ use App\Services\Schedule\TrainingScheduleTimelineService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -63,12 +64,15 @@ class Schedule extends Component
      */
     public array $dayTimes = [];
 
+    public bool $showScheduleAttentionModal = false;
+
     public bool $busy = false;
 
     public function mount(Training $training): void
     {
         $this->authorize('view', $training);
         $this->training = $training;
+        $this->showScheduleAttentionModal = Session::get('show_schedule_attention_modal', false);
         $this->refreshSchedule();
     }
 
@@ -79,6 +83,28 @@ class Schedule extends Component
         }
 
         $this->authorize('view', $this->training);
+        $this->busy = true;
+
+        try {
+            $resetService->resetFull($this->training->id);
+            $this->refreshSchedule();
+        } finally {
+            $this->busy = false;
+        }
+    }
+
+    public function confirmScheduleAttentionAndGenerateDefault(TrainingScheduleResetService $resetService): void
+    {
+        if ($this->busy) {
+            return;
+        }
+
+        $this->authorize('view', $this->training);
+
+        if ($this->training->scheduleItems()->exists()) {
+            return;
+        }
+
         $this->busy = true;
 
         try {
@@ -111,6 +137,7 @@ class Schedule extends Component
                 $breakPolicy->suggestBreakIfLongRun($this->training->id, $dateKey, '15:00:00', 'snack_off');
             }
 
+            $this->markScheduleAdjusted();
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -160,6 +187,7 @@ class Schedule extends Component
             $this->syncPositions($items);
 
             $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
+            $this->markScheduleAdjusted();
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -209,6 +237,7 @@ class Schedule extends Component
                 $breakPolicy->suppressSnackBreak($this->training->id, $dateKey);
             }
 
+            $this->markScheduleAdjusted();
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -272,6 +301,7 @@ class Schedule extends Component
                 $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
             }
 
+            $this->markScheduleAdjusted();
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -291,6 +321,16 @@ class Schedule extends Component
         }
 
         $this->applyDuration(app(TrainingScheduleTimelineService::class), $id);
+    }
+
+    public function decrementDuration(int $id): void
+    {
+        $this->adjustDurationInput($id, -1);
+    }
+
+    public function incrementDuration(int $id): void
+    {
+        $this->adjustDurationInput($id, 1);
     }
 
     public function moveAfter(
@@ -321,6 +361,7 @@ class Schedule extends Component
             }
 
             $timelineService->moveAfter($this->training->id, $id, $dateKey, $afterItemId);
+            $this->markScheduleAdjusted();
             $this->refreshSchedule();
         } finally {
             $this->busy = false;
@@ -461,6 +502,7 @@ class Schedule extends Component
                 $eventDate->$field = $value.':00';
                 $eventDate->save();
                 app(TrainingScheduleTimelineService::class)->rebalanceDayToEventWindow($this->training->id, $dateKey);
+                $this->markScheduleAdjusted();
             }
 
             $this->refreshSchedule();
@@ -612,6 +654,57 @@ class Schedule extends Component
     private function dispatchScheduleAlert(string $message): void
     {
         $this->dispatch('schedule-alert', message: $message);
+    }
+
+    private function adjustDurationInput(int $id, int $delta): void
+    {
+        if ($this->busy) {
+            return;
+        }
+
+        $this->authorize('view', $this->training);
+
+        if ($id <= 0 || $delta === 0) {
+            return;
+        }
+
+        $item = TrainingScheduleItem::query()
+            ->where('training_id', $this->training->id)
+            ->findOrFail($id);
+
+        $current = (int) ($this->durationInputs[$id] ?? 0);
+
+        if ($current <= 0) {
+            $current = (int) ($item->planned_duration_minutes ?: ($item->suggested_duration_minutes ?? 60));
+        }
+
+        $minDuration = 1;
+        $maxDuration = 720;
+
+        if ($item->section_id && $item->suggested_duration_minutes) {
+            $minDuration = min(self::MAX_SECTION_DURATION_MINUTES, (int) ceil($item->suggested_duration_minutes * 0.8));
+            $maxDuration = min(self::MAX_SECTION_DURATION_MINUTES, (int) floor($item->suggested_duration_minutes * 1.2));
+            $maxDuration = max($minDuration, $maxDuration);
+        }
+
+        $nextValue = max($minDuration, min($maxDuration, $current + $delta));
+
+        if ($nextValue === $current) {
+            return;
+        }
+
+        $this->durationInputs[$id] = $nextValue;
+        $this->applyDuration(app(TrainingScheduleTimelineService::class), $id);
+    }
+
+    private function markScheduleAdjusted(): void
+    {
+        if ($this->training->schedule_adjusted_at !== null) {
+            return;
+        }
+
+        $this->training->schedule_adjusted_at = now();
+        $this->training->save();
     }
 
     private function resolveDayStart(string $dateKey): Carbon

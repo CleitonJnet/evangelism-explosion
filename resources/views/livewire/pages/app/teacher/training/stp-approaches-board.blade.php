@@ -18,10 +18,10 @@
                 @endforeach
             </select>
 
-            <x-src.btn-silver wire:click="createPlannedApproach('visitor')" :label="__('+ Visita')" />
-            <x-src.btn-silver wire:click="createPlannedApproach('security_questionnaire')" :label="__('+ Questionário')" />
-            <x-src.btn-silver wire:click="createPlannedApproach('indication')" :label="__('+ Indicação')" />
+            <x-src.btn-silver wire:click="createPlannedApproach('indication')" :label="__('+ Visita Indicada')" />
+            <x-src.btn-silver wire:click="createPlannedApproach('security_questionnaire')" :label="__('+ Questionário de Segunrança')" />
             <x-src.btn-silver wire:click="createPlannedApproach('lifestyle')" :label="__('+ Estilo de Vida')" />
+            <x-src.btn-silver wire:click="createPlannedApproach('visitor')" :label="__('+ Visitante da igreja')" />
 
         </div>
 

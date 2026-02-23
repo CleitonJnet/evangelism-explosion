@@ -23,10 +23,10 @@
     ];
 @endphp
 
-<x-web.container>
+<div>
 
     {{-- Conteúdo central com largura estável --}}
-    <div class="w-full max-w-4xl mx-auto">
+    <div class="w-full max-w-4xl mx-auto py-10">
 
         {{-- Título --}}
         <header class="py-8 mb-8 text-center">
@@ -100,4 +100,4 @@
 
     </div>
 
-    </x-webweb.container>
+</div>

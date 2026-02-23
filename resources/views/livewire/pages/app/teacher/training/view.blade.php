@@ -132,18 +132,16 @@
                         class="font-semibold">{{ $course?->name ?? __('Curso não definido') }}</span>
                     <span class=""> - {{ $course?->initials ?? '' }}</span>
                 </h2>
-                <p class="text-sm text-slate-500">{{ __('Professor Responsável:') }}
-                    <span class="font-bold">{{ $training?->teacher->name ?? __('-') }}</span>
+                <p class="text-sm text-slate-600">{{ __('Ministério:') }} <span class="font-bold"></span>
+                    {{ $training?->course->ministry->name ?? __('-') }}</span></p>
+            </div>
+            <div class="flex flex-col justify-center items-end gap-1 text-right">
+                <p class="text-sm text-slate-700 uppercase">{{ __('Professor Responsável:') }}<span
+                        class="font-bold">{{ $training?->teacher->name ?? __('-') }}</span></p>
+                <p class="text-sm text-slate-500">
                     (<span class="text-nowrap">{{ $training?->teacher->email ?? __('-') }}</span> /
                     <span class="text-nowrap">{{ $training?->teacher->phone ?? __('-') }}</span>)
                 </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <span
-                    class="rounded-xl bg-yellow-200/70 px-4 py-2 text-xs font-semibold text-yellow-900 text-center border border-yellow-600">
-                    <div>{{ __('Evento') }}</div>
-                    {{ $statusLabel }}
-                </span>
             </div>
         </div>
 

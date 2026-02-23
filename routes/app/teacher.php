@@ -8,6 +8,7 @@ use App\Http\Controllers\System\Teacher\OjtController;
 use App\Http\Controllers\System\Teacher\ProfileController;
 use App\Http\Controllers\System\Teacher\StpApproachController;
 use App\Http\Controllers\System\Teacher\TrainingController;
+use App\Http\Middleware\ShowScheduleAttentionModal;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->group(function () {
@@ -32,7 +33,9 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
     Route::get('trainings/completed', [TrainingController::class, 'indexByStatus'])->name('trainings.completed')->defaults('status', 'completed');
 
     Route::get('trainings/{training}/registrations', [TrainingController::class, 'registrations'])->name('trainings.registrations');
-    Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])->name('trainings.schedule');
+    Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])
+        ->middleware(ShowScheduleAttentionModal::class)
+        ->name('trainings.schedule');
     Route::get('trainings/{training}/statistics', [OjtController::class, 'statistics'])->name('trainings.statistics');
     Route::get('trainings/{training}/stp/approaches', [StpApproachController::class, 'board'])->name('trainings.stp.approaches');
     Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'destroy']);

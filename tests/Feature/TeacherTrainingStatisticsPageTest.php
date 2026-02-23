@@ -52,6 +52,22 @@ it('renders the teacher training statistics page with the livewire component', f
     $response->assertSeeText('Mentores');
 });
 
+it('updates mentors count when mentor assignments are updated via event', function (): void {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+    $mentor = User::factory()->create();
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->assertSet('mentorsCount', 0);
+
+    $training->mentors()->attach($mentor->id, ['created_by' => $teacher->id]);
+
+    $component
+        ->dispatch('mentor-assignment-updated', trainingId: $training->id)
+        ->assertSet('mentorsCount', 1);
+});
+
 it('creates a stp session and sets it as active', function () {
     $teacher = createTeacherForStatisticsPage();
     $training = createTrainingForStatisticsPage($teacher);
@@ -139,6 +155,95 @@ it('forms teams for the active session using mentors and students', function () 
 
     expect($teams)->toHaveCount(2);
     expect($teams->sum('students_count'))->toBe(4);
+});
+
+it('randomizes teams for leadership trainings', function (): void {
+    $teacher = createTeacherForStatisticsPage();
+    $course = Course::factory()->create(['execution' => 0]);
+    $training = createTrainingForStatisticsPage($teacher);
+    $training->update(['course_id' => $course->id]);
+
+    $mentorA = User::factory()->create(['name' => 'Mentor A']);
+    $mentorB = User::factory()->create(['name' => 'Mentor B']);
+    $training->mentors()->attach($mentorA->id, ['created_by' => $teacher->id]);
+    $training->mentors()->attach($mentorB->id, ['created_by' => $teacher->id]);
+
+    $students = User::factory()->count(4)->create();
+    $training->students()->attach($students->pluck('id')->all());
+
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->assertSet('isLeadershipExecutionTraining', true)
+        ->call('selectSession', $session->id)
+        ->call('randomizeTeams')
+        ->assertSet('teams.0.students.0.id', fn ($value): bool => is_int($value));
+
+    $teams = $session->fresh()->teams()->withCount('students')->get();
+
+    expect($teams)->toHaveCount(2);
+    expect($teams->sum('students_count'))->toBe(4);
+});
+
+it('disables randomization when session already has visits assigned to teams', function (): void {
+    $teacher = createTeacherForStatisticsPage();
+    $course = Course::factory()->create(['execution' => 0]);
+    $training = createTrainingForStatisticsPage($teacher);
+    $training->update(['course_id' => $course->id]);
+
+    $mentorA = User::factory()->create(['name' => 'Mentor A']);
+    $mentorB = User::factory()->create(['name' => 'Mentor B']);
+    $training->mentors()->attach($mentorA->id, ['created_by' => $teacher->id]);
+    $training->mentors()->attach($mentorB->id, ['created_by' => $teacher->id]);
+
+    $studentA = User::factory()->create(['name' => 'Aluno A']);
+    $studentB = User::factory()->create(['name' => 'Aluno B']);
+    $studentC = User::factory()->create(['name' => 'Aluno C']);
+    $studentD = User::factory()->create(['name' => 'Aluno D']);
+    $training->students()->attach([$studentA->id, $studentB->id, $studentC->id, $studentD->id]);
+
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    $teamOne = StpTeam::query()->create([
+        'stp_session_id' => $session->id,
+        'mentor_user_id' => $mentorA->id,
+        'name' => 'Equipe 01',
+        'position' => 0,
+    ]);
+    $teamTwo = StpTeam::query()->create([
+        'stp_session_id' => $session->id,
+        'mentor_user_id' => $mentorB->id,
+        'name' => 'Equipe 02',
+        'position' => 1,
+    ]);
+
+    $teamOne->students()->attach([$studentA->id => ['position' => 0], $studentB->id => ['position' => 1]]);
+    $teamTwo->students()->attach([$studentC->id => ['position' => 0], $studentD->id => ['position' => 1]]);
+
+    StpApproach::factory()->create([
+        'training_id' => $training->id,
+        'stp_session_id' => $session->id,
+        'stp_team_id' => $teamOne->id,
+        'type' => StpApproachType::Visitor->value,
+        'status' => StpApproachStatus::Planned->value,
+        'result' => StpApproachResult::Decision->value,
+        'created_by_user_id' => $teacher->id,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->call('selectSession', $session->id)
+        ->assertSet('canRandomizeTeams', false)
+        ->call('randomizeTeams');
+
+    expect(StpTeam::query()->where('stp_session_id', $session->id)->count())->toBe(2);
 });
 
 it('moves students between teams and persists destination ordering', function () {
@@ -446,4 +551,57 @@ it('removes selected session and deletes teams approaches and pivots in cascade'
         'stp_team_id' => $team->id,
         'user_id' => $student->id,
     ]);
+});
+
+it('asks confirmation before removing a session with registered teams', function () {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+    $mentor = User::factory()->create();
+
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    StpTeam::query()->create([
+        'stp_session_id' => $session->id,
+        'mentor_user_id' => $mentor->id,
+        'name' => 'Equipe 01',
+        'position' => 0,
+    ]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training]);
+
+    $component
+        ->call('requestSessionRemoval', $session->id)
+        ->assertSet('showSessionRemovalConfirmationModal', true)
+        ->assertSet('pendingSessionRemovalId', $session->id);
+
+    $this->assertDatabaseHas('stp_sessions', ['id' => $session->id]);
+
+    $component
+        ->call('confirmSessionRemoval')
+        ->assertSet('showSessionRemovalConfirmationModal', false)
+        ->assertSet('pendingSessionRemovalId', null);
+
+    $this->assertDatabaseMissing('stp_sessions', ['id' => $session->id]);
+});
+
+it('removes session directly when it has no registered teams', function () {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->call('requestSessionRemoval', $session->id)
+        ->assertSet('showSessionRemovalConfirmationModal', false)
+        ->assertSet('pendingSessionRemovalId', null);
+
+    $this->assertDatabaseMissing('stp_sessions', ['id' => $session->id]);
 });

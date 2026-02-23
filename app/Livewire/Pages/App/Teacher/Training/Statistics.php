@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Models\StpApproach;
 use App\Models\StpSession;
 use App\Models\StpTeam;
 use App\Models\Training;
@@ -12,6 +13,7 @@ use App\Services\Stp\StpTeamFormationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Statistics extends Component
@@ -99,6 +101,10 @@ class Statistics extends Component
 
     public ?string $createSessionBlockedReason = null;
 
+    public bool $isLeadershipExecutionTraining = false;
+
+    public bool $canRandomizeTeams = false;
+
     public int $mentorsCount = 0;
 
     public bool $showMentorSelectorModal = false;
@@ -113,6 +119,10 @@ class Statistics extends Component
      * @var array<int, array{id: int, name: string}>
      */
     public array $mentorSelectionOptions = [];
+
+    public bool $showSessionRemovalConfirmationModal = false;
+
+    public ?int $pendingSessionRemovalId = null;
 
     public function mount(Training $training): void
     {
@@ -164,6 +174,47 @@ class Statistics extends Component
         $this->refreshSessionsAndTeams();
     }
 
+    public function requestSessionRemoval(int $sessionId): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = StpSession::query()
+            ->where('training_id', $this->training->id)
+            ->withCount('teams')
+            ->find($sessionId);
+
+        if (! $session) {
+            return;
+        }
+
+        if ((int) $session->teams_count === 0) {
+            $this->removeSession($sessionId);
+
+            return;
+        }
+
+        $this->pendingSessionRemovalId = $sessionId;
+        $this->showSessionRemovalConfirmationModal = true;
+    }
+
+    public function cancelSessionRemoval(): void
+    {
+        $this->pendingSessionRemovalId = null;
+        $this->showSessionRemovalConfirmationModal = false;
+    }
+
+    public function confirmSessionRemoval(): void
+    {
+        if ($this->pendingSessionRemovalId === null) {
+            return;
+        }
+
+        $sessionId = $this->pendingSessionRemovalId;
+
+        $this->cancelSessionRemoval();
+        $this->removeSession($sessionId);
+    }
+
     public function formTeams(): void
     {
         $this->authorize('view', $this->training);
@@ -176,6 +227,30 @@ class Statistics extends Component
 
         try {
             app(StpTeamFormationService::class)->formTeams($session);
+            $this->resetErrorBag('teamFormation');
+        } catch (\RuntimeException $exception) {
+            $this->addError('teamFormation', $exception->getMessage());
+        }
+
+        $this->refreshSessionsAndTeams();
+    }
+
+    public function randomizeTeams(): void
+    {
+        $this->authorize('view', $this->training);
+
+        if (! $this->isLeadershipExecutionTraining) {
+            return;
+        }
+
+        $session = $this->activeSession();
+
+        if (! $session || ! $this->canRandomizeActiveSession($session)) {
+            return;
+        }
+
+        try {
+            app(StpTeamFormationService::class)->formTeams($session, true);
             $this->resetErrorBag('teamFormation');
         } catch (\RuntimeException $exception) {
             $this->addError('teamFormation', $exception->getMessage());
@@ -403,6 +478,17 @@ class Statistics extends Component
         $this->loadTeamsAndStats();
     }
 
+    #[On('mentor-assignment-updated')]
+    public function refreshMentorAssignments(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->authorize('view', $this->training);
+        $this->refreshSessionsAndTeams();
+    }
+
     public function render(): View
     {
         return view('livewire.pages.app.teacher.training.statistics');
@@ -419,6 +505,7 @@ class Statistics extends Component
             ->findOrFail($this->training->id);
 
         $this->mentorsCount = (int) $this->training->mentors_count;
+        $this->isLeadershipExecutionTraining = (int) ($this->training->course?->execution ?? -1) === 0;
 
         $this->sessions = $this->training->stpSessions
             ->map(function (StpSession $session): array {
@@ -495,6 +582,7 @@ class Statistics extends Component
         if (! $session) {
             $this->teams = [];
             $this->columnTotals = array_fill(0, 12, 0);
+            $this->canRandomizeTeams = false;
 
             return;
         }
@@ -566,6 +654,7 @@ class Statistics extends Component
             ->all();
 
         $this->recomputeTotals();
+        $this->canRandomizeTeams = $this->canRandomizeActiveSession($session);
     }
 
     private function recomputeTotals(): void
@@ -670,5 +759,13 @@ class Statistics extends Component
             $mentors,
             fn (array $mentor): bool => $mentor['id'] !== $currentMentorId,
         ));
+    }
+
+    private function canRandomizeActiveSession(StpSession $session): bool
+    {
+        return ! StpApproach::query()
+            ->where('stp_session_id', $session->id)
+            ->whereNotNull('stp_team_id')
+            ->exists();
     }
 }

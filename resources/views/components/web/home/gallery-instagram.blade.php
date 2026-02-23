@@ -26,7 +26,7 @@
 @endpush
 
 
-<section class="relative max-w-8xl mx-auto rounded-2xl overflow-hidden">
+<section class="relative max-w-8xl mx-auto rounded-2xl overflow-hidden mb-20">
 
     {{-- brilho dourado suave (mantido) --}}
     <div

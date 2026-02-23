@@ -12,10 +12,10 @@
         :cover="asset('images/3rd_nations_congress_2016.webp')" />
 
     {{-- Conteúdo principal envolto em container para harmonizar com o tema --}}
-    <x-web.container>
+    <x-web.container class="my-10">
         {{-- VISÃO (estilo institucional conforme PDF) --}}
         <section
-            class="relative mb-16 overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/85 shadow-black/10">
+            class="relative mb-10 overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/85 shadow-black/10">
 
             {{-- Fundo mapa --}}
             <div class="absolute inset-0 pointer-events-none opacity-[0.08]"
@@ -36,16 +36,14 @@
                 </p>
 
                 {{-- divisor --}}
-                <div
-                    class="w-32 h-0.5 mx-auto mt-8
-            bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
+                <div class="w-32 h-0.5 mx-auto mt-8 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
                 </div>
             </div>
         </section>
 
         {{-- MISSÃO (estilo institucional conforme PDF) --}}
         <section
-            class="relative mb-20 overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/85 shadow-black/10">
+            class="relative overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/85 shadow-black/10">
 
             {{-- Fundo mapa --}}
             <div class="absolute inset-0 pointer-events-none opacity-[0.08]"
@@ -67,10 +65,7 @@
                 </p>
 
                 {{-- divisor --}}
-                <div
-                    class="w-32 h-0.5 mx-auto mt-8
-            bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]">
-                </div>
+                <div class="w-32 h-0.5 mx-auto mt-8 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]"></div>
             </div>
         </section>
         </x-webweb.container>

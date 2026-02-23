@@ -67,7 +67,11 @@ class ManageMentorsModal extends Component
         try {
             $mentorAssignmentService->addMentor($this->training, $mentorUser, $actor);
             $this->refreshMentors();
-            $this->dispatch('mentor-assignment-updated');
+            $this->dispatch(
+                'mentor-assignment-updated',
+                trainingId: $this->training->id,
+                mentorsCount: $this->training->mentors->count(),
+            );
         } finally {
             $this->busy = false;
         }
@@ -92,7 +96,11 @@ class ManageMentorsModal extends Component
         try {
             $mentorAssignmentService->removeMentor($this->training, $mentorUser, $actor);
             $this->refreshMentors();
-            $this->dispatch('mentor-assignment-updated');
+            $this->dispatch(
+                'mentor-assignment-updated',
+                trainingId: $this->training->id,
+                mentorsCount: $this->training->mentors->count(),
+            );
         } finally {
             $this->busy = false;
         }
@@ -113,6 +121,11 @@ class ManageMentorsModal extends Component
 
         $this->authorizeTraining($this->training);
         $this->refreshMentors();
+        $this->dispatch(
+            'mentor-assignment-updated',
+            trainingId: $this->training->id,
+            mentorsCount: $this->training->mentors->count(),
+        );
     }
 
     public function render(): View

@@ -121,8 +121,8 @@ class TrainingScheduleBreakPolicy
 
     /**
      * @return Collection<int, array{
-     *     starts_at: Carbon,
-     *     ends_at: Carbon,
+     *     starts_at: CarbonInterface,
+     *     ends_at: CarbonInterface,
      *     duration_minutes: int
      * }>
      */
@@ -161,10 +161,10 @@ class TrainingScheduleBreakPolicy
     }
 
     /**
-     * @param  Collection<int, array{starts_at: Carbon, ends_at: Carbon, duration_minutes: int}>  $runs
-     * @return array{starts_at: Carbon, ends_at: Carbon, duration_minutes: int}|null
+     * @param  Collection<int, array{starts_at: CarbonInterface, ends_at: CarbonInterface, duration_minutes: int}>  $runs
+     * @return array{starts_at: CarbonInterface, ends_at: CarbonInterface, duration_minutes: int}|null
      */
-    private function selectRun(Collection $runs, ?Carbon $targetTime): ?array
+    private function selectRun(Collection $runs, ?CarbonInterface $targetTime): ?array
     {
         if (! $targetTime) {
             return $runs->sortByDesc('duration_minutes')->first();
@@ -221,7 +221,7 @@ class TrainingScheduleBreakPolicy
         });
     }
 
-    private function hasNearbyPause(Collection $items, Carbon $insertTime): bool
+    private function hasNearbyPause(Collection $items, CarbonInterface $insertTime): bool
     {
         return $items->contains(function (TrainingScheduleItem $item) use ($insertTime): bool {
             if (! in_array($item->type, ['BREAK', 'MEAL'], true)) {

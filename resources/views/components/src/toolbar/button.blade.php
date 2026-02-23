@@ -13,7 +13,7 @@
 @endphp
 
 <a href="{{ $href }}"
-    class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition border border-slate-400/50 {{ $isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200 hover:bg-slate-300/80' }}"
+    class="group relative flex min-w-20 w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition border border-slate-400/50 {{ $isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200 hover:bg-slate-300/80' }}"
     {{ $attributes->merge([
             'aria-label' => $label,
         ])->class(' ') }}>

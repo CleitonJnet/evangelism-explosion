@@ -34,7 +34,7 @@
             </style>
         @endpush
 
-        <div id="testimonials" class="relative">
+        <div id="testimonials" class="relative overflow-hidden py-20">
 
             <div aria-hidden="true"
                 class="absolute w-1/3 rounded-full pointer-events-none -top-24 -right-24 h-4/5 blur-3xl opacity-70"
@@ -42,7 +42,7 @@
             </div>
 
             <div aria-hidden="true"
-                class="absolute w-1/3 rounded-full pointer-events-none -bottom-24 -left-24 h-4/5 blur-3xl opacity-70"
+                class="absolute w-1/3 rounded-full pointer-events-none top-0 -left-24 h-4/5 blur-3xl opacity-70"
                 style="background-image: radial-gradient(circle at 30% 30%,rgb(241, 213, 122),transparent 90%);">
             </div>
 

@@ -1,4 +1,4 @@
-<section class="relative">
+<section id="about" class="relative overflow-hidden py-20">
     <div aria-hidden="true"
         class="absolute w-1/3 rounded-full pointer-events-none -top-24 -right-24 h-4/5 blur-3xl opacity-50 z-0"
         style="background-image: radial-gradient(circle at 30% 30%,rgb(241, 213, 122),transparent 90%);">
@@ -8,7 +8,7 @@
         class="absolute w-1/3 rounded-full pointer-events-none -bottom-24 -left-24 h-4/5 blur-3xl opacity-50"
         style="background-image: radial-gradient(circle at 30% 30%,rgb(241, 213, 122),transparent 90%);">
     </div>
-    <x-web.container id="about" class="relative">
+    <x-web.container class="relative">
 
         <div class="flex flex-col items-center gap-10 py-10 lg:flex-row group">
             <div class="w-full lg:w-1/2">

@@ -11,7 +11,7 @@
     <x-web.header title="A História do <span class='text-nowrap'>Evangelismo Explosivo</span>"
         subtitle='Da crise pastoral ao ministério global' :cover="asset('images/3rd_nations_congress_2016.webp')" />
 
-    <x-web.container>
+    <x-web.container class="mt-10">
         <div class="space-y-16">
             {{-- Marco 1959–1960: A crise e o encontro transformador --}}
             <div class="flex flex-col items-start gap-8 lg:flex-row lg:items-center">
@@ -34,13 +34,12 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="{{ asset('images/photo2.jpg') }}"
+                        <img src="{{ asset('images/photo3.jpg') }}"
                             alt="Pastor D. James Kennedy durante seus primeiros anos em Fort Lauderdale"
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
                         <figcaption class="mt-2 text-sm text-amber-800">
-                            Pastor D. James Kennedy em Fort Lauderdale na época em que a igreja enfrentou a crise
-                            inicial.
+                            Momento em que leigos acompanharam Kennedy nas primeiras visitas evangelísticas.
                         </figcaption>
                     </figure>
                 </div>
@@ -65,12 +64,12 @@
                 </div>
                 <div class="order-1 lg:w-1/2 lg:order-2">
                     <figure class="w-full">
-                        <img src="{{ asset('images/photo3.jpg') }}"
+                        <img src="{{ asset('images/photo2.jpg') }}"
                             alt="Grupo de leigos participando do treinamento prático em uma visita domiciliar"
                             class="w-full h-auto border-t-4 border-l-4 border-white rounded-lg shadow-md"
                             style="box-shadow: -3px -3px 0 #c7a840" />
                         <figcaption class="mt-2 text-sm text-amber-800">
-                            Momento em que leigos acompanharam Kennedy nas primeiras visitas evangelísticas.
+                            Relatório público das primeiras Saídas de Treinamento Prático.
                         </figcaption>
                     </figure>
                 </div>
@@ -99,7 +98,9 @@
                             class="w-full h-auto border-t-4 border-r-4 border-white rounded-lg shadow-md"
                             style="box-shadow: 3px -3px 0 #c7a840" />
                         <figcaption class="mt-2 text-sm text-amber-800">
-                            Foto ilustrativa das clínicas de liderança que começaram em 1967 e se expandiram em 1970.
+                            Dr. William Franklin Graham Jr, conhecido por <strong>Billy Graham</strong> prefaciou o
+                            livro base do
+                            <strong>Evangelismo Explosivo</strong>, em 1970.
                         </figcaption>
                     </figure>
                 </div>

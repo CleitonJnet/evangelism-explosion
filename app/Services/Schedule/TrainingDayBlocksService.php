@@ -281,20 +281,21 @@ class TrainingDayBlocksService
         $dayStart = Carbon::parse($dateKey.' '.$startTime);
         $dayEnd = Carbon::parse($dateKey.' '.$endTime);
         $twelve = Carbon::parse($dateKey.' 12:00:00');
-        $eighteen = Carbon::parse($dateKey.' 18:00:00');
-        $twentyOne = Carbon::parse($dateKey.' 21:00:00');
-        $snackTarget = Carbon::parse($dateKey.' 15:00:00');
+        $snackWindowStart = Carbon::parse($dateKey.' 15:00:00');
+        $snackWindowEnd = Carbon::parse($dateKey.' 15:30:00');
+        $dinnerCutoffStart = Carbon::parse($dateKey.' 18:30:00');
+        $dinnerMinEnd = Carbon::parse($dateKey.' 21:30:00');
         $lunchTarget = Carbon::parse($dateKey.' 12:00:00');
-        $dinnerTarget = Carbon::parse($dateKey.' 18:00:00');
 
         $isMorningToAfternoon = $dayStart->lt($twelve) && $dayEnd->gt($twelve);
-        $isBetweenNoonAndSix = $dayStart->gte($twelve) && $dayEnd->lte($eighteen);
-        $isAfternoonToNight = $dayStart->gte($twelve) && $dayEnd->gte($twentyOne);
+        $snackStartCandidate = $dayStart->gt($snackWindowStart) ? $dayStart->copy() : $snackWindowStart->copy();
+        $snackCanStartInWindow = $snackStartCandidate->lte($snackWindowEnd);
+        $snackFitsDuration = $snackStartCandidate->copy()->addMinutes(30)->lte($dayEnd);
 
         return [
             'lunch' => $isMorningToAfternoon && $dayStart->lte($lunchTarget) && $lunchTarget->lt($dayEnd),
-            'snack' => $isBetweenNoonAndSix && $dayStart->lte($snackTarget) && $snackTarget->lt($dayEnd),
-            'dinner' => $isAfternoonToNight && $dayStart->lte($dinnerTarget) && $dinnerTarget->lt($dayEnd),
+            'snack' => $snackCanStartInWindow && $snackFitsDuration,
+            'dinner' => $dayStart->lt($dinnerCutoffStart) && $dayEnd->gte($dinnerMinEnd),
         ];
     }
 

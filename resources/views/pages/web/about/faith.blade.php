@@ -11,8 +11,8 @@
     <x-web.header :title="$title" subtitle='Em que acreditamos como ministério' :cover="asset('images/3rd_nations_congress_2016.webp')" />
 
     {{-- Conteúdo principal em cards com grade responsiva --}}
-    <x-web.container>
-        <p class="max-w-3xl mx-auto mb-8 leading-relaxed 2md:text-center text-[#574815]">
+    <x-web.container class="mt-10">
+        <p class="max-w-3xl mx-auto mb-8 leading-relaxed 2md:text-center text-[#574815] font-bold text-lg">
             As bases doutrinárias do Evangelismo Explosivo Internacional refletem uma declaração evangélica ampla e fiel
             às Escrituras. Não buscamos impor novas doutrinas às igrejas ou denominações, mas caminhar em unidade,
             afirmando juntos as verdades básicas do Evangelho.

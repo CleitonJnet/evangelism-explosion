@@ -49,8 +49,8 @@ export function initStatisticsSortable(root = document) {
         const sortable = new Sortable(list, {
             group: "statistics-mentors",
             draggable: ".js-statistics-mentor-item",
-            handle: ".js-statistics-mentor-handle",
             animation: 150,
+            filter: "button",
             onAdd: (evt) => {
                 const itemEl = evt.item;
                 const fromList = evt.from;

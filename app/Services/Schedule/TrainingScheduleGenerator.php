@@ -1641,19 +1641,23 @@ class TrainingScheduleGenerator
             }
         }
 
-        if (($meals['afternoon_snack']['enabled'] ?? true) && $this->slotWithinDay($dateKey, self::AFTERNOON_SNACK_START, $dayStart, $dayEnd)) {
+        if (($meals['afternoon_snack']['enabled'] ?? true)) {
             $start = Carbon::parse($dateKey.' '.self::AFTERNOON_SNACK_START);
             $start = $start->lt($dayStart) ? $dayStart->copy() : $start;
             $start = $start->lt($minimumStart) ? $minimumStart->copy() : $start;
-            $duration = (int) ($meals['afternoon_snack']['duration_minutes'] ?? 30);
-            $end = $start->copy()->addMinutes($duration);
+            $latestSnackStart = Carbon::parse($dateKey.' 15:30:00');
 
-            if ($end->lt($dayEnd)) {
-                $anchors[] = $this->buildMealAnchor($start, $end, 'Lanche', 'afternoon_snack');
+            if ($start->lte($latestSnackStart)) {
+                $duration = (int) ($meals['afternoon_snack']['duration_minutes'] ?? 30);
+                $end = $start->copy()->addMinutes($duration);
+
+                if ($end->lte($dayEnd)) {
+                    $anchors[] = $this->buildMealAnchor($start, $end, 'Lanche', 'afternoon_snack');
+                }
             }
         }
 
-        if (($meals['dinner']['enabled'] ?? true) && $this->slotWithinDay($dateKey, self::DINNER_START, $dayStart, $dayEnd)) {
+        if (($meals['dinner']['enabled'] ?? true)) {
             $start = Carbon::parse($dateKey.' '.self::DINNER_START);
             $start = $start->lt($dayStart) ? $dayStart->copy() : $start;
             $start = $start->lt($minimumStart) ? $minimumStart->copy() : $start;
@@ -1663,7 +1667,7 @@ class TrainingScheduleGenerator
             $title = $substitute ? 'Lanche' : 'Jantar';
             $anchor = $substitute ? 'night_snack' : 'dinner';
 
-            if ($end->lt($dayEnd)) {
+            if ($end->lte($dayEnd)) {
                 $anchors[] = $this->buildMealAnchor($start, $end, $title, $anchor);
             }
         }

@@ -8,11 +8,12 @@ use App\Models\Training;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class StpTeamFormationService
 {
-    public function formTeams(StpSession $session): void
+    public function formTeams(StpSession $session, bool $randomizeMentors = false): void
     {
         $training = $session->training->loadMissing([
             'course',
@@ -24,6 +25,9 @@ class StpTeamFormationService
         $mentors = $training->mentors
             ->sortBy(fn (User $mentor): string => mb_strtolower($mentor->name).'#'.$mentor->id)
             ->values();
+        if ($randomizeMentors) {
+            $mentors = $mentors->shuffle()->values();
+        }
         $students = $training->students->values();
 
         $teamsCount = $this->resolveTeamsCount($mentors->count(), $students->count());
@@ -33,16 +37,32 @@ class StpTeamFormationService
         }
 
         $selectedMentors = $mentors->take($teamsCount)->values();
+        $mentorGenderById = $selectedMentors
+            ->mapWithKeys(fn (User $mentor): array => [$mentor->id => $this->normalizeGender($mentor->gender)])
+            ->all();
         $participationByStudent = $this->loadParticipationByStudent($training);
         $lastMentorByStudent = $this->loadLastMentorByStudent($training, $session);
         $orderedStudents = $this->sortStudentsForDistribution($students, $participationByStudent);
         $preferSameMentor = (int) ($training->course?->execution ?? 0) !== 0;
 
-        DB::transaction(function () use ($session, $selectedMentors, $orderedStudents, $lastMentorByStudent, $preferSameMentor): void {
+        DB::transaction(function () use (
+            $session,
+            $selectedMentors,
+            $orderedStudents,
+            $lastMentorByStudent,
+            $preferSameMentor,
+            $mentorGenderById,
+        ): void {
             $session->teams()->delete();
 
             $teams = $this->createTeams($session, $selectedMentors);
-            $distribution = $this->distributeStudents($orderedStudents, $teams, $lastMentorByStudent, $preferSameMentor);
+            $distribution = $this->distributeStudents(
+                $orderedStudents,
+                $teams,
+                $lastMentorByStudent,
+                $preferSameMentor,
+                $mentorGenderById,
+            );
             $this->persistDistribution($distribution);
         });
     }
@@ -129,6 +149,7 @@ class StpTeamFormationService
      * @param  Collection<int, User>  $orderedStudents
      * @param  Collection<int, StpTeam>  $teams
      * @param  array<int, int>  $lastMentorByStudent
+     * @param  array<int, ?string>  $mentorGenderById
      * @return array<int, array{team: StpTeam, students: array<int, User>}>
      */
     private function distributeStudents(
@@ -136,9 +157,11 @@ class StpTeamFormationService
         Collection $teams,
         array $lastMentorByStudent,
         bool $preferSameMentor,
+        array $mentorGenderById,
     ): array {
-        $queue = $orderedStudents->values();
         $distribution = [];
+        $teamIds = array_values($teams->pluck('id')->all());
+        $targetStudentsByTeamId = $this->resolveTargetStudentsByTeam($teamIds, $orderedStudents->count());
 
         foreach ($teams as $team) {
             $distribution[$team->id] = [
@@ -147,29 +170,257 @@ class StpTeamFormationService
             ];
         }
 
-        for ($round = 0; $round < 2; $round++) {
-            foreach ($teams as $team) {
-                if ($queue->isEmpty()) {
-                    break 2;
-                }
+        $genderGroups = $this->splitStudentsByGender($orderedStudents);
+        $femaleQueue = $genderGroups['female'];
+        $maleQueue = $genderGroups['male'];
+        $unknownQueue = $genderGroups['unknown'];
 
-                $student = $this->pickStudentForTeam($queue, $team->mentor_user_id, $lastMentorByStudent, $preferSameMentor);
-                $distribution[$team->id]['students'][] = $student;
+        $this->assignRequiredOppositeGenderStudents(
+            $distribution,
+            $teams,
+            $femaleQueue,
+            $maleQueue,
+            $lastMentorByStudent,
+            $preferSameMentor,
+            $mentorGenderById,
+            $targetStudentsByTeamId,
+        );
+
+        $remainingGroups = $this->sortGenderGroupsByPriority($femaleQueue, $maleQueue, $unknownQueue);
+
+        foreach ($remainingGroups as $group) {
+            if ($group->isEmpty()) {
+                continue;
             }
-        }
 
-        $teamIndex = 0;
-        $teamIds = array_values($teams->pluck('id')->all());
-
-        while ($queue->isNotEmpty()) {
-            $teamId = $teamIds[$teamIndex % count($teamIds)];
-            $team = $distribution[$teamId]['team'];
-            $student = $this->pickStudentForTeam($queue, $team->mentor_user_id, $lastMentorByStudent, $preferSameMentor);
-            $distribution[$teamId]['students'][] = $student;
-            $teamIndex++;
+            $this->distributeGroupByRoundRobin(
+                $distribution,
+                $teams,
+                $group,
+                $lastMentorByStudent,
+                $preferSameMentor,
+                $targetStudentsByTeamId,
+            );
         }
 
         return $distribution;
+    }
+
+    /**
+     * @param  array<int, array{team: StpTeam, students: array<int, User>}>  $distribution
+     * @param  Collection<int, StpTeam>  $teams
+     * @param  Collection<int, User>  $femaleQueue
+     * @param  Collection<int, User>  $maleQueue
+     * @param  array<int, int>  $lastMentorByStudent
+     * @param  array<int, ?string>  $mentorGenderById
+     * @param  array<int, int>  $targetStudentsByTeamId
+     */
+    private function assignRequiredOppositeGenderStudents(
+        array &$distribution,
+        Collection $teams,
+        Collection &$femaleQueue,
+        Collection &$maleQueue,
+        array $lastMentorByStudent,
+        bool $preferSameMentor,
+        array $mentorGenderById,
+        array $targetStudentsByTeamId,
+    ): void {
+        foreach ($teams as $team) {
+            $teamId = $team->id;
+
+            if (count($distribution[$teamId]['students']) >= ($targetStudentsByTeamId[$teamId] ?? 0)) {
+                continue;
+            }
+
+            $mentorGender = $mentorGenderById[(int) $team->mentor_user_id] ?? null;
+
+            if ($mentorGender === 'M' && $femaleQueue->isNotEmpty()) {
+                $distribution[$teamId]['students'][] = $this->pickStudentForTeam(
+                    $femaleQueue,
+                    (int) $team->mentor_user_id,
+                    $lastMentorByStudent,
+                    $preferSameMentor,
+                );
+            }
+
+            if (
+                $mentorGender === 'F'
+                && $maleQueue->isNotEmpty()
+                && count($distribution[$teamId]['students']) < ($targetStudentsByTeamId[$teamId] ?? 0)
+            ) {
+                $distribution[$teamId]['students'][] = $this->pickStudentForTeam(
+                    $maleQueue,
+                    (int) $team->mentor_user_id,
+                    $lastMentorByStudent,
+                    $preferSameMentor,
+                );
+            }
+        }
+    }
+
+    /**
+     * @param  array<int, array{team: StpTeam, students: array<int, User>}>  $distribution
+     * @param  Collection<int, StpTeam>  $teams
+     * @param  Collection<int, User>  $group
+     * @param  array<int, int>  $lastMentorByStudent
+     * @param  array<int, int>  $targetStudentsByTeamId
+     */
+    private function distributeGroupByRoundRobin(
+        array &$distribution,
+        Collection $teams,
+        Collection $group,
+        array $lastMentorByStudent,
+        bool $preferSameMentor,
+        array $targetStudentsByTeamId,
+    ): void {
+        $queue = $group->values();
+        $teamIds = array_values($teams->pluck('id')->all());
+        $teamCount = count($teamIds);
+        $teamIndex = 0;
+
+        while ($queue->isNotEmpty()) {
+            $teamId = $this->pickNextTeamIdWithCapacity(
+                $distribution,
+                $teamIds,
+                $targetStudentsByTeamId,
+                $teamIndex,
+            );
+
+            if ($teamId === null) {
+                break;
+            }
+
+            /** @var StpTeam $team */
+            $team = $distribution[$teamId]['team'];
+            $student = $this->pickStudentForTeam($queue, $team->mentor_user_id, $lastMentorByStudent, $preferSameMentor);
+            $distribution[$teamId]['students'][] = $student;
+            $currentTeamIndex = (int) array_search($teamId, $teamIds, true);
+            $teamIndex = ($currentTeamIndex + 1) % $teamCount;
+        }
+    }
+
+    /**
+     * @param  Collection<int, User>  $students
+     * @return array{
+     *     first: Collection<int, User>,
+     *     second: Collection<int, User>,
+     *     unknown: Collection<int, User>
+     * }
+     */
+    private function splitStudentsByGender(Collection $students): array
+    {
+        $femaleStudents = $students->filter(
+            fn (User $student): bool => $this->normalizeGender($student->gender) === 'F',
+        )->values();
+        $maleStudents = $students->filter(
+            fn (User $student): bool => $this->normalizeGender($student->gender) === 'M',
+        )->values();
+        $unknownGenderStudents = $students->filter(
+            fn (User $student): bool => $this->normalizeGender($student->gender) === null,
+        )->values();
+
+        return [
+            'female' => $femaleStudents,
+            'male' => $maleStudents,
+            'unknown' => $unknownGenderStudents,
+        ];
+    }
+
+    /**
+     * @param  Collection<int, User>  $femaleStudents
+     * @param  Collection<int, User>  $maleStudents
+     * @param  Collection<int, User>  $unknownGenderStudents
+     * @return array{
+     *     first: Collection<int, User>,
+     *     second: Collection<int, User>,
+     *     unknown: Collection<int, User>
+     * }
+     */
+    private function sortGenderGroupsByPriority(
+        Collection $femaleStudents,
+        Collection $maleStudents,
+        Collection $unknownGenderStudents,
+    ): array {
+        if ($femaleStudents->count() >= $maleStudents->count()) {
+            return [
+                'first' => $femaleStudents,
+                'second' => $maleStudents,
+                'unknown' => $unknownGenderStudents,
+            ];
+        }
+
+        return [
+            'first' => $maleStudents,
+            'second' => $femaleStudents,
+            'unknown' => $unknownGenderStudents,
+        ];
+    }
+
+    /**
+     * @param  array<int, int>  $teamIds
+     * @return array<int, int>
+     */
+    private function resolveTargetStudentsByTeam(array $teamIds, int $studentsCount): array
+    {
+        $teamsCount = count($teamIds);
+        $base = intdiv($studentsCount, $teamsCount);
+        $remainder = $studentsCount % $teamsCount;
+        $targetByTeamId = [];
+
+        foreach ($teamIds as $index => $teamId) {
+            $targetByTeamId[$teamId] = $base + ($index < $remainder ? 1 : 0);
+        }
+
+        return $targetByTeamId;
+    }
+
+    /**
+     * @param  array<int, array{team: StpTeam, students: array<int, User>}>  $distribution
+     * @param  array<int, int>  $teamIds
+     * @param  array<int, int>  $targetStudentsByTeamId
+     */
+    private function pickNextTeamIdWithCapacity(
+        array $distribution,
+        array $teamIds,
+        array $targetStudentsByTeamId,
+        int $startIndex,
+    ): ?int {
+        $teamsCount = count($teamIds);
+
+        for ($offset = 0; $offset < $teamsCount; $offset++) {
+            $index = ($startIndex + $offset) % $teamsCount;
+            $teamId = $teamIds[$index];
+            $currentCount = count($distribution[$teamId]['students']);
+
+            if ($currentCount < ($targetStudentsByTeamId[$teamId] ?? 0)) {
+                return $teamId;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeGender(?string $gender): ?string
+    {
+        if ($gender === null) {
+            return null;
+        }
+
+        $value = Str::of($gender)->ascii()->lower()->trim()->value();
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (in_array($value, ['f', 'feminino', 'female', 'woman', 'mulher'], true)) {
+            return 'F';
+        }
+
+        if (in_array($value, ['m', 'masculino', 'male', 'man', 'homem'], true)) {
+            return 'M';
+        }
+
+        return null;
     }
 
     /**

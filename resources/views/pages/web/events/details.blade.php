@@ -16,7 +16,12 @@
             $event->state ?? null,
         ]),
     );
-    $isEnrolled = auth()->check() && $event->students()->whereKey(auth()->id())->exists();
+    $isEnrolled =
+        auth()->check() &&
+        $event
+            ->students()
+            ->whereKey(auth()->id())
+            ->exists();
     $eventAccessRoute = $isEnrolled
         ? route('app.student.training.show', ['training' => $event->id])
         : route('web.event.register', ['id' => $event->id]);
@@ -24,9 +29,10 @@
     $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
     $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
     $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
-    $hasBannerImage = $bannerPath !== ''
-        && in_array($bannerExtension, $allowedImageExtensions, true)
-        && Storage::disk('public')->exists($bannerPath);
+    $hasBannerImage =
+        $bannerPath !== '' &&
+        in_array($bannerExtension, $allowedImageExtensions, true) &&
+        Storage::disk('public')->exists($bannerPath);
     $bannerDownloadUrl = $hasBannerImage ? route('web.event.banner.download', ['id' => $event->id]) : null;
 @endphp
 
@@ -37,7 +43,7 @@
         :cover="asset('images/leadership-meeting.webp')" />
 
     {{-- HERO + RESUMO (grade alinhada) --}} <section class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8">
-        <div class="grid items-start gap-8 lg:grid-cols-12">
+        <div class="grid items-start gap-8 lg:grid-cols-12 py-10">
 
             {{-- Card principal --}}
             <div class="lg:col-span-7" data-reveal>
@@ -121,7 +127,8 @@
 
                         {{-- Botões --}}
                         @if ($isEnrolled)
-                            <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-900">
+                            <div
+                                class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-900">
                                 Você já está inscrito neste evento. Caso precise atualizar seus dados, acesse sua área
                                 do aluno.
                             </div>
@@ -223,8 +230,7 @@
 
     {{-- CTA fixo (sempre disponível) --}}
     <x-web.events.bar-fixed-cta :course_name="$event->course->name" :course_type="$event->course->type" :start_time="$event->eventDates()->first()->start_time" :end_time="$event->eventDates()->first()->end_time"
-        :date="$event->eventDates()->first()->date" :banner="$bannerDownloadUrl" :route="$eventAccessRoute"
-        :label="$eventAccessLabel" />
+        :date="$event->eventDates()->first()->date" :banner="$bannerDownloadUrl" :route="$eventAccessRoute" :label="$eventAccessLabel" />
 
 
 </x-layouts.guest>

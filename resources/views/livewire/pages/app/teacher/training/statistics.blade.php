@@ -40,10 +40,18 @@
                 </button>
             @endif
 
+            @if ($activeSessionId !== null && $isLeadershipExecutionTraining && $canRandomizeTeams)
+                <button type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+                    wire:click="randomizeTeams">
+                    Randomizar equipes
+                </button>
+            @endif
+
             @if ($activeSessionId !== null)
                 <button type="button"
                     class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                    wire:click="removeSession({{ $activeSessionId }})">
+                    wire:click="requestSessionRemoval({{ $activeSessionId }})">
                     Remover sessão
                 </button>
             @endif
@@ -331,6 +339,23 @@
             <div class="flex justify-end gap-2">
                 <x-src.btn-silver type="button" wire:click="closeMentorSelector" :label="__('Cancelar')" />
                 <x-src.btn-gold type="button" wire:click="assignMentorToTeam" :label="__('Salvar mentor')" />
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="statistics-remove-session-confirmation" wire:model="showSessionRemovalConfirmationModal"
+        class="max-w-lg w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Remover sessão STP?') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Os resultados obtidos pelas equipes desta sessão serão permanentemente perdidos.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="cancelSessionRemoval" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="confirmSessionRemoval" :label="__('Remover sessão')" />
             </div>
         </div>
     </flux:modal>

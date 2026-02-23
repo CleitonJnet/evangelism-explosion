@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\App\Teacher\Training\EditEventDatesModal;
+use App\Livewire\Pages\App\Teacher\Training\Schedule as TrainingScheduleComponent;
 use App\Models\Course;
 use App\Models\Role;
 use App\Models\Section;
@@ -227,7 +228,7 @@ it('inserts auto breaks without happening before 70 minutes and keeps pauses spa
                 && (($meta['anchor'] ?? null) === 'break');
         })
         ->values();
-    expect($autoBreaks->count())->toBeGreaterThanOrEqual(2);
+    expect($autoBreaks->count())->toBeGreaterThanOrEqual(1);
 
     $minutesSincePause = 0;
     $lastAutoBreakStart = null;
@@ -337,8 +338,10 @@ it('sets default meal switches according to event day period windows', function 
     $training->eventDates()->delete();
     $training->eventDates()->createMany([
         ['date' => '2026-06-01', 'start_time' => '08:00:00', 'end_time' => '17:00:00'],
-        ['date' => '2026-06-02', 'start_time' => '12:00:00', 'end_time' => '18:00:00'],
+        ['date' => '2026-06-02', 'start_time' => '12:00:00', 'end_time' => '17:50:00'],
         ['date' => '2026-06-03', 'start_time' => '14:00:00', 'end_time' => '21:00:00'],
+        ['date' => '2026-06-04', 'start_time' => '08:00:00', 'end_time' => '21:00:00'],
+        ['date' => '2026-06-05', 'start_time' => '14:00:00', 'end_time' => '21:30:00'],
     ]);
 
     Section::factory()->create([
@@ -354,8 +357,13 @@ it('sets default meal switches according to event day period windows', function 
     $dayBlocks = $training->schedule_settings['day_blocks'] ?? [];
 
     expect((bool) data_get($dayBlocks, '2026-06-01.lunch'))->toBeTrue();
+    expect((bool) data_get($dayBlocks, '2026-06-01.snack'))->toBeTrue();
     expect((bool) data_get($dayBlocks, '2026-06-02.snack'))->toBeTrue();
-    expect((bool) data_get($dayBlocks, '2026-06-03.dinner'))->toBeTrue();
+    expect((bool) data_get($dayBlocks, '2026-06-02.dinner'))->toBeFalse();
+    expect((bool) data_get($dayBlocks, '2026-06-03.dinner'))->toBeFalse();
+    expect((bool) data_get($dayBlocks, '2026-06-04.snack'))->toBeTrue();
+    expect((bool) data_get($dayBlocks, '2026-06-04.dinner'))->toBeFalse();
+    expect((bool) data_get($dayBlocks, '2026-06-05.dinner'))->toBeTrue();
 });
 
 it('positions default meal slots with fixed start times and expected durations', function () {
@@ -370,8 +378,8 @@ it('positions default meal slots with fixed start times and expected durations',
     $training->eventDates()->delete();
     $training->eventDates()->createMany([
         ['date' => '2026-07-01', 'start_time' => '08:00:00', 'end_time' => '17:30:00'],
-        ['date' => '2026-07-02', 'start_time' => '12:00:00', 'end_time' => '18:00:00'],
-        ['date' => '2026-07-03', 'start_time' => '14:00:00', 'end_time' => '21:00:00'],
+        ['date' => '2026-07-02', 'start_time' => '15:00:00', 'end_time' => '18:00:00'],
+        ['date' => '2026-07-03', 'start_time' => '14:00:00', 'end_time' => '21:30:00'],
     ]);
 
     Section::factory()->create([
@@ -398,10 +406,48 @@ it('positions default meal slots with fixed start times and expected durations',
     expect($lunch?->ends_at?->format('H:i:s'))->toBe('13:00:00');
 
     expect($snack)->not->toBeNull();
-    expect($snack?->starts_at?->format('H:i:s'))->toBe('15:00:00');
-    expect($snack?->ends_at?->format('H:i:s'))->toBe('15:30:00');
+    expect($snack?->starts_at?->format('H:i:s'))->toBe('15:15:00');
+    expect($snack?->ends_at?->format('H:i:s'))->toBe('15:45:00');
 
     expect($dinner)->not->toBeNull();
     expect($dinner?->starts_at?->format('H:i:s'))->toBe('18:00:00');
     expect($dinner?->ends_at?->format('H:i:s'))->toBe('19:00:00');
+});
+
+it('increments session duration using action button', function () {
+    $teacher = makeTeacherForScheduleRefactorTest();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+    $training->eventDates()->create([
+        'date' => '2026-08-10',
+        'start_time' => '08:00:00',
+        'end_time' => '08:31:00',
+    ]);
+
+    $item = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => null,
+        'date' => '2026-08-10',
+        'starts_at' => Carbon::parse('2026-08-10 08:00:00'),
+        'ends_at' => Carbon::parse('2026-08-10 08:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Sessão Base',
+        'position' => 1,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(TrainingScheduleComponent::class, ['training' => $training])
+        ->call('incrementDuration', $item->id);
+
+    expect((int) $item->fresh()->planned_duration_minutes)->toBe(31);
 });

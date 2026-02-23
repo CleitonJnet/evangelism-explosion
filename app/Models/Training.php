@@ -21,7 +21,7 @@ class Training extends Model
 
     private const DEFAULT_PIX_QR_CODE_ASSET_PATH = 'images/qrcode-pix-ee.webp';
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings'];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'schedule_attention_shown_at', 'schedule_adjusted_at'];
 
     /**
      * @return array<string, string>
@@ -32,6 +32,8 @@ class Training extends Model
             'status' => TrainingStatus::class,
             'welcome_duration_minutes' => 'integer',
             'schedule_settings' => 'array',
+            'schedule_attention_shown_at' => 'datetime',
+            'schedule_adjusted_at' => 'datetime',
         ];
     }
 
