@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\System\Teacher\ChurchController;
 use App\Http\Controllers\System\Teacher\CourseController;
+use App\Http\Controllers\System\Teacher\DashboardController;
 use App\Http\Controllers\System\Teacher\InventoryController;
 use App\Http\Controllers\System\Teacher\MinistryController;
 use App\Http\Controllers\System\Teacher\OjtController;
@@ -12,7 +13,7 @@ use App\Http\Middleware\ShowScheduleAttentionModal;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->group(function () {
-    Route::view('/', 'pages.app.roles.teacher.dashboard')->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::middleware('can:manageChurches')->prefix('churches')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');

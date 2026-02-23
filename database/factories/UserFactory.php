@@ -52,6 +52,7 @@ class UserFactory extends Factory
             'notes' => fake()->optional(0.2)->sentence(12),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('Master@01'),
+            'must_change_password' => false,
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,

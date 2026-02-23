@@ -3,12 +3,15 @@
 use App\Livewire\Pages\App\Teacher\Training\CreateMentorUserModal;
 use App\Livewire\Pages\App\Teacher\Training\ManageMentorsModal;
 use App\Livewire\Shared\CreateChurchModal;
+use App\Mail\MentorEventConfirmationMail;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -35,6 +38,8 @@ function createTrainingForMentorFlow(User $teacher): Training
 }
 
 it('creates mentor user with church and attaches mentor role and pivot', function (): void {
+    Mail::fake();
+
     $teacher = createTeacherForMentorFlow();
     $training = createTrainingForMentorFlow($teacher);
     $church = Church::factory()->create(['name' => 'Igreja Oficial Mentor']);
@@ -53,6 +58,8 @@ it('creates mentor user with church and attaches mentor role and pivot', functio
     $mentorRole = Role::query()->firstWhere('name', 'Mentor');
 
     expect($mentorUser->church_id)->toBe($church->id);
+    expect($mentorUser->must_change_password)->toBeTrue();
+    expect(Hash::check('Mentor_01', (string) $mentorUser->password))->toBeTrue();
     expect($mentorRole)->not->toBeNull();
     expect($mentorUser->roles()->whereKey($mentorRole->id)->exists())->toBeTrue();
 
@@ -61,6 +68,13 @@ it('creates mentor user with church and attaches mentor role and pivot', functio
         'user_id' => $mentorUser->id,
         'created_by' => $teacher->id,
     ]);
+
+    Mail::assertSent(MentorEventConfirmationMail::class, function (MentorEventConfirmationMail $mail) use ($mentorUser): bool {
+        return $mail->hasTo($mentorUser->email)
+            && $mail->mentorUser->is($mentorUser)
+            && str_contains($mail->passwordResetUrl, 'reset-password')
+            && str_contains($mail->passwordResetUrl, 'email='.urlencode($mentorUser->email));
+    });
 });
 
 it('creates official church and returns selection to create mentor user modal', function (): void {

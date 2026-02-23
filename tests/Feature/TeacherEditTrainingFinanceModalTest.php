@@ -6,7 +6,10 @@ use App\Models\Church;
 use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
+use App\Models\TrainingFinanceAudit;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 function createTeacherForFinanceModal(): User
@@ -53,6 +56,48 @@ it('updates editable finance fields without changing base price', function (): v
         ->and($training->getRawOriginal('price_church'))->toBe('25,00')
         ->and($training->getRawOriginal('discount'))->toBe('5,00')
         ->and($training->pix_key)->toBe('church-pix-key@example.test');
+
+    $audit = TrainingFinanceAudit::query()
+        ->where('training_id', $training->id)
+        ->latest('id')
+        ->first();
+
+    expect($audit)->not->toBeNull();
+    expect($audit->user_id)->toBe($teacher->id);
+    expect($audit->changes)->toMatchArray([
+        'price_church' => ['before' => '0,00', 'after' => '25,00'],
+        'discount' => ['before' => '0,00', 'after' => '5,00'],
+        'pix_key' => ['before' => null, 'after' => 'church-pix-key@example.test'],
+    ]);
+});
+
+it('creates finance audit when qr code is updated', function (): void {
+    Storage::fake('public');
+
+    $teacher = createTeacherForFinanceModal();
+    $training = createTrainingForFinanceModal($teacher);
+
+    Livewire::actingAs($teacher)
+        ->test(EditFinanceModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('pixQrCodeUpload', UploadedFile::fake()->image('novo-qr.png'))
+        ->call('save')
+        ->assertSet('showModal', false);
+
+    $training->refresh();
+
+    expect($training->pix_qr_code)->not->toBeNull();
+    Storage::disk('public')->assertExists((string) $training->pix_qr_code);
+
+    $audit = TrainingFinanceAudit::query()
+        ->where('training_id', $training->id)
+        ->latest('id')
+        ->first();
+
+    expect($audit)->not->toBeNull();
+    expect($audit->changes)->toHaveKey('pix_qr_code');
+    expect($audit->changes['pix_qr_code']['before'])->toBeNull();
+    expect((string) $audit->changes['pix_qr_code']['after'])->toContain('training-pix-qrcodes/'.$training->id.'/');
 });
 
 it('forbids teacher that does not own the training', function (): void {

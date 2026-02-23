@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\Web\PublicEventScheduleController;
 use App\Http\Controllers\Web\SiteController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,13 @@ Route::name('web.')->group(function () {
         Route::get('{id}/login', [SiteController::class, 'login'])->name('login');
         Route::get('training-host-church', [SiteController::class, 'clinic_base'])->name('clinic-base');
     });
+});
+
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('force-password-change', [ForcePasswordChangeController::class, 'edit'])
+        ->name('force-password-change.show');
+    Route::put('force-password-change', [ForcePasswordChangeController::class, 'update'])
+        ->name('force-password-change.update');
 });
 
 require __DIR__.'/app/start.php';

@@ -183,4 +183,9 @@ class Training extends Model
     {
         return $this->hasMany(StpSession::class);
     }
+
+    public function financeAudits(): HasMany
+    {
+        return $this->hasMany(TrainingFinanceAudit::class);
+    }
 }

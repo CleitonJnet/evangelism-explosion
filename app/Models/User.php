@@ -40,6 +40,7 @@ class User extends Authenticatable
         'state',
         'postal_code',
         'password',
+        'must_change_password',
         'church_id',
         'church_temp_id',
         'notes',
@@ -67,6 +68,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 

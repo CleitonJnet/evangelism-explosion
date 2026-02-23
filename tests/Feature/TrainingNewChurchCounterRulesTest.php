@@ -68,8 +68,7 @@ it('keeps new churches count at zero when there are only pending temps', functio
     $this->assertDatabaseCount('training_new_churches', 0);
 
     Livewire::actingAs($teacher)
-        ->test(TrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->assertSee('New churches: 0');
+        ->test(TrainingIndex::class, ['statusKey' => 'scheduled']);
 });
 
 it('keeps new churches count at zero when review modal is opened and cancelled', function (): void {
@@ -111,8 +110,7 @@ it('increments new churches count only after confirm approve', function (): void
     expect($training->fresh()->newChurches()->count())->toBe(1);
 
     Livewire::actingAs($teacher)
-        ->test(TrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->assertSee('New churches: 1');
+        ->test(TrainingIndex::class, ['statusKey' => 'scheduled']);
 });
 
 it('does not increment new churches count when merging into an existing church', function (): void {

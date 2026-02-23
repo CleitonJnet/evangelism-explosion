@@ -215,7 +215,7 @@ class CreateChurchModal extends Component
 
         $trainingContext = new Training([
             'course_id' => $this->trainingCourseId,
-            'teacher_id' => $this->trainingTeacherId ?? $actor->id,
+            'teacher_id' => $actor->id,
         ]);
 
         $church = app(ChurchTempResolverService::class)->approveAsNewOfficial(

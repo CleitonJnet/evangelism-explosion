@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Helpers\MoneyHelper;
 use App\Models\Training;
+use App\Models\TrainingFinanceAudit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -75,18 +76,40 @@ class EditFinanceModal extends Component
 
         try {
             DB::transaction(function () use ($validated): void {
-                $this->training->update([
+                $actorId = Auth::id();
+                $before = $this->financeSnapshot($this->training);
+
+                $updates = [
                     'price_church' => $validated['price_church'] ?? null,
                     'discount' => $validated['discount'] ?? null,
                     'pix_key' => filled($validated['pix_key'] ?? null)
                         ? trim((string) $validated['pix_key'])
                         : null,
-                ]);
+                ];
 
                 if ($this->pixQrCodeUpload) {
                     $path = $this->pixQrCodeUpload->store("training-pix-qrcodes/{$this->training->id}", 'public');
-                    $this->training->update(['pix_qr_code' => $path]);
+                    $updates['pix_qr_code'] = $path;
                 }
+
+                $this->training->update($updates);
+
+                if (! $actorId) {
+                    return;
+                }
+
+                $after = $this->financeSnapshot($this->training->fresh());
+                $changes = $this->resolveFinanceChanges($before, $after);
+
+                if ($changes === []) {
+                    return;
+                }
+
+                TrainingFinanceAudit::query()->create([
+                    'training_id' => $this->training->id,
+                    'user_id' => $actorId,
+                    'changes' => $changes,
+                ]);
             });
 
             $this->training = Training::query()->findOrFail($this->training->id);
@@ -111,8 +134,15 @@ class EditFinanceModal extends Component
 
     public function render(): View
     {
+        $latestFinanceAudit = $this->training
+            ->financeAudits()
+            ->with('user:id,name,email')
+            ->latest('id')
+            ->first();
+
         return view('livewire.pages.app.teacher.training.edit-finance-modal', [
             'currentPixQrCodeUrl' => $this->training->pixQrCodeUrlForPayment(),
+            'latestFinanceAudit' => $latestFinanceAudit,
         ]);
     }
 
@@ -161,5 +191,43 @@ class EditFinanceModal extends Component
         }
 
         return number_format($floatValue, 2, ',', '.');
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function financeSnapshot(Training $training): array
+    {
+        return [
+            'price_church' => $training->getRawOriginal('price_church'),
+            'discount' => $training->getRawOriginal('discount'),
+            'pix_key' => $training->getRawOriginal('pix_key'),
+            'pix_qr_code' => $training->getRawOriginal('pix_qr_code'),
+        ];
+    }
+
+    /**
+     * @param  array<string, string|null>  $before
+     * @param  array<string, string|null>  $after
+     * @return array<string, array{before: string|null, after: string|null}>
+     */
+    private function resolveFinanceChanges(array $before, array $after): array
+    {
+        $changes = [];
+
+        foreach ($before as $field => $beforeValue) {
+            $afterValue = $after[$field] ?? null;
+
+            if ((string) $beforeValue === (string) $afterValue) {
+                continue;
+            }
+
+            $changes[$field] = [
+                'before' => $beforeValue,
+                'after' => $afterValue,
+            ];
+        }
+
+        return $changes;
     }
 }

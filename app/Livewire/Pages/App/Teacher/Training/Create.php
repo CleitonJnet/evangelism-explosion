@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -31,6 +32,7 @@ class Create extends Component
 
     public ?int $course_id = null;
 
+    #[Locked]
     public ?int $teacher_id = null;
 
     public ?int $church_id = null;
@@ -111,11 +113,6 @@ class Create extends Component
         'state' => '',
     ];
 
-    public function mount(): void
-    {
-        $this->teacher_id = Auth::id();
-    }
-
     /**
      * @return array<string, array<int, string>>
      */
@@ -167,7 +164,6 @@ class Create extends Component
         return [
             'course_id.required' => 'Selecione um curso.',
             'course_id.exists' => 'O curso selecionado é inválido.',
-            'teacher_id.exists' => 'O professor selecionado é inválido.',
             'church_id.exists' => 'A igreja selecionada é inválida.',
             'eventDates.required' => 'Adicione ao menos um dia.',
             'eventDates.min' => 'Adicione ao menos um dia.',
@@ -191,7 +187,6 @@ class Create extends Component
     {
         return [
             'course_id' => 'curso',
-            'teacher_id' => 'professor',
             'church_id' => 'igreja',
             'bannerUpload' => 'arquivo de divulgação',
             'pixQrCodeUpload' => 'QR Code PIX da igreja sede',
@@ -206,13 +201,11 @@ class Create extends Component
 
         if (! $value) {
             $this->price = null;
-            $this->teacher_id = null;
 
             return;
         }
 
         $this->price = $this->createService()->resolveCoursePrice($value);
-        $this->teacher_id = null;
     }
 
     public function updatedStep(mixed $value): void
@@ -394,12 +387,18 @@ class Create extends Component
 
     public function submit(TrainingScheduleGenerator $generator): void
     {
+        $teacherId = Auth::id();
+
+        if (! $teacherId) {
+            abort(403);
+        }
+
         $validated = $this->validate();
 
-        $training = DB::transaction(function () use ($validated): Training {
+        $training = DB::transaction(function () use ($validated, $teacherId): Training {
             $training = Training::create([
                 'course_id' => $validated['course_id'],
-                'teacher_id' => $this->teacher_id ?? Auth::id(),
+                'teacher_id' => $teacherId,
                 'church_id' => $validated['church_id'] ?? null,
                 'banner' => $validated['banner'] ?? null,
                 'coordinator' => $validated['coordinator'] ?? null,
@@ -474,7 +473,7 @@ class Create extends Component
      */
     private function loadCourses(): Collection
     {
-        $teacherId = $this->teacher_id ?? Auth::id();
+        $teacherId = Auth::id();
 
         if (! $teacherId) {
             return collect();

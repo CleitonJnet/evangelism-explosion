@@ -77,6 +77,15 @@
                     <div class="border-b border-dashed border-sky-950 flex-auto"></div>
                     <div>{{ __('R$') }} {{ $this->finalPricePerRegistration }}</div>
                 </div>
+
+                @if ($latestFinanceAudit)
+                    <div class="text-xs text-slate-600">
+                        {{ __('Última alteração por :user em :date', [
+                            'user' => $latestFinanceAudit->user?->name ?: $latestFinanceAudit->user?->email ?: __('Usuário'),
+                            'date' => $latestFinanceAudit->created_at?->format('d/m/Y H:i') ?: '-',
+                        ]) }}
+                    </div>
+                @endif
             </div>
 
             <div class="flex justify-end gap-3 px-6 pb-4">

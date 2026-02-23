@@ -130,7 +130,7 @@
                     {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
 
                     <livewire:pages.app.teacher.training.create-church-modal wire:model="newChurchSelection"
-                        :training-course-id="$course_id" :training-teacher-id="$teacher_id" wire:key="teacher-training-create-church-modal" />
+                        :training-course-id="$course_id" wire:key="teacher-training-create-church-modal" />
                 </div>
             </div>
             <div class="flex-1 grid gap-4">

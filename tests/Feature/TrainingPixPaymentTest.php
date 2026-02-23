@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -41,6 +42,17 @@ it('stores church pix key and qr code when creating a training', function () {
     expect($training->pix_key)->toBe('11.222.333/0001-44');
     expect($training->pix_qr_code)->not->toBeNull();
     Storage::disk('public')->assertExists((string) $training->pix_qr_code);
+});
+
+it('blocks malicious teacher_id payload updates in teacher flow', function () {
+    $teacher = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    expect(function () use ($teacher, $otherUser): void {
+        Livewire::actingAs($teacher)
+            ->test(TeacherTrainingCreate::class)
+            ->set('teacher_id', $otherUser->id);
+    })->toThrow(CannotUpdateLockedPropertyException::class);
 });
 
 it('returns default pix data when training does not have church pix settings', function () {

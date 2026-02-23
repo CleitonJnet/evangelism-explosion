@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Mail\MentorEventConfirmationMail;
 use App\Models\Church;
 use App\Models\Training;
 use App\Models\User;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -101,19 +104,33 @@ class CreateMentorUserModal extends Component
 
         $validated = $this->validate();
         $this->busy = true;
+        $mentorUser = null;
 
         try {
-            DB::transaction(function () use ($validated, $actor, $mentorAssignmentService): void {
-                $mentorUser = User::query()->create([
+            $mentorUser = DB::transaction(function () use ($validated, $actor, $mentorAssignmentService): User {
+                $createdMentorUser = User::query()->create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'phone' => $validated['phone'] ?: null,
                     'church_id' => $validated['selectedChurchId'],
-                    'password' => Str::password(24),
+                    'password' => Hash::make('Mentor_01'),
+                    'must_change_password' => true,
                 ]);
 
-                $mentorAssignmentService->addMentor($this->training, $mentorUser, $actor);
+                $mentorAssignmentService->addMentor($this->training, $createdMentorUser, $actor);
+
+                return $createdMentorUser;
             });
+
+            $passwordResetToken = Password::broker()->createToken($mentorUser);
+            $passwordResetUrl = route('password.reset', [
+                'token' => $passwordResetToken,
+                'email' => $mentorUser->email,
+            ]);
+
+            Mail::to($mentorUser->email)->send(
+                new MentorEventConfirmationMail($mentorUser, $this->training->fresh('course'), $passwordResetUrl),
+            );
 
             $this->dispatch('mentor-user-created', trainingId: $this->training->id);
             $this->closeModal();
