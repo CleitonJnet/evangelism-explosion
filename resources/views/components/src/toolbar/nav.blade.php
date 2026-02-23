@@ -3,22 +3,67 @@
 @php
     $route = request()->route();
     $routeName = $route?->getName();
+    $hasSession = request()->hasSession();
+
+    if ($hasSession && $routeName && !str_starts_with($routeName, 'livewire.')) {
+        session()->put('toolbar.last_route_name', $routeName);
+        session()->put('toolbar.last_url', request()->fullUrl());
+    }
 
     if (!$routeName || str_starts_with($routeName, 'livewire.')) {
-        $referer = request()->headers->get('referer');
+        $router = app('router');
+        $resolved = false;
+        $snapshotPath = data_get(request()->input('components.0.snapshot.memo'), 'path');
 
-        if (is_string($referer) && $referer !== '') {
+        if (is_string($snapshotPath) && $snapshotPath !== '') {
             try {
-                $router = app('router');
-                $refererRequest = \Illuminate\Http\Request::create($referer, 'GET');
-                $route = $router->getRoutes()->match($refererRequest);
+                $snapshotRequest = \Illuminate\Http\Request::create($snapshotPath, 'GET');
+                $route = $router->getRoutes()->match($snapshotRequest);
                 $router->substituteBindings($route);
                 $router->substituteImplicitBindings($route);
                 $routeName = $route->getName();
+                $resolved = true;
             } catch (\Throwable $exception) {
-                $route = request()->route();
-                $routeName = $route?->getName();
+                $resolved = false;
             }
+        }
+
+        if (!$resolved) {
+            $referer = request()->headers->get('referer');
+
+            if (is_string($referer) && $referer !== '') {
+                try {
+                    $refererRequest = \Illuminate\Http\Request::create($referer, 'GET');
+                    $route = $router->getRoutes()->match($refererRequest);
+                    $router->substituteBindings($route);
+                    $router->substituteImplicitBindings($route);
+                    $routeName = $route->getName();
+                } catch (\Throwable $exception) {
+                    $route = request()->route();
+                    $routeName = $route?->getName();
+                }
+            }
+        }
+
+        if (!$resolved && $hasSession) {
+            $lastUrl = session()->get('toolbar.last_url');
+
+            if (is_string($lastUrl) && $lastUrl !== '') {
+                try {
+                    $lastUrlRequest = \Illuminate\Http\Request::create($lastUrl, 'GET');
+                    $route = $router->getRoutes()->match($lastUrlRequest);
+                    $router->substituteBindings($route);
+                    $router->substituteImplicitBindings($route);
+                    $routeName = $route->getName();
+                    $resolved = true;
+                } catch (\Throwable $exception) {
+                    $resolved = false;
+                }
+            }
+        }
+
+        if ((!$routeName || str_starts_with($routeName, 'livewire.')) && $hasSession) {
+            $routeName = session()->get('toolbar.last_route_name');
         }
     }
     $breadcrumbItems = [];

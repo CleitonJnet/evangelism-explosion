@@ -2,6 +2,7 @@ import Sortable from "sortablejs";
 
 const mentorInstances = new WeakMap();
 const studentInstances = new WeakMap();
+let suppressClickListenerBound = false;
 
 function findComponentId(...elements) {
     const root = elements.find(Boolean)?.closest('[wire\\:id]');
@@ -15,10 +16,62 @@ function toNumber(value) {
     return Number.isFinite(parsed) ? parsed : null;
 }
 
+function markSuppressClick(itemEl) {
+    if (!itemEl) {
+        return;
+    }
+
+    itemEl.dataset.statisticsSuppressClick = "1";
+
+    window.setTimeout(() => {
+        if (itemEl.dataset.statisticsSuppressClick === "1") {
+            delete itemEl.dataset.statisticsSuppressClick;
+        }
+    }, 180);
+}
+
+function bindSuppressClickListener() {
+    if (suppressClickListenerBound) {
+        return;
+    }
+
+    suppressClickListenerBound = true;
+
+    document.addEventListener(
+        "click",
+        (event) => {
+            const target = event.target;
+
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            const itemEl = target.closest(
+                ".js-statistics-student-item, .js-statistics-mentor-item"
+            );
+
+            if (!(itemEl instanceof HTMLElement)) {
+                return;
+            }
+
+            if (itemEl.dataset.statisticsSuppressClick !== "1") {
+                return;
+            }
+
+            delete itemEl.dataset.statisticsSuppressClick;
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        true
+    );
+}
+
 export function initStatisticsSortable(root = document) {
     if (!root) {
         return;
     }
+
+    bindSuppressClickListener();
 
     const mentorLists = [];
     const studentLists = [];
@@ -105,6 +158,8 @@ export function initStatisticsSortable(root = document) {
                     fromTeamId,
                     toTeamId
                 );
+
+                markSuppressClick(itemEl);
             },
         });
 
@@ -158,6 +213,8 @@ export function initStatisticsSortable(root = document) {
                     toTeamId,
                     afterStudentId
                 );
+
+                markSuppressClick(itemEl);
             },
         });
 
@@ -175,4 +232,8 @@ document.addEventListener("livewire:init", () => {
     Livewire.hook("morph.updated", ({ el }) => {
         initStatisticsSortable(el);
     });
+});
+
+document.addEventListener("statistics-sortable-refresh", () => {
+    initStatisticsSortable(document);
 });

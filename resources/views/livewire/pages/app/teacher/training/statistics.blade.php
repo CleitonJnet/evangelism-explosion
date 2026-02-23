@@ -1,5 +1,5 @@
 <div>
-    <x-src.toolbar.header :title="__('Saidas de Treinamento Praticos')" :description="__('Detalhes sobre as saidas de Treinamento Pratico.')" />
+    <x-src.toolbar.header wire:ignore :title="__('Saidas de Treinamento Praticos')" :description="__('Detalhes sobre as saidas de Treinamento Pratico.')" />
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.stp.approaches', $training)" :label="__('Visitas')" icon="list" :tooltip="__('Distribuição de visitas STP')" />
@@ -14,39 +14,56 @@
 
     <div
         class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
-        <div class="mb-4 flex flex-wrap items-center gap-2">
-            <label for="stp-session-select" class="text-xs font-semibold text-slate-700">Sessão STP:</label>
-            <select id="stp-session-select" class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-                wire:change="selectSession($event.target.value)">
-                <option value="">Selecione</option>
-                @foreach ($sessions as $session)
-                    <option value="{{ $session['id'] }}" @selected($activeSessionId === $session['id'])>
-                        {{ $session['label'] }}
-                    </option>
-                @endforeach
-            </select>
+        <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <label for="stp-session-select" class="text-xs font-semibold text-slate-700">Sessão STP:</label>
+                <select id="stp-session-select" class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                    wire:change="selectSession($event.target.value)">
+                    <option value="">Selecione</option>
+                    @foreach ($sessions as $session)
+                        <option value="{{ $session['id'] }}" @selected($activeSessionId === $session['id'])>
+                            {{ $session['label'] }}
+                        </option>
+                    @endforeach
+                </select>
 
-            <button type="button"
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                wire:click="createSession" @disabled(!$canCreateSession) title="{{ $createSessionBlockedReason ?? '' }}">
-                Criar sessão STP
-            </button>
-
-            @if ($activeSessionId !== null && count($teams) === 0)
                 <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    wire:click="formTeams">
-                    Formar equipes
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    wire:click="createSession" @disabled(!$canCreateSession) title="{{ $createSessionBlockedReason ?? '' }}">
+                    Criar sessão STP
                 </button>
-            @endif
 
-            @if ($activeSessionId !== null && $isLeadershipExecutionTraining && $canRandomizeTeams)
-                <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
-                    wire:click="randomizeTeams">
-                    Randomizar equipes
-                </button>
-            @endif
+                @if ($activeSessionId !== null && count($teams) === 0)
+                    <button type="button"
+                        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        wire:click="formTeams">
+                        Formar equipes
+                    </button>
+                @endif
+
+                @if ($activeSessionId !== null && $isLeadershipExecutionTraining && $canRandomizeTeams)
+                    <button type="button"
+                        class="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+                        wire:click="randomizeTeams">
+                        Redefinir equipes
+                    </button>
+                @endif
+
+                @if ($activeSessionId !== null && count($teams) > 0)
+                    <button type="button"
+                        class="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+                        wire:click="createRandomTeam">
+                        Nova equipe
+                    </button>
+                @endif
+
+                @if (count($pendingStudents) > 0)
+                    <span
+                        class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                        Pendências STP: {{ count($pendingStudents) }}
+                    </span>
+                @endif
+            </div>
 
             @if ($activeSessionId !== null)
                 <button type="button"
@@ -54,13 +71,6 @@
                     wire:click="requestSessionRemoval({{ $activeSessionId }})">
                     Remover sessão
                 </button>
-            @endif
-
-            @if (count($pendingStudents) > 0)
-                <span
-                    class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                    Pendências STP: {{ count($pendingStudents) }}
-                </span>
             @endif
         </div>
 
@@ -77,6 +87,12 @@
         @enderror
 
         @error('teamFormation')
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $message }}
+            </div>
+        @enderror
+
+        @error('teamCreation')
             <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 {{ $message }}
             </div>
@@ -190,8 +206,21 @@
                         @foreach ($teams as $team)
                             <tr class="h-10 relative group" wire:key="team-{{ $team['id'] }}">
                                 <th
-                                    class="border border-y-4 border-y-white border-l-white border-r-yellow-300 bg-yellow-50 group-hover:bg-yellow-100 px-1 text-center">
-                                    {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}.
+                                    class="relative border border-y-4 border-y-white border-l-white border-r-yellow-300 bg-yellow-50 group-hover:bg-yellow-100 px-1 text-center">
+                                    <span class="group-hover:opacity-0 transition-opacity">
+                                        {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}.
+                                    </span>
+                                    <button type="button"
+                                        class="absolute inset-0 hidden h-full w-full items-center justify-center bg-sky-100 text-sky-700 group-hover:flex hover:bg-red-100 hover:text-red-600 cursor-pointer"
+                                        wire:click="requestTeamRemoval({{ $team['id'] }})"
+                                        aria-label="{{ __('Remover equipe') }}" title="{{ __('Remover equipe') }}">
+                                        <svg version="1.1" id="remove-team-icon" xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5 fill-red-500" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                            viewBox="0 0 459.739 459.739" xml:space="preserve">
+                                            <path
+                                                d="M229.869,0C102.917,0,0,102.917,0,229.869c0,126.952,102.917,229.869,229.869,229.869s229.869-102.917,229.869-229.869 C459.738,102.917,356.821,0,229.869,0z M313.676,260.518H146.063c-16.926,0-30.649-13.723-30.649-30.649 c0-16.927,13.723-30.65,30.649-30.65h167.613c16.925,0,30.649,13.723,30.649,30.65C344.325,246.795,330.601,260.518,313.676,260.518 z" />
+                                        </svg>
+                                    </button>
                                 </th>
 
                                 <td
@@ -204,7 +233,7 @@
                                             wire:click="openMentorSelector({{ $team['id'] }})">
                                             <button type="button"
                                                 class="js-statistics-mentor-handle inline-flex absolute left-0 inset-y-0 h-full w-5 items-center justify-center border-r border-orange-300 bg-white/70 text-[10px] text-orange-700 cursor-grab!"
-                                                title="{{ __('Mover mentor') }}"
+                                                title="{{ __('Mover mentor') }}" x-on:click.stop
                                                 aria-label="{{ __('Mover mentor') }}">
                                                 ::
                                             </button>
@@ -221,10 +250,11 @@
                                             <div class="js-statistics-student-item relative rounded border border-sky-500 pl-7 pr-2 py-2 bg-linear-to-br from-sky-100 via-white to-sky-200 font-semibold truncate max-w-32 min-w-24 flex items-center gap-1 cursor-grab!"
                                                 wire:key="student-{{ $team['id'] }}-{{ $student['id'] }}"
                                                 data-student-id="{{ $student['id'] }}"
+                                                wire:click="openStudentSelector({{ $team['id'] }}, {{ $student['id'] }})"
                                                 title="Aluno(a): {{ $student['name'] }}">
                                                 <button type="button"
                                                     class="js-statistics-student-handle inline-flex absolute left-0 inset-y-0 h-full w-5 items-center justify-center border-r border-sky-300 bg-white/70 text-[10px] text-sky-700 cursor-grab!"
-                                                    title="{{ __('Mover aluno') }}"
+                                                    title="{{ __('Mover aluno') }}" x-on:click.stop
                                                     aria-label="{{ __('Mover aluno') }}">
                                                     ::
                                                 </button>
@@ -343,6 +373,56 @@
         </div>
     </flux:modal>
 
+    <flux:modal name="statistics-student-selector" wire:model="showStudentSelectorModal" class="max-w-lg w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Alterar aluno da equipe') }}</flux:heading>
+                <flux:subheading>{{ __('Selecione um aluno cadastrado neste treinamento.') }}</flux:subheading>
+            </div>
+
+            <div class="space-y-2">
+                <label for="student-selection" class="text-sm font-medium text-slate-700">
+                    {{ __('Alunos disponíveis') }}
+                </label>
+
+                <select id="student-selection" wire:model="selectedStudentId"
+                    class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
+                    <option value="">{{ __('Selecione') }}</option>
+                    @foreach ($studentSelectionOptions as $student)
+                        <option value="{{ $student['id'] }}">{{ $student['name'] }}</option>
+                    @endforeach
+                </select>
+
+                @error('selectedStudentId')
+                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="requestStudentRemoval" :label="__('Remover aluno')" />
+                <x-src.btn-silver type="button" wire:click="closeStudentSelector" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="assignStudentToTeam" :label="__('Salvar aluno')" />
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="statistics-remove-student-confirmation" wire:model="showStudentRemovalConfirmationModal"
+        class="max-w-lg w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Remover aluno da equipe?') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Esta ação remove apenas o aluno do card/equipe selecionado nesta sessão STP.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="cancelStudentRemoval" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="confirmStudentRemoval" :label="__('Remover aluno')" />
+            </div>
+        </div>
+    </flux:modal>
+
     <flux:modal name="statistics-remove-session-confirmation" wire:model="showSessionRemovalConfirmationModal"
         class="max-w-lg w-full">
         <div class="space-y-4">
@@ -356,6 +436,77 @@
             <div class="flex justify-end gap-2">
                 <x-src.btn-silver type="button" wire:click="cancelSessionRemoval" :label="__('Cancelar')" />
                 <x-src.btn-gold type="button" wire:click="confirmSessionRemoval" :label="__('Remover sessão')" />
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="statistics-remove-team-confirmation" wire:model="showTeamRemovalConfirmationModal"
+        class="max-w-lg w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Remover equipe STP?') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Esta ação remove a equipe da sessão ativa e não pode ser desfeita.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="cancelTeamRemoval" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="confirmTeamRemoval" :label="__('Remover equipe')" />
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="statistics-create-team-modal" wire:model="showTeamCreationModal" class="max-w-2xl w-full">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <flux:heading size="lg">{{ __('Nova equipe') }}</flux:heading>
+                <flux:subheading>{{ __('Selecione o mentor e ao menos 2 alunos para compor a nova equipe.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="space-y-2">
+                <label for="new-team-mentor" class="text-sm font-medium text-slate-700">
+                    {{ __('Mentor') }}
+                </label>
+                <select id="new-team-mentor" wire:model="selectedNewTeamMentorId"
+                    class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
+                    <option value="">{{ __('Selecione') }}</option>
+                    @foreach ($teamCreationMentorOptions as $mentor)
+                        <option value="{{ $mentor['id'] }}">{{ $mentor['name'] }}</option>
+                    @endforeach
+                </select>
+                @error('selectedNewTeamMentorId')
+                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-sm font-medium text-slate-700">{{ __('Alunos') }}</p>
+                <div class="max-h-64 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        @foreach ($teamCreationStudentOptions as $student)
+                            <label
+                                class="inline-flex items-center gap-2 rounded-md bg-white px-2 py-1.5 text-sm text-slate-700">
+                                <input type="checkbox" wire:model="selectedNewTeamStudentIds"
+                                    value="{{ $student['id'] }}" class="rounded border-slate-300 text-blue-600">
+                                <span class="truncate">{{ $student['name'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+                @error('selectedNewTeamStudentIds')
+                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            @error('teamCreation')
+                <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+            @enderror
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-silver type="button" wire:click="cancelTeamCreation" :label="__('Cancelar')" />
+                <x-src.btn-gold type="button" wire:click="confirmTeamCreation" :label="__('Criar equipe')" />
             </div>
         </div>
     </flux:modal>

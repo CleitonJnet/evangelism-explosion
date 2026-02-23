@@ -120,9 +120,51 @@ class Statistics extends Component
      */
     public array $mentorSelectionOptions = [];
 
+    public bool $showStudentSelectorModal = false;
+
+    public ?int $studentSelectionTeamId = null;
+
+    public ?int $studentSelectionCurrentStudentId = null;
+
+    public ?int $selectedStudentId = null;
+
+    /**
+     * @var array<int, array{id: int, name: string}>
+     */
+    public array $studentSelectionOptions = [];
+
+    public bool $showStudentRemovalConfirmationModal = false;
+
+    public ?int $pendingStudentRemovalTeamId = null;
+
+    public ?int $pendingStudentRemovalId = null;
+
+    public bool $showTeamCreationModal = false;
+
+    public ?int $selectedNewTeamMentorId = null;
+
+    /**
+     * @var array<int, int|string>
+     */
+    public array $selectedNewTeamStudentIds = [];
+
+    /**
+     * @var array<int, array{id: int, name: string}>
+     */
+    public array $teamCreationMentorOptions = [];
+
+    /**
+     * @var array<int, array{id: int, name: string}>
+     */
+    public array $teamCreationStudentOptions = [];
+
     public bool $showSessionRemovalConfirmationModal = false;
 
     public ?int $pendingSessionRemovalId = null;
+
+    public bool $showTeamRemovalConfirmationModal = false;
+
+    public ?int $pendingTeamRemovalId = null;
 
     public function mount(Training $training): void
     {
@@ -215,6 +257,63 @@ class Statistics extends Component
         $this->removeSession($sessionId);
     }
 
+    public function requestTeamRemoval(int $teamId): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->find($teamId);
+
+        if (! $team) {
+            return;
+        }
+
+        $this->pendingTeamRemovalId = $team->id;
+        $this->showTeamRemovalConfirmationModal = true;
+    }
+
+    public function cancelTeamRemoval(): void
+    {
+        $this->pendingTeamRemovalId = null;
+        $this->showTeamRemovalConfirmationModal = false;
+    }
+
+    public function confirmTeamRemoval(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session || $this->pendingTeamRemovalId === null) {
+            return;
+        }
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->find($this->pendingTeamRemovalId);
+
+        if (! $team) {
+            $this->cancelTeamRemoval();
+
+            return;
+        }
+
+        $team->delete();
+
+        $this->normalizeSessionTeamPositions($session->id);
+        $this->cancelTeamRemoval();
+        $this->closeMentorSelector();
+        $this->closeStudentSelector();
+        $this->loadTeamsAndStats();
+    }
+
     public function formTeams(): void
     {
         $this->authorize('view', $this->training);
@@ -259,6 +358,135 @@ class Statistics extends Component
         $this->refreshSessionsAndTeams();
     }
 
+    public function createRandomTeam(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        $mentorIds = $this->training->mentors()
+            ->select('users.id')
+            ->pluck('users.id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if ($mentorIds === []) {
+            $this->addError('teamCreation', 'Cadastre ao menos 1 mentor para criar uma nova equipe.');
+
+            return;
+        }
+
+        $this->teamCreationMentorOptions = $this->loadTrainingMentors();
+        $this->teamCreationStudentOptions = $this->loadTrainingStudents();
+        $this->selectedNewTeamMentorId = $this->teamCreationMentorOptions[0]['id'] ?? null;
+        $this->selectedNewTeamStudentIds = [];
+        $this->showTeamCreationModal = true;
+        $this->resetErrorBag(['selectedNewTeamMentorId', 'selectedNewTeamStudentIds', 'teamCreation']);
+    }
+
+    public function cancelTeamCreation(): void
+    {
+        $this->showTeamCreationModal = false;
+        $this->selectedNewTeamMentorId = null;
+        $this->selectedNewTeamStudentIds = [];
+        $this->teamCreationMentorOptions = [];
+        $this->teamCreationStudentOptions = [];
+        $this->resetErrorBag(['selectedNewTeamMentorId', 'selectedNewTeamStudentIds', 'teamCreation']);
+    }
+
+    public function confirmTeamCreation(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        $validated = $this->validate(
+            [
+                'selectedNewTeamMentorId' => ['required', 'integer'],
+                'selectedNewTeamStudentIds' => ['required', 'array', 'min:2'],
+                'selectedNewTeamStudentIds.*' => ['integer'],
+            ],
+            [
+                'selectedNewTeamMentorId.required' => 'Selecione um mentor para continuar.',
+                'selectedNewTeamStudentIds.required' => 'Selecione ao menos 2 alunos para criar a equipe.',
+                'selectedNewTeamStudentIds.min' => 'Selecione ao menos 2 alunos para criar a equipe.',
+            ],
+        );
+
+        $mentorId = (int) $validated['selectedNewTeamMentorId'];
+        $selectedStudentIds = collect($validated['selectedNewTeamStudentIds'])
+            ->map(fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (count($selectedStudentIds) < 2) {
+            $this->addError('selectedNewTeamStudentIds', 'Selecione ao menos 2 alunos para criar a equipe.');
+
+            return;
+        }
+
+        $availableMentorIds = collect($this->teamCreationMentorOptions)
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+        $availableStudentIds = collect($this->teamCreationStudentOptions)
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if (! in_array($mentorId, $availableMentorIds, true)) {
+            $this->addError('selectedNewTeamMentorId', 'Mentor selecionado inválido.');
+
+            return;
+        }
+
+        foreach ($selectedStudentIds as $studentId) {
+            if (! in_array($studentId, $availableStudentIds, true)) {
+                $this->addError('selectedNewTeamStudentIds', 'Aluno selecionado inválido.');
+
+                return;
+            }
+        }
+
+        try {
+            DB::transaction(function () use ($session, $mentorId, $selectedStudentIds): void {
+                $teams = StpTeam::query()
+                    ->where('stp_session_id', $session->id)
+                    ->orderBy('position')
+                    ->orderBy('id')
+                    ->get(['id', 'position', 'name']);
+
+                $nextPosition = (int) ($teams->max('position') ?? -1) + 1;
+                $teamName = $this->resolveNextTeamName($teams->pluck('name')->filter()->values()->all(), $nextPosition + 1);
+                $newTeam = StpTeam::query()->create([
+                    'stp_session_id' => $session->id,
+                    'mentor_user_id' => $mentorId,
+                    'name' => $teamName,
+                    'position' => $nextPosition,
+                ]);
+
+                foreach ($selectedStudentIds as $position => $studentId) {
+                    $newTeam->students()->attach($studentId, ['position' => $position]);
+                }
+            });
+            $this->resetErrorBag('teamCreation');
+            $this->cancelTeamCreation();
+        } catch (\RuntimeException $exception) {
+            $this->addError('teamCreation', $exception->getMessage());
+        }
+
+        $this->refreshSessionsAndTeams();
+    }
+
     public function moveStudent(int $studentId, int $fromTeamId, int $toTeamId, ?int $afterStudentId = null): void
     {
         $this->authorize('view', $this->training);
@@ -280,10 +508,12 @@ class Statistics extends Component
                 return;
             }
 
-            DB::table('stp_team_students')
-                ->whereIn('stp_team_id', $teamIds)
-                ->where('user_id', $studentId)
-                ->delete();
+            if ($fromTeamId !== $toTeamId) {
+                DB::table('stp_team_students')
+                    ->where('stp_team_id', $fromTeamId)
+                    ->where('user_id', $studentId)
+                    ->delete();
+            }
 
             $destinationIds = DB::table('stp_team_students')
                 ->where('stp_team_id', $toTeamId)
@@ -323,10 +553,10 @@ class Statistics extends Component
                 );
             }
 
-            $this->normalizeTeamStudentPositions($fromTeamId);
+            $this->normalizeTeamStudentPositions($toTeamId);
 
             if ($fromTeamId !== $toTeamId) {
-                $this->normalizeTeamStudentPositions($toTeamId);
+                $this->normalizeTeamStudentPositions($fromTeamId);
             }
         });
 
@@ -463,6 +693,187 @@ class Statistics extends Component
         $this->loadTeamsAndStats();
     }
 
+    public function openStudentSelector(int $teamId, int $studentId): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session) {
+            return;
+        }
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->find($teamId);
+
+        if (! $team) {
+            return;
+        }
+
+        $studentExistsInTeam = DB::table('stp_team_students')
+            ->where('stp_team_id', $teamId)
+            ->where('user_id', $studentId)
+            ->exists();
+
+        if (! $studentExistsInTeam) {
+            return;
+        }
+
+        $studentOptions = $this->loadTrainingStudentsForSelector($studentId);
+
+        if ($studentOptions === []) {
+            return;
+        }
+
+        $this->studentSelectionTeamId = $teamId;
+        $this->studentSelectionCurrentStudentId = $studentId;
+        $this->studentSelectionOptions = $studentOptions;
+        $this->selectedStudentId = $studentId;
+        $this->showStudentSelectorModal = true;
+        $this->resetErrorBag('selectedStudentId');
+    }
+
+    public function closeStudentSelector(): void
+    {
+        $this->showStudentSelectorModal = false;
+        $this->studentSelectionTeamId = null;
+        $this->studentSelectionCurrentStudentId = null;
+        $this->selectedStudentId = null;
+        $this->studentSelectionOptions = [];
+        $this->resetErrorBag('selectedStudentId');
+    }
+
+    public function requestStudentRemoval(): void
+    {
+        if ($this->studentSelectionTeamId === null || $this->studentSelectionCurrentStudentId === null) {
+            return;
+        }
+
+        $this->pendingStudentRemovalTeamId = $this->studentSelectionTeamId;
+        $this->pendingStudentRemovalId = $this->studentSelectionCurrentStudentId;
+        $this->showStudentSelectorModal = false;
+        $this->showStudentRemovalConfirmationModal = true;
+    }
+
+    public function cancelStudentRemoval(): void
+    {
+        $this->showStudentRemovalConfirmationModal = false;
+        $this->pendingStudentRemovalTeamId = null;
+        $this->pendingStudentRemovalId = null;
+    }
+
+    public function confirmStudentRemoval(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session || $this->pendingStudentRemovalTeamId === null || $this->pendingStudentRemovalId === null) {
+            return;
+        }
+
+        $teamId = $this->pendingStudentRemovalTeamId;
+        $studentId = $this->pendingStudentRemovalId;
+
+        $team = StpTeam::query()
+            ->where('stp_session_id', $session->id)
+            ->find($teamId);
+
+        if (! $team) {
+            $this->cancelStudentRemoval();
+
+            return;
+        }
+
+        DB::table('stp_team_students')
+            ->where('stp_team_id', $teamId)
+            ->where('user_id', $studentId)
+            ->delete();
+
+        $this->normalizeTeamStudentPositions($teamId);
+        $this->cancelStudentRemoval();
+        $this->closeStudentSelector();
+        $this->loadTeamsAndStats();
+    }
+
+    public function assignStudentToTeam(): void
+    {
+        $this->authorize('view', $this->training);
+
+        $session = $this->activeSession();
+
+        if (! $session || $this->studentSelectionTeamId === null || $this->studentSelectionCurrentStudentId === null) {
+            return;
+        }
+
+        $validated = $this->validate(
+            [
+                'selectedStudentId' => ['required', 'integer'],
+            ],
+            [
+                'selectedStudentId.required' => 'Selecione um aluno para continuar.',
+            ],
+        );
+
+        $selectedStudentId = (int) $validated['selectedStudentId'];
+        $availableStudentIds = collect($this->studentSelectionOptions)
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if (! in_array($selectedStudentId, $availableStudentIds, true)) {
+            $this->addError('selectedStudentId', 'Aluno selecionado inválido.');
+
+            return;
+        }
+
+        if ($selectedStudentId === $this->studentSelectionCurrentStudentId) {
+            $this->closeStudentSelector();
+
+            return;
+        }
+
+        DB::transaction(function () use ($session, $selectedStudentId): void {
+            $teamIds = StpTeam::query()
+                ->where('stp_session_id', $session->id)
+                ->pluck('id')
+                ->map(fn (mixed $id): int => (int) $id)
+                ->all();
+
+            $currentPosition = DB::table('stp_team_students')
+                ->where('stp_team_id', $this->studentSelectionTeamId)
+                ->where('user_id', $this->studentSelectionCurrentStudentId)
+                ->value('position');
+
+            if ($currentPosition === null) {
+                return;
+            }
+
+            DB::table('stp_team_students')
+                ->where('stp_team_id', $this->studentSelectionTeamId)
+                ->where('user_id', $this->studentSelectionCurrentStudentId)
+                ->delete();
+
+            DB::table('stp_team_students')->updateOrInsert(
+                [
+                    'stp_team_id' => $this->studentSelectionTeamId,
+                    'user_id' => $selectedStudentId,
+                ],
+                [
+                    'position' => (int) $currentPosition,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ],
+            );
+
+            $this->normalizeTeamStudentPositions((int) $this->studentSelectionTeamId);
+        });
+
+        $this->closeStudentSelector();
+        $this->loadTeamsAndStats();
+    }
+
     public function selectSession(int|string $sessionId): void
     {
         $sessionId = (int) $sessionId;
@@ -492,6 +903,11 @@ class Statistics extends Component
     public function render(): View
     {
         return view('livewire.pages.app.teacher.training.statistics');
+    }
+
+    public function rendered(): void
+    {
+        $this->dispatch('statistics-sortable-refresh');
     }
 
     private function refreshSessionsAndTeams(): void
@@ -739,6 +1155,28 @@ class Statistics extends Component
         }
     }
 
+    private function normalizeSessionTeamPositions(int $sessionId): void
+    {
+        $rows = StpTeam::query()
+            ->where('stp_session_id', $sessionId)
+            ->orderBy('position')
+            ->orderBy('id')
+            ->get(['id', 'position']);
+
+        foreach ($rows as $position => $row) {
+            if ((int) $row->position === $position) {
+                continue;
+            }
+
+            StpTeam::query()
+                ->where('id', $row->id)
+                ->update([
+                    'position' => $position,
+                    'updated_at' => now(),
+                ]);
+        }
+    }
+
     /**
      * @return array<int, array{id: int, name: string}>
      */
@@ -767,5 +1205,86 @@ class Statistics extends Component
             ->where('stp_session_id', $session->id)
             ->whereNotNull('stp_team_id')
             ->exists();
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string}>
+     */
+    private function loadTrainingMentors(): array
+    {
+        return $this->training->mentors()
+            ->select('users.id', 'users.name')
+            ->orderBy('users.name')
+            ->get()
+            ->map(fn (User $mentor): array => [
+                'id' => (int) $mentor->id,
+                'name' => $mentor->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string}>
+     */
+    private function loadTrainingStudents(): array
+    {
+        return $this->training->students()
+            ->select('users.id', 'users.name')
+            ->orderBy('users.name')
+            ->get()
+            ->map(fn (User $student): array => [
+                'id' => (int) $student->id,
+                'name' => $student->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, string>  $existingNames
+     */
+    private function resolveNextTeamName(array $existingNames, int $startingNumber): string
+    {
+        $name = sprintf('Equipe %02d', $startingNumber);
+        $number = $startingNumber;
+
+        while (in_array($name, $existingNames, true)) {
+            $number++;
+            $name = sprintf('Equipe %02d', $number);
+        }
+
+        return $name;
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string}>
+     */
+    private function loadTrainingStudentsForSelector(int $currentStudentId): array
+    {
+        $students = $this->training->students()
+            ->select('users.id', 'users.name')
+            ->orderBy('users.name')
+            ->get()
+            ->map(fn (User $student): array => [
+                'id' => (int) $student->id,
+                'name' => $student->name,
+            ])
+            ->values()
+            ->all();
+
+        $current = collect($students)->first(
+            fn (array $student): bool => $student['id'] === $currentStudentId,
+        );
+        $others = array_values(array_filter(
+            $students,
+            fn (array $student): bool => $student['id'] !== $currentStudentId,
+        ));
+
+        if (! $current) {
+            return $others;
+        }
+
+        return [$current, ...$others];
     }
 }
