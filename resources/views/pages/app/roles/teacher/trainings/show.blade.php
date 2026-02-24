@@ -22,31 +22,29 @@
     <div x-data="{ showDeleteModal: false, mentorsCount: {{ $mentorsCount }} }" x-on:keydown.escape.window="showDeleteModal = false"
         x-on:mentor-assignment-updated.window="if ($event.detail.trainingId === {{ $training->id }}) { mentorsCount = $event.detail.mentorsCount }">
         <x-src.toolbar.header :title="__('Detalhes do treinamento')" :description="__('Acompanhe informações, agenda e participantes do treinamento selecionado.')" />
-        <x-src.toolbar.nav justify="justify-between">
-            <div class="flex gap-2 items-center flex-wrap">
-                <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
-                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-                <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
-                    :error="$hasScheduleError" />
-                <x-src.toolbar.button href="#" :label="__('Finceiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
-                    x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />
-                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-                <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
-                    :error="$hasRegistrationsError" />
-                <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group" :tooltip="__('Gerenciador de mentores')"
-                    x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })">
-                    <div class="absolute -top-2.5 -right-0.5 text-blue-800 z-20 text-base bg-white/75 rounded px-1">
-                        <span x-text="mentorsCount"></span>
-                    </div>
-                </x-src.toolbar.button>
-                <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat"
-                    :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
-                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-                <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
-                    x-on:click.prevent="showDeleteModal = true" />
+        <x-src.toolbar.nav>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.index')" :label="__('Listar todos')" icon="list" :tooltip="__('Lista de treinamentos')" />
+            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
+                :error="$hasScheduleError" />
+            <x-src.toolbar.button href="#" :label="__('Finceiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
+                x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />
+            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
+                :error="$hasRegistrationsError" />
+            <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group" :tooltip="__('Gerenciador de mentores')"
+                x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })">
+                <div class="absolute -top-2.5 -right-0.5 text-blue-800 z-20 text-base bg-white/75 rounded px-1">
+                    <span x-text="mentorsCount"></span>
+                </div>
+            </x-src.toolbar.button>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat"
+                :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
+            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
+                x-on:click.prevent="showDeleteModal = true" />
 
-            </div>
-            <div>
+            <div class="ml-auto">
                 <div
                     class="rounded-xl bg-yellow-200/70 px-4 py-2 text-xs font-semibold text-yellow-900 text-center border border-yellow-600">
                     <div>{{ __('Status') }}</div>

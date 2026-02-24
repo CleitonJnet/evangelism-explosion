@@ -17,7 +17,7 @@
     class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition"
     aria-label="{{ $label }}" style="{{ $baseStyles }}">
     <span
-        class="absolute -top-6 left-1/2 z-50 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg group-hover:block">
+        class="pointer-events-none absolute -top-6 left-1/2 z-[1300] hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg group-hover:block">
         {{ $tooltipText }}
     </span>
 

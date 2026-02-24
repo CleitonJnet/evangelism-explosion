@@ -243,10 +243,10 @@
 @endphp
 
 <section
-    {{ $attributes->merge(['class' => 'rounded-b-2xl border-x border-b border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200 px-5 py-2 shadow-sm mb-4 w-full sticky top-0 sticky top-0 z-40']) }}>
+    {{ $attributes->merge(['class' => 'rounded-b-2xl border-x border-b border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200 px-5 pt-2 pb-1 shadow-sm mb-4 w-full sticky top-0 z-[1200] overflow-visible']) }}>
 
-    <div class="flex flex-wrap items-center justify-between gap-4 w-full">
-        <div class="w-full flex flex-wrap items-center gap-2 text-sm text-slate-700 {{ $justify }}">
+    <div class="flex 2md:flex-wrap items-center justify-between gap-4 w-full overflow-x-auto 2md:overflow-visible">
+        <div class="w-full flex 2md:flex-wrap items-center gap-2 text-sm text-slate-700 py-2 {{ $justify }}">
             {{ $slot }}
         </div>
     </div>

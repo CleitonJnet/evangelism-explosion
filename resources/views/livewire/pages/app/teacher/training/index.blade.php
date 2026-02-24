@@ -1,42 +1,39 @@
-<div class="flex flex-col gap-8">
-    @teleport('#app-toolbar')
-        <div class="flex w-full flex-wrap items-center justify-between gap-4">
-            <div class="flex  gap-2 overflow-auto items-center text-sm text-slate-700">
-                <x-src.toolbar.button :href="route('app.teacher.trainings.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
+<div class="">
 
-                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+    <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between" />
+    <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')">
+        <x-src.toolbar.button :href="route('app.teacher.trainings.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
+        <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+        @foreach ($statuses as $status)
+            @php
+                $icon = match ($status['key']) {
+                    'planning' => 'hourglass',
+                    'scheduled' => 'calendar',
+                    'canceled' => 'x',
+                    'completed' => 'check',
+                    default => 'calendar',
+                };
+            @endphp
+            <x-src.toolbar.button :href="$status['route']" :label="$status['label']" :icon="$icon" :active="$statusKey === $status['key']"
+                :tooltip="__(':label', ['label' => $status['label']])" />
+        @endforeach
 
-                @foreach ($statuses as $status)
+        <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+
+        @if ($groups->isNotEmpty())
+            <div class="flex items-center gap-2 text-sm text-slate-700 ml-auto">
+                @foreach ($groups as $group)
                     @php
-                        $icon = match ($status['key']) {
-                            'planning' => 'hourglass',
-                            'scheduled' => 'calendar',
-                            'canceled' => 'x',
-                            'completed' => 'check',
-                            default => 'calendar',
-                        };
+                        $course = $group['course'];
+                        $courseLabel = $course?->initials ?? __('Curso');
+                        $courseId = $course?->id ?? 'curso';
+                        $courseName = $course?->name ?? $courseLabel;
                     @endphp
-                    <x-src.toolbar.button :href="$status['route']" :label="$status['label']" :icon="$icon" :active="$statusKey === $status['key']"
-                        :tooltip="__(':label', ['label' => $status['label']])" />
+                    <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
                 @endforeach
-
             </div>
-
-            @if ($groups->isNotEmpty())
-                <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
-                    @foreach ($groups as $group)
-                        @php
-                            $course = $group['course'];
-                            $courseLabel = $course?->initials ?? __('Curso');
-                            $courseId = $course?->id ?? 'curso';
-                            $courseName = $course?->name ?? $courseLabel;
-                        @endphp
-                        <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    @endteleport
+        @endif
+    </x-src.toolbar.nav>
 
     <section
         class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">

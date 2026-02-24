@@ -18,13 +18,11 @@
 
     <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between" />
     <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
-        <div class="flex flex-wrap gap-2 items-center">
-            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
-            <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
-                x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
-        </div>
+        <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+        <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
+            x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
 
-        <div class="flex items-center gap-2 overflow-auto">
+        <div class="flex items-center gap-2 ml-auto">
             <label
                 class="flex items-center justify-end gap-3 cursor-pointer bg-sky-900/5 hover:bg-sky-900/75 hover:text-white transition rounded-lg"
                 aria-label="{{ __('Regenerar programação do evento') }}">
