@@ -53,7 +53,7 @@
         </p>
 
         <div class="flex justify-end mt-4">
-            <x-src.btn-silver label="Veja como agendar um Workshop ESM" route="{{ route('web.event.schedule-request') }}" />
+            <x-src.btn-silver label="Veja como agendar um Workshop ESM" route="{{ route('web.event.clinic-base') }}" />
         </div>
 
         {{-- Linha decorativa --}}

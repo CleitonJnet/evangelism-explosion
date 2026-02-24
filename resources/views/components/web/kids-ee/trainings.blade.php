@@ -108,7 +108,7 @@
                             </ul>
                         </div>
 
-                        <a href="{{ route('web.event.schedule-request') }}"
+                        <a href="{{ route('web.event.clinic-base') }}"
                             class="inline-flex items-center justify-center w-full px-5 py-3 mt-6 font-black transition bg-red-600 shine rounded-xl hover:bg-red-700">
                             Quero agendar um Workshop de Liderança
                         </a>

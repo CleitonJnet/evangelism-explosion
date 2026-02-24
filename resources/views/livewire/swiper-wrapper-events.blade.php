@@ -44,7 +44,7 @@
 
     @if ($showScheduleRequestCard)
         <div class="swiper-slide">
-            <a href="{{ route('web.event.schedule-request') }}"
+            <a href="{{ route('web.event.clinic-base') }}"
                 class="relative flex flex-col justify-center p-3 overflow-hidden text-center text-white transition border shadow-lg shine border-white/10 h-72 group rounded-2xl backdrop-blur-md ring-1 ring-white/10 shadow-black/30"
                 style="background: linear-gradient(180deg, #082f49 0%, #05273d 55%, #041b2d 100%);">
 

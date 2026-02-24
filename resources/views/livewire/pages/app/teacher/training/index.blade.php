@@ -1,9 +1,10 @@
-<div class="">
-
-    <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between" />
-    <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')">
+<div>
+    <x-src.toolbar.header :title="__('Gerenciamento de Treinamentos e Eventos')" :description="__('Controle os treinamentos do Evangelismo Explosivo, organizando status e cursos em um só lugar.')" />
+    <x-src.toolbar.nav>
         <x-src.toolbar.button :href="route('app.teacher.trainings.create')" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
+
         <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+
         @foreach ($statuses as $status)
             @php
                 $icon = match ($status['key']) {

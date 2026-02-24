@@ -1,8 +1,8 @@
 @push('css')
     <style>
         /* =========================================================
-                                                                                    HERO MISSION — Evangelismo Explosivo no Brasil
-                                                                                    ========================================================= */
+                                                                                                                                        HERO MISSION — Evangelismo Explosivo no Brasil
+                                                                                                                                        ========================================================= */
 
         /* ---------- Variáveis Globais ---------- */
         :root {
@@ -199,7 +199,7 @@
                     rgba(152, 154, 156, .10));
 
             color: #fff;
-            font-weight: 800;
+            font-weight: 400;
             box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
             transition: all 180ms ease;
         }
@@ -297,18 +297,18 @@
 
     <div class="hero-cta-fixed">
         <a href="{{ route('web.ministry.kids-ee') }}" class="btn-cta btn-primary shine">
-            EE-Kids
+            <strong>EE-Kids</strong>
             <span class="btn-sub">Evangelismo para crianças</span>
         </a>
 
         <a href="{{ route('web.ministry.everyday-evangelism') }}" class="btn-cta shine">
-            Evangelismo Eficaz
+            <strong>Evangelismo Eficaz</strong>
             <span class="btn-sub">Treinamento prático</span>
         </a>
 
-        <a href="{{ route('web.event.schedule-request') }}" class="btn-cta cta-optional shine">
-            Agendar
-            <span class="btn-sub">Evento de Lançamento</span>
+        <a href="{{ route('web.event.clinic-base') }}" class="btn-cta cta-optional shine">
+            <strong>Base de Treinamentos</strong>
+            <span class="btn-sub">Guia do anfitrião</span>
         </a>
     </div>
 

@@ -43,7 +43,7 @@
         </style>
     @endpush
 
-    <section class="relative overflow-hidden -mt-10"
+    {{-- <section class="relative overflow-hidden -mt-10"
         style="background:
         radial-gradient(900px 520px at 15% 12%, rgba(199,168,64,.22), transparent 58%),
         radial-gradient(900px 520px at 85% 8%, rgba(241,213,122,.18), transparent 60%),
@@ -82,7 +82,6 @@
                         </div>
                     </div>
 
-                    {{-- VÍDEO 1 (thumbnail + play) --}}
                     <figure
                         class="donate-fade-up donate-delay-2 relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 border-y-[3px] border-r-[3px] border-white"
                         style="box-shadow: 3px 0 0 #c7a840">
@@ -108,7 +107,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     <section class="relative ee-metal-section py-12">
         <div class="p-4 max-w-8xl mx-auto sm:px-6 lg:px-8">
@@ -294,52 +293,48 @@
 
     <x-src.line-theme class="px-6 mg:px-10 max-w-7xl" />
 
-    <section class="relative py-12">
+    {{-- <section class="relative py-12">
         <div class="p-4 max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
 
-                {{-- VÍDEO 2 (thumbnail + play) --}}
-                <figure
-                    class="donate-fade-up donate-delay-1 relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 border-b-[3px] border-l-[3px] border-white"
-                    style="box-shadow: -3px 3px 0 #c7a840">
-                    <img src="https://placehold.co/600x400?text=Video+de+Igreja+que+foi+Equipada"
-                        alt="Momento de oração com equipe ministerial" class="object-cover w-full h-full shadow-md"
-                        loading="lazy" decoding="async" />
+    <figure
+        class="donate-fade-up donate-delay-1 relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 border-b-[3px] border-l-[3px] border-white"
+        style="box-shadow: -3px 3px 0 #c7a840">
+        <img src="https://placehold.co/600x400?text=Video+de+Igreja+que+foi+Equipada"
+            alt="Momento de oração com equipe ministerial" class="object-cover w-full h-full shadow-md"
+            loading="lazy" decoding="async" />
 
-                    <div class="absolute inset-0 bg-black/25"></div>
+        <div class="absolute inset-0 bg-black/25"></div>
 
-                    <button type="button"
-                        class="absolute inset-0 flex items-center justify-center group js-video-btn"
-                        aria-label="Assistir vídeo de testemunho" data-video-id="fbqGL_8AOpw">
-                        {{-- https://youtu.be/fbqGL_8AOpw --}}
-                        <span
-                            class="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 text-slate-900
+        <button type="button" class="absolute inset-0 flex items-center justify-center group js-video-btn"
+            aria-label="Assistir vídeo de testemunho" data-video-id="fbqGL_8AOpw">
+            <span
+                class="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 text-slate-900
                             shadow-lg ring-1 ring-black/10 transition group-hover:scale-105 group-hover:bg-white">
-                            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"
-                                aria-hidden="true">
-                                <path d="M8 5v14l11-7z"></path>
-                            </svg>
-                        </span>
-                    </button>
-                </figure>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"></path>
+                </svg>
+            </span>
+        </button>
+    </figure>
 
-                <div class="donate-fade-up donate-delay-2">
-                    <h3 class="text-2xl text-slate-900 sm:text-3xl" style="font-family: 'Cinzel', serif;">
-                        Testemunho pessoal
-                    </h3>
-                    <p class="mt-3 text-base leading-relaxed text-slate-700">
-                        "Nossa igreja encontrou um novo fôlego para evangelizar. O treinamento mudou nossa cultura e
-                        hoje discipulamos novos líderes com consistência."
-                    </p>
-                    <p class="mt-4 text-sm font-semibold text-amber-700">Pastor e líder local</p>
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <x-src.btn-gold label="Quero gerar esse impacto" route="#formas" />
-                        <x-src.btn-silver label="Conhecer o ministério" route="#contato" data-open-wa />
-                    </div>
-                </div>
-            </div>
+    <div class="donate-fade-up donate-delay-2">
+        <h3 class="text-2xl text-slate-900 sm:text-3xl" style="font-family: 'Cinzel', serif;">
+            Testemunho pessoal
+        </h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-700">
+            "Nossa igreja encontrou um novo fôlego para evangelizar. O treinamento mudou nossa cultura e
+            hoje discipulamos novos líderes com consistência."
+        </p>
+        <p class="mt-4 text-sm font-semibold text-amber-700">Pastor e líder local</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+            <x-src.btn-gold label="Quero gerar esse impacto" route="#formas" />
+            <x-src.btn-silver label="Conhecer o ministério" route="#contato" data-open-wa />
         </div>
-    </section>
+    </div>
+    </div>
+    </div>
+    </section> --}}
 
     <section id="contato" class="relative">
         <div class="p-4 max-w-8xl mx-auto sm:px-6 lg:px-8">
@@ -403,7 +398,6 @@
         </div>
     </section>
 
-    {{-- MODAL ÚNICO REUTILIZÁVEL (serve para todos os vídeos) --}}
     <div id="videoModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-black/70" data-close-modal></div>
 

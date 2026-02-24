@@ -8,16 +8,19 @@
 @php
     $isActive = filter_var($active, FILTER_VALIDATE_BOOL);
     $tooltipText = $tooltip ?? $label;
+    $tooltipAnchor = '--toolbar-button-' . uniqid();
     $baseStyles = $isActive
         ? 'background:#7c2d12;color:#fde68a;border:1px solid #f59e0b;'
         : 'background:rgba(251,191,36,0.12);color:#7c2d12;border:1px solid rgba(245,158,11,0.45);';
 @endphp
 
 <a href="{{ $href }}"
-    class="group relative flex w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition"
-    aria-label="{{ $label }}" style="{{ $baseStyles }}">
+    class="group toolbar-button relative flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition"
+    aria-label="{{ $label }}" style="{{ $baseStyles }};anchor-name:{{ $tooltipAnchor }};">
     <span
-        class="pointer-events-none absolute -top-6 left-1/2 z-[1300] hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg group-hover:block">
+        role="tooltip"
+        style="position-anchor: {{ $tooltipAnchor }};"
+        class="toolbar-tooltip pointer-events-none rounded-md bg-slate-900 px-2 py-1 text-xs text-amber-100 shadow-lg">
         {{ $tooltipText }}
     </span>
 

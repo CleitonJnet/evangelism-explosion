@@ -73,7 +73,7 @@
                         <p class="mt-2 text-slate-600">
                             Assista ao vídeo e, se desejar, solicite um Workshop de Liderança para sua igreja.
                         </p>
-                        <a href="{{ route('web.event.schedule-request') }}"
+                        <a href="{{ route('web.event.clinic-base') }}"
                             class="inline-flex items-center justify-center w-full px-5 py-3 mt-5 font-black text-white transition shine rounded-xl bg-amber-500 hover:brightness-95">
                             Levar o Workshop para minha igreja
                         </a>
