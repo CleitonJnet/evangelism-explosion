@@ -41,8 +41,8 @@
             <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat"
                 :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
-            <x-src.toolbar.button href="#" :label="__('Status do Evento')" icon="list" :tooltip="__('Modifica o status do evento')" class="ml-auto" />
-            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <livewire:pages.app.teacher.training.event-status-button :training-id="$training->id"
+                wire:key="event-status-button-{{ $training->id }}" />
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
                 x-on:click.prevent="showDeleteModal = true" />
         </x-src.toolbar.nav>

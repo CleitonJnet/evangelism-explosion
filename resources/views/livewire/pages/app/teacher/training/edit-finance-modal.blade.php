@@ -91,11 +91,11 @@
             <div class="flex justify-end gap-3 px-6 pb-4">
                 <x-src.btn-silver type="button" wire:click="closeModal" wire:loading.attr="disabled"
                     wire:target="save,pixQrCodeUpload">
-                    {{ __('Close') }}
+                    {{ __('Fechar') }}
                 </x-src.btn-silver>
                 <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled"
                     wire:target="save,pixQrCodeUpload">
-                    {{ __('Save') }}
+                    {{ __('Salvar') }}
                 </x-src.btn-gold>
             </div>
         </div>

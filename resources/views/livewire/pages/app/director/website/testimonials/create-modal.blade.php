@@ -35,9 +35,9 @@
                 <flux:field>
                     <flux:label>{{ __('Testemunho') }}</flux:label>
                     <div x-data="{ text: @entangle('quote').live }" class="space-y-1">
-                        <flux:textarea rows="6" maxlength="250" x-model="text" wire:model.live="quote" />
+                        <flux:textarea rows="6" maxlength="350" x-model="text" wire:model.live="quote" />
                         <div class="text-right text-xs text-slate-500">
-                            <span x-text="(text ?? '').length"></span>/250
+                            <span x-text="(text ?? '').length"></span>/350
                         </div>
                     </div>
                     <flux:error name="quote" />

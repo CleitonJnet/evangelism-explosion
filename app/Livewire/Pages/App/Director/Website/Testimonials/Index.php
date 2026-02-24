@@ -272,7 +272,7 @@ class Index extends Component
         return [
             'editName' => ['required', 'string', 'max:120'],
             'editMeta' => ['nullable', 'string', 'max:180'],
-            'editQuote' => ['required', 'string', 'max:250'],
+            'editQuote' => ['required', 'string', 'max:350'],
             'editPhotoUpload' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }

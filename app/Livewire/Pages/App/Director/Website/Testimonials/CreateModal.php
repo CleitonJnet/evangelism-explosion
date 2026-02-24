@@ -66,7 +66,7 @@ class CreateModal extends Component
         return [
             'name' => ['required', 'string', 'max:120'],
             'meta' => ['nullable', 'string', 'max:180'],
-            'quote' => ['required', 'string', 'max:250'],
+            'quote' => ['required', 'string', 'max:350'],
             'photoUpload' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'isActive' => ['boolean'],
         ];

@@ -82,11 +82,12 @@
                                         {{-- Texto na foto --}}
                                         <div
                                             class="absolute inset-x-0 bottom-0 px-4 py-3 bg-linear-to-t from-black via-black/50 to-transparent text-right">
-                                            <div
-                                                class="text-sm font-semibold text-white truncate sm:text-base drop-shadow">
+                                            <div class="text-sm font-semibold text-white truncate sm:text-base drop-shadow"
+                                                title="{{ $t['name'] }}">
                                                 {{ $t['name'] }}
                                             </div>
-                                            <div class="text-xs text-white truncate sm:text-sm drop-shadow">
+                                            <div class="text-xs text-white truncate sm:text-sm drop-shadow"
+                                                title="{{ $t['meta'] }}">
                                                 {{ $t['meta'] }}
                                             </div>
                                         </div>
