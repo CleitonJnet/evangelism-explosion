@@ -1,5 +1,5 @@
 @php
-    $training->loadMissing('course.ministry');
+    $training->loadMissing(['course.ministry', 'church']);
 
     $eventTitle = trim(
         implode(' ', array_filter([
@@ -8,6 +8,7 @@
         ])),
     );
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
+    $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
 
 <x-layouts.app :title="__('Gerenciamento de inscrições')">
@@ -21,6 +22,9 @@
                 </div>
                 <div class="text-xs font-light text-slate-600">
                     {{ $ministryName }}
+                </div>
+                <div class="text-xs font-light text-slate-500">
+                    {{ $baseChurchName }}
                 </div>
             </div>
         </x-slot:right>

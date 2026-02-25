@@ -1,8 +1,18 @@
 @php
     use App\Services\Training\TestimonySanitizer;
 
+    $training->loadMissing(['course.ministry', 'church']);
+
     $characterLimit = TestimonySanitizer::MAX_CHARACTERS;
     $initialNotes = TestimonySanitizer::sanitize((string) old('notes', $training->notes ?? '')) ?? '';
+    $eventTitle = trim(
+        implode(' ', array_filter([
+            $training->course?->type,
+            $training->course?->name,
+        ])),
+    );
+    $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
+    $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
 
 <x-layouts.app :title="__('Relato do Evento')">
@@ -10,10 +20,13 @@
         <x-slot:right>
             <div class="hidden px-1 py-2 text-right md:block">
                 <div class="text-sm font-bold text-slate-800">
-                    {{ trim((string) $training->course?->type . ' ' . (string) $training->course?->name) ?: __('Evento sem nome') }}
+                    {{ $eventTitle !== '' ? $eventTitle : __('Evento sem nome') }}
                 </div>
                 <div class="text-xs font-light text-slate-600">
-                    {{ __('Evento #:id', ['id' => $training->id]) }}
+                    {{ $ministryName }}
+                </div>
+                <div class="text-xs font-light text-slate-500">
+                    {{ $baseChurchName }}
                 </div>
             </div>
         </x-slot:right>

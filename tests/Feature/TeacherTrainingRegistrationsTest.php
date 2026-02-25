@@ -73,6 +73,7 @@ it('renders the registrations page grouped by church', function () {
     $response->assertOk();
     $response->assertSeeText('Gerenciamento de inscrições');
     $response->assertSeeText('Igreja Alfa');
+    $response->assertSeeText('Igreja Alfa');
     $response->assertSeeText('Igreja Beta');
     $response->assertSeeText('(PENDING) Igreja Pendente');
     $response->assertSeeText('No church');

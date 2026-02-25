@@ -41,5 +41,6 @@ it('shows event name and ministry on the right side of schedule header', functio
         ->get(route('app.teacher.trainings.schedule', $training))
         ->assertOk()
         ->assertSee('Curso Header Evento Nome Exclusivo')
-        ->assertSee('Ministerio Teste Cabecalho');
+        ->assertSee('Ministerio Teste Cabecalho')
+        ->assertSee($church->name);
 });

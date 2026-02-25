@@ -70,3 +70,17 @@ it('advances only when current step is valid', function () {
         ->call('nextStep')
         ->assertSet('step', 2);
 });
+
+it('prefills the next event day when adding a new date row on create flow', function () {
+    $teacher = User::factory()->create();
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->set('eventDates', [
+            ['date' => '2026-04-10', 'start_time' => '08:00', 'end_time' => '12:00'],
+            ['date' => '2026-04-12', 'start_time' => '08:00', 'end_time' => '12:00'],
+        ])
+        ->call('addEventDate')
+        ->assertSet('eventDates.2.date', '2026-04-13');
+});

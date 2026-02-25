@@ -44,7 +44,8 @@ it('shows event title and ministry in statistics page header', function (): void
         ->get(route('app.teacher.trainings.statistics', $training))
         ->assertOk()
         ->assertSee('Curso STP Evento STP Header')
-        ->assertSee('Ministerio Teste STP');
+        ->assertSee('Ministerio Teste STP')
+        ->assertSee($church->name);
 });
 
 it('shows event title and ministry in stp approaches page header', function (): void {
@@ -72,5 +73,6 @@ it('shows event title and ministry in stp approaches page header', function (): 
         ->get(route('app.teacher.trainings.stp.approaches', $training))
         ->assertOk()
         ->assertSee('Curso Visitas Evento Visitas Header')
-        ->assertSee('Ministerio Teste Visitas');
+        ->assertSee('Ministerio Teste Visitas')
+        ->assertSee($church->name);
 });

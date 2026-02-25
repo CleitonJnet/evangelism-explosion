@@ -5,6 +5,7 @@
         'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time'),
         'scheduleItems' => fn($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
         'course.ministry',
+        'church',
     ]);
 
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
@@ -15,6 +16,7 @@
         ])),
     );
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
+    $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
 
 <div x-data="{ showRegenerateScheduleModal: false, showScheduleAttentionModal: @js($showScheduleAttentionModal) }" x-on:schedule-alert.window="window.alert($event.detail.message)"
@@ -32,6 +34,9 @@
                 </div>
                 <div class="text-xs font-light text-slate-600">
                     {{ $ministryName }}
+                </div>
+                <div class="text-xs font-light text-slate-500">
+                    {{ $baseChurchName }}
                 </div>
             </div>
         </x-slot:right>

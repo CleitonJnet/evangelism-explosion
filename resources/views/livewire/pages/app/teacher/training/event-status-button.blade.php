@@ -89,7 +89,7 @@ new class extends Component {
 
 <div class="ml-auto flex items-center gap-2">
     <flux:dropdown position="bottom" align="end">
-        <x-src.toolbar.button href="#" :label="__('Status do Evento')" icon="list" :tooltip="__('Modifica o status do evento')" :class="$this->buttonClasses()"
+        <x-src.toolbar.button href="#" :label="__('Status do Evento')" icon="li" :tooltip="__('Modifica o status do evento')" :class="$this->buttonClasses()"
             x-on:click.prevent wire:loading.attr="disabled" wire:target="updateStatus">
             <div
                 class="absolute -bottom-1.5 inset-x-2 rounded-md bg-slate-100 border border-slate-400 px-2.5 text-xs font-bold uppercase text-slate-800">

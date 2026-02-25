@@ -176,6 +176,24 @@ it('does not regenerate schedule when teacher saves identical event dates', func
     expect((int) TrainingScheduleItem::query()->find($item->id)->planned_duration_minutes)->toBe(111);
 });
 
+it('prefills the next event day when adding a new date row on edit dates modal', function () {
+    $teacher = makeTeacherForScheduleRefactorTest();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+    $training->eventDates()->createMany([
+        ['date' => '2026-04-15', 'start_time' => '09:00:00', 'end_time' => '17:00:00'],
+        ['date' => '2026-04-17', 'start_time' => '09:00:00', 'end_time' => '17:00:00'],
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(EditEventDatesModal::class, ['trainingId' => $training->id])
+        ->call('addEventDate')
+        ->assertSet('eventDates.2.date', '2026-04-18');
+});
+
 it('inserts auto breaks without happening before 70 minutes and keeps pauses spaced', function () {
     $teacher = makeTeacherForScheduleRefactorTest();
     $course = Course::factory()->create();

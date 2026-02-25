@@ -120,8 +120,7 @@
             <div><img src="{{ asset('images/svg/dove.svg') }}" alt="indicator" class="h-10"></div>
             <div>
                 <div class="text-xs opacity-75">{{ __('Total de decisões:') }}</div>
-                {{-- Total de pessoas que decidiram seguir Jesus --}}
-                0
+                {{ $totalDecisions }}
             </div>
         </div>
     </section>
@@ -259,45 +258,44 @@
 
             <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 flex-auto">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
-                    {{ __('OJT Summary') }}
+                    {{ __('Resumo STP') }}
                 </h4>
                 <div class="mt-3 grid gap-3 text-sm text-slate-700">
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Completed / Expected') }}</span>
+                        <span class="text-slate-500">{{ __('Concluídas / Previstas') }}</span>
                         <span class="font-semibold text-slate-900">
-                            {{ $ojtSummary['completed_sessions'] ?? 0 }} /
-                            {{ $ojtSummary['expected_sessions'] ?? 0 }}
+                            {{ $resumoStp['sessoes_concluidas'] }} /
+                            {{ $resumoStp['sessoes_previstas'] }}
                         </span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Gospel presentations') }}</span>
+                        <span class="text-slate-500">{{ __('Quantas vezes?') }}</span>
                         <span
-                            class="font-semibold text-slate-900">{{ $ojtSummary['gospel_presentations'] ?? 0 }}</span>
+                            class="font-semibold text-slate-900">{{ $resumoStp['evangelho_explicado'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Listeners') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $ojtSummary['listeners_count'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Para quantas pessoas?') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['pessoas_ouviram'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Decisions') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_decisions'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Decisão') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['decisao'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Interested') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_interested'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Sem decisão/ interessado') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['sem_decisao_interessado'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Rejection') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_rejection'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Rejeição') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['rejeicao'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Assurance') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $ojtSummary['results_assurance'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Para segurança/Já é crente') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['para_seguranca_ja_e_crente'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Follow-up scheduled') }}</span>
-                        <span
-                            class="font-semibold text-slate-900">{{ $ojtSummary['follow_up_scheduled'] ?? 0 }}</span>
+                        <span class="text-slate-500">{{ __('Visita agendada (7 dias após)') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['visita_agendada'] }}</span>
                     </div>
                 </div>
             </div>

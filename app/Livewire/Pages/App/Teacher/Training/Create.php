@@ -9,6 +9,7 @@ use App\Models\Training;
 use App\Services\Schedule\TrainingScheduleGenerator;
 use App\Services\Training\TeacherTrainingCreateService;
 use App\TrainingStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -298,7 +299,25 @@ class Create extends Component
 
     public function addEventDate(): void
     {
-        $this->eventDates[] = ['date' => '', 'start_time' => '', 'end_time' => ''];
+        $lastDate = collect($this->eventDates)
+            ->pluck('date')
+            ->filter(fn (mixed $date): bool => is_string($date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1)
+            ->map(function (string $date): ?Carbon {
+                try {
+                    return Carbon::createFromFormat('Y-m-d', $date);
+                } catch (\Throwable) {
+                    return null;
+                }
+            })
+            ->filter()
+            ->sort()
+            ->last();
+
+        $nextDate = $lastDate instanceof Carbon
+            ? $lastDate->copy()->addDay()->format('Y-m-d')
+            : '';
+
+        $this->eventDates[] = ['date' => $nextDate, 'start_time' => '', 'end_time' => ''];
     }
 
     public function removeEventDate(int $index): void

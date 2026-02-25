@@ -39,6 +39,7 @@ it('renders the stp approaches board page', function () {
     $response->assertOk();
     $response->assertSeeLivewire(StpApproachesBoard::class);
     $response->assertSeeText('Distribuição de Visitas STP');
+    $response->assertSeeText($church->name);
 });
 
 it('shows approach type labels in portuguese on cards', function () {

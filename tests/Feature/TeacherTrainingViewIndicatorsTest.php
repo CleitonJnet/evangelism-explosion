@@ -2,6 +2,8 @@
 
 use App\Livewire\Pages\App\Teacher\Training\View as TrainingView;
 use App\Models\Church;
+use App\Models\StpApproach;
+use App\Models\StpSession;
 use App\Models\Training;
 use App\Models\TrainingNewChurch;
 use App\Models\User;
@@ -21,15 +23,15 @@ it('builds registration indicators from enrolled students instead of training co
 
     $pastorStudent = User::factory()->create([
         'church_id' => $churchA->id,
-        'pastor' => 'Y',
+        'pastor' => 'Pr. Elias',
     ]);
     $regularStudent = User::factory()->create([
         'church_id' => $churchA->id,
-        'pastor' => 'N',
+        'pastor' => null,
     ]);
     $pastorFromAnotherChurch = User::factory()->create([
         'church_id' => $churchB->id,
-        'pastor' => 'Y',
+        'pastor' => 'Pra. Ana',
     ]);
 
     $training->students()->attach($pastorStudent->id, ['kit' => 1, 'accredited' => 0, 'payment' => 0]);
@@ -53,10 +55,31 @@ it('builds registration indicators from enrolled students instead of training co
         'created_by' => $actor->id,
     ]);
 
+    $session = StpSession::factory()->create([
+        'training_id' => $training->id,
+    ]);
+
+    StpApproach::factory()->create([
+        'training_id' => $training->id,
+        'stp_session_id' => $session->id,
+        'status' => 'done',
+        'payload' => [
+            'listeners' => [
+                ['name' => 'Pessoa 1', 'result' => 'decision'],
+                ['name' => 'Pessoa 2', 'result' => 'no_decision_interested'],
+                ['name' => 'Pessoa 3', 'result' => 'decision'],
+            ],
+        ],
+        'result' => null,
+        'people_count' => null,
+    ]);
+
     Livewire::test(TrainingView::class, ['training' => $training])
         ->assertSet('totalRegistrations', 3)
         ->assertSet('totalParticipatingChurches', 2)
         ->assertSet('totalPastors', 2)
         ->assertSet('totalUsedKits', 2)
-        ->assertSet('totalNewChurches', 2);
+        ->assertSet('totalNewChurches', 2)
+        ->assertSet('totalDecisions', 2)
+        ->assertSet('resumoStp.decisao', 2);
 });

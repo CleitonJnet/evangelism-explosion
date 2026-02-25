@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Church;
+use App\Models\Course;
+use App\Models\Ministry;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -16,14 +19,32 @@ function createTeacherForTrainingTestimony(): User
 
 it('shows testimony page for the training owner teacher', function () {
     $teacher = createTeacherForTrainingTestimony();
+    $church = Church::factory()->create(['name' => 'Igreja Header Relato']);
+    $ministry = Ministry::query()->create([
+        'initials' => 'MTR',
+        'name' => 'Ministerio Relato',
+        'logo' => null,
+        'color' => '#0f172a',
+        'description' => 'Descricao de teste',
+    ]);
+    $course = Course::factory()->create([
+        'type' => 'Curso Relato',
+        'name' => 'Evento Header',
+        'ministry_id' => $ministry->id,
+    ]);
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $course->id,
     ]);
 
     $this->actingAs($teacher)
         ->get(route('app.teacher.trainings.testimony', $training))
         ->assertOk()
-        ->assertSee('Relato do Evento');
+        ->assertSee('Relato do Evento')
+        ->assertSee('Curso Relato Evento Header')
+        ->assertSee('Ministerio Relato')
+        ->assertSee('Igreja Header Relato');
 });
 
 it('forbids another teacher from accessing testimony page and update action', function () {
