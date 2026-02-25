@@ -22,6 +22,8 @@
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
             <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
                 x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
+            <x-src.toolbar.button :href="'#'" :label="__('Banner do Evento')" icon="plus" :tooltip="__('Enviar imagem de divulgação')"
+                x-on:click.prevent="$dispatch('open-edit-event-banner-modal', { trainingId: {{ $training->id }} })" />
         </div>
 
         <div class="flex items-center gap-2 overflow-auto">
@@ -449,6 +451,8 @@
 
     <livewire:pages.app.teacher.training.edit-event-dates-modal :trainingId="$training->id"
         wire:key="edit-event-dates-modal-{{ $training->id }}" />
+    <livewire:pages.app.teacher.training.edit-event-banner-modal :trainingId="$training->id"
+        wire:key="edit-event-banner-modal-{{ $training->id }}" />
 
     @if ($showScheduleAttentionModal)
         <div x-cloak x-show="showScheduleAttentionModal"

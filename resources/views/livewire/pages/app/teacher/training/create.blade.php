@@ -267,7 +267,7 @@
                             </label>
 
                             <div class="mt-2 text-xs text-slate-600">
-                                {{ __('Formatos aceitos: JPG e PNG. Tamanho máximo: 5MB.') }}
+                                {{ __('Formatos aceitos: JPG e PNG. Tamanho máximo: 10MB.') }}
                             </div>
 
                             @error('bannerUpload')

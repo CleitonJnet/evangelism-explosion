@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Training;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -101,7 +102,14 @@ class SiteController extends Controller
     public function downloadBanner(string $id): StreamedResponse
     {
         $event = Training::query()
-            ->select(['id', 'banner'])
+            ->with([
+                'course:id,type,name',
+                'eventDates' => fn ($query) => $query
+                    ->select(['id', 'training_id', 'date'])
+                    ->orderBy('date')
+                    ->limit(1),
+            ])
+            ->select(['id', 'course_id', 'banner'])
             ->findOrFail($id);
 
         $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
@@ -118,10 +126,25 @@ class SiteController extends Controller
         $disk = Storage::disk('public');
         $mimeType = $disk->mimeType($bannerPath) ?: 'application/octet-stream';
         $fileContents = $disk->get($bannerPath);
+        $eventName = trim(implode(' ', array_filter([
+            $event->course?->type,
+            $event->course?->name,
+        ])));
+        $eventNameSlug = Str::slug($eventName);
+        $eventDate = $event->eventDates->first()?->date;
+        $eventDateFormatted = $eventDate
+            ? Carbon::parse((string) $eventDate)->format('d-m-Y')
+            : Carbon::today()->format('d-m-Y');
+        $downloadFileName = sprintf(
+            '%s_%s.%s',
+            $eventNameSlug !== '' ? $eventNameSlug : 'evento',
+            $eventDateFormatted,
+            $bannerExtension !== '' ? $bannerExtension : 'jpg',
+        );
 
         return response()->streamDownload(static function () use ($fileContents): void {
             echo $fileContents;
-        }, basename($bannerPath), ['Content-Type' => $mimeType]);
+        }, $downloadFileName, ['Content-Type' => $mimeType]);
     }
 
     public function register(string $id)

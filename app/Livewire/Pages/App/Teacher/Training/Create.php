@@ -132,7 +132,7 @@ class Create extends Component
             'discount' => ['nullable', 'string', 'max:50'],
             'pixQrCodeUpload' => ['nullable', 'image', 'max:5120'],
             'pix_key' => ['nullable', 'string', 'max:255'],
-            'bannerUpload' => ['nullable', 'image', 'max:5120'],
+            'bannerUpload' => ['nullable', 'image', 'max:10240'],
             'kits' => ['nullable', 'integer', 'min:0'],
             'totNewChurches' => ['nullable', 'integer', 'min:0'],
             'totListeners' => ['nullable', 'integer', 'min:0'],
