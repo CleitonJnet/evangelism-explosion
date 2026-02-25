@@ -21,7 +21,7 @@ class Training extends Model
 
     private const DEFAULT_PIX_QR_CODE_ASSET_PATH = 'images/qrcode-pix-ee.webp';
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'schedule_attention_shown_at', 'schedule_adjusted_at'];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'leader', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'schedule_attention_shown_at', 'schedule_adjusted_at'];
 
     /**
      * @return array<string, string>
