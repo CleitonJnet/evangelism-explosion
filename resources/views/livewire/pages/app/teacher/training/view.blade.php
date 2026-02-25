@@ -1,6 +1,7 @@
 @php
     use App\Helpers\AddressHelper;
     use App\Helpers\DayScheduleHelper;
+    use App\Services\Training\TestimonySanitizer;
     use Carbon\Carbon;
     use Illuminate\Support\Collection;
 
@@ -76,6 +77,8 @@
     } else {
         $scheduleBadgeClasses .= ' bg-amber-100 text-amber-800';
     }
+
+    $formattedNotes = TestimonySanitizer::sanitize($training->notes);
 @endphp
 
 <div class="space-y-4">
@@ -355,9 +358,15 @@
     <section
         class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
         <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Observações') }}</h4>
-        <p class="mt-3 text-sm text-slate-700">
-            {{ $training->notes ?? __('Nenhuma observação registrada.') }}
-        </p>
+        @if ($formattedNotes)
+            <div class="mt-3 space-y-3 text-sm leading-6 text-slate-700">
+                {!! $formattedNotes !!}
+            </div>
+        @else
+            <p class="mt-3 text-sm text-slate-700">
+                {{ __('Nenhuma observação registrada.') }}
+            </p>
+        @endif
     </section>
 
     @if ($bannerUrl)

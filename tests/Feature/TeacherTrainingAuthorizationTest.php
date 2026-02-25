@@ -21,6 +21,7 @@ dataset('teacher training protected routes', [
     'schedule' => fn (Training $training): string => route('app.teacher.trainings.schedule', $training),
     'registrations' => fn (Training $training): string => route('app.teacher.trainings.registrations', $training),
     'statistics' => fn (Training $training): string => route('app.teacher.trainings.statistics', $training),
+    'testimony' => fn (Training $training): string => route('app.teacher.trainings.testimony', $training),
 ]);
 
 it('forbids a teacher from accessing another teacher training', function (callable $routeResolver) {

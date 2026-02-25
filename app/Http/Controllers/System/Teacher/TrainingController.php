@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\System\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateTrainingTestimonyRequest;
 use App\Models\Training;
+use App\Services\Training\TestimonySanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -51,6 +53,28 @@ class TrainingController extends Controller
         return view('pages.app.roles.teacher.trainings.registrations', [
             'training' => $training,
         ]);
+    }
+
+    public function testimony(Training $training): View
+    {
+        $this->authorize('view', $training);
+
+        return view('pages.app.roles.teacher.trainings.testimony', [
+            'training' => $training,
+        ]);
+    }
+
+    public function updateTestimony(UpdateTrainingTestimonyRequest $request, Training $training): RedirectResponse
+    {
+        $sanitizedNotes = TestimonySanitizer::sanitize($request->validated('notes'));
+
+        $training->update([
+            'notes' => $sanitizedNotes,
+        ]);
+
+        return redirect()
+            ->route('app.teacher.trainings.testimony', $training)
+            ->with('status', __('Relato salvo com sucesso.'));
     }
 
     public function destroy(Training $training): RedirectResponse

@@ -39,6 +39,8 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
         ->name('trainings.schedule');
     Route::get('trainings/{training}/statistics', [OjtController::class, 'statistics'])->name('trainings.statistics');
     Route::get('trainings/{training}/stp/approaches', [StpApproachController::class, 'board'])->name('trainings.stp.approaches');
+    Route::get('trainings/{training}/testimony', [TrainingController::class, 'testimony'])->name('trainings.testimony');
+    Route::put('trainings/{training}/testimony', [TrainingController::class, 'updateTestimony'])->name('trainings.testimony.update');
     Route::resource('trainings', TrainingController::class)->only(['index', 'show', 'create', 'destroy']);
     Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'create', 'edit']);
 
