@@ -3,6 +3,7 @@
 namespace App\Livewire\Pages\App\Director\Website\Testimonials;
 
 use App\Models\Testimonial;
+use App\Services\TestimonialPhotoProcessor;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -67,19 +68,7 @@ class Index extends Component
             ->get();
 
         $this->testimonials = $items
-            ->map(function (Testimonial $testimonial): array {
-                $isActive = (bool) $testimonial->is_active;
-
-                return [
-                    'id' => $testimonial->id,
-                    'name' => $testimonial->name,
-                    'meta' => $testimonial->meta ?? '',
-                    'quote' => $testimonial->quote,
-                    'quote_preview' => Str::limit($testimonial->quote, 70),
-                    'photo_url' => $this->resolvePhotoUrl($testimonial->photo),
-                    'is_active' => $isActive,
-                ];
-            })
+            ->map(fn (Testimonial $testimonial): array => $this->mapTestimonial($testimonial))
             ->values()
             ->all();
 
@@ -143,7 +132,7 @@ class Index extends Component
                 Storage::disk('public')->delete($photoPath);
             }
 
-            $photoPath = $this->editPhotoUpload->store('testimonials/photos', 'public');
+            $photoPath = app(TestimonialPhotoProcessor::class)->storeAsWebp($this->editPhotoUpload);
         }
 
         $testimonial->update([
@@ -153,8 +142,9 @@ class Index extends Component
             'photo' => $photoPath,
         ]);
 
+        $testimonial->refresh();
+        $this->syncTestimonialRow($testimonial);
         $this->closeEditModal();
-        $this->refreshTestimonials();
     }
 
     public function openDeleteModal(int $testimonialId): void
@@ -301,7 +291,45 @@ class Index extends Component
         ];
     }
 
-    private function resolvePhotoUrl(?string $photoPath): string
+    /**
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     meta: string,
+     *     quote: string,
+     *     quote_preview: string,
+     *     photo_url: string,
+     *     is_active: bool,
+     * }
+     */
+    private function mapTestimonial(Testimonial $testimonial): array
+    {
+        return [
+            'id' => $testimonial->id,
+            'name' => $testimonial->name,
+            'meta' => $testimonial->meta ?? '',
+            'quote' => $testimonial->quote,
+            'quote_preview' => Str::limit($testimonial->quote, 70),
+            'photo_url' => $this->resolvePhotoUrl($testimonial->photo, $testimonial->updated_at?->getTimestamp()),
+            'is_active' => (bool) $testimonial->is_active,
+        ];
+    }
+
+    private function syncTestimonialRow(Testimonial $testimonial): void
+    {
+        $this->testimonials = collect($this->testimonials)
+            ->map(function (array $item) use ($testimonial): array {
+                if ((int) $item['id'] !== $testimonial->id) {
+                    return $item;
+                }
+
+                return $this->mapTestimonial($testimonial);
+            })
+            ->values()
+            ->all();
+    }
+
+    private function resolvePhotoUrl(?string $photoPath, ?int $cacheVersion = null): string
     {
         if (! is_string($photoPath) || trim($photoPath) === '') {
             return asset('images/profile.webp');
@@ -311,8 +339,16 @@ class Index extends Component
             return $photoPath;
         }
 
-        return Storage::disk('public')->exists($photoPath)
-            ? Storage::disk('public')->url($photoPath)
-            : asset('images/profile.webp');
+        if (! Storage::disk('public')->exists($photoPath)) {
+            return asset('images/profile.webp');
+        }
+
+        $url = Storage::disk('public')->url($photoPath);
+
+        if ($cacheVersion === null) {
+            return $url;
+        }
+
+        return $url.'?v='.$cacheVersion;
     }
 }

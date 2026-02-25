@@ -131,6 +131,11 @@
                     <flux:label>{{ __('Foto da pessoa') }}</flux:label>
                     <input type="file" accept=".jpg,.jpeg,.png,.webp" wire:model.live="editPhotoUpload"
                         class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white">
+                    <div wire:loading.flex wire:target="editPhotoUpload"
+                        class="items-center gap-2 text-xs font-semibold text-sky-900">
+                        <span class="h-3 w-3 animate-spin rounded-full border-2 border-sky-300 border-t-sky-900"></span>
+                        {{ __('Processando imagem...') }}
+                    </div>
                     <div class="text-[11px] text-neutral-500">
                         {{ __('Formatos aceitos: JPG, JPEG, PNG ou WEBP (até 5MB).') }}
                     </div>

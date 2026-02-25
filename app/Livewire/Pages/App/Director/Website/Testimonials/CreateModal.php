@@ -3,6 +3,8 @@
 namespace App\Livewire\Pages\App\Director\Website\Testimonials;
 
 use App\Models\Testimonial;
+use App\Services\TestimonialPhotoProcessor;
+use Illuminate\Http\UploadedFile;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -113,10 +115,10 @@ class CreateModal extends Component
 
     private function storeUploadedPhoto(): ?string
     {
-        if (! $this->photoUpload) {
+        if (! $this->photoUpload instanceof UploadedFile) {
             return null;
         }
 
-        return $this->photoUpload->store('testimonials/photos', 'public');
+        return app(TestimonialPhotoProcessor::class)->storeAsWebp($this->photoUpload);
     }
 }

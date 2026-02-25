@@ -22,6 +22,17 @@ function createDirector(): User
     return $director;
 }
 
+function assertTestimonialPhotoIsProcessed(string $path): void
+{
+    expect(pathinfo($path, PATHINFO_EXTENSION))->toBe('webp');
+
+    $imageInfo = getimagesize(Storage::disk('public')->path($path));
+
+    expect($imageInfo)->not->toBeFalse();
+    expect($imageInfo[0])->toBe(1280);
+    expect($imageInfo[1])->toBe(1040);
+}
+
 it('renders the director testimonials page', function () {
     $director = createDirector();
 
@@ -59,6 +70,7 @@ it('creates a testimonial through the nested create modal component', function (
     $testimonial = Testimonial::query()->where('name', 'Pr. Samuel Dias')->firstOrFail();
     expect($testimonial->photo)->not->toBeNull();
     Storage::disk('public')->assertExists((string) $testimonial->photo);
+    assertTestimonialPhotoIsProcessed((string) $testimonial->photo);
 });
 
 it('edits and removes a testimonial from the director listing component', function () {
@@ -78,7 +90,7 @@ it('edits and removes a testimonial from the director listing component', functi
 
     $newPhoto = UploadedFile::fake()->image('maria.jpg');
 
-    Livewire::actingAs($director)
+    $component = Livewire::actingAs($director)
         ->test(Index::class)
         ->call('openEditModal', $testimonial->id)
         ->set('editName', 'Maria Atualizada')
@@ -92,6 +104,8 @@ it('edits and removes a testimonial from the director listing component', functi
     expect($testimonial->photo)->not->toBeNull();
     Storage::disk('public')->assertMissing('testimonials/photos/old-photo.jpg');
     Storage::disk('public')->assertExists((string) $testimonial->photo);
+    assertTestimonialPhotoIsProcessed((string) $testimonial->photo);
+    $component->assertSee((string) $testimonial->photo);
 
     Livewire::actingAs($director)
         ->test(Index::class)

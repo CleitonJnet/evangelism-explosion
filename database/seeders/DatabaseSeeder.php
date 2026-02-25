@@ -16,9 +16,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        $this->call(ChurchesSeeder::class);
+        // $this->call(ChurchesSeeder::class);
+        // $this->call(UsersSeeder::class);
         $this->call(RolesSeeder::class);
-        $this->call(UsersSeeder::class);
 
         Ministry::create(['id' => 1, 'initials' => 'ev²', 'name' => 'Evangelismo Eficaz', 'logo' => null, 'color' => null, 'description' => 'O Ministério Evangelismo Eficaz tem como propósito capacitar cristãos a compartilhar o evangelho de Jesus Cristo de forma clara, bíblica e intencional no dia a dia. Por meio de treinamentos práticos e fundamentados nas Escrituras, o ministério promove uma vida de testemunho fiel, preparando a igreja para cumprir a Grande Comissão com convicção, amor e simplicidade.']);
         Ministry::create(['id' => 2, 'initials' => 'ee-kids', 'name' => 'EE-Kids', 'logo' => null, 'color' => null, 'description' => 'O EE-Kids é o ministério voltado à evangelização de crianças, ensinando desde cedo as verdades fundamentais do evangelho de forma didática, bíblica e adequada à faixa etária. Seu objetivo é auxiliar pais, educadores e igrejas na formação espiritual das crianças, cultivando uma fé sólida e um coração disposto a conhecer e seguir a Cristo.']);
@@ -35,11 +35,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call(SectionSeeder::class);
 
-        DB::table('course_user')->insert(['course_id' => 1]);
-        User::findOrFail(1)->courseAsTeacher()->sync([1, 2, 3, 4, 5, 6, 7, 8]);
+        // DB::table('course_user')->insert(['course_id' => 1]);
+        // User::findOrFail(1)->courseAsTeacher()->sync([1, 2, 3, 4, 5, 6, 7, 8]);
 
-        $this->call(TrainingsSeeder::class);
-        $this->call(ClinicEvangelismoEficazSeeder::class);
-        $this->call(TestimonialSeeder::class);
+        // $this->call(TrainingsSeeder::class);
+        // $this->call(ClinicEvangelismoEficazSeeder::class);
+        // $this->call(TestimonialSeeder::class);
     }
 }
