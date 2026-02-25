@@ -34,7 +34,7 @@ class Index extends Component
         $trainings = collect();
 
         if ($this->userId) {
-            $trainings = Training::query()
+            $trainingsQuery = Training::query()
                 ->select('trainings.*')
                 ->join('courses', 'courses.id', '=', 'trainings.course_id')
                 ->with([
@@ -44,9 +44,6 @@ class Index extends Component
                     'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
                 ])
                 ->withCount('newChurches')
-                ->whereDoesntHave('eventDates', function ($query) {
-                    $query->whereDate('date', '<', Carbon::today());
-                })
                 ->whereHas('course', function ($query): void {
                     $query->where('execution', 0)
                         ->orWhereIn('id', $this->extraCourseIds);
@@ -54,8 +51,15 @@ class Index extends Component
                 ->where('status', $status->value)
                 ->where('teacher_id', $this->userId)
                 ->orderBy('courses.type')
-                ->orderBy('courses.name')
-                ->get();
+                ->orderBy('courses.name');
+
+            if ($status === TrainingStatus::Scheduled) {
+                $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
+                    $query->whereDate('date', '<', Carbon::today());
+                });
+            }
+
+            $trainings = $trainingsQuery->get();
         }
 
         return view('livewire.pages.app.teacher.training.index', [

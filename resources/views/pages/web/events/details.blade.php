@@ -51,7 +51,7 @@
                     <div class="relative">
                         {{-- Imagem do evento (exemplo) --}}
                         <img src="{{ asset('images/cover.jpg') }}" alt="Workshop O Evangelho Em Sua Mão"
-                            class="object-cover w-full h-72 sm:h-80">
+                            class="object-cover w-full aspect-21/9">
                         <div
                             class="absolute inset-x-0 bottom-0 h-2 bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]">
                         </div>
