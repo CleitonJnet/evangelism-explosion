@@ -14,6 +14,8 @@ class TrainingScheduleTimelineService
 
     private const MAX_SECTION_DURATION_MINUTES = 120;
 
+    private const DURATION_STEP_MINUTES = 5;
+
     public function moveAfter(int $trainingId, int $itemId, string $dateKey, ?int $afterItemId): void
     {
         DB::transaction(function () use ($trainingId, $itemId, $dateKey, $afterItemId): void {
@@ -195,6 +197,80 @@ class TrainingScheduleTimelineService
                 if ((int) $item->planned_duration_minutes !== $newDuration) {
                     $item->planned_duration_minutes = $newDuration;
                     $item->save();
+                }
+            }
+
+            $this->reflowDay($trainingId, $dateKey);
+        });
+    }
+
+    public function rebalanceDayFromItemToEventWindow(int $trainingId, string $dateKey, int $itemId): void
+    {
+        DB::transaction(function () use ($trainingId, $dateKey, $itemId): void {
+            $eventDate = EventDate::query()
+                ->where('training_id', $trainingId)
+                ->where('date', $dateKey)
+                ->first();
+
+            if (! $eventDate?->start_time || ! $eventDate?->end_time) {
+                return;
+            }
+
+            $items = TrainingScheduleItem::query()
+                ->where('training_id', $trainingId)
+                ->whereDate('date', $dateKey)
+                ->orderBy('position')
+                ->orderBy('id')
+                ->get();
+
+            if ($items->isEmpty()) {
+                return;
+            }
+
+            $anchorIndex = $items->search(fn (TrainingScheduleItem $item): bool => $item->id === $itemId);
+
+            if ($anchorIndex === false) {
+                $this->rebalanceDayToEventWindow($trainingId, $dateKey);
+
+                return;
+            }
+
+            $dayStart = Carbon::parse($dateKey.' '.$eventDate->start_time);
+            $dayEnd = Carbon::parse($dateKey.' '.$eventDate->end_time);
+            $targetMinutes = max(0, $dayStart->diffInMinutes($dayEnd, false));
+
+            $lockedItems = $items->slice(0, $anchorIndex);
+            $lockedMinutes = $lockedItems->sum(fn (TrainingScheduleItem $item): int => max(0, (int) $item->planned_duration_minutes));
+            $availableMinutes = $targetMinutes - $lockedMinutes;
+
+            $adjustableWindowItems = $items->slice($anchorIndex)->values();
+            $durationsById = [];
+
+            foreach ($adjustableWindowItems as $windowItem) {
+                $durationsById[$windowItem->id] = max(0, (int) $windowItem->planned_duration_minutes);
+            }
+
+            $currentWindowMinutes = array_sum($durationsById);
+            $difference = $availableMinutes - $currentWindowMinutes;
+
+            $followingItems = $adjustableWindowItems->slice(1)->values();
+
+            if ($difference > 0) {
+                $difference = $this->addMinutesToFollowingItems($followingItems, $durationsById, $difference);
+            } elseif ($difference < 0) {
+                $difference = $this->reduceMinutesFromFollowingItems($followingItems, $durationsById, abs($difference));
+            }
+
+            if ($difference > 0) {
+                $this->ensureTailBreakForRemainingGap($trainingId, $dateKey, $adjustableWindowItems, $durationsById, $difference, $dayEnd);
+            }
+
+            foreach ($adjustableWindowItems as $windowItem) {
+                $newDuration = max(0, (int) ($durationsById[$windowItem->id] ?? $windowItem->planned_duration_minutes));
+
+                if ((int) $windowItem->planned_duration_minutes !== $newDuration) {
+                    $windowItem->planned_duration_minutes = $newDuration;
+                    $windowItem->save();
                 }
             }
 
@@ -397,16 +473,170 @@ class TrainingScheduleTimelineService
         $computedMin = max(1, (int) ceil($suggested * (1 - (self::SECTION_TOLERANCE_PERCENT / 100))));
         $computedMax = max(1, (int) floor($suggested * (1 + (self::SECTION_TOLERANCE_PERCENT / 100))));
 
-        $min = max(1, (int) ($storedMinDuration ?? $computedMin));
-        $min = min(self::MAX_SECTION_DURATION_MINUTES, $min);
+        $storedMin = max(0, (int) ($storedMinDuration ?? 0));
+        $baseMin = max($computedMin, $storedMin);
+        $baseMin = min(self::MAX_SECTION_DURATION_MINUTES, $baseMin);
+        $min = max(self::DURATION_STEP_MINUTES, $this->roundDownToStep($baseMin));
 
-        $max = min(self::MAX_SECTION_DURATION_MINUTES, $computedMax);
+        $baseMax = min(self::MAX_SECTION_DURATION_MINUTES, $computedMax);
+        $max = max($min, $this->roundUpToStep($baseMax));
 
         if ($max < $min) {
             $max = $min;
         }
 
         return [$min, $max];
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $followingItems
+     * @param  array<int, int>  $durationsById
+     */
+    private function addMinutesToFollowingItems(Collection $followingItems, array &$durationsById, int $minutesToAdd): int
+    {
+        if ($minutesToAdd <= 0 || $followingItems->isEmpty()) {
+            return $minutesToAdd;
+        }
+
+        foreach ($followingItems as $item) {
+            if ($minutesToAdd <= 0) {
+                break;
+            }
+
+            if (! $this->isAdjustableSection($item)) {
+                continue;
+            }
+
+            $current = (int) ($durationsById[$item->id] ?? $item->planned_duration_minutes);
+            $suggested = max(1, (int) ($item->suggested_duration_minutes ?? $current ?: 1));
+            [, $maxBound] = $this->resolveSectionBounds($suggested, $item->min_duration_minutes);
+            $increase = max(0, $maxBound - $current);
+
+            if ($increase <= 0) {
+                continue;
+            }
+
+            $delta = min($increase, $minutesToAdd);
+            $durationsById[$item->id] = $current + $delta;
+            $minutesToAdd -= $delta;
+        }
+
+        if ($minutesToAdd <= 0) {
+            return 0;
+        }
+
+        foreach ($followingItems as $item) {
+            if ($minutesToAdd <= 0) {
+                break;
+            }
+
+            if ($item->type !== 'BREAK') {
+                continue;
+            }
+
+            $current = (int) ($durationsById[$item->id] ?? $item->planned_duration_minutes);
+            $durationsById[$item->id] = $current + $minutesToAdd;
+            $minutesToAdd = 0;
+        }
+
+        return $minutesToAdd;
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $followingItems
+     * @param  array<int, int>  $durationsById
+     */
+    private function reduceMinutesFromFollowingItems(Collection $followingItems, array &$durationsById, int $minutesToReduce): int
+    {
+        if ($minutesToReduce <= 0 || $followingItems->isEmpty()) {
+            return 0;
+        }
+
+        foreach ($followingItems->reverse()->values() as $item) {
+            if ($minutesToReduce <= 0) {
+                break;
+            }
+
+            $current = (int) ($durationsById[$item->id] ?? $item->planned_duration_minutes);
+
+            if ($item->type === 'BREAK') {
+                $minAllowed = self::DURATION_STEP_MINUTES;
+            } elseif ($this->isAdjustableSection($item)) {
+                $suggested = max(1, (int) ($item->suggested_duration_minutes ?? $current ?: 1));
+                [$minAllowed] = $this->resolveSectionBounds($suggested, $item->min_duration_minutes);
+            } else {
+                continue;
+            }
+
+            $reducible = max(0, $current - $minAllowed);
+
+            if ($reducible <= 0) {
+                continue;
+            }
+
+            $delta = min($reducible, $minutesToReduce);
+            $durationsById[$item->id] = $current - $delta;
+            $minutesToReduce -= $delta;
+        }
+
+        return $minutesToReduce > 0 ? -$minutesToReduce : 0;
+    }
+
+    /**
+     * @param  Collection<int, TrainingScheduleItem>  $windowItems
+     * @param  array<int, int>  $durationsById
+     */
+    private function ensureTailBreakForRemainingGap(
+        int $trainingId,
+        string $dateKey,
+        Collection $windowItems,
+        array &$durationsById,
+        int $remainingMinutes,
+        Carbon $dayEnd,
+    ): void {
+        if ($remainingMinutes <= 0) {
+            return;
+        }
+
+        $lastItem = $windowItems->last();
+
+        if ($lastItem && $lastItem->type === 'BREAK') {
+            $current = (int) ($durationsById[$lastItem->id] ?? $lastItem->planned_duration_minutes);
+            $durationsById[$lastItem->id] = $current + $remainingMinutes;
+
+            return;
+        }
+
+        $breakItem = TrainingScheduleItem::query()->create([
+            'training_id' => $trainingId,
+            'section_id' => null,
+            'date' => $dateKey,
+            'starts_at' => $dayEnd->copy(),
+            'ends_at' => $dayEnd->copy()->addMinutes($remainingMinutes),
+            'type' => 'BREAK',
+            'title' => 'Intervalo',
+            'position' => ((int) ($lastItem?->position ?? 0)) + 1,
+            'planned_duration_minutes' => $remainingMinutes,
+            'suggested_duration_minutes' => null,
+            'min_duration_minutes' => null,
+            'origin' => 'AUTO',
+            'status' => 'OK',
+            'conflict_reason' => null,
+            'meta' => ['auto_reason' => 'window_fill'],
+        ]);
+
+        $windowItems->push($breakItem);
+        $durationsById[$breakItem->id] = $remainingMinutes;
+    }
+
+    private function roundUpToStep(int $value): int
+    {
+        return (int) (ceil($value / self::DURATION_STEP_MINUTES) * self::DURATION_STEP_MINUTES);
+    }
+
+    private function roundDownToStep(int $value): int
+    {
+        return (int) (floor($value / self::DURATION_STEP_MINUTES) * self::DURATION_STEP_MINUTES);
     }
 
     /**

@@ -251,18 +251,21 @@
                                             @endif
                                         </td>
                                         <td class="px-3 py-2 whitespace-nowrap">
+                                            @php
+                                                $itemBounds = $durationBounds[$item->id] ?? ['min' => 5, 'max' => 720];
+                                                $minDuration = (int) ($itemBounds['min'] ?? 5);
+                                                $maxDuration = (int) ($itemBounds['max'] ?? 720);
+                                                $rangeWarning = (bool) ($durationRangeWarnings[$item->id] ?? false);
+                                                $currentDuration = (int) ($durationInputs[$item->id] ?? ($item->planned_duration_minutes ?: $item->suggested_duration_minutes ?? 60));
+                                                $rangeColorClass = 'text-green-600';
+
+                                                if ($currentDuration < $minDuration) {
+                                                    $rangeColorClass = 'text-amber-600';
+                                                } elseif ($currentDuration > $maxDuration) {
+                                                    $rangeColorClass = 'text-red-600';
+                                                }
+                                            @endphp
                                             @if ($item->type === 'SECTION' && $item->suggested_duration_minutes)
-                                                @php
-                                                    $minDuration = min(
-                                                        120,
-                                                        (int) ceil($item->suggested_duration_minutes * 0.8),
-                                                    );
-                                                    $maxDuration = min(
-                                                        120,
-                                                        (int) floor($item->suggested_duration_minutes * 1.2),
-                                                    );
-                                                    $maxDuration = max($minDuration, $maxDuration);
-                                                @endphp
                                                 <div class="flex items-center gap-2">
                                                     <div x-data="{
                                                         step(delta) {
@@ -272,6 +275,8 @@
                                                                 value = {{ (int) ($durationInputs[$item->id] ?? ($item->planned_duration_minutes ?: $item->suggested_duration_minutes ?? 60)) }};
                                                             }
                                                             value = Math.max({{ $minDuration }}, Math.min({{ $maxDuration }}, value + delta));
+                                                            value = Math.round(value / 5) * 5;
+                                                            value = Math.max({{ $minDuration }}, Math.min({{ $maxDuration }}, value));
                                                             input.value = String(value);
                                                             input.dispatchEvent(new Event('input', { bubbles: true }));
                                                         }
@@ -279,7 +284,7 @@
                                                         class="flex items-center rounded-md border border-(--ee-app-border) bg-white/60">
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
-                                                            x-on:click="step(-1)"
+                                                            x-on:click="step(-5)"
                                                             aria-label="{{ __('Reduzir duração') }}">
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
@@ -293,7 +298,9 @@
                                                                 if ($el.value === '') { return; }
                                                                 const value = parseInt($el.value, 10);
                                                                 if (!Number.isNaN(value)) {
-                                                                    $el.value = String(Math.max({{ $minDuration }}, Math.min({{ $maxDuration }}, value)));
+                                                                    let roundedValue = Math.round(value / 5) * 5;
+                                                                    roundedValue = Math.max({{ $minDuration }}, Math.min({{ $maxDuration }}, roundedValue));
+                                                                    $el.value = String(roundedValue);
                                                                 }
                                                             "
                                                             class="w-14 border-x border-(--ee-app-border) py-1 text-center text-sm bg-white focus-within:bg-white"
@@ -302,7 +309,7 @@
                                                             wire:target="durationInputs.{{ $item->id }}" />
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
-                                                            x-on:click="step(1)"
+                                                            x-on:click="step(5)"
                                                             aria-label="{{ __('Aumentar duração') }}">
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
@@ -310,7 +317,7 @@
                                                             </svg>
                                                         </button>
                                                     </div>
-                                                    <div class="text-[10px] text-(--ee-app-muted) flex flex-col">
+                                                    <div class="text-[10px] flex flex-col {{ $rangeColorClass }}">
                                                         <div>
                                                             {{ __('de') }}<span class="font-bold">
                                                                 {{ $minDuration }}-{{ $maxDuration }}
@@ -328,7 +335,9 @@
                                                             if (Number.isNaN(value)) {
                                                                 value = {{ (int) ($durationInputs[$item->id] ?? ($item->planned_duration_minutes ?: $item->suggested_duration_minutes ?? 60)) }};
                                                             }
-                                                            value = Math.max(1, Math.min(720, value + delta));
+                                                            value = Math.max(5, Math.min(720, value + delta));
+                                                            value = Math.round(value / 5) * 5;
+                                                            value = Math.max(5, Math.min(720, value));
                                                             input.value = String(value);
                                                             input.dispatchEvent(new Event('input', { bubbles: true }));
                                                         }
@@ -336,7 +345,7 @@
                                                         class="flex items-center rounded-md border border-(--ee-app-border) bg-white/60">
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
-                                                            x-on:click="step(-1)"
+                                                            x-on:click="step(-5)"
                                                             aria-label="{{ __('Reduzir duração') }}">
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
@@ -350,7 +359,9 @@
                                                                 if ($el.value === '') { return; }
                                                                 const value = parseInt($el.value, 10);
                                                                 if (!Number.isNaN(value)) {
-                                                                    $el.value = String(Math.max(1, Math.min(720, value)));
+                                                                    let roundedValue = Math.round(value / 5) * 5;
+                                                                    roundedValue = Math.max(5, Math.min(720, roundedValue));
+                                                                    $el.value = String(roundedValue);
                                                                 }
                                                             "
                                                             class="w-14 border-x border-(--ee-app-border) py-1 text-center text-sm bg-white focus-within:bg-white"
@@ -359,7 +370,7 @@
                                                             wire:target="durationInputs.{{ $item->id }}" />
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
-                                                            x-on:click="step(1)"
+                                                            x-on:click="step(5)"
                                                             aria-label="{{ __('Aumentar duração') }}">
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">

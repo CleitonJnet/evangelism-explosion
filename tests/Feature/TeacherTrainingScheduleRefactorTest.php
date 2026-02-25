@@ -449,5 +449,235 @@ it('increments session duration using action button', function () {
         ->test(TrainingScheduleComponent::class, ['training' => $training])
         ->call('incrementDuration', $item->id);
 
-    expect((int) $item->fresh()->planned_duration_minutes)->toBe(31);
+    expect((int) $item->fresh()->planned_duration_minutes)->toBe(35);
+});
+
+it('keeps previous sessions fixed and adjusts only following sessions when changing duration', function () {
+    $teacher = makeTeacherForScheduleRefactorTest();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+    $training->eventDates()->create([
+        'date' => '2026-09-10',
+        'start_time' => '08:00:00',
+        'end_time' => '10:00:00',
+    ]);
+
+    $dateKey = '2026-09-10';
+    $sectionOne = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 1,
+        'name' => 'Unidade 1',
+        'duration' => '30 min',
+    ]);
+    $sectionTwo = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 2,
+        'name' => 'Unidade 2',
+        'duration' => '30 min',
+    ]);
+    $sectionThree = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 3,
+        'name' => 'Unidade 3',
+        'duration' => '30 min',
+    ]);
+
+    $first = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionOne->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 08:00:00'),
+        'ends_at' => Carbon::parse($dateKey.' 08:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 1',
+        'position' => 1,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $second = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionTwo->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 08:30:00'),
+        'ends_at' => Carbon::parse($dateKey.' 09:00:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 2',
+        'position' => 2,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $third = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionThree->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 09:00:00'),
+        'ends_at' => Carbon::parse($dateKey.' 09:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 3',
+        'position' => 3,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $break = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => null,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 09:30:00'),
+        'ends_at' => Carbon::parse($dateKey.' 10:00:00'),
+        'type' => 'BREAK',
+        'title' => 'Intervalo',
+        'position' => 4,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => null,
+        'min_duration_minutes' => null,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => ['auto_reason' => 'window_fill'],
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(TrainingScheduleComponent::class, ['training' => $training])
+        ->set("durationInputs.{$second->id}", 35)
+        ->call('applyDuration', $second->id)
+        ->assertHasNoErrors();
+
+    expect((int) $first->fresh()->planned_duration_minutes)->toBe(30);
+    expect((int) $second->fresh()->planned_duration_minutes)->toBe(35);
+    expect((int) $third->fresh()->planned_duration_minutes)->toBe(30);
+    expect((int) $break->fresh()->planned_duration_minutes)->toBe(25);
+
+    $lastItem = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->whereDate('date', $dateKey)
+        ->orderByDesc('position')
+        ->first();
+
+    expect($lastItem?->ends_at?->format('H:i:s'))->toBe('10:00:00');
+});
+
+it('adds a tail break when remaining sessions cannot fill the day window', function () {
+    $teacher = makeTeacherForScheduleRefactorTest();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $training->eventDates()->delete();
+    $training->eventDates()->create([
+        'date' => '2026-09-12',
+        'start_time' => '08:00:00',
+        'end_time' => '09:50:00',
+    ]);
+
+    $dateKey = '2026-09-12';
+    $sectionOne = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 1,
+        'name' => 'Unidade 1',
+        'duration' => '30 min',
+    ]);
+    $sectionTwo = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 2,
+        'name' => 'Unidade 2',
+        'duration' => '30 min',
+    ]);
+    $sectionThree = Section::factory()->create([
+        'course_id' => $training->course_id,
+        'order' => 3,
+        'name' => 'Unidade 3',
+        'duration' => '30 min',
+    ]);
+
+    TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionOne->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 08:00:00'),
+        'ends_at' => Carbon::parse($dateKey.' 08:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 1',
+        'position' => 1,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    $second = TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionTwo->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 08:30:00'),
+        'ends_at' => Carbon::parse($dateKey.' 09:00:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 2',
+        'position' => 2,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    TrainingScheduleItem::query()->create([
+        'training_id' => $training->id,
+        'section_id' => $sectionThree->id,
+        'date' => $dateKey,
+        'starts_at' => Carbon::parse($dateKey.' 09:00:00'),
+        'ends_at' => Carbon::parse($dateKey.' 09:30:00'),
+        'type' => 'SECTION',
+        'title' => 'Unidade 3',
+        'position' => 3,
+        'planned_duration_minutes' => 30,
+        'suggested_duration_minutes' => 30,
+        'min_duration_minutes' => 24,
+        'origin' => 'AUTO',
+        'status' => 'OK',
+        'conflict_reason' => null,
+        'meta' => null,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(TrainingScheduleComponent::class, ['training' => $training])
+        ->set("durationInputs.{$second->id}", 30)
+        ->call('applyDuration', $second->id)
+        ->assertHasNoErrors();
+
+    $tailBreak = TrainingScheduleItem::query()
+        ->where('training_id', $training->id)
+        ->whereDate('date', $dateKey)
+        ->where('type', 'BREAK')
+        ->orderByDesc('position')
+        ->first();
+
+    expect($tailBreak)->not->toBeNull();
+    expect((int) $tailBreak?->planned_duration_minutes)->toBe(10);
+    expect($tailBreak?->ends_at?->format('H:i:s'))->toBe('09:50:00');
 });

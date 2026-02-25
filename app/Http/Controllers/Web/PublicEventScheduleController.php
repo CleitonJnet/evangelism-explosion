@@ -27,28 +27,21 @@ class PublicEventScheduleController extends Controller
         $viewModel = $this->buildScheduleViewModel($training);
         $viewModel['logoDataUri'] = $this->resolvePdfLogoDataUri();
         $viewModel['generatedAt'] = now('America/Sao_Paulo');
-        $viewModel['pdfColumns'] = $this->buildPdfColumns($viewModel['scheduleDays']);
+        $viewModel['workloadDuration'] = $this->workloadDuration($viewModel['eventDates']);
 
         $pdf = Pdf::loadView('pdf.event-schedule', $viewModel)
-            ->setPaper('a4')
-            ->setCallbacks([
-                [
-                    'event' => 'end_document',
-                    'f' => static function (int $pageNumber, int $pageCount, $canvas, $fontMetrics): void {
-                        $font = $fontMetrics->getFont('Helvetica', 'normal');
-                        $canvas->page_text(
-                            486,
-                            815,
-                            sprintf('Pagina %d de %d', $pageNumber, $pageCount),
-                            $font,
-                            9,
-                            [0.4706, 0.6275, 0.7647],
-                        );
-                    },
-                ],
-            ]);
+            ->setPaper('a4');
 
-        return $pdf->download('programacao-evento-'.$training->id.'.pdf');
+        $fileName = 'programacao-evento-'.$training->id.'.pdf';
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     /**
@@ -304,43 +297,35 @@ class PublicEventScheduleController extends Controller
     }
 
     /**
-     * @param  array<int, array{date: string, weekdayLabel: string, dayLabel: string, groups: array<int, array{turn: string, heading: string, items: array<int, array{timeRange: string, title: string, subtitle: string, devotional: ?string, duration: string}>}>}>  $scheduleDays
-     * @return array{
-     *     left: array<int, array{heading: string, items: array<int, array{timeRange: string, title: string, subtitle: string, devotional: ?string, duration: string}>}>,
-     *     right: array<int, array{heading: string, items: array<int, array{timeRange: string, title: string, subtitle: string, devotional: ?string, duration: string}>}>
-     * }
+     * @param  Collection<int, mixed>  $eventDates
      */
-    private function buildPdfColumns(array $scheduleDays): array
+    private function workloadDuration(Collection $eventDates): string
     {
-        $columns = ['left' => [], 'right' => []];
-        $columnHeights = ['left' => 0, 'right' => 0];
-
-        foreach ($scheduleDays as $day) {
-            foreach ($day['groups'] as $group) {
-                $blockHeight = $this->estimatePdfBlockHeight((array) $group['items']);
-                $columnKey = $columnHeights['left'] <= $columnHeights['right'] ? 'left' : 'right';
-
-                $columns[$columnKey][] = [
-                    'heading' => $group['heading'],
-                    'items' => $group['items'],
-                ];
-
-                $columnHeights[$columnKey] += $blockHeight;
+        $totalMinutes = $eventDates->reduce(function (int $carry, $eventDate): int {
+            if (! $eventDate->start_time || ! $eventDate->end_time || ! $eventDate->date) {
+                return $carry;
             }
+
+            $start = Carbon::parse((string) $eventDate->date.' '.$eventDate->start_time);
+            $end = Carbon::parse((string) $eventDate->date.' '.$eventDate->end_time);
+
+            if ($end->lte($start)) {
+                return $carry;
+            }
+
+            return $carry + $start->diffInMinutes($end);
+        }, 0);
+
+        if ($totalMinutes <= 0) {
+            return '--';
         }
 
-        return $columns;
-    }
+        $hours = intdiv($totalMinutes, 60);
+        $minutes = $totalMinutes % 60;
 
-    /**
-     * @param  array<int, array{timeRange: string, title: string, subtitle: string, devotional: ?string, duration: string}>  $items
-     */
-    private function estimatePdfBlockHeight(array $items): int
-    {
-        $baseHeaderHeight = 90;
-        $rowHeight = 30;
-
-        return $baseHeaderHeight + (count($items) * $rowHeight);
+        return $minutes > 0
+            ? sprintf('%02dh%02d', $hours, $minutes)
+            : sprintf('%02dh', $hours);
     }
 
     private function resolvePdfLogoDataUri(): ?string

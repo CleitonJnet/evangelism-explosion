@@ -26,6 +26,8 @@ class Schedule extends Component
 
     private const MAX_SECTION_DURATION_MINUTES = 120;
 
+    private const DURATION_STEP_MINUTES = 5;
+
     public const PLAN_STATUS_UNDER = 'under';
 
     public const PLAN_STATUS_OVER = 'over';
@@ -48,6 +50,16 @@ class Schedule extends Component
      * @var array<int, int>
      */
     public array $durationInputs = [];
+
+    /**
+     * @var array<int, array{min: int, max: int}>
+     */
+    public array $durationBounds = [];
+
+    /**
+     * @var array<int, bool>
+     */
+    public array $durationRangeWarnings = [];
 
     /**
      * @var array<string, array<string, bool>>
@@ -274,9 +286,7 @@ class Schedule extends Component
             }
 
             if ($item->section_id && $item->suggested_duration_minutes) {
-                $min = min(self::MAX_SECTION_DURATION_MINUTES, (int) ceil($item->suggested_duration_minutes * 0.8));
-                $max = min(self::MAX_SECTION_DURATION_MINUTES, (int) floor($item->suggested_duration_minutes * 1.2));
-                $max = max($min, $max);
+                ['min' => $min, 'max' => $max] = $this->resolveDurationBoundsForItem($item);
 
                 if ($duration < $min || $duration > $max) {
                     $this->dispatchScheduleAlert('A duração deve estar dentro de 20% do valor sugerido.');
@@ -298,7 +308,7 @@ class Schedule extends Component
             $dateKey = $item->date?->format('Y-m-d');
 
             if ($dateKey) {
-                $timelineService->rebalanceDayToEventWindow($this->training->id, $dateKey);
+                $timelineService->rebalanceDayFromItemToEventWindow($this->training->id, $dateKey, $item->id);
             }
 
             $this->markScheduleAdjusted();
@@ -325,12 +335,12 @@ class Schedule extends Component
 
     public function decrementDuration(int $id): void
     {
-        $this->adjustDurationInput($id, -1);
+        $this->adjustDurationInput($id, -self::DURATION_STEP_MINUTES);
     }
 
     public function incrementDuration(int $id): void
     {
-        $this->adjustDurationInput($id, 1);
+        $this->adjustDurationInput($id, self::DURATION_STEP_MINUTES);
     }
 
     public function moveAfter(
@@ -428,6 +438,8 @@ class Schedule extends Component
             $this->scheduleItems = $this->training->scheduleItems;
         }
         $this->syncDurationInputs();
+        $this->syncDurationBounds();
+        $this->syncDurationRangeWarnings();
         $this->syncDayTimes();
     }
 
@@ -678,16 +690,16 @@ class Schedule extends Component
             $current = (int) ($item->planned_duration_minutes ?: ($item->suggested_duration_minutes ?? 60));
         }
 
-        $minDuration = 1;
+        $minDuration = self::DURATION_STEP_MINUTES;
         $maxDuration = 720;
 
         if ($item->section_id && $item->suggested_duration_minutes) {
-            $minDuration = min(self::MAX_SECTION_DURATION_MINUTES, (int) ceil($item->suggested_duration_minutes * 0.8));
-            $maxDuration = min(self::MAX_SECTION_DURATION_MINUTES, (int) floor($item->suggested_duration_minutes * 1.2));
-            $maxDuration = max($minDuration, $maxDuration);
+            ['min' => $minDuration, 'max' => $maxDuration] = $this->resolveDurationBoundsForItem($item);
         }
 
         $nextValue = max($minDuration, min($maxDuration, $current + $delta));
+        $nextValue = $this->roundToStep($nextValue);
+        $nextValue = max($minDuration, min($maxDuration, $nextValue));
 
         if ($nextValue === $current) {
             return;
@@ -814,7 +826,7 @@ class Schedule extends Component
     private function durationRules(): array
     {
         return [
-            'planned_duration_minutes' => ['required', 'integer', 'min:1', 'max:720'],
+            'planned_duration_minutes' => ['required', 'integer', 'min:5', 'max:720', 'multiple_of:5'],
         ];
     }
 
@@ -825,8 +837,9 @@ class Schedule extends Component
     {
         return [
             'planned_duration_minutes.integer' => 'A duração deve ser um número inteiro.',
-            'planned_duration_minutes.min' => 'A duração deve ser de ao menos 1 minuto.',
+            'planned_duration_minutes.min' => 'A duração deve ser de ao menos 5 minutos.',
             'planned_duration_minutes.max' => 'A duração deve ser de no máximo 720 minutos.',
+            'planned_duration_minutes.multiple_of' => 'A duração deve ser informada em passos de 5 minutos.',
         ];
     }
 
@@ -894,5 +907,99 @@ class Schedule extends Component
         return [
             'date' => 'data',
         ];
+    }
+
+    private function syncDurationBounds(): void
+    {
+        $this->durationBounds = $this->scheduleItems
+            ->mapWithKeys(function (TrainingScheduleItem $item): array {
+                return [$item->id => $this->resolveDurationBoundsForItem($item)];
+            })
+            ->toArray();
+    }
+
+    private function syncDurationRangeWarnings(): void
+    {
+        $warnings = [];
+        $itemsByDate = $this->scheduleItems
+            ->sortBy('position')
+            ->groupBy(fn (TrainingScheduleItem $item) => $item->date?->format('Y-m-d'));
+
+        foreach ($itemsByDate as $items) {
+            $dayItems = $items->values();
+
+            foreach ($dayItems as $index => $item) {
+                if ($item->type !== 'SECTION' || ! $item->section_id || ! $item->suggested_duration_minutes) {
+                    $warnings[$item->id] = false;
+
+                    continue;
+                }
+
+                $warnings[$item->id] = $dayItems
+                    ->slice($index + 1)
+                    ->contains(function (TrainingScheduleItem $nextItem): bool {
+                        if ($nextItem->type !== 'SECTION' || ! $nextItem->section_id || ! $nextItem->suggested_duration_minutes) {
+                            return false;
+                        }
+
+                        ['min' => $nextMinDuration] = $this->resolveDurationBoundsForItem($nextItem);
+                        $plannedDuration = (int) ($nextItem->planned_duration_minutes ?: ($nextItem->suggested_duration_minutes ?? 0));
+
+                        return $plannedDuration <= $nextMinDuration;
+                    });
+            }
+        }
+
+        $this->durationRangeWarnings = $warnings;
+    }
+
+    /**
+     * @return array{min: int, max: int}
+     */
+    private function resolveDurationBoundsForItem(TrainingScheduleItem $item): array
+    {
+        if ($item->section_id && $item->suggested_duration_minutes) {
+            $suggestedDuration = max(1, (int) $item->suggested_duration_minutes);
+            $storedMinDuration = max(0, (int) ($item->min_duration_minutes ?? 0));
+            $computedMinDuration = (int) ceil($suggestedDuration * 0.8);
+            $computedMaxDuration = (int) floor($suggestedDuration * 1.2);
+            $rawMinDuration = max($computedMinDuration, $storedMinDuration);
+            $rawMinDuration = min(self::MAX_SECTION_DURATION_MINUTES, $rawMinDuration);
+            $rawMaxDuration = min(self::MAX_SECTION_DURATION_MINUTES, $computedMaxDuration);
+
+            $minDuration = max(self::DURATION_STEP_MINUTES, $this->roundDownToStep($rawMinDuration));
+            $maxDuration = max($minDuration, $this->roundUpToStep($rawMaxDuration));
+
+            return [
+                'min' => $minDuration,
+                'max' => $maxDuration,
+            ];
+        }
+
+        return [
+            'min' => self::DURATION_STEP_MINUTES,
+            'max' => 720,
+        ];
+    }
+
+    private function roundToStep(int $value): int
+    {
+        $step = self::DURATION_STEP_MINUTES;
+
+        return (int) (round($value / $step) * $step);
+    }
+
+    private function roundUpToStep(int $value): int
+    {
+        $step = self::DURATION_STEP_MINUTES;
+
+        return (int) (ceil($value / $step) * $step);
+    }
+
+    private function roundDownToStep(int $value): int
+    {
+        $step = self::DURATION_STEP_MINUTES;
+
+        return (int) (floor($value / $step) * $step);
     }
 }

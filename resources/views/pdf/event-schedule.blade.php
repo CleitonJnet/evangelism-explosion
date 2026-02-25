@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="utf-8">
-    <title>Programacao do Evento</title>
+    <title>Programação do Evento</title>
     <style>
         @page {
-            margin: 12mm 10mm 10mm 10mm;
+            margin: 12mm 10mm 12mm 10mm;
         }
 
         * {
@@ -15,269 +16,422 @@
         body {
             margin: 0;
             font-family: DejaVu Sans, Arial, sans-serif;
-            color: #082f49;
+            color: #0f172a;
+            background: #ffffff;
             font-size: 11px;
-            line-height: 1.2;
+            line-height: 1.35;
         }
 
-        .topbar {
-            width: 100%;
-            background: #082f49;
+        .brand-shell {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .brand-header {
+            background: #052f4a;
             color: #ffffff;
-            padding: 7px 10px;
+            padding: 9px 12px;
         }
 
-        .topbar-table {
+        .brand-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .topbar-brand {
-            width: 45%;
+        .brand-left {
+            width: 62%;
             vertical-align: middle;
+        }
+
+        .brand-right {
+            width: 38%;
+            text-align: right;
+            vertical-align: middle;
+            font-size: 10px;
+            color: #e2e8f0;
         }
 
         .logo {
-            max-width: 96px;
-            max-height: 38px;
+            max-width: 70px;
+            max-height: 34px;
+            display: block;
         }
 
-        .brand-fallback {
-            color: #c8a34a;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-        }
-
-        .topbar-info {
-            width: 55%;
-            text-align: right;
-            vertical-align: middle;
-            font-size: 9px;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 9px 8px 7px;
-            border-bottom: 2px solid #0284c7;
-        }
-
-        .hero h1 {
-            margin: 0;
-            font-size: 19px;
-            color: #082f49;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-        }
-
-        .hero p {
-            margin: 3px 0 0;
-            color: #0c4a6e;
-            font-size: 9px;
-        }
-
-        .columns {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px 4px;
-            margin-top: 6px;
-            table-layout: fixed;
-        }
-
-        .columns td {
-            width: 50%;
-            vertical-align: top;
-        }
-
-        .columns tr {
-            page-break-inside: avoid;
-        }
-
-        .card {
-            border: 1px solid #d7e3ef;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 4px;
-            page-break-inside: avoid;
-        }
-
-        .section-bar {
-            background: #075985;
-            background: linear-gradient(90deg, #075985 0%, #0284c7 100%);
-            color: #ffffff !important;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            padding: 5px 8px;
-            font-size: 10px;
-        }
-
-        .item-table {
+        .brand-inline {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .item-table thead th {
-            background: #082f49;
-            color: #ffffff;
-            text-align: left;
-            padding: 5px 7px;
+        .brand-inline-logo {
+            width: 30px;
+            vertical-align: middle;
+            padding-right: 2mm;
+        }
+
+        .brand-inline-texts {
+            vertical-align: middle;
+        }
+
+        .brand-name {
+            display: block;
+            font-family: Cinzel, "DejaVu Serif", Georgia, serif;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #f8fafc;
+            font-size: 12px;
+        }
+
+        .brand-slogan {
+            margin-top: 0;
             font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.04em;
+            font-family: Roboto, "DejaVu Sans", Arial, sans-serif;
+            line-height: 1.15;
         }
 
-        .item-table tbody tr:nth-child(odd) {
-            background: #f3f7fb;
+        .brand-slogan-strong {
+            color: #facc15;
+            font-weight: 800;
         }
 
-        .item-table tbody tr:nth-child(even) {
-            background: #e6eef6;
-        }
-
-        .item-table td {
-            padding: 4px 7px;
-            border-bottom: 1px solid #d7e3ef;
-            vertical-align: top;
-        }
-
-        .item-table td.time {
-            width: 34%;
-            font-weight: 700;
-            color: #082f49;
-            white-space: nowrap;
-        }
-
-        .item-table td.content {
-            width: 66%;
-            color: #0c4a6e;
-        }
-
-        .subtitle {
-            font-size: 9px;
-            color: #075985;
-            margin-top: 1px;
-        }
-
-        .empty-state {
-            margin: 10px 0;
-            border: 1px solid #d7e3ef;
-            background: #f3f7fb;
-            padding: 10px;
-            text-align: center;
-            border-radius: 6px;
-            color: #0c4a6e;
+        .brand-slogan-soft {
+            color: #e2e8f0;
             font-weight: 600;
         }
 
-        .footer {
-            margin-top: 4px;
-            padding-top: 4px;
-            border-top: 1px solid #d7e3ef;
-            color: #0c4a6e;
+        .brand-gold-line {
+            height: 3px;
+            background: #c7a840;
+        }
+
+        .hero {
+            margin-top: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #f8fafc;
+        }
+
+        .hero-title {
+            margin: 0;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 18px;
+            color: #052f4a;
+            letter-spacing: 0.03em;
+            font-weight: 800;
+        }
+
+        .hero-subtitle {
+            margin: 4px 0 0;
+            text-align: center;
+            font-size: 11px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .highlight-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8px 8px;
+            margin-top: 8px;
+        }
+
+        .highlight-grid td {
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: #ffffff;
+            padding: 7px 8px;
+            vertical-align: top;
+        }
+
+        .field-label {
+            color: #475569;
             font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .field-value {
+            margin: 2px 0 0;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .schedule-wrap {
+            margin-top: 10px;
+        }
+
+        .day-block {
+            margin-bottom: 10px;
+        }
+
+        .day-title {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #e2e8f0;
+            color: #052f4a;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .turn-card {
+            margin-top: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            page-break-before: auto;
+        }
+
+        .turn-title {
+            background: #0369a1;
+            color: #ffffff;
+            text-align: center;
+            padding: 5px 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .table th {
+            background: #052f4a;
+            color: #ffffff;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            text-align: left;
+            padding: 6px 7px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .table tr {
+            page-break-inside: avoid;
+        }
+
+        .table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 6px 7px;
+            vertical-align: top;
+            color: #0f172a;
+            font-size: 10px;
+            page-break-inside: avoid;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .col-time {
+            width: 19%;
+            white-space: nowrap;
+            font-weight: 800;
+            color: #052f4a;
+        }
+
+        .col-session {
+            width: 66%;
+        }
+
+        .col-duration {
+            width: 15%;
+            white-space: nowrap;
+            text-align: right;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .subtitle {
+            margin-top: 2px;
+            font-size: 9px;
+            color: #475569;
+        }
+
+        .empty-state {
+            margin-top: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            padding: 12px;
+        }
+
+        .footer {
+            margin-top: 8px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 5px;
+            font-size: 9px;
+            color: #334155;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        .footer-note {
+            margin-top: 4px;
+            color: #78350f;
+            font-size: 9px;
+            font-weight: 700;
         }
     </style>
 </head>
+
 <body>
-    <div class="topbar">
-        <table class="topbar-table">
-            <tr>
-                <td class="topbar-brand">
-                    @if ($logoDataUri)
-                        <img src="{{ $logoDataUri }}" alt="Evangelismo Explosivo" class="logo">
-                    @else
-                        <span class="brand-fallback">EVANGELISMO EXPLOSIVO</span>
-                    @endif
-                </td>
-                <td class="topbar-info">
-                    <div>{{ $training->church?->name ?? 'Igreja anfitria a confirmar' }}</div>
-                    <div>{{ $training->city }} - {{ $training->state }}</div>
-                </td>
-            </tr>
-        </table>
+    @php
+        $courseName = trim(
+            (string) (($training->course?->type ? $training->course->type . ': ' : '') .
+                ($training->course?->name ?? 'Treinamento')),
+        );
+        $churchName = $training->church?->name ?? 'Igreja anfitriã a confirmar';
+        $cityState = trim((string) (($training->city ?? '') . ' - ' . ($training->state ?? '')), ' -');
+    @endphp
+
+    <div class="brand-shell">
+        <div class="brand-header">
+            <table class="brand-table">
+                <tr>
+                    <td class="brand-left">
+                        <table class="brand-inline">
+                            <tr>
+                                <td class="brand-inline-logo">
+                                    @if ($logoDataUri)
+                                        <img src="{{ $logoDataUri }}" alt="Evangelismo Explosivo" class="logo">
+                                    @endif
+                                </td>
+                                <td class="brand-inline-texts">
+                                    <span class="brand-name">EVANGELISMO EXPLOSIVO</span>
+                                    <div class="brand-slogan">
+                                        <span class="brand-slogan-strong">NO BRASIL</span>
+                                        <span class="brand-slogan-soft"> - Até Que Todos Ouçam!</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="brand-right">
+                        <div>Programação oficial do evento</div>
+                        <div>{{ $datesSummary }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="brand-gold-line"></div>
     </div>
 
     <div class="hero">
-        <h1>Programacao do Evento</h1>
-        <p>{{ $training->course?->type }}: {{ $training->course?->name }}</p>
-        <p>{{ $datesSummary }}</p>
+        <h1 class="hero-title">Programação do Evento</h1>
+        <p class="hero-subtitle">Horários oficiais por dia e turno</p>
+
+        <table class="highlight-grid">
+            <tr>
+                <td>
+                    <p class="field-label">Evento</p>
+                    <p class="field-value">{{ $courseName !== '' ? $courseName : 'Treinamento' }}</p>
+                </td>
+                <td>
+                    <p class="field-label">Igreja</p>
+                    <p class="field-value">{{ $churchName }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="field-label">Carga horária completa</p>
+                    <p class="field-value">{{ $workloadDuration ?? '--' }}</p>
+                </td>
+                <td>
+                    <p class="field-label">Cidade</p>
+                    <p class="field-value">{{ $cityState !== '' ? $cityState : '--' }}</p>
+                </td>
+            </tr>
+        </table>
+
     </div>
 
     @if (count($scheduleDays) === 0)
-        <div class="empty-state">Programacao ainda nao publicada.</div>
+        <div class="empty-state">Programação ainda não publicada.</div>
     @else
-        @php
-            $maxRows = max(count($pdfColumns['left']), count($pdfColumns['right']));
-        @endphp
-        <table class="columns">
-            @for ($row = 0; $row < $maxRows; $row++)
-                <tr>
-                    <td>
-                        @if (isset($pdfColumns['left'][$row]))
-                            @php($block = $pdfColumns['left'][$row])
-                            <div class="card">
-                                <div class="section-bar">{{ $block['heading'] }}</div>
-                                <table class="item-table">
-                                    <thead>
+        <div class="schedule-wrap">
+            @foreach ($scheduleDays as $day)
+                <div class="day-block">
+                    <div class="day-title">{{ $day['dayLabel'] }}</div>
+
+                    @foreach ($day['groups'] as $group)
+                        @php
+                            $turnLabel = match ($group['turn']) {
+                                'MANHA' => 'Manhã',
+                                'TARDE' => 'Tarde',
+                                'NOITE' => 'Noite',
+                                default => 'Turno',
+                            };
+                        @endphp
+                        <div class="turn-card">
+                            <div class="turn-title">{{ $turnLabel }}</div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-time">Horário</th>
+                                        <th class="col-session">Sessão</th>
+                                        <th class="col-duration">Duração</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($group['items'] as $item)
                                         <tr>
-                                            <th>Horario</th>
-                                            <th>Conteudo</th>
+                                            <td class="col-time">{{ $item['timeRange'] }}</td>
+                                            <td class="col-session">
+                                                <div>{{ $item['title'] }}</div>
+                                                @if (!empty($item['devotional']))
+                                                    <div class="subtitle">Devocional: {{ $item['devotional'] }}</div>
+                                                @endif
+                                            </td>
+                                            <td class="col-duration">{{ $item['duration'] }}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($block['items'] as $item)
-                                            <tr>
-                                                <td class="time">{{ $item['timeRange'] }}</td>
-                                                <td class="content">
-                                                    <div>{{ $item['title'] }}</div>
-                                                    @if (!empty($item['devotional']))
-                                                        <div class="subtitle">Devocional: {{ $item['devotional'] }}</div>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-                    </td>
-                    <td>
-                        @if (isset($pdfColumns['right'][$row]))
-                            @php($block = $pdfColumns['right'][$row])
-                            <div class="card">
-                                <div class="section-bar">{{ $block['heading'] }}</div>
-                                <table class="item-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Horario</th>
-                                            <th>Conteudo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($block['items'] as $item)
-                                            <tr>
-                                                <td class="time">{{ $item['timeRange'] }}</td>
-                                                <td class="content">
-                                                    <div>{{ $item['title'] }}</div>
-                                                    @if (!empty($item['devotional']))
-                                                        <div class="subtitle">Devocional: {{ $item['devotional'] }}</div>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            @endfor
-        </table>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
     @endif
 
     <div class="footer">
-        Horario de Brasilia | Gerado em {{ $generatedAt->format('d/m/Y H:i') }}
+        <table class="footer-table">
+            <tr>
+                <td>Horário de Brasília</td>
+                <td class="footer-right">Gerado em {{ $generatedAt->format('d/m/Y H:i') }}</td>
+            </tr>
+        </table>
+        <div class="footer-note">Nota: esse é um horário provisório, podendo sofrer ajustes durante o evento.</div>
     </div>
 </body>
+
 </html>

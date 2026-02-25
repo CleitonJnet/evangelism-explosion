@@ -26,7 +26,7 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     <x-src.btn-silver label="Voltar ao evento" :route="route('web.event.details', ['id' => $training->id])" />
-                    <x-src.btn-silver label="Baixar PDF" :route="route('web.event.schedule.pdf', $training)" />
+                    <x-src.btn-silver label="Baixar PDF" :route="route('web.event.schedule.pdf', $training, false)" />
                 </div>
             </div>
         </div>

@@ -69,7 +69,7 @@ class TrainingScheduleController extends Controller
             $this->syncPositionsForDate($training->id, $oldDate);
         }
 
-        $timelineService->rebalanceDayToEventWindow($training->id, $dateKey);
+        $timelineService->rebalanceDayFromItemToEventWindow($training->id, $dateKey, $item->id);
 
         if ($oldDate && $oldDate !== $dateKey) {
             $timelineService->rebalanceDayToEventWindow($training->id, $oldDate);
