@@ -19,7 +19,7 @@
             'aria-label' => $tooltipText,
             'style' => 'anchor-name: ' . $tooltipAnchor . ';',
         ])->class(
-            'group toolbar-button relative flex shrink-0 items-center justify-center gap-1 text-xs text-center font-semibold rounded-xl px-3 py-1.5 h-12 transition border border-slate-400/50 ' .
+            'group toolbar-button relative flex shrink-0 items-center justify-center gap-1 text-xs text-center font-semibold rounded-xl px-2 py-1.5 h-12 transition border border-slate-400/50 ' .
                 ($isActive ? 'bg-sky-950 text-slate-100' : 'bg-slate-200 hover:bg-slate-300/80'),
         ) }}>
     <span role="tooltip" style="position-anchor: {{ $tooltipAnchor }};"

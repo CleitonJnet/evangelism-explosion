@@ -129,22 +129,6 @@
                         </svg>
                         <span>{{ __('Just') }}</span>
                     </button>
-                        <button type="button" class="inline-flex h-16 w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-slate-300 px-2 py-1 text-[11px] leading-tight text-center"
-                            data-command="insertUnorderedList">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01" />
-                        </svg>
-                        <span>{{ __('Lista') }}</span>
-                    </button>
-                        <button type="button" class="inline-flex h-16 w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-slate-300 px-2 py-1 text-[11px] leading-tight text-center"
-                            data-command="insertOrderedList">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 6h10M10 12h10M10 18h10M4 6h2v2M4 12h2v2M4 18h2v2" />
-                        </svg>
-                        <span>{{ __('Numerada') }}</span>
-                        </button>
                     </div>
                 </div>
 

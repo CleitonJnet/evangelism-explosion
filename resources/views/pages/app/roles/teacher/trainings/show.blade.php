@@ -24,19 +24,17 @@
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
-            <x-src.toolbar.button href="#" :label="__('Igreja Sede')" icon="home"
-                :tooltip="__('Editar igreja sede, endereço e liderança')"
+            <x-src.toolbar.button href="#" :label="__('Igreja Sede')" icon="home" :tooltip="__('Editar igreja sede, endereço e liderança')"
                 x-on:click.prevent="$dispatch('open-edit-event-church-modal', { trainingId: {{ $training->id }} })" />
-            <x-src.toolbar.button href="#" :label="__('Finceiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
+            <x-src.toolbar.button href="#" :label="__('Financeiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
                 x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
                 :error="$hasRegistrationsError" />
-            <x-src.toolbar.button :href="route('app.teacher.trainings.testimony', $training)" :label="__('Relato')" icon="document-text"
-                :tooltip="__('Relato e testemunho do evento')" />
             <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat"
                 :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
-            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            <x-src.toolbar.button :href="route('app.teacher.trainings.testimony', $training)" :label="__('Relato')" icon="document-text" :tooltip="__('Relato e testemunho do evento')" />
+            {{-- <span class="mx-1 h-7 w-px bg-slate-300/80"></span> --}}
             <livewire:pages.app.teacher.training.event-status-button :training-id="$training->id"
                 wire:key="event-status-button-{{ $training->id }}" />
             <x-src.toolbar.button href="#" :label="__('Excluir')" icon="trash" :tooltip="__('Excluir treinamento')"
