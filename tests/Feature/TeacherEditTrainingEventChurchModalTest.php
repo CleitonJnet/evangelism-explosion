@@ -137,12 +137,22 @@ it('forbids teacher that does not own the training when editing church modal', f
         ->assertForbidden();
 });
 
-it('shows the church edit button in teacher schedule toolbar', function (): void {
+it('shows the church edit button in teacher training details toolbar', function (): void {
+    $teacher = createTeacherForEventChurchModal();
+    $training = createTrainingForEventChurchModal($teacher);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.show', $training))
+        ->assertOk()
+        ->assertSee('Igreja Sede');
+});
+
+it('does not show the church edit button in teacher schedule toolbar', function (): void {
     $teacher = createTeacherForEventChurchModal();
     $training = createTrainingForEventChurchModal($teacher);
 
     $this->actingAs($teacher)
         ->get(route('app.teacher.trainings.schedule', $training))
         ->assertOk()
-        ->assertSee('Igreja Sede');
+        ->assertDontSee('Igreja Sede');
 });
