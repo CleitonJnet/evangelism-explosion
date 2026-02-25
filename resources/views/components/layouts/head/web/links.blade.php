@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
 {{-- @vite(['resources/css/tailwind.css', 'resources/css/styles.css', 'resources/js/javascript.js']) --}}
-<link rel="stylesheet" href="{{ asset('build/assets/tailwind-BXNLAH_T.css') }}">
+<link rel="stylesheet" href="{{ asset('build/assets/tailwind-gavyA0kz.css') }}">
 <link rel="stylesheet" href="{{ asset('build/assets/styles-DfSkNDhj.css') }}">
 
 @stack('css')

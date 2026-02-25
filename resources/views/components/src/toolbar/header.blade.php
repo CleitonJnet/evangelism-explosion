@@ -263,16 +263,26 @@
         </nav>
     @endif
 
-    @if ($title)
-        <div class="w-full">
-            <h1 class="text-xl font-semibold text-slate-900">
-                {{ $title }}
-            </h1>
-            @if ($description)
-                <p class="text-sm text-slate-600">
-                    {{ $description }}
-                </p>
+    @if ($title || isset($right))
+        <div class="flex flex-wrap items-start justify-between gap-3 w-full">
+            @if ($title)
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-xl font-semibold text-slate-900">
+                        {{ $title }}
+                    </h1>
+                    @if ($description)
+                        <p class="text-sm text-slate-600">
+                            {{ $description }}
+                        </p>
+                    @endif
+                </div>
             @endif
+
+            @isset($right)
+                <div class="text-right">
+                    {{ $right }}
+                </div>
+            @endisset
         </div>
     @endif
 </section>

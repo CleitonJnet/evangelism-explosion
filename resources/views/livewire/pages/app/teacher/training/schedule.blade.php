@@ -4,9 +4,17 @@
     $training->loadMissing([
         'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time'),
         'scheduleItems' => fn($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
+        'course.ministry',
     ]);
 
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
+    $eventTitle = trim(
+        implode(' ', array_filter([
+            $training->course?->type,
+            $training->course?->name,
+        ])),
+    );
+    $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
 @endphp
 
 <div x-data="{ showRegenerateScheduleModal: false, showScheduleAttentionModal: @js($showScheduleAttentionModal) }" x-on:schedule-alert.window="window.alert($event.detail.message)"
@@ -16,7 +24,18 @@
         wire:target="regenerate,confirmScheduleAttentionAndGenerateDefault,moveAfter,applyDuration,toggleDayBlock,addBreak,deleteBreak">
     </div>
 
-    <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between" />
+    <x-src.toolbar.header :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
+        <x-slot:right>
+            <div class="hidden px-1 py-2 text-right md:block">
+                <div class="text-sm font-bold text-slate-800">
+                    {{ $eventTitle !== '' ? $eventTitle : __('Evento sem nome') }}
+                </div>
+                <div class="text-xs font-light text-slate-600">
+                    {{ $ministryName }}
+                </div>
+            </div>
+        </x-slot:right>
+    </x-src.toolbar.header>
     <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
