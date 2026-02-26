@@ -30,6 +30,9 @@ class TestimonySanitizer
         'h3' => ['style'],
         'h4' => ['style'],
         'blockquote' => ['style'],
+        'ul' => [],
+        'ol' => [],
+        'li' => [],
     ];
 
     public static function sanitize(?string $html): ?string

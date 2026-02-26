@@ -42,6 +42,7 @@ it('shows testimony page for the training owner teacher', function () {
         ->get(route('app.teacher.trainings.testimony', $training))
         ->assertOk()
         ->assertSee('Relato do Evento')
+        ->assertSee('data-testimony-editor-root', false)
         ->assertSee('Curso Relato Evento Header')
         ->assertSee('Ministerio Relato')
         ->assertSee('Igreja Header Relato');
@@ -74,7 +75,7 @@ it('saves sanitized testimony in training notes', function () {
 
     $response = $this->actingAs($teacher)
         ->put(route('app.teacher.trainings.testimony.update', $training), [
-            'notes' => '<p style="text-align:center;color:#1d4ed8" onclick="alert(1)">Texto <strong>formatado</strong> <script>alert(1)</script></p>',
+            'notes' => '<p style="text-align:center;color:#1d4ed8" onclick="alert(1)">Texto <strong>formatado</strong> <script>alert(1)</script></p><ul><li>Item 1</li><li><span style="font-size:18px">Item 2</span></li></ul>',
         ]);
 
     $response
@@ -87,6 +88,9 @@ it('saves sanitized testimony in training notes', function () {
     expect($training->notes)->toContain('<strong>formatado</strong>');
     expect($training->notes)->toContain('text-align:center');
     expect($training->notes)->toContain('color:#1d4ed8');
+    expect($training->notes)->toContain('<ul>');
+    expect($training->notes)->toContain('<li>Item 1</li>');
+    expect($training->notes)->toContain('font-size:18px');
     expect($training->notes)->not->toContain('onclick=');
     expect($training->notes)->not->toContain('<script');
 });

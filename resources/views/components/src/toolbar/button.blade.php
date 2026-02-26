@@ -58,6 +58,10 @@
             </svg>
         @break
 
+        @case('church')
+            <img src="{{ asset('images/svg/new-church.svg') }}" alt="indicator" class="w-5">
+        @break
+
         @case('arrow-left')
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

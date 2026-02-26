@@ -24,7 +24,7 @@
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.schedule', $training)" :label="__('Programação')" icon="calendar" :tooltip="__('Programação do evento')"
                 :error="$hasScheduleError" />
-            <x-src.toolbar.button href="#" :label="__('Sede')" icon="home" :tooltip="__('Editar igreja sede, endereço e liderança')"
+            <x-src.toolbar.button href="#" :label="__('Sede')" icon="church" :tooltip="__('Editar igreja sede, endereço e liderança')"
                 x-on:click.prevent="$dispatch('open-edit-event-church-modal', { trainingId: {{ $training->id }} })" />
             <x-src.toolbar.button href="#" :label="__('Financeiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
                 x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />

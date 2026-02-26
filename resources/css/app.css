@@ -217,6 +217,77 @@ a {
     transform: translate(-50%, 0);
 }
 
+.tiptap-toolbar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #334155;
+    padding: 0.5rem;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.tiptap-toolbar-button svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.tiptap-toolbar-button:hover {
+    background-color: #eff6ff;
+    border-color: #7dd3fc;
+    color: #0c4a6e;
+}
+
+.tiptap-toolbar-button.is-active {
+    background-color: #0c4a6e;
+    border-color: #0c4a6e;
+    color: #ffffff;
+}
+
+.tiptap-editor-shell {
+    min-height: 22rem;
+    padding: 1rem;
+}
+
+.tiptap-editor-surface {
+    min-height: 20rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #0f172a;
+    padding: 1rem;
+}
+
+.tiptap-editor-surface .ProseMirror {
+    min-height: 18rem;
+    outline: none;
+}
+
+.tiptap-editor-surface .ProseMirror p {
+    margin-bottom: 0.8rem;
+}
+
+.tiptap-editor-surface .ProseMirror ul,
+.tiptap-editor-surface .ProseMirror ol {
+    margin-bottom: 0.8rem;
+    padding-left: 1.3rem;
+}
+
+.tiptap-editor-surface .ProseMirror blockquote {
+    border-left: 4px solid #cbd5e1;
+    color: #334155;
+    font-style: italic;
+    margin: 0.8rem 0;
+    padding-left: 0.75rem;
+}
+
 @supports (position-anchor: --tooltip-anchor) and
     (position-try-fallbacks: flip-inline) {
     .toolbar-tooltip {
