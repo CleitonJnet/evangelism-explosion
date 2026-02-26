@@ -107,7 +107,7 @@
                                                     :
                                                 @endif
                                             </span>
-                                            @if ($date_event->start_time > 0)
+                                            @if (strtotime($date_event->start_time) > 0)
                                                 <span class="font-light text-amber-900 text-nowrap">
                                                     das {{ date('H:i', strtotime($date_event->start_time)) }} às
                                                     {{ date('H:i', strtotime($date_event->end_time)) }}

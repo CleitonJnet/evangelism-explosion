@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Web\Event;
 
+use App\Helpers\PhoneHelper;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -99,6 +100,8 @@ class Register extends Component
 
     public function registerEvent(): void
     {
+        $this->sanitizeFormInput();
+
         $validated = $this->validate();
 
         $user = User::query()->where('email', $validated['email'])->first();
@@ -157,7 +160,8 @@ class Register extends Component
         $this->emailAlreadyEnrolled = false;
         $this->emailNotice = null;
 
-        $email = trim($value);
+        $email = $this->sanitizeEmail($value);
+        $this->email = $email;
 
         if ($email === '') {
             return;
@@ -200,6 +204,59 @@ class Register extends Component
             $message,
             $loginUrl,
         );
+    }
+
+    private function sanitizeFormInput(): void
+    {
+        $this->name = $this->sanitizePersonName($this->name);
+        $this->mobile = PhoneHelper::normalize($this->mobile) ?? '';
+        $this->email = $this->sanitizeEmail($this->email);
+    }
+
+    private function sanitizeEmail(string $value): string
+    {
+        return mb_strtolower(trim($value), 'UTF-8');
+    }
+
+    private function sanitizePersonName(string $value): string
+    {
+        $normalized = preg_replace('/\s+/u', ' ', trim($value));
+
+        if ($normalized === null || $normalized === '') {
+            return '';
+        }
+
+        $prepositions = ['da', 'das', 'de', 'do', 'dos', 'e'];
+        $parts = explode(' ', $normalized);
+
+        $formatted = array_map(function (string $part, int $index) use ($prepositions): string {
+            $lowerPart = mb_strtolower($part, 'UTF-8');
+
+            if ($index > 0 && in_array($lowerPart, $prepositions, true)) {
+                return $lowerPart;
+            }
+
+            return $this->capitalizeNamePart($lowerPart);
+        }, $parts, array_keys($parts));
+
+        return implode(' ', $formatted);
+    }
+
+    private function capitalizeNamePart(string $value): string
+    {
+        $segments = explode('-', $value);
+        $capitalizedSegments = array_map(function (string $segment): string {
+            if ($segment === '') {
+                return '';
+            }
+
+            $firstLetter = mb_strtoupper(mb_substr($segment, 0, 1, 'UTF-8'), 'UTF-8');
+            $remaining = mb_substr($segment, 1, null, 'UTF-8');
+
+            return $firstLetter.$remaining;
+        }, $segments);
+
+        return implode('-', $capitalizedSegments);
     }
 
     public function render(): View
