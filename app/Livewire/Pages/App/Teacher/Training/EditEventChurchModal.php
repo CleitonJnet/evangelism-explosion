@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Helpers\PhoneHelper;
 use App\Models\Church;
 use App\Models\Training;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -161,7 +162,7 @@ class EditEventChurchModal extends Component
                 'church_id' => $validated['church_id'],
                 'leader' => trim((string) $validated['leader']),
                 'coordinator' => trim((string) $validated['coordinator']),
-                'phone' => filled($validated['phone'] ?? null) ? trim((string) $validated['phone']) : null,
+                'phone' => PhoneHelper::normalize($validated['phone'] ?? null),
                 'email' => filled($validated['email'] ?? null) ? trim((string) $validated['email']) : null,
                 'street' => $validated['address']['street'] ?: null,
                 'number' => $validated['address']['number'] ?: null,
@@ -262,7 +263,7 @@ class EditEventChurchModal extends Component
 
         $this->leader = filled($this->training->leader) ? $this->training->leader : $defaultLeader;
         $this->coordinator = filled($this->training->coordinator) ? $this->training->coordinator : $defaultCoordinator;
-        $this->phone = filled($this->training->phone) ? $this->training->phone : $defaultPhone;
+        $this->phone = filled($this->training->phone) ? PhoneHelper::format_phone($this->training->phone) : $defaultPhone;
         $this->email = filled($this->training->email) ? $this->training->email : $defaultEmail;
     }
 
@@ -310,12 +311,12 @@ class EditEventChurchModal extends Component
         $churchPhone = trim((string) ($church?->phone ?? ''));
 
         if ($churchPhone !== '') {
-            return $churchPhone;
+            return PhoneHelper::format_phone($churchPhone);
         }
 
         $contactPhone = trim((string) ($church?->contact_phone ?? ''));
 
-        return $contactPhone !== '' ? $contactPhone : null;
+        return $contactPhone !== '' ? PhoneHelper::format_phone($contactPhone) : null;
     }
 
     private function resolveEmailDefault(?Church $church): ?string

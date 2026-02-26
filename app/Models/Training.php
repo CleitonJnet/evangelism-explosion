@@ -55,6 +55,21 @@ class Training extends Model
         return PhoneHelper::format_phone($value);
     }
 
+    public function setPhoneAttribute(?string $value): void
+    {
+        $this->attributes['phone'] = PhoneHelper::normalize($value);
+    }
+
+    public function getGpwhatsappAttribute(?string $value): ?string
+    {
+        return PhoneHelper::format_phone($value);
+    }
+
+    public function setGpwhatsappAttribute(?string $value): void
+    {
+        $this->attributes['gpwhatsapp'] = PhoneHelper::normalize($value);
+    }
+
     public function getPostalCodeAttribute(?string $value): ?string
     {
         return PostalCodeHelper::format_postalcode($value);

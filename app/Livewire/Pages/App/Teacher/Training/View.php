@@ -88,6 +88,16 @@ class View extends Component
         $this->loadTrainingData($this->training->id);
     }
 
+    #[On('training-church-updated')]
+    public function handleChurchUpdated(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->loadTrainingData($this->training->id);
+    }
+
     public function render(): ViewResponse
     {
         return view('livewire.pages.app.teacher.training.view');

@@ -9,14 +9,14 @@
     $ministry = $course?->ministry;
     $teacher = $training->teacher;
     $church = $training->church;
-    $churchAddress = AddressHelper::format_address(
-        $church?->street,
-        $church?->number,
-        $church?->complement,
-        $church?->district,
-        $church?->city,
-        $church?->state,
-        $church?->postal_code,
+    $eventAddress = AddressHelper::format_address(
+        $training->street ?: $church?->street,
+        $training->number ?: $church?->number,
+        $training->complement ?: $church?->complement,
+        $training->district ?: $church?->district,
+        $training->city ?: $church?->city,
+        $training->state ?: $church?->state,
+        $training->postal_code ?: $church?->postal_code,
     );
     $statusLabel = $training->status?->label() ?? __('Status não definido');
     $bannerUrl = $training->banner ? asset('storage/' . $training->banner) : null;
@@ -165,7 +165,7 @@
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="">{{ __('Líder da Clínica/Pastor') }}</span>
                         <span
-                            class="font-semibold text-slate-900 text-right">{{ $church->pastor ?? __(key: 'Não informado') }}</span>
+                            class="font-semibold text-slate-900 text-right">{{ $training->leader ?? __(key: 'Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="">{{ __('Coordenador') }}</span>
@@ -174,9 +174,9 @@
                     </div>
                     <x-src.line-theme />
                     <div class="flex flex-wrap gap-4 justify-between items-center">
-                        <div class="">{{ __('WhatsApp') }}</div>
+                        <div class="">{{ __('Telefone') }}</div>
                         <div class="text-xs text-slate-800 flex-auto text-right font-bold">
-                            {{ $training->gpwhatsapp ?? __('Não informado') }}</div>
+                            {{ $training->phone ?? __('Não informado') }}</div>
                     </div>
                     <div class="flex flex-wrap gap-4 justify-between items-center">
                         <div class="">{{ __('Email') }}</div>
@@ -188,7 +188,7 @@
                     <div class="flex flex-wrap gap-4 justify-between items-center">
                         <div class="">{{ __('Endereço') }}</div>
                         <div class="text-xs text-slate-800 flex-auto text-right font-bold">
-                            {{ $churchAddress !== '' ? $churchAddress : __('Não informado') }}
+                            {{ $eventAddress !== '' ? $eventAddress : __('Não informado') }}
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\App\Teacher\Training\EditEventChurchModal;
+use App\Livewire\Pages\App\Teacher\Training\View as TrainingView;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Role;
@@ -169,4 +170,51 @@ it('does not show the church edit button in teacher schedule toolbar', function 
         ->get(route('app.teacher.trainings.schedule', $training))
         ->assertOk()
         ->assertDontSee('Igreja Sede');
+});
+
+it('shows phone and email from trainings table on show page', function (): void {
+    $teacher = createTeacherForEventChurchModal();
+    $training = createTrainingForEventChurchModal($teacher);
+
+    $training->update([
+        'phone' => '61912345678',
+        'email' => 'contato.treinamento@example.org',
+    ]);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.show', $training))
+        ->assertOk()
+        ->assertSee('(61) 91234-5678')
+        ->assertSee('contato.treinamento@example.org');
+});
+
+it('refreshes training details view when church update event is received', function (): void {
+    $teacher = createTeacherForEventChurchModal();
+    $training = createTrainingForEventChurchModal($teacher);
+
+    $component = Livewire::test(TrainingView::class, ['training' => $training])
+        ->assertSee($training->coordinator)
+        ->assertSee($training->leader);
+
+    $training->update([
+        'leader' => 'Lider Atualizado',
+        'coordinator' => 'Coordenador Atualizado',
+        'email' => 'novo.contato@example.org',
+        'phone' => '11987654321',
+        'street' => 'Rua Atualizada da Modal',
+        'number' => '321',
+        'district' => 'Centro Novo',
+        'city' => 'Brasilia',
+        'state' => 'DF',
+        'postal_code' => '70000000',
+    ]);
+
+    $component
+        ->dispatch('training-church-updated', trainingId: $training->id)
+        ->assertSee('Lider Atualizado')
+        ->assertSee('Coordenador Atualizado')
+        ->assertSee('novo.contato@example.org')
+        ->assertSee('(11) 98765-4321')
+        ->assertSee('Rua Atualizada da Modal')
+        ->assertSee('70.000-000');
 });
