@@ -59,7 +59,7 @@
                             <li>
                                 <a href="{{ route('web.about.vision-mission') }}"
                                     class="transition hover:text-amber-300">
-                                    » Visão, Missão & Valores
+                                    » Visão, Missão & Princípios
                                 </a>
                             </li>
                         </ul>

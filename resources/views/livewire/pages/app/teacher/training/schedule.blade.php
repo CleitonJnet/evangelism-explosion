@@ -9,12 +9,7 @@
     ]);
 
     $hasScheduleError = !DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
-    $eventTitle = trim(
-        implode(' ', array_filter([
-            $training->course?->type,
-            $training->course?->name,
-        ])),
-    );
+    $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
@@ -43,7 +38,8 @@
     </x-src.toolbar.header>
     <x-src.toolbar.nav :title="__('Programação do treinamento')" :description="__('Organize horários e sessões do treinamento selecionado.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
-            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')"
+                class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
             <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
                 x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
             <x-src.toolbar.button :href="'#'" :label="__('Banner do Evento')" icon="plus" :tooltip="__('Enviar imagem de divulgação')"
@@ -282,7 +278,10 @@
                                                 $minDuration = (int) ($itemBounds['min'] ?? 5);
                                                 $maxDuration = (int) ($itemBounds['max'] ?? 720);
                                                 $rangeWarning = (bool) ($durationRangeWarnings[$item->id] ?? false);
-                                                $currentDuration = (int) ($durationInputs[$item->id] ?? ($item->planned_duration_minutes ?: $item->suggested_duration_minutes ?? 60));
+                                                $currentDuration =
+                                                    (int) ($durationInputs[$item->id] ??
+                                                        ($item->planned_duration_minutes ?:
+                                                            $item->suggested_duration_minutes ?? 60));
                                                 $rangeColorClass = 'text-green-600';
 
                                                 if ($currentDuration < $minDuration) {

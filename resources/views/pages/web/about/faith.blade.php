@@ -19,10 +19,10 @@
         </p>
 
         <div
-            class="relative grid grid-cols-1 md:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-10 before:absolute before:top-0 before:w-full before:bg-linear-to-r before:from-transparent before:via-amber-500/15 before:to-transparent before:left-0 before:h-0.5"">
+            class="relative flex flex-wrap gap-4 md:gap-6 lg:gap-8 pt-10 before:absolute before:top-0 before:w-full before:bg-linear-to-r before:from-transparent before:via-amber-500/15 before:to-transparent before:left-0 before:h-0.5">
             {{-- A Escritura --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-44 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">A
                         Escritura</h3>
@@ -34,119 +34,121 @@
             </div>
             {{-- O Deus Triúno --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-56 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">O
                         Deus Triúno</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Há um único Deus, eternamente existente em três
-                        Pessoas: Pai, Filho e Espírito Santo.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">Há um só Deus, o qual existe eternamente em três
+                        pessoas: Pai, Filho e Espírito Santo.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Jesus Cristo --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-120 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">Jesus
                         Cristo</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Ele é plenamente Deus e plenamente homem; nasceu
-                        de uma virgem, viveu sem pecado, morreu vicariamente pelos pecados, ressuscitou corporalmente,
-                        ascendeu aos céus e voltará em glória.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">É o Deus Homem em uma só pessoa. Ele nasceu de uma
+                        virgem. Viveu vida sem pecado, operou milagres, vicariamente expiou nossos pecados através de
+                        seu sangue e morte. Ele ressuscitou dos mortos e assentou-se à direita de Deus pai e, voltará em
+                        poder e glória.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Regeneração --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-60 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">
                         Regeneração</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">A regeneração pelo Espírito Santo é absolutamente
-                        necessária para a salvação.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">A regeneração efetuada pelo Espírito Santo é
+                        absolutamente necessária para a salvação dos pecadores perdidos.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Salvação pela fé --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-60 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">Salvação
                         pela fé</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">A vida eterna é recebida somente pela fé,
-                        confiando exclusivamente em Jesus Cristo para a salvação.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">A vida eterna é recebida pela fé,
+                        o que significa confiar somente em Jesus para a salvação.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- O Espírito Santo --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-72 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">O
                         Espírito Santo</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Ele habita em todo verdadeiro crente,
-                        capacitando‑o a viver uma vida santa.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">O Espírito Santo habita em todo verdadeiro crente,
+                        capacitando-o a viver uma vida que agrada a Deus.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Ressurreição --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-96 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">
                         Ressurreição</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Haverá ressurreição tanto dos salvos quanto dos
-                        perdidos: uns para a vida eterna, outros para a condenação.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">Tanto os salvos como os perdidos ressuscitarão dos
+                        mortos: os salvos para Vida Eterna e os perdidos "para a vergonha e o horror do eterno".</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Unidade --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-56 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">Unidade
                     </h3>
                     <p class="flex-1 leading-relaxed text-slate-600">Todos os verdadeiros crentes formam uma
-                        unidade espiritual em Cristo.</p>
+                        unidade perfeita em Jesus Cristo, o Senhor.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Igreja local --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-60 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">Igreja
                         local</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">A igreja local é a base principal estabelecida
-                        por Deus para a evangelização do mundo.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">A igreja local é a primeira base de operação de
+                        Deus estabelecida para atividade evangelizadora do mundo.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Comissão --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-96 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">Comissão
                     </h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Todo crente é comissionado por Cristo a
-                        proclamar o Evangelho e fazer discípulos de todas as nações.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">Cada crente genuíno é comissionado por Cristo para
+                        "pregar o evangelho a toda criatura" e, "fazer discípulos de todas as nações".</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Treinamento prático --}}
             <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+                class="basis-120 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">
                         Treinamento
                         prático</h3>
-                    <p class="flex-1 leading-relaxed text-slate-600">Os crentes são melhor capacitados a compartilhar
-                        o Evangelho por meio de treinamento prático e discipulado em grupo sob liderança experiente.</p>
+                    <p class="flex-1 leading-relaxed text-slate-600">Os crentes estarão melhor capacitados a
+                        compartilhar o evangelho se participarem de treinamento realizado em situação prática, através
+                        de discipulado em grupo, dirigido por treinadores experientes.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
             </div>
             {{-- Criação e família --}}
-            <div
-                class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
+            {{-- <div
+                class="basis-96 flex-auto flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/25 shadow-black/10 rounded-2xl">
                 <div class="flex flex-col flex-1 p-4">
                     <h3 class="mb-2 text-lg font-semibold text-[#8a7424]" style="font-family: 'Cinzel', serif;">
                         Criação e
@@ -155,7 +157,7 @@
                         complementarem‑se, e o casamento é a união entre um homem e uma mulher.</p>
                 </div>
                 <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
-            </div>
+            </div> --}}
         </div>
 
         <p class="mt-8 leading-relaxed text-[#574815] max-w-5xl mx-auto text-center">

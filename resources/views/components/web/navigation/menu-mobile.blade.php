@@ -5,7 +5,7 @@
         {{-- Links --}}
         <nav class="w-full px-6 py-24 space-y-5 overflow-auto text-lg font-extrabold">
             @auth
-                <a href="{{ url('system/start') }}"
+                <a href="{{ route('app.start') }}"
                     class="block pb-4 text-center js-close-menu text-amber-300 hover:text-amber-500">
                     <small class="mr-1">&#10023;</small> {{ Auth::user()->name }} <small class="mr-1">&#10023;</small>
                     <div class="text-xs font-light text-amber-100">{{ __('Plataforma Ministerial') }}</div>
@@ -61,9 +61,9 @@
                     Evangelismo Eficaz
                 </a>
 
-                <a href="{{ route('web.event.schedule-request') }}"
+                <a href="{{ route('web.event.clinic-base') }}"
                     class="js-close-menu flex-auto shine px-8 py-2 font-semibold text-center rounded-lg text-[#1b1709] bg-linear-to-br from-[#f1d57a] via-[#c7a840] to-[#8a7424] border border-white/20 shadow-md shadow-black/40 transition hover:brightness-110 hover:shadow-black/60 nav-link-textshadow">
-                    Agendar Treinamento
+                    Como receber um evento de líderes
                 </a>
             </div>
         </nav>

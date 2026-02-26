@@ -1,12 +1,7 @@
 @php
     $training->loadMissing(['course.ministry', 'church']);
 
-    $eventTitle = trim(
-        implode(' ', array_filter([
-            $training->course?->type,
-            $training->course?->name,
-        ])),
-    );
+    $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
@@ -28,7 +23,8 @@
         </x-slot:right>
     </x-src.toolbar.header>
     <x-src.toolbar.nav>
-        <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+        <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')"
+            class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.statistics', $training)" :label="__('STP')" icon="users-chat" :tooltip="__('Saída de Treinamento Prático')" />
     </x-src.toolbar.nav>
 

@@ -23,7 +23,7 @@
     ];
 @endphp
 
-<div>
+<div class="px-4">
 
     {{-- Conteúdo central com largura estável --}}
     <div class="w-full max-w-4xl mx-auto py-10">

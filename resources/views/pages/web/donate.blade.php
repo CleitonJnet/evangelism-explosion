@@ -389,7 +389,7 @@
                             </div>
                             <div class="mt-6 flex flex-wrap gap-3">
                                 <x-src.btn-gold label="Quero receber orientações" data-open-wa />
-                                <x-src.btn-silver label="Baixar relatório" route="#contato" />
+                                {{-- <x-src.btn-silver label="Baixar relatório" route="#contato" /> --}}
                             </div>
                         </div>
                     </div>

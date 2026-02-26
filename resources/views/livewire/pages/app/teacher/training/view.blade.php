@@ -148,12 +148,12 @@
         </div>
 
         <div class="mt-6 grid gap-6 lg:flex flex-wrap">
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-2/3 flex-auto">
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-3/5 flex-auto">
                 <h3 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Igreja Base') }}
                 </h3>
                 <div class="mt-3 flex flex-col gap-4 text-sm text-slate-700">
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                    <div class="flex flex-wrap items-center justify-between gap-x-4  border-b border-sky-100/70">
                         <span class="">{{ __('Nome da Igreja') }}</span>
                         <div></div>
                         <span class="font-semibold text-slate-900">
@@ -163,7 +163,8 @@
                         </span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="">{{ __('Líder da Clínica/Pastor') }}</span>
+                        <span class="">{{ __('Líder da Clínica') }}<span
+                                class="hidden xs:inline">/{{ __('Pastor') }}</span></span>
                         <span
                             class="font-semibold text-slate-900 text-right">{{ $training->leader ?? __(key: 'Não informado') }}</span>
                     </div>
@@ -240,23 +241,16 @@
 
             </div>
 
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 flex-auto basis-52">
-                <h3 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
-                    {{ __('Materiais') }}
-                </h3>
-                <div class="mt-3 grid gap-3 text-sm text-slate-700">
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Kits recebidos para o evento') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $training->kits ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Kits usados no evento') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $totalUsedKits }}</span>
-                    </div>
+            @if ($bannerUrl)
+                <div
+                    class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg basis-60 h-96 max-h-96 overflow-hidden">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
+                    <img src="{{ $bannerUrl }}" alt="{{ __('Banner do treinamento') }}"
+                        class="mt-3 block rounded-xl border border-slate-800/40 object-contain">
                 </div>
-            </div>
+            @endif
 
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 flex-auto">
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-72 flex-auto">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Resumo STP') }}
                 </h4>
@@ -270,8 +264,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Quantas vezes?') }}</span>
-                        <span
-                            class="font-semibold text-slate-900">{{ $resumoStp['evangelho_explicado'] }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['evangelho_explicado'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Para quantas pessoas?') }}</span>
@@ -291,7 +284,8 @@
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Para segurança/Já é crente') }}</span>
-                        <span class="font-semibold text-slate-900">{{ $resumoStp['para_seguranca_ja_e_crente'] }}</span>
+                        <span
+                            class="font-semibold text-slate-900">{{ $resumoStp['para_seguranca_ja_e_crente'] }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Visita agendada (7 dias após)') }}</span>
@@ -331,19 +325,24 @@
                         </span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Receita total de inscrições') }}</span>
+                        <span class="text-slate-500">{{ __('Receita') }} <span
+                                class="hidden xs:inline">{{ __('total de inscrições') }}</span></span>
                         <span class="font-semibold text-slate-900">
                             {{ $totalReceivedFromRegistrations ?? '-' }}
                         </span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Repasse ao Ministério Nacional de EE') }}</span>
+                        <span class="text-slate-500">{{ __('Repasse ao ') }} <span
+                                class="hidden xs:inline">{{ __('Ministério Nacional de') }}</span>
+                            {{ __(' EE') }}</span>
                         <span class="font-semibold text-slate-900">
                             {{ $eeMinistryBalance ?? '-' }}
                         </span>
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
-                        <span class="text-slate-500">{{ __('Repasse para despesas da igreja base') }}</span>
+                        <span class="text-slate-500">{{ __('Repasse para') }} <span
+                                class="hidden xs:inline">{{ __('despesas da') }}</span>
+                            {{ __('igreja base') }}</span>
                         <span class="font-semibold text-slate-900">
                             {{ $hostChurchExpenseBalance ?? '-' }}
                         </span>
@@ -355,19 +354,19 @@
 
     <section
         class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
-        <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Observações') }}</h4>
+        <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Testemunho do professor') }}</h4>
         @if ($formattedNotes)
             <div class="mt-3 space-y-3 text-sm leading-6 text-slate-700">
                 {!! $formattedNotes !!}
             </div>
         @else
             <p class="mt-3 text-sm text-slate-700">
-                {{ __('Nenhuma observação registrada.') }}
+                {{ __('Nenhum testemunho registrado.') }}
             </p>
         @endif
     </section>
 
-    @if ($bannerUrl)
+    {{-- @if ($bannerUrl)
         <section class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg">
             <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
             <div class="mt-3 overflow-hidden rounded-xl border border-slate-800/40">
@@ -375,5 +374,5 @@
                     class="h-64 w-full object-cover">
             </div>
         </section>
-    @endif
+    @endif --}}
 </div>

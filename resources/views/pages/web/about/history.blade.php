@@ -57,7 +57,7 @@
                         alguém mais experiente, seus membros precisavam acompanhar um evangelista
                         em ação. Em 1962, passou a levar pequenos grupos em
                         visitas domiciliares; observavam, participavam e, por fim, lideravam a
-                        apresentação do Evangelho. O método de <em>Treinamento Prático</em>
+                        explicação do Evangelho. A estratégia de <em>Treinamento Prático</em>
                         (On‑the‑Job Training) estava nascendo, e a ideia de <strong>multiplicação
                             espiritual</strong> substituía a simples adição de novos convertidos.
                     </p>
@@ -86,7 +86,7 @@
                         foi tão grande que, em 1970, a participação saltou para <em>350 pessoas</em>,
                         obrigando a recusar outras 1.500 por falta de espaço.
                         Para garantir a qualidade e a fidelidade do método, o ministério
-                        estabeleceu um processo de certificação e, diante da ampla aceitação,
+                        estabeleceu um processo de credenciamento e, diante da ampla aceitação,
                         criou a organização <em>Evangelism Explosion International</em> como entidade
                         interdenominacional e internacional.
                     </p>

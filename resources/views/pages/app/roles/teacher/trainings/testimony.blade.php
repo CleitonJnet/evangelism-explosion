@@ -29,7 +29,8 @@
 
     <x-src.toolbar.nav justify="justify-between">
         <div class="flex flex-wrap items-center gap-2">
-            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
+                class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
         </div>
     </x-src.toolbar.nav>
 

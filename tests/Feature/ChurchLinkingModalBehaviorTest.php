@@ -49,3 +49,16 @@ it('clears modal flags when user is already linked to an official church', funct
     $response->assertSessionMissing('church_modal_open');
     $response->assertSessionMissing('church_modal_prompted');
 });
+
+it('shows the authenticated mobile access link pointing to app start route', function (): void {
+    $user = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('web.home'));
+
+    $response->assertOk();
+    $response->assertSee(route('app.start'), false);
+    $response->assertDontSee('system/start', false);
+});

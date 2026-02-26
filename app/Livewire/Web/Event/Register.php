@@ -54,7 +54,7 @@ class Register extends Component
         }
 
         return [
-            'ispastor' => ['required', 'in:Y,N'],
+            'ispastor' => ['required', 'in:1,0'],
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'mobile' => ['required', 'string', 'min:7', 'max:20'],
             'email' => $emailRules,

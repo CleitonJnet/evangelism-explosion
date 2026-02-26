@@ -13,11 +13,12 @@
 
             <div class="max-h-[calc(100vh-220px)] space-y-6 overflow-y-auto bg-white/95 px-6 py-4">
                 <div class="flex flex-wrap gap-4">
-                    <div class="flex-1">
+                    <div class="basis-120 flex-auto">
                         <img src="{{ asset(path: 'images/banner-create-training-base.png') }}"
                             alt="Ilustração de seleção da igreja base"
                             class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
-                        <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
+                        <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}
+                        </div>
                         <div class="text-slate-700 text-justify ">
                             {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
 
@@ -26,7 +27,7 @@
                                 wire:key="teacher-training-edit-church-create-church-modal-{{ $training->id }}" />
                         </div>
                     </div>
-                    <div class="flex-1 grid gap-4">
+                    <div class="basis-120 flex-auto grid gap-4">
                         <x-src.form.input name="churchSearch" wire:model.live="churchSearch" label="Buscar igreja"
                             width_basic="900" autofocus="" />
 
@@ -35,8 +36,7 @@
                                 <div wire:key="edit-church-option-{{ $church->id }}">
                                     <input type="radio" name="church" class="peer sr-only"
                                         id="edit-church-{{ $church->id }}" value="{{ $church->id }}"
-                                        wire:click="selectChurch({{ $church->id }})"
-                                        @checked((int) $church_id === (int) $church->id)>
+                                        wire:click="selectChurch({{ $church->id }})" @checked((int) $church_id === (int) $church->id)>
                                     <label for="edit-church-{{ $church->id }}"
                                         class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 py-2 px-4 peer-checked:border-sky-900 peer-checked:[&_.church-check]:inline-flex">
                                         <div class="flex gap-2 justify-between">
@@ -65,8 +65,8 @@
                     <div class="grid gap-4 md:grid-cols-2">
                         <x-src.form.input name="leader" wire:model.live="leader" label="Líder do Evento"
                             width_basic="900" required />
-                        <x-src.form.input name="coordinator" wire:model.live="coordinator"
-                            label="Coordenador do Evento" width_basic="900" required />
+                        <x-src.form.input name="coordinator" wire:model.live="coordinator" label="Coordenador do Evento"
+                            width_basic="900" required />
                     </div>
                     <div class="text-sm font-semibold text-sky-950">
                         {{ __('Contato para informações do evento') }}

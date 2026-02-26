@@ -16,7 +16,7 @@
             <div class="flex flex-wrap mt-6 gap-y-8 gap-x-4">
 
                 <x-src.form.select name="ispastor" wire:model='ispastor' label="É pastor?" width_basic="50" autofocus
-                    :select="false" value="N" :options="[['value' => 'Y', 'label' => 'Sim'], ['value' => 'N', 'label' => 'Não']]" />
+                    :select="false" value="0" :options="[['value' => '1', 'label' => 'Sim'], ['value' => '0', 'label' => 'Não']]" />
 
                 <x-src.form.input name="name" wire:model='name' label="Nome completo" type="text"
                     width_basic="350" required />

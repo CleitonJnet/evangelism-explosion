@@ -1,12 +1,7 @@
 @php
     $training->loadMissing(['course.ministry', 'church']);
 
-    $eventTitle = trim(
-        implode(' ', array_filter([
-            $training->course?->type,
-            $training->course?->name,
-        ])),
-    );
+    $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
@@ -31,7 +26,8 @@
     </x-src.toolbar.header>
     <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e entrega de kit com poucos cliques.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
-            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')" />
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
+                class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
         </div>
     </x-src.toolbar.nav>
 

@@ -49,7 +49,7 @@
                             style="box-shadow: 3px -3px 0 #c7a840" />
                         <figcaption
                             class="absolute inset-x-0 bottom-0 p-2 text-sm text-center text-white bg-linear-to-t from-black to-transparent">
-                            Certificação no final do Treinamento
+                            {{ __('Credenciamento no final do Treinamento') }}
                         </figcaption>
                     </figure>
 

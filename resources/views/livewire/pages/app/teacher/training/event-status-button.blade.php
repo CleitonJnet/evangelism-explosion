@@ -88,6 +88,8 @@ new class extends Component {
 }; ?>
 
 <div class="ml-auto flex items-center gap-2">
+    <span class="mx-1 h-7 w-px bg-slate-300/80 inline xl:hidden"></span>
+
     <flux:dropdown position="bottom" align="end">
         <x-src.toolbar.button href="#" :label="__('Status do Evento')" icon="li" :tooltip="__('Modifica o status do evento')" :class="$this->buttonClasses()"
             x-on:click.prevent wire:loading.attr="disabled" wire:target="updateStatus">

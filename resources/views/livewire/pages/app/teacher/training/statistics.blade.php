@@ -1,12 +1,7 @@
 @php
     $training->loadMissing(['course.ministry', 'church']);
 
-    $eventTitle = trim(
-        implode(' ', array_filter([
-            $training->course?->type,
-            $training->course?->name,
-        ])),
-    );
+    $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
 @endphp
@@ -28,7 +23,8 @@
         </x-slot:right>
     </x-src.toolbar.header>
     <x-src.toolbar.nav>
-        <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')" />
+        <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')"
+            class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
         <x-src.toolbar.button :href="route('app.teacher.trainings.stp.approaches', $training)" :label="__('Visitas')" icon="list" :tooltip="__('Distribuição de visitas STP')" />
         <x-src.toolbar.button href="#" :label="__('Mentores')" icon="user-group" :tooltip="__('Gerenciador de mentores')"
             x-on:click.prevent="$dispatch('open-manage-mentors-modal', { trainingId: {{ $training->id }} })">
@@ -56,7 +52,8 @@
 
                 <button type="button"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    wire:click="createSession" @disabled(!$canCreateSession) title="{{ $createSessionBlockedReason ?? '' }}">
+                    wire:click="createSession" @disabled(!$canCreateSession)
+                    title="{{ $createSessionBlockedReason ?? '' }}">
                     Criar sessão STP
                 </button>
 
