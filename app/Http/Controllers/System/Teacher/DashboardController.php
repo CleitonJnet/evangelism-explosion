@@ -37,29 +37,17 @@ class DashboardController extends Controller
             ])
             ->get();
 
-        $upcomingTrainings = $this->mapOperationalTrainings($trainings)
+        $operationalTrainings = $this->mapOperationalTrainings($trainings)
             ->sortBy(fn (array $item): string => $item['first_date'] ?? '9999-12-31')
-            ->take(5)
             ->values();
 
-        $pendingTrainings = $this->mapOperationalTrainings(
-            $trainings->filter(function (Training $training): bool {
-                $hasScheduleIssue = ! DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
-                $hasRegistrationIssue = $training->students->contains(function ($student): bool {
-                    $hasNoChurch = $student->church_id === null && $student->church_temp_id === null;
-                    $hasPendingChurchValidation = $student->church_id === null && $student->church_temp?->status === 'pending';
-
-                    return $hasNoChurch || $hasPendingChurchValidation;
-                });
-
-                return $hasScheduleIssue || $hasRegistrationIssue;
-            }),
-        )->values();
+        $pendingTrainings = $operationalTrainings
+            ->filter(fn (array $item): bool => $item['has_schedule_issue'] || $item['has_registration_issue'])
+            ->values();
 
         return view('pages.app.roles.teacher.dashboard', [
-            'upcomingTrainings' => $upcomingTrainings,
             'pendingTrainings' => $pendingTrainings,
-            'quickAccessTraining' => $upcomingTrainings->first(),
+            'quickAccessTraining' => $operationalTrainings->first(),
         ]);
     }
 
@@ -69,8 +57,6 @@ class DashboardController extends Controller
      *   training: Training,
      *   course_label: string,
      *   first_date: string|null,
-     *   date_range_label: string,
-     *   status_label: string,
      *   has_schedule_issue: bool,
      *   has_registration_issue: bool
      * }>
@@ -83,13 +69,6 @@ class DashboardController extends Controller
                 ->values();
 
             $firstDate = $dates->first()?->date;
-            $lastDate = $dates->last()?->date;
-
-            $firstDateLabel = $firstDate ? Carbon::parse((string) $firstDate)->format('d/m/Y') : 'Data a definir';
-            $lastDateLabel = $lastDate ? Carbon::parse((string) $lastDate)->format('d/m/Y') : null;
-            $dateRangeLabel = $lastDateLabel && $lastDateLabel !== $firstDateLabel
-                ? $firstDateLabel.' a '.$lastDateLabel
-                : $firstDateLabel;
 
             $hasScheduleIssue = ! DayScheduleHelper::hasAllDaysMatch($training->eventDates, $training->scheduleItems);
             $hasRegistrationIssue = $training->students->contains(function ($student): bool {
@@ -103,8 +82,6 @@ class DashboardController extends Controller
                 'training' => $training,
                 'course_label' => trim((string) (($training->course?->type ? $training->course->type.' - ' : '').($training->course?->name ?? 'Treinamento'))),
                 'first_date' => $firstDate ? Carbon::parse((string) $firstDate)->format('Y-m-d') : null,
-                'date_range_label' => $dateRangeLabel,
-                'status_label' => $training->status?->label() ?? TrainingStatus::Planning->label(),
                 'has_schedule_issue' => $hasScheduleIssue,
                 'has_registration_issue' => $hasRegistrationIssue,
             ];

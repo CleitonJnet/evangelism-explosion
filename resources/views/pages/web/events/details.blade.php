@@ -59,11 +59,13 @@
 
                     <div class="p-6 sm:p-8">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span
-                                class="inline-flex items-center px-3 py-1 text-xs font-semibold border rounded-full bg-slate-50 text-slate-700 border-slate-200">
-                                Carga horária: <span
-                                    class="ml-1 font-bold text-slate-900">{{ $workloadDuration ?? '00h' }}</span>
-                            </span>
+                            @if ($workloadDuration)
+                                <span
+                                    class="inline-flex items-center px-3 py-1 text-xs font-semibold border rounded-full bg-slate-50 text-slate-700 border-slate-200">
+                                    Carga horária: <span
+                                        class="ml-1 font-bold text-slate-900">{{ $workloadDuration ?? '00h' }}</span>
+                                </span>
+                            @endif
                             <span
                                 class="inline-flex items-center px-3 py-1 text-xs font-semibold border rounded-full bg-slate-50 text-slate-700 border-slate-200">
                                 Investimento: <span class="ml-1 font-bold text-amber-900">
@@ -72,58 +74,75 @@
                         </div>
 
                         <h1 id="page-title"
-                            class="mt-8 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                            class="mt-8 mb-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                             <div class="text-2xl font-semibold">
                                 {{ $event->course->type }}
                             </div>
                             {{ $event->course->name }}
                         </h1>
 
-                        <p class="mt-2 text-slate-600">
-                            {{ $event->course->slogan }}
-                        </p>
-
-                        <div class="flex justify-end">
-                            <x-src.btn-silver label="Detalhes do ministério" :route="$event->course->learnMoreLink" target="_blanc" />
-                        </div>
-
-                        {{-- Datas/horários bem legíveis --}}
-                        <div class="grid gap-3 mt-6 sm:grid-cols-2">
-
-                            @foreach ($event->eventDates as $date_event)
-                                <div class="p-4 border rounded-2xl bg-slate-50 border-slate-200">
-                                    <p class="font-semibold text-slate-900">
-                                        <span class="mr-2">&#x1F4C5;</span>
-                                        <span class="text-nowrap">
-                                            {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($date_event->date)->locale('pt_BR')->isoFormat('dddd')) }}
-                                            • {{ date('d/m', strtotime($date_event->date)) }}:
-                                        </span>
-                                        <span class="font-light text-amber-900 text-nowrap">
-                                            das {{ date('H:i', strtotime($date_event->start_time)) }} às
-                                            {{ date('H:i', strtotime($date_event->end_time)) }}
-                                        </span>
-                                    </p>
-                                </div>
-                            @endforeach
-
-                        </div>
-                        <div class="mt-2 text-xs text-right text-slate-500">Horário de Brasília</div>
-                        {{-- Descrição --}}
-                        <div class="p-5 mt-6 bg-white border rounded-2xl border-slate-200">
-                            <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Descrição</h2>
-                            <p class="mt-2 text-sm leading-relaxed text-slate-700">
-                                {{ $event->course->description }}
+                        @if ($event->course->slogan)
+                            <p class="text-slate-600">
+                                {{ $event->course?->slogan }}
                             </p>
-                        </div>
+                        @endif
 
-                        {{-- Público-alvo --}}
-                        <div class="p-5 mt-6 border rounded-2xl bg-slate-50 border-slate-200">
-                            <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Público-alvo
-                            </h2>
-                            <div class="mt-2 space-y-2 text-sm list-disc list-inside text-slate-700">
-                                {{ $event->course->targetAudience }}
+                        @if ($event->course?->learnMoreLink)
+                            <div class="flex justify-end">
+                                <x-src.btn-silver label="Detalhes do ministério" :route="$event->course->learnMoreLink" target="_blanc" />
                             </div>
-                        </div>
+                        @endif
+
+                        @if ($event->eventDates->count() > 0)
+                            {{-- Datas/horários bem legíveis --}}
+                            <div class="grid gap-3 mt-6 sm:grid-cols-2">
+
+                                @foreach ($event->eventDates as $date_event)
+                                    <div class="p-4 border rounded-2xl bg-slate-50 border-slate-200">
+                                        <p class="font-semibold text-slate-900">
+                                            <span class="mr-2">&#x1F4C5;</span>
+                                            <span class="text-nowrap">
+                                                {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($date_event->date)->locale('pt_BR')->isoFormat('dddd')) }}
+                                                • {{ date('d/m', strtotime($date_event->date)) }}@if ($date_event->start_time > 0)
+                                                    :
+                                                @endif
+                                            </span>
+                                            @if ($date_event->start_time > 0)
+                                                <span class="font-light text-amber-900 text-nowrap">
+                                                    das {{ date('H:i', strtotime($date_event->start_time)) }} às
+                                                    {{ date('H:i', strtotime($date_event->end_time)) }}
+                                                </span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endforeach
+
+                            </div>
+                            @if ($event->eventDates?->first()->start_time > 0)
+                                <div class="mt-2 text-xs text-right text-slate-500">Horário de Brasília</div>
+                            @endif
+                        @endif
+
+                        @if ($event->course->description)
+                            {{-- Descrição --}}
+                            <div class="p-5 mt-6 bg-white border rounded-2xl border-slate-200">
+                                <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Descrição</h2>
+                                <p class="mt-2 text-sm leading-relaxed text-slate-700">
+                                    {{ $event->course->description }}
+                                </p>
+                            </div>
+                        @endif
+
+                        @if ($event->course->targetAudience)
+                            {{-- Público-alvo --}}
+                            <div class="p-5 mt-6 border rounded-2xl bg-slate-50 border-slate-200">
+                                <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Público-alvo
+                                </h2>
+                                <div class="mt-2 space-y-2 text-sm list-disc list-inside text-slate-700">
+                                    {{ $event->course->targetAudience }}
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- Botões --}}
                         @if ($isEnrolled)
@@ -187,34 +206,44 @@
                 <div class="p-6 bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <h2 class="pb-2 text-lg text-slate-900" style="font-family:'Cinzel', serif;">Contato</h2>
                     <div class="grid gap-3">
-                        <div class="p-4 border rounded-2xl bg-slate-50 border-slate-200">
-                            <p class="text-sm font-semibold text-slate-900">{{ $event->coordinator }}</p>
-                            <div class="mt-1 space-y-1 text-sm text-slate-700">
-                                <p>
-                                    Telefone:
-                                    {{ $event->phone }}
-                                </p>
+                        @if ($event->email || $event->phone)
+                            <div class="p-4 border rounded-2xl bg-slate-50 border-slate-200">
+                                <p class="text-sm font-semibold text-slate-900">{{ $event->coordinator }}</p>
+                                <div class="mt-1 space-y-1 text-sm text-slate-700">
+                                    @if ($event->phone)
+                                        <p>
+                                            Telefone:
+                                            {{ $event->phone }}
+                                        </p>
+                                    @endif
 
-                                <p>
-                                    E-mail: {{ $event->email }}
-                                </p>
+                                    @if ($event->email)
+                                        <p>
+                                            E-mail: {{ $event->email }}
+                                        </p>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- Linha temática --}}
-                        <div class="my-3 h-0.5 w-full mx-auto lg:mx-0"
-                            style="border-radius: 100%; background: linear-gradient(135deg,
+                            {{-- Linha temática --}}
+                            <div class="my-3 h-0.5 w-full mx-auto lg:mx-0"
+                                style="border-radius: 100%; background: linear-gradient(135deg,
                                 #c7a8401a,
                                 #c7a8408c,
                                 #c7a8401a);">
-                        </div>
+                            </div>
+                        @endif
 
                         <div class="p-4 border rounded-2xl bg-amber-50 border-amber-200">
-                            <p class="text-sm font-semibold text-amber-900">Investimento</p>
-                            <p class="mt-1 text-sm text-amber-900">
-                                <span class="font-extrabold">{{ $event->payment }}</span>
-                                <span class="text-amber-800/80">por participante</span>
-                            </p>
+                            @if ($event->payment > 0)
+                                <p class="text-sm font-semibold text-amber-900">Investimento</p>
+                                <p class="mt-1 text-sm text-amber-900">
+                                    <span class="font-extrabold">{{ $event->payment }}</span>
+                                    <span class="text-amber-800/80">por participante</span>
+                                </p>
+                            @else
+                                <p class="text-sm font-semibold text-amber-900">Evento Gratuito</p>
+                            @endif
                         </div>
                     </div>
                 </div>

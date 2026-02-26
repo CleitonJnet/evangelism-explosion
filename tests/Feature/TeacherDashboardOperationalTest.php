@@ -19,7 +19,7 @@ function createTeacherForDashboard(): User
     return $teacher;
 }
 
-it('renders operational teacher dashboard with upcoming trainings and pendencies', function (): void {
+it('renders operational teacher dashboard with pendencies and quick actions', function (): void {
     $teacher = createTeacherForDashboard();
     $church = Church::factory()->create();
     $pendingTemp = ChurchTemp::query()->create([
@@ -58,11 +58,10 @@ it('renders operational teacher dashboard with upcoming trainings and pendencies
         ->get(route('app.teacher.dashboard'));
 
     $response->assertOk();
-    $response->assertSee('Próximos Treinamentos');
+    $response->assertDontSee('Próximos Treinamentos');
     $response->assertSee('Pendências');
     $response->assertSee('Ações rápidas');
     $response->assertSee((string) $trainingWithIssue->course?->name);
-    $response->assertSee((string) $trainingWithoutIssue->course?->name);
     $response->assertSee('Programação pendente');
     $response->assertSee('Inscrições com igreja ausente/pendente');
 });

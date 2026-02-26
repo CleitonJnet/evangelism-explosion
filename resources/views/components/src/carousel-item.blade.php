@@ -68,9 +68,12 @@
 
                     <div class="px-2 text-lg font-semibold" title="{{ $date }}">
                         {{ $date }}
-                        <span class="py-1 text-base font-light">
-                            a partir das <span class="font-bold">{{ $start_time }}</span>
-                        </span>
+
+                        @if ($start_time > 0)
+                            <span class="py-1 text-base font-light">
+                                a partir das <span class="font-bold">{{ $start_time }}</span>
+                            </span>
+                        @endif
                     </div>
 
                     <div class="py-2 mt-2 text-sm font-bold leading-5 truncate text-nowrap"

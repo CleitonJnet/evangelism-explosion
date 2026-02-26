@@ -244,7 +244,7 @@ new class extends Component {
     protected function refreshUser(): void
     {
         $this->user->refresh();
-        $this->user->loadMissing(['roles', 'church', 'church_temp', 'courseAsTeacher', 'trainingsAsTeacher.course', 'trainingsAsTeacher.church', 'trainingsAsStudent.course', 'trainingsAsStudent.church', 'hostChurches.church', 'churches']);
+        $this->user->loadMissing(['roles', 'church', 'church_temp', 'hostChurches.church', 'churches']);
     }
 
     protected function fillFromUser(): void
