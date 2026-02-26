@@ -68,30 +68,23 @@
                         <x-src.form.input name="coordinator" wire:model.live="coordinator"
                             label="Coordenador do Evento" width_basic="900" required />
                     </div>
+                    <div class="text-sm font-semibold text-sky-950">
+                        {{ __('Contato para informações do evento') }}
+                    </div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <x-src.form.input type="tel" name="phone" wire:model.live="phone" label="Telefone"
+                            width_basic="240" />
+                        <x-src.form.input type="email" name="email" wire:model.live="email" label="E-mail"
+                            width_basic="320" />
+                    </div>
                 </div>
 
                 <div class="grid gap-4 rounded-xl border border-slate-300 bg-white/70 p-4">
                     <div class="text-sm font-semibold text-sky-950">
                         {{ __('Endereço do evento') }}
                     </div>
-                    <div class="grid gap-4 md:grid-cols-4">
-                        <x-src.form.input name="address.postal_code" wire:model.live="address.postal_code"
-                            label="CEP" width_basic="220" />
-                        <x-src.form.input name="address.state" wire:model.live="address.state" label="UF"
-                            width_basic="100" />
-                        <x-src.form.input name="address.city" wire:model.live="address.city" label="Cidade"
-                            width_basic="260" />
-                        <x-src.form.input name="address.district" wire:model.live="address.district" label="Bairro"
-                            width_basic="260" />
-                    </div>
-                    <div class="grid gap-4 md:grid-cols-4">
-                        <x-src.form.input name="address.street" wire:model.live="address.street" label="Logradouro"
-                            width_basic="420" />
-                        <x-src.form.input name="address.number" wire:model.live="address.number" label="Número"
-                            width_basic="140" />
-                        <x-src.form.input name="address.complement" wire:model.live="address.complement"
-                            label="Complemento" width_basic="320" />
-                    </div>
+                    <livewire:address-fields wire:model="address" title="Endereço do evento"
+                        wire:key="teacher-training-edit-event-address-{{ $training->id }}-{{ $church_id ?? 'none' }}" />
                 </div>
             </div>
 

@@ -39,6 +39,10 @@ class EditEventChurchModal extends Component
 
     public ?string $coordinator = null;
 
+    public ?string $phone = null;
+
+    public ?string $email = null;
+
     /**
      * @var array{postal_code: string, street: string, number: string, complement: string, district: string, city: string, state: string}
      */
@@ -157,6 +161,8 @@ class EditEventChurchModal extends Component
                 'church_id' => $validated['church_id'],
                 'leader' => trim((string) $validated['leader']),
                 'coordinator' => trim((string) $validated['coordinator']),
+                'phone' => filled($validated['phone'] ?? null) ? trim((string) $validated['phone']) : null,
+                'email' => filled($validated['email'] ?? null) ? trim((string) $validated['email']) : null,
                 'street' => $validated['address']['street'] ?: null,
                 'number' => $validated['address']['number'] ?: null,
                 'complement' => $validated['address']['complement'] ?: null,
@@ -191,6 +197,8 @@ class EditEventChurchModal extends Component
             'church_id' => ['required', 'integer', 'exists:churches,id'],
             'leader' => ['required', 'string', 'max:255'],
             'coordinator' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
             'address.postal_code' => ['nullable', 'string', 'max:20'],
             'address.street' => ['nullable', 'string', 'max:255'],
             'address.number' => ['nullable', 'string', 'max:50'],
@@ -210,6 +218,8 @@ class EditEventChurchModal extends Component
             'church_id' => 'igreja sede',
             'leader' => 'líder do evento',
             'coordinator' => 'coordenador do evento',
+            'phone' => 'telefone',
+            'email' => 'e-mail',
             'address.postal_code' => 'CEP',
             'address.street' => 'logradouro',
             'address.number' => 'número',
@@ -247,9 +257,13 @@ class EditEventChurchModal extends Component
 
         $defaultLeader = $this->resolveLeaderDefault($church);
         $defaultCoordinator = $this->resolveCoordinatorDefault($church);
+        $defaultPhone = $this->resolvePhoneDefault($church);
+        $defaultEmail = $this->resolveEmailDefault($church);
 
         $this->leader = filled($this->training->leader) ? $this->training->leader : $defaultLeader;
         $this->coordinator = filled($this->training->coordinator) ? $this->training->coordinator : $defaultCoordinator;
+        $this->phone = filled($this->training->phone) ? $this->training->phone : $defaultPhone;
+        $this->email = filled($this->training->email) ? $this->training->email : $defaultEmail;
     }
 
     private function applySelectedChurchData(int $churchId): void
@@ -271,6 +285,8 @@ class EditEventChurchModal extends Component
         ];
         $this->leader = $this->resolveLeaderDefault($church);
         $this->coordinator = $this->resolveCoordinatorDefault($church);
+        $this->phone = $this->resolvePhoneDefault($church);
+        $this->email = $this->resolveEmailDefault($church);
     }
 
     private function resolveLeaderDefault(?Church $church): string
@@ -287,6 +303,32 @@ class EditEventChurchModal extends Component
         }
 
         return $this->resolveLeaderDefault($church);
+    }
+
+    private function resolvePhoneDefault(?Church $church): ?string
+    {
+        $churchPhone = trim((string) ($church?->phone ?? ''));
+
+        if ($churchPhone !== '') {
+            return $churchPhone;
+        }
+
+        $contactPhone = trim((string) ($church?->contact_phone ?? ''));
+
+        return $contactPhone !== '' ? $contactPhone : null;
+    }
+
+    private function resolveEmailDefault(?Church $church): ?string
+    {
+        $churchEmail = trim((string) ($church?->email ?? ''));
+
+        if ($churchEmail !== '') {
+            return $churchEmail;
+        }
+
+        $contactEmail = trim((string) ($church?->contact_email ?? ''));
+
+        return $contactEmail !== '' ? $contactEmail : null;
     }
 
     private function loadTraining(): void

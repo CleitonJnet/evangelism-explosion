@@ -36,6 +36,8 @@ it('loads current training data as default in church edit modal', function (): v
     $training->update([
         'leader' => 'Pr. Elias Lima',
         'coordinator' => 'Marina Alves',
+        'phone' => '11977776666',
+        'email' => 'contato.evento@example.org',
         'street' => 'Rua Atual',
         'number' => '120',
         'complement' => 'Anexo',
@@ -51,6 +53,8 @@ it('loads current training data as default in church edit modal', function (): v
         ->assertSet('church_id', $training->church_id)
         ->assertSet('leader', 'Pr. Elias Lima')
         ->assertSet('coordinator', 'Marina Alves')
+        ->assertSet('phone', '(11) 97777-6666')
+        ->assertSet('email', 'contato.evento@example.org')
         ->assertSet('address.street', 'Rua Atual')
         ->assertSet('address.number', '120')
         ->assertSet('address.complement', 'Anexo')
@@ -66,6 +70,10 @@ it('applies church defaults when selecting host church with fallback for coordin
     $church = Church::factory()->create([
         'pastor' => 'Pr. Josue Ribeiro',
         'contact' => null,
+        'phone' => null,
+        'email' => null,
+        'contact_phone' => '61912345678',
+        'contact_email' => 'contato.igreja@example.org',
         'street' => 'Rua da Esperanca',
         'number' => '300',
         'complement' => 'Sala 2',
@@ -82,6 +90,8 @@ it('applies church defaults when selecting host church with fallback for coordin
         ->assertSet('church_id', $church->id)
         ->assertSet('leader', 'Pr. Josue Ribeiro')
         ->assertSet('coordinator', 'Pr. Josue Ribeiro')
+        ->assertSet('phone', '(61) 91234-5678')
+        ->assertSet('email', 'contato.igreja@example.org')
         ->assertSet('address.street', 'Rua da Esperanca')
         ->assertSet('address.number', '300')
         ->assertSet('address.complement', 'Sala 2')
@@ -102,6 +112,8 @@ it('updates training church leader coordinator and address from modal', function
         ->set('church_id', $church->id)
         ->set('leader', 'Pr. Daniel Freitas')
         ->set('coordinator', 'Luciana Costa')
+        ->set('phone', '61988887777')
+        ->set('email', 'evento.novo@example.org')
         ->set('address.street', 'Rua Nova Jerusalem')
         ->set('address.number', '55')
         ->set('address.complement', 'Fundos')
@@ -118,6 +130,8 @@ it('updates training church leader coordinator and address from modal', function
     expect($training->church_id)->toBe($church->id)
         ->and($training->leader)->toBe('Pr. Daniel Freitas')
         ->and($training->coordinator)->toBe('Luciana Costa')
+        ->and($training->getRawOriginal('phone'))->toBe('61988887777')
+        ->and($training->email)->toBe('evento.novo@example.org')
         ->and($training->street)->toBe('Rua Nova Jerusalem')
         ->and($training->number)->toBe('55')
         ->and($training->complement)->toBe('Fundos')
@@ -144,7 +158,7 @@ it('shows the church edit button in teacher training details toolbar', function 
     $this->actingAs($teacher)
         ->get(route('app.teacher.trainings.show', $training))
         ->assertOk()
-        ->assertSee('Igreja Sede');
+        ->assertSee('Sede');
 });
 
 it('does not show the church edit button in teacher schedule toolbar', function (): void {

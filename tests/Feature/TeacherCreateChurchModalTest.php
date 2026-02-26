@@ -1,7 +1,7 @@
 <?php
 
 use App\Livewire\Pages\App\Teacher\Training\CreateChurchModal;
-use App\Models\ChurchTemp;
+use App\Models\Church;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,7 +9,7 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('approves a temp church and selects it immediately in create training flow', function (): void {
+it('creates an official church and selects it immediately in create training flow', function (): void {
     $teacher = User::factory()->create();
     $course = Course::factory()->create();
 
@@ -31,13 +31,13 @@ it('approves a temp church and selects it immediately in create training flow', 
         ->set('churchAddress.district', 'Centro')
         ->set('churchAddress.city', 'Brasilia')
         ->set('churchAddress.state', 'df')
-        ->call('approveAndUseNow')
+        ->call('save')
         ->assertSet('selectedChurch.name', 'Igreja Novo Tempo')
         ->assertDispatched('church-created');
 
-    $approvedTemp = ChurchTemp::query()->where('normalized_name', 'igreja novo tempo')->first();
+    $createdChurch = Church::query()->where('name', 'Igreja Novo Tempo')->first();
 
-    expect($approvedTemp)->not->toBeNull();
-    expect($approvedTemp->status)->toBe('approved_new');
-    expect($approvedTemp->resolved_by)->toBe($teacher->id);
+    expect($createdChurch)->not->toBeNull();
+    expect($createdChurch->pastor)->toBe('Pr. Marcos Lima');
+    expect($createdChurch->getRawOriginal('state'))->toBe('DF');
 });

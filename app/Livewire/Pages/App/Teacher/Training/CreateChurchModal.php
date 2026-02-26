@@ -3,10 +3,6 @@
 namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Models\Church;
-use App\Models\ChurchTemp;
-use App\Models\Training;
-use App\Services\ChurchTempResolverService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Modelable;
@@ -141,7 +137,7 @@ class CreateChurchModal extends Component
         }
     }
 
-    public function submit(): void
+    public function save(): void
     {
         $validated = $this->validate();
 
@@ -174,65 +170,14 @@ class CreateChurchModal extends Component
         $this->resetChurchForm();
     }
 
+    public function submit(): void
+    {
+        $this->save();
+    }
+
     public function approveAndUseNow(): void
     {
-        $validated = $this->validate();
-        $actor = Auth::user();
-
-        if (! $actor) {
-            abort(403);
-        }
-
-        $normalizedName = $this->normalizeName($validated['church_name']);
-
-        $churchTemp = ChurchTemp::query()
-            ->where('status', 'pending')
-            ->where('normalized_name', $normalizedName)
-            ->first();
-
-        if (! $churchTemp) {
-            $churchTemp = ChurchTemp::query()->create([
-                'name' => $validated['church_name'],
-                'pastor' => $validated['pastor_name'],
-                'email' => $validated['church_email'] ?? null,
-                'phone' => $validated['phone_church'],
-                'street' => $validated['churchAddress']['street'],
-                'number' => $validated['churchAddress']['number'],
-                'complement' => $validated['churchAddress']['complement'] ?? null,
-                'district' => $validated['churchAddress']['district'],
-                'city' => $validated['churchAddress']['city'],
-                'state' => strtoupper($validated['churchAddress']['state']),
-                'postal_code' => $validated['churchAddress']['postal_code'],
-                'contact' => $validated['church_contact'],
-                'contact_phone' => $validated['church_contact_phone'],
-                'contact_email' => $validated['church_contact_email'] ?? null,
-                'notes' => $validated['church_notes'] ?? null,
-                'logo' => $validated['church_logo'] ?? null,
-                'status' => 'pending',
-                'normalized_name' => $normalizedName,
-            ]);
-        }
-
-        $trainingContext = new Training([
-            'course_id' => $this->trainingCourseId,
-            'teacher_id' => $actor->id,
-        ]);
-
-        $church = app(ChurchTempResolverService::class)->approveAsNewOfficial(
-            $trainingContext,
-            $churchTemp,
-            [],
-            $actor,
-        );
-
-        $this->selectedChurch = [
-            'id' => $church->id,
-            'name' => $church->name,
-        ];
-
-        $this->dispatch('church-created', churchId: $church->id, churchName: $church->name);
-        $this->showModal = false;
-        $this->resetChurchForm();
+        $this->save();
     }
 
     private function resetChurchForm(): void
@@ -263,10 +208,5 @@ class CreateChurchModal extends Component
     public function render(): View
     {
         return view('livewire.pages.app.teacher.training.create-church-modal');
-    }
-
-    private function normalizeName(string $name): string
-    {
-        return Str::of($name)->squish()->lower()->ascii()->value();
     }
 }
