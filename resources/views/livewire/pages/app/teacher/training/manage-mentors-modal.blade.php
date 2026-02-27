@@ -1,8 +1,8 @@
 <div>
     <flux:modal name="manage-mentors-modal" wire:model="showModal"
         class="max-w-5xl w-full bg-sky-900! p-0! max-h-[calc(100vh-50px)]! overflow-hidden">
-        <div class="space-y-4">
-            <div class="px-6 pt-4">
+        <div class="flex max-h-[calc(100vh-50px)] flex-col overflow-hidden">
+            <div class="shrink-0 border-b border-sky-700 px-6 py-4">
                 <flux:heading size="lg"><span class="text-white">{{ __('Mentores do treinamento') }}</span>
                 </flux:heading>
                 <flux:subheading>
@@ -11,7 +11,7 @@
                 </flux:subheading>
             </div>
 
-            <div class="bg-white/90 space-y-4 px-6 py-4">
+            <div class="min-h-0 flex-1 overflow-y-auto bg-white/90 space-y-4 px-6 py-4">
                 <div class="rounded-xl border border-sky-500 bg-sky-400 p-3">
                     <div class="mb-1 block text-xs font-semibold text-slate-700 uppercase">
                         {{ __('Buscar usuário existente') }}
@@ -52,19 +52,19 @@
                         <span>{{ $mentorUsers->count() }} {{ __('Mentores') }}</span>
                     </div>
 
-                    <div class="max-h-[calc(100vh-500px)] overflow-y-auto bg-amber-50">
+                    <div class="bg-amber-50">
                         @forelse ($mentorUsers as $mentorUser)
                             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 px-4 py-3 last:border-b-0"
                                 wire:key="mentor-user-{{ $mentorUser->id }}">
-                                <div class="flex items-start gap-3">
+                                <div class="flex min-w-0 items-start gap-3">
                                     <div
                                         class="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-amber-300 bg-white px-1 text-[11px] font-bold text-amber-900">
                                         {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}
                                     </div>
-                                    <div class="text-sm">
-                                        <div class="font-semibold text-amber-950">{{ $mentorUser->name }}</div>
-                                        <div class="text-amber-900">{{ $mentorUser->email }}</div>
-                                        <div class="text-xs text-amber-700">
+                                    <div class="min-w-0 text-sm">
+                                        <div class="truncate font-semibold text-amber-950">{{ $mentorUser->name }}</div>
+                                        <div class="truncate text-amber-900">{{ $mentorUser->email }}</div>
+                                        <div class="truncate text-xs text-amber-700">
                                             {{ $mentorUser->church?->name ?? __('Sem igreja oficial') }}
                                         </div>
                                     </div>
@@ -94,7 +94,7 @@
 
             </div>
 
-            <div class="flex justify-end px-6 pb-4">
+            <div class="shrink-0 border-t border-sky-700 px-6 py-4 flex justify-end">
                 <x-src.btn-gold wire:click="closeModal" wire:target="addMentor,removeMentor,openCreateMentorUserModal">
                     {{ __('Fechar') }}
                 </x-src.btn-gold>

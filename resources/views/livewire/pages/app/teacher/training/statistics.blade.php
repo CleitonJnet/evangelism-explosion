@@ -366,33 +366,39 @@
     </div>
 
     <flux:modal name="statistics-mentor-selector" wire:model="showMentorSelectorModal" class="max-w-lg w-full">
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <flux:heading size="lg">{{ __('Alterar mentor da equipe') }}</flux:heading>
-                <flux:subheading>{{ __('Selecione um mentor cadastrado neste treinamento.') }}</flux:subheading>
+        <div class="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-slate-100">
+            <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-slate-100">
+                <flux:heading size="lg" class="!text-slate-100">{{ __('Alterar mentor da equipe') }}</flux:heading>
+                <flux:subheading class="!text-sky-100">
+                    {{ __('Selecione um mentor cadastrado neste treinamento.') }}
+                </flux:subheading>
             </div>
 
-            <div class="space-y-2">
-                <label for="mentor-selection" class="text-sm font-medium text-slate-700">
-                    {{ __('Mentores disponíveis') }}
-                </label>
+            <div class="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+                <div class="space-y-2">
+                    <label for="mentor-selection" class="text-sm font-medium text-slate-700">
+                        {{ __('Mentores disponíveis') }}
+                    </label>
 
-                <select id="mentor-selection" wire:model="selectedMentorId"
-                    class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
-                    <option value="">{{ __('Selecione') }}</option>
-                    @foreach ($mentorSelectionOptions as $mentor)
-                        <option value="{{ $mentor['id'] }}">{{ $mentor['name'] }}</option>
-                    @endforeach
-                </select>
+                    <select id="mentor-selection" wire:model="selectedMentorId"
+                        class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
+                        <option value="">{{ __('Selecione') }}</option>
+                        @foreach ($mentorSelectionOptions as $mentor)
+                            <option value="{{ $mentor['id'] }}">{{ $mentor['name'] }}</option>
+                        @endforeach
+                    </select>
 
-                @error('selectedMentorId')
-                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
-                @enderror
+                    @error('selectedMentorId')
+                        <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
-            <div class="flex justify-end gap-2">
-                <x-src.btn-silver type="button" wire:click="closeMentorSelector" :label="__('Cancelar')" />
-                <x-src.btn-gold type="button" wire:click="assignMentorToTeam" :label="__('Salvar mentor')" />
+            <div class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4">
+                <div class="flex justify-end gap-2">
+                    <x-src.btn-silver type="button" wire:click="closeMentorSelector" :label="__('Cancelar')" />
+                    <x-src.btn-gold type="button" wire:click="assignMentorToTeam" :label="__('Salvar mentor')" />
+                </div>
             </div>
         </div>
     </flux:modal>

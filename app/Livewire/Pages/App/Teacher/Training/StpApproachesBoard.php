@@ -144,6 +144,7 @@ class StpApproachesBoard extends Component
         $this->editingApproachTypeLabel = $this->translateApproachType($approach->type->value);
         $this->showModal = true;
         $this->resetValidation();
+        $this->dispatch('focus-person-name');
     }
 
     public function closeModal(): void
@@ -314,7 +315,7 @@ class StpApproachesBoard extends Component
             return;
         }
 
-        StpApproach::query()->create([
+        $approach = StpApproach::query()->create([
             'training_id' => $this->training->id,
             'stp_session_id' => $session->id,
             'stp_team_id' => null,
@@ -326,6 +327,7 @@ class StpApproachesBoard extends Component
         ]);
 
         $this->loadBoard();
+        $this->openApproachModal($approach->id);
     }
 
     public function render(): View

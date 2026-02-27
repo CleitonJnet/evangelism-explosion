@@ -141,6 +141,37 @@ it('moves approaches between queue and team with persistence', function () {
         ->and($approach->position)->toBe(0);
 });
 
+it('opens report modal after creating a planned approach', function () {
+    $teacher = createTeacherForStpBoard();
+    $church = Church::factory()->create();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+    ]);
+    $session = StpSession::query()->create([
+        'training_id' => $training->id,
+        'sequence' => 1,
+    ]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(StpApproachesBoard::class, ['training' => $training])
+        ->call('selectSession', $session->id)
+        ->call('createPlannedApproach', 'visitor')
+        ->assertSet('showModal', true);
+
+    $createdApproachId = StpApproach::query()
+        ->where('training_id', $training->id)
+        ->where('stp_session_id', $session->id)
+        ->latest('id')
+        ->value('id');
+
+    expect($createdApproachId)->not->toBeNull();
+
+    $component
+        ->assertSet('editingApproachId', $createdApproachId)
+        ->assertSet('showModal', true);
+});
+
 it('saves approach draft through the report modal', function () {
     $teacher = createTeacherForStpBoard();
     $church = Church::factory()->create();
