@@ -79,7 +79,7 @@
                 <div class="flex flex-wrap mt-4 gap-y-8 gap-x-4">
 
                     <x-src.form.select name="ispastor" wire:model='ispastor' label="É pastor?" width_basic="200"
-                        value="N" :options="[['value' => 'Y', 'label' => 'Sim'], ['value' => 'N', 'label' => 'Não']]" required />
+                        value="0" :options="[['value' => '1', 'label' => 'Sim'], ['value' => '0', 'label' => 'Não']]" required />
 
                     <x-src.form.input type="tel" name="mobile" wire:model='mobile' data-no-tel-mask
                         label="Celular &#10023; WhatsApp" width_basic="300" required />
@@ -88,7 +88,7 @@
                         label="Data de Nascimento" width_basic="200" />
 
                     <x-src.form.select name="gender" wire:model='gender' label="Gênero" width_basic="200"
-                        :options="[['value' => 'M', 'label' => 'masculino'], ['value' => 'F', 'label' => 'Feminino']]" required />
+                        :options="[['value' => '1', 'label' => 'Masculino'], ['value' => '2', 'label' => 'Feminino']]" required />
 
                 </div>
             </div>

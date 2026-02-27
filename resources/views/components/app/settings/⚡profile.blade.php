@@ -66,18 +66,12 @@
                 </div>
                 <div class="space-y-1">
                     <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Nascimento') }}</dt>
-                    <dd class="text-sm font-medium">{{ $this->formatValue($user->birthdate) }}</dd>
+                    <dd class="text-sm font-medium">{{ $this->formatDate($user->birthdate) }}</dd>
                 </div>
                 <div class="space-y-1">
                     <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Gênero') }}</dt>
                     <dd class="text-sm font-medium">
-                        @if ($user?->gender == 'M')
-                            {{ __('Male') }}
-                        @elseif ($user?->gender == 'F')
-                            {{ __('Female') }}
-                        @else
-                            {{ __('Não Informado') }}
-                        @endif
+                        {{ $user?->gender_label ?? __('Não informado') }}
                     </dd>
                 </div>
             </dl>
@@ -209,12 +203,12 @@
                 <flux:input wire:model="personal.phone" :label="__('Telefone')" type="tel" />
                 <flux:input wire:model="personal.birthdate" :label="__('Nascimento')" type="date" />
                 <flux:select wire:model="personal.gender" :label="__('Gênero')" :placeholder="__('Selecione')">
-                    <option value="Masculino">{{ __('Masculino') }}</option>
-                    <option value="Feminino">{{ __('Feminino') }}</option>
+                    <option value="1">{{ __('Masculino') }}</option>
+                    <option value="2">{{ __('Feminino') }}</option>
                 </flux:select>
-                <flux:select wire:model="personal.pastor" :label="__('É um pastor')" :placeholder="__('Selecione')">
-                    <option value="N">{{ __('No') }}</option>
-                    <option value="Y">{{ __('Yes') }}</option>
+                <flux:select wire:model="personal.is_pastor" :label="__('É um pastor')" :placeholder="__('Selecione')">
+                    <option value="0">{{ __('Não') }}</option>
+                    <option value="1">{{ __('Sim') }}</option>
                 </flux:select>
             </div>
 

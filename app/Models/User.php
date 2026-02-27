@@ -19,12 +19,17 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    public const GENDER_MALE = 1;
+
+    public const GENDER_FEMALE = 2;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'is_pastor',
         'pastor',
         'name',
         'birthdate',
@@ -68,6 +73,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'must_change_password' => 'boolean',
+            'birthdate' => 'date',
+            'gender' => 'integer',
+            'is_pastor' => 'boolean',
         ];
     }
 
@@ -82,31 +90,144 @@ class User extends Authenticatable
     /**
      * Aplica mascara no campo Phone.
      */
-    public function getPhoneAttribute(?string $value): ?string
+    public function getPhoneAttribute(mixed $value): ?string
     {
-        return PhoneHelper::format_phone($value);
+        $normalizedValue = $this->stringValue($value);
+
+        return PhoneHelper::format_phone($normalizedValue);
     }
 
     /**
      * Aplica mascara no campo Postal Code.
      */
-    public function getPostalCodeAttribute(?string $value): ?string
+    public function getPostalCodeAttribute(mixed $value): ?string
     {
-        return PostalCodeHelper::format_postalcode($value);
+        $normalizedValue = $this->stringValue($value);
+
+        if ($normalizedValue !== null && strlen($normalizedValue) < 8) {
+            $normalizedValue = str_pad($normalizedValue, 8, '0', STR_PAD_LEFT);
+        }
+
+        return PostalCodeHelper::format_postalcode($normalizedValue);
     }
 
     /**
      * Remove qualquer caractere não numérico.
      */
-    protected function digitsOnly(?string $value): ?string
+    protected function digitsOnly(mixed $value): ?string
+    {
+        $stringValue = $this->stringValue($value);
+
+        if ($stringValue === null) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $stringValue);
+
+        return ($digits === '' || $digits === null) ? null : $digits;
+    }
+
+    public static function normalizePastorValue(mixed $value): ?int
+    {
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+
+        if (is_int($value)) {
+            return $value > 0 ? 1 : 0;
+        }
+
+        $stringValue = trim((string) $value);
+
+        if ($stringValue === '') {
+            return null;
+        }
+
+        if (is_numeric($stringValue)) {
+            return ((int) $stringValue) > 0 ? 1 : 0;
+        }
+
+        $normalized = strtoupper($stringValue);
+
+        if (in_array($normalized, ['Y', 'S', 'SIM', 'YES', 'TRUE'], true)) {
+            return 1;
+        }
+
+        if (in_array($normalized, ['N', 'NAO', 'NÃO', 'NO', 'FALSE'], true)) {
+            return 0;
+        }
+
+        return null;
+    }
+
+    public static function normalizeGenderValue(mixed $value): ?int
     {
         if ($value === null) {
             return null;
         }
 
-        $digits = preg_replace('/\D+/', '', $value);
+        if (is_int($value)) {
+            if ($value === self::GENDER_MALE || $value === self::GENDER_FEMALE) {
+                return $value;
+            }
 
-        return ($digits === '' || $digits === null) ? null : $digits;
+            return null;
+        }
+
+        $stringValue = mb_strtolower(trim((string) $value), 'UTF-8');
+
+        if ($stringValue === '') {
+            return null;
+        }
+
+        if (in_array($stringValue, ['1', 'm', 'masculino', 'male', 'man', 'homem'], true)) {
+            return self::GENDER_MALE;
+        }
+
+        if (in_array($stringValue, ['2', 'f', 'feminino', 'female', 'woman', 'mulher'], true)) {
+            return self::GENDER_FEMALE;
+        }
+
+        return null;
+    }
+
+    public static function genderCodeFromValue(mixed $value): ?string
+    {
+        return match (self::normalizeGenderValue($value)) {
+            self::GENDER_MALE => 'M',
+            self::GENDER_FEMALE => 'F',
+            default => null,
+        };
+    }
+
+    public static function genderLabelFromValue(mixed $value): ?string
+    {
+        return match (self::normalizeGenderValue($value)) {
+            self::GENDER_MALE => 'Masculino',
+            self::GENDER_FEMALE => 'Feminino',
+            default => null,
+        };
+    }
+
+    public function getGenderLabelAttribute(): ?string
+    {
+        return self::genderLabelFromValue($this->attributes['gender'] ?? null);
+    }
+
+    public function getGenderCodeAttribute(): ?string
+    {
+        return self::genderCodeFromValue($this->attributes['gender'] ?? null);
+    }
+
+    public function getPastorAttribute(): ?string
+    {
+        $normalized = self::normalizePastorValue($this->attributes['is_pastor'] ?? null);
+
+        if ($normalized === null) {
+            return null;
+        }
+
+        return $normalized === 1 ? 'Y' : 'N';
     }
 
     /**
@@ -139,6 +260,32 @@ class User extends Authenticatable
     public function setPostalCodeAttribute($value): void
     {
         $this->attributes['postal_code'] = $this->digitsOnly($value);
+    }
+
+    public function setIsPastorAttribute(mixed $value): void
+    {
+        $this->attributes['is_pastor'] = self::normalizePastorValue($value);
+    }
+
+    public function setPastorAttribute(mixed $value): void
+    {
+        $this->setIsPastorAttribute($value);
+    }
+
+    public function setGenderAttribute(mixed $value): void
+    {
+        $this->attributes['gender'] = self::normalizeGenderValue($value);
+    }
+
+    protected function stringValue(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $stringValue = trim((string) $value);
+
+        return $stringValue === '' ? null : $stringValue;
     }
 
     public function hasRole(string $roleName): bool

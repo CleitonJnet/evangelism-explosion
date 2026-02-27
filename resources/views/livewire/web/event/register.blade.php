@@ -37,7 +37,7 @@
                     width_basic="200" />
 
                 <x-src.form.select name="gender" wire:model='gender' label="Gênero" width_basic="200"
-                    :options="[['value' => 'M', 'label' => 'masculino'], ['value' => 'F', 'label' => 'Feminino']]" />
+                    :options="[['value' => '1', 'label' => 'Masculino'], ['value' => '2', 'label' => 'Feminino']]" />
             </div>
 
             {{-- Navegação --}}

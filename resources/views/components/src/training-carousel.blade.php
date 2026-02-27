@@ -120,10 +120,19 @@
                         ? route('web.event.banner.download', ['id' => $item['training']->id])
                         : null;
 
+                    $detailsRouteName = match ($role) {
+                        'director' => 'app.director.training.show',
+                        'teacher' => 'app.teacher.trainings.show',
+                        default => 'app.' . $role . '.trainings.show',
+                    };
+                    $detailsRoute = \Illuminate\Support\Facades\Route::has($detailsRouteName)
+                        ? route($detailsRouteName, $training->id)
+                        : '#';
+
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
-                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="route('app.' . $role . '.trainings.show', $training->id)" :schedule="$schedule"
+                    :start_time="$startTime" :city="$training->city" :state="$training->state" :route="$detailsRoute" :schedule="$schedule"
                     :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0" />
             @endforeach
         </div>

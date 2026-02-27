@@ -22,7 +22,7 @@ new class extends Component {
         'birthdate' => '',
         'gender' => '',
         'phone' => '',
-        'pastor' => '',
+        'is_pastor' => '',
         'notes' => '',
     ];
 
@@ -150,13 +150,7 @@ new class extends Component {
 
     public function getIsPastorProperty(): bool
     {
-        $value = strtoupper(trim((string) $this->user->pastor));
-
-        if ($value === '') {
-            return false;
-        }
-
-        return in_array($value, ['Y', 'S', 'SIM', 'YES', '1', 'TRUE'], true) || str_starts_with($value, 'PR');
+        return (bool) ($this->user->is_pastor ?? false);
     }
 
     public function formatValue(mixed $value): string
@@ -220,10 +214,10 @@ new class extends Component {
         return [
             'personal.name' => $this->nameRules(),
             'personal.email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class, 'email')->ignore($this->user->id)],
-            'personal.birthdate' => ['nullable', 'string', 'max:255'],
-            'personal.gender' => ['nullable', 'string', 'max:50'],
+            'personal.birthdate' => ['nullable', 'date'],
+            'personal.gender' => ['nullable', 'in:1,2'],
             'personal.phone' => ['nullable', 'string', 'max:30'],
-            'personal.pastor' => ['nullable', 'string', 'max:255'],
+            'personal.is_pastor' => ['nullable', 'in:1,0'],
             'personal.notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
@@ -252,10 +246,10 @@ new class extends Component {
         $this->personal = [
             'name' => $this->user->name ?? '',
             'email' => $this->user->email ?? '',
-            'birthdate' => $this->user->birthdate ?? '',
-            'gender' => $this->user->gender ?? '',
+            'birthdate' => $this->user->birthdate?->format('Y-m-d') ?? '',
+            'gender' => $this->user->gender !== null ? (string) $this->user->gender : '',
             'phone' => $this->user->phone ?? '',
-            'pastor' => $this->user->pastor ?? '',
+            'is_pastor' => $this->user->is_pastor === null ? '' : ($this->user->is_pastor ? '1' : '0'),
             'notes' => $this->user->notes ?? '',
         ];
 

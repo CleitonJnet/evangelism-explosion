@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('pastor')->nullable();
+            $table->integer(column: 'is_pastor')->default(0)->nullable();
             $table->string('name');
-            $table->string('birthdate')->nullable();
-            $table->string('gender')->nullable();
+            $table->date('birthdate')->nullable();
+            $table->integer('gender')->nullable();
             $table->string('profile_photo_path')->nullable();
-            $table->string('phone')->nullable();
+            $table->unsignedBigInteger('phone')->nullable();
             $table->string('email')->unique();
             $table->string('street')->nullable();
             $table->string('number')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('district')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->string('postal_code')->nullable();
+            $table->integer('postal_code')->nullable();
             $table->text('notes')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -35,7 +35,6 @@ return new class extends Migration
 
             $table->foreignId('church_id')->nullable()->constrained()->cascadeOnUpdate()->onDelete('set null');
             $table->foreignId('church_temp_id')->nullable()->constrained()->cascadeOnUpdate()->onDelete('set null');
-
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

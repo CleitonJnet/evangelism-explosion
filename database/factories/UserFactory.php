@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Church;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,13 +28,10 @@ class UserFactory extends Factory
         $contactName = $this->personName();
 
         return [
-            'pastor' => fake()->optional(0.2)->randomElement([
-                'Pr. '.$this->personName(),
-                'Pra. '.$this->personName(),
-            ]),
+            'is_pastor' => fake()->optional(0.8)->randomElement([0, 1]),
             'name' => $contactName,
             'birthdate' => fake()->optional(0.8)->date('Y-m-d'),
-            'gender' => fake()->optional(0.9)->randomElement(['Masculino', 'Feminino', 'Outro']),
+            'gender' => fake()->optional(0.9)->randomElement([User::GENDER_MALE, User::GENDER_FEMALE]),
             'profile_photo_path' => null,
             'phone' => $this->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
@@ -86,10 +84,7 @@ class UserFactory extends Factory
 
     private function phoneNumber(): string
     {
-        $ddd = fake()->randomElement(['11', '21', '31', '41', '51', '61', '71', '81', '85', '91']);
-        $suffix = str_pad((string) fake()->numberBetween(0, 99999999), 8, '0', STR_PAD_LEFT);
-
-        return $ddd.'9'.$suffix;
+        return (string) fake()->numberBetween(1100000000, 2147483647);
     }
 
     private function postalCode(): string

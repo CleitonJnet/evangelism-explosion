@@ -25,7 +25,7 @@ class UsersSeeder extends Seeder
             'id' => 1,
             'name' => 'Cleiton dos Santos',
             'email' => 'csilva@eeworks.org',
-            'phone' => '21972765535',
+            'phone' => '1197276553',
             'password' => bcrypt('Master@01'),
             'church_id' => 1,
         ]);
@@ -33,14 +33,14 @@ class UsersSeeder extends Seeder
             'id' => 2,
             'name' => 'Jailton Barreto Rangel',
             'email' => 'jailtonbarreto@eeworks.org',
-            'phone' => '21991046211',
+            'phone' => '1199104621',
             'password' => bcrypt('Master@01'),
             'church_id' => 4,
         ]);
         $userThree = User::create([
             'id' => 3,
             'name' => 'Cleverson Rodrigues',
-            'phone' => '6692603673',
+            'phone' => '1169260367',
             'email' => 'cleverson@eebrasil.org.br',
             'password' => bcrypt('Master@01'),
             'church_id' => 5,
@@ -49,7 +49,7 @@ class UsersSeeder extends Seeder
         $userFour = User::create([
             'id' => 4,
             'name' => 'Davdsion Freitas',
-            'phone' => '21992192082',
+            'phone' => '1199219208',
             'email' => 'davidsonfreitas@eebrasil.org.br',
             'password' => bcrypt('Master@01'),
             'church_id' => 3,
@@ -58,7 +58,7 @@ class UsersSeeder extends Seeder
         $userFive = User::create([
             'id' => 5,
             'name' => 'Robert D. Foster',
-            'phone' => '6787364150',
+            'phone' => '1678736415',
             'email' => 'rfoster@eeworks.org',
             'password' => bcrypt('Master@01'),
             'church_id' => 6,

@@ -123,7 +123,7 @@ class View extends Component
             ->unique()
             ->count();
         $this->totalPastors = $this->students
-            ->filter(fn (User $student): bool => filled($student->pastor))
+            ->filter(fn (User $student): bool => (bool) ($student->is_pastor ?? false))
             ->count();
         $this->totalUsedKits = $this->students
             ->filter(fn (User $student): bool => (bool) $student->pivot?->kit)

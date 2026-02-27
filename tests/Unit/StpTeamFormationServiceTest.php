@@ -129,14 +129,14 @@ it('prioritizes students with fewer previous participations', function (): void 
 it('distributes women and men across teams to keep mixed groups when possible', function (): void {
     [$training, $teacher] = createTrainingForStpFormation();
 
-    $mentorA = User::factory()->create(['name' => 'Mentor A', 'gender' => 'M']);
-    $mentorB = User::factory()->create(['name' => 'Mentor B', 'gender' => 'F']);
-    $mentorC = User::factory()->create(['name' => 'Mentor C', 'gender' => 'M']);
+    $mentorA = User::factory()->create(['name' => 'Mentor A', 'gender' => User::GENDER_MALE]);
+    $mentorB = User::factory()->create(['name' => 'Mentor B', 'gender' => User::GENDER_FEMALE]);
+    $mentorC = User::factory()->create(['name' => 'Mentor C', 'gender' => User::GENDER_MALE]);
 
     $training->mentors()->attach([$mentorA->id, $mentorB->id, $mentorC->id], ['created_by' => $teacher->id]);
 
-    $femaleStudents = User::factory()->count(3)->create(['gender' => 'F']);
-    $maleStudents = User::factory()->count(3)->create(['gender' => 'M']);
+    $femaleStudents = User::factory()->count(3)->create(['gender' => User::GENDER_FEMALE]);
+    $maleStudents = User::factory()->count(3)->create(['gender' => User::GENDER_MALE]);
 
     $training->students()->attach($femaleStudents->pluck('id')->all());
     $training->students()->attach($maleStudents->pluck('id')->all());
@@ -159,8 +159,9 @@ it('distributes women and men across teams to keep mixed groups when possible', 
     foreach ($teams as $team) {
         $combinedGenders = $team->students
             ->pluck('gender')
-            ->push((string) ($team->mentor?->gender ?? ''))
-            ->map(fn (string $gender): string => strtoupper($gender))
+            ->push($team->mentor?->gender)
+            ->map(fn (mixed $gender): ?string => User::genderCodeFromValue($gender))
+            ->filter()
             ->all();
         expect($combinedGenders)->toContain('F');
         expect($combinedGenders)->toContain('M');
@@ -170,14 +171,14 @@ it('distributes women and men across teams to keep mixed groups when possible', 
 it('allows homogeneous teams only when one gender count is lower than teams count', function (): void {
     [$training, $teacher] = createTrainingForStpFormation();
 
-    $mentorA = User::factory()->create(['name' => 'Mentor A']);
-    $mentorB = User::factory()->create(['name' => 'Mentor B']);
-    $mentorC = User::factory()->create(['name' => 'Mentor C']);
+    $mentorA = User::factory()->create(['name' => 'Mentor A', 'gender' => null]);
+    $mentorB = User::factory()->create(['name' => 'Mentor B', 'gender' => null]);
+    $mentorC = User::factory()->create(['name' => 'Mentor C', 'gender' => null]);
 
     $training->mentors()->attach([$mentorA->id, $mentorB->id, $mentorC->id], ['created_by' => $teacher->id]);
 
-    $femaleStudents = User::factory()->count(2)->create(['gender' => 'Feminino']);
-    $maleStudents = User::factory()->count(5)->create(['gender' => 'Masculino']);
+    $femaleStudents = User::factory()->count(2)->create(['gender' => User::GENDER_FEMALE]);
+    $maleStudents = User::factory()->count(5)->create(['gender' => User::GENDER_MALE]);
 
     $training->students()->attach($femaleStudents->pluck('id')->all());
     $training->students()->attach($maleStudents->pluck('id')->all());
@@ -198,7 +199,11 @@ it('allows homogeneous teams only when one gender count is lower than teams coun
     expect($teams)->toHaveCount(3);
 
     $femaleTeamCount = $teams
-        ->filter(fn (StpTeam $team): bool => $team->students->contains(fn (User $student): bool => in_array($student->gender, ['F', 'Feminino'], true)))
+        ->filter(
+            fn (StpTeam $team): bool => $team->students->contains(
+                fn (User $student): bool => User::normalizeGenderValue($student->gender) === User::GENDER_FEMALE,
+            ),
+        )
         ->count();
 
     expect($femaleTeamCount)->toBe(2);
@@ -207,13 +212,13 @@ it('allows homogeneous teams only when one gender count is lower than teams coun
 it('considers mentor and students genders to keep each team mixed when possible', function (): void {
     [$training, $teacher] = createTrainingForStpFormation();
 
-    $mentorMale = User::factory()->create(['name' => 'Mentor Homem', 'gender' => 'M']);
-    $mentorFemale = User::factory()->create(['name' => 'Mentora Mulher', 'gender' => 'F']);
+    $mentorMale = User::factory()->create(['name' => 'Mentor Homem', 'gender' => User::GENDER_MALE]);
+    $mentorFemale = User::factory()->create(['name' => 'Mentora Mulher', 'gender' => User::GENDER_FEMALE]);
 
     $training->mentors()->attach([$mentorMale->id, $mentorFemale->id], ['created_by' => $teacher->id]);
 
-    $femaleStudents = User::factory()->count(2)->create(['gender' => 'F']);
-    $maleStudents = User::factory()->count(2)->create(['gender' => 'M']);
+    $femaleStudents = User::factory()->count(2)->create(['gender' => User::GENDER_FEMALE]);
+    $maleStudents = User::factory()->count(2)->create(['gender' => User::GENDER_MALE]);
 
     $training->students()->attach($femaleStudents->pluck('id')->all());
     $training->students()->attach($maleStudents->pluck('id')->all());
@@ -236,8 +241,9 @@ it('considers mentor and students genders to keep each team mixed when possible'
     foreach ($teams as $team) {
         $combinedGenders = $team->students
             ->pluck('gender')
-            ->push((string) ($team->mentor?->gender ?? ''))
-            ->map(fn (string $gender): string => strtoupper($gender))
+            ->push($team->mentor?->gender)
+            ->map(fn (mixed $gender): ?string => User::genderCodeFromValue($gender))
+            ->filter()
             ->all();
 
         expect($combinedGenders)->toContain('F');

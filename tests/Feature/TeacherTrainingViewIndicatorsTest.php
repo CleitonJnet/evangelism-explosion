@@ -23,15 +23,15 @@ it('builds registration indicators from enrolled students instead of training co
 
     $pastorStudent = User::factory()->create([
         'church_id' => $churchA->id,
-        'pastor' => 'Pr. Elias',
+        'is_pastor' => 1,
     ]);
     $regularStudent = User::factory()->create([
         'church_id' => $churchA->id,
-        'pastor' => null,
+        'is_pastor' => 0,
     ]);
     $pastorFromAnotherChurch = User::factory()->create([
         'church_id' => $churchB->id,
-        'pastor' => 'Pra. Ana',
+        'is_pastor' => 1,
     ]);
 
     $training->students()->attach($pastorStudent->id, ['kit' => 1, 'accredited' => 0, 'payment' => 0]);

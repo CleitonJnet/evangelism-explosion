@@ -8,7 +8,6 @@ use App\Models\Training;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use RuntimeException;
 
 class StpTeamFormationService
@@ -400,27 +399,9 @@ class StpTeamFormationService
         return null;
     }
 
-    private function normalizeGender(?string $gender): ?string
+    private function normalizeGender(mixed $gender): ?string
     {
-        if ($gender === null) {
-            return null;
-        }
-
-        $value = Str::of($gender)->ascii()->lower()->trim()->value();
-
-        if ($value === '') {
-            return null;
-        }
-
-        if (in_array($value, ['f', 'feminino', 'female', 'woman', 'mulher'], true)) {
-            return 'F';
-        }
-
-        if (in_array($value, ['m', 'masculino', 'male', 'man', 'homem'], true)) {
-            return 'M';
-        }
-
-        return null;
+        return User::genderCodeFromValue($gender);
     }
 
     /**

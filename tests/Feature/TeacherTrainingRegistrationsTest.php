@@ -41,24 +41,24 @@ it('renders the registrations page grouped by church', function () {
     $studentA = User::factory()->create([
         'name' => 'Aluno Um',
         'church_id' => $churchA->id,
-        'pastor' => 'Pr. Aluno Um',
+        'is_pastor' => 1,
     ]);
     $studentB = User::factory()->create([
         'name' => 'Aluno Dois',
         'church_id' => $churchB->id,
-        'pastor' => null,
+        'is_pastor' => 0,
     ]);
     $studentPending = User::factory()->create([
         'name' => 'Aluno Pendente',
         'church_id' => null,
         'church_temp_id' => $churchTemp->id,
-        'pastor' => null,
+        'is_pastor' => 0,
     ]);
     $studentNoChurch = User::factory()->create([
         'name' => 'Aluno Sem Igreja',
         'church_id' => null,
         'church_temp_id' => null,
-        'pastor' => null,
+        'is_pastor' => 0,
     ]);
 
     $training->students()->attach($studentA->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);

@@ -20,7 +20,7 @@ SET NAMES utf8mb4;
 START TRANSACTION;
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -7299,7 +7299,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -14578,7 +14578,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -21857,7 +21857,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -29136,7 +29136,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -36415,7 +36415,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,
@@ -43694,7 +43694,7 @@ VALUES (
   );
 INSERT INTO `eebra780_development`.`users` (
     `id`,
-    `pastor`,
+    `is_pastor`,
     `name`,
     `birthdate`,
     `gender`,

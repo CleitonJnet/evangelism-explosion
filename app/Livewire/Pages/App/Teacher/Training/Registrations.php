@@ -267,7 +267,7 @@ class Registrations extends Component
 
         $this->totalRegistrations = $students->count();
         $this->totalChurches = count($this->churchGroups);
-        $this->totalPastors = $students->filter(fn (User $student): bool => filled($student->pastor))->count();
+        $this->totalPastors = $students->filter(fn (User $student): bool => (bool) ($student->is_pastor ?? false))->count();
         $this->totalAccredited = $students->filter(fn (User $student): bool => (bool) $student->pivot?->accredited)->count();
         $this->totalKits = $students->filter(fn (User $student): bool => (bool) $student->pivot?->kit)->count();
         $this->totalPaymentReceipts = (int) collect($this->churchGroups)
@@ -323,8 +323,8 @@ class Registrations extends Component
             'church_name' => $this->resolveChurchLabel($student),
             'email' => $student->email,
             'phone' => $student->phone,
-            'is_pastor' => $student->pastor == 'Y',
-            'pastor_label' => $student->pastor == 'Y' ? 'Sim' : 'Nao',
+            'is_pastor' => (bool) ($student->is_pastor ?? false),
+            'pastor_label' => (bool) ($student->is_pastor ?? false) ? 'Sim' : 'Nao',
             'accredited' => (bool) $student->pivot?->accredited,
             'kit' => (bool) $student->pivot?->kit,
             'has_payment_receipt' => $hasPaymentReceipt,

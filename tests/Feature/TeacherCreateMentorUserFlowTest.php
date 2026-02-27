@@ -49,7 +49,7 @@ it('creates mentor user with church and attaches mentor role and pivot', functio
         ->call('openModal', $training->id)
         ->set('name', 'Mentor Novo')
         ->set('email', 'mentor.novo@example.test')
-        ->set('phone', '11999999999')
+        ->set('phone', '1199999999')
         ->set('selectedChurchId', $church->id)
         ->call('save')
         ->assertDispatched('mentor-user-created', trainingId: $training->id);

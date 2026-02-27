@@ -12,14 +12,14 @@ it('sanitizes name, email and mobile before saving event registration', function
     $training = Training::factory()->create();
 
     Livewire::test(Register::class, ['event' => $training])
-        ->set('ispastor', 'N')
+        ->set('ispastor', '0')
         ->set('name', '  jOAO   dA  sILVA  e  souza  ')
-        ->set('mobile', '(21) 9 9988-7766')
+        ->set('mobile', '(11) 9998-8776')
         ->set('email', '  JOAO.SILVA@EXAMPLE.COM  ')
         ->set('password', 'Secret@123')
         ->set('password_confirmation', 'Secret@123')
         ->set('birth_date', '1990-10-10')
-        ->set('gender', 'M')
+        ->set('gender', '1')
         ->call('registerEvent')
         ->assertHasNoErrors();
 
@@ -28,7 +28,9 @@ it('sanitizes name, email and mobile before saving event registration', function
         ->firstOrFail();
 
     expect($user->name)->toBe('Joao da Silva e Souza');
-    expect($user->getRawOriginal('phone'))->toBe('21999887766');
+    expect((string) $user->getRawOriginal('phone'))->toBe('1199988776');
+    expect((int) $user->getRawOriginal('is_pastor'))->toBe(0);
+    expect((int) $user->getRawOriginal('gender'))->toBe(User::GENDER_MALE);
 
     $this->assertDatabaseHas('training_user', [
         'training_id' => $training->id,

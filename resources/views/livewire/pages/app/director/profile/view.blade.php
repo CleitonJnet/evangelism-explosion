@@ -3,7 +3,7 @@
     <div class="pb-4 mb-4 border-b-4 border-amber-800">
         <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
             <div class="col-span-2 font-semibold">{{ __('Pastor') }}?</div>
-            <div class="col-span-10">{{ $profile->pastor }}</div>
+            <div class="col-span-10">{{ $profile->is_pastor ? 'Sim' : 'Não' }}</div>
         </div>
         <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
             <div class="col-span-2 font-semibold">{{ __('Name') }}:</div>
@@ -11,11 +11,11 @@
         </div>
         <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
             <div class="col-span-2 font-semibold">{{ __('Birthdate') }}:</div>
-            <div class="col-span-10">{{ $profile->birthdate }}</div>
+            <div class="col-span-10">{{ $profile->birthdate?->format('d/m/Y') }}</div>
         </div>
         <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
             <div class="col-span-2 font-semibold">{{ __('Gender') }}:</div>
-            <div class="col-span-10">{{ $profile->gender }}</div>
+            <div class="col-span-10">{{ $profile->gender_label ?? __('Não informado') }}</div>
         </div>
         <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
             <div class="col-span-2 font-semibold">{{ __('Phone') }}:</div>

@@ -23,19 +23,11 @@
             </div>
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase text-neutral-500">Nascimento</span>
-                <span>{{ $user?->birthdate ?? 'Nao informado' }}</span>
+                <span>{{ $user?->birthdate?->format('d/m/Y') ?? 'Nao informado' }}</span>
             </div>
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase text-neutral-500">Genero</span>
-                <span>
-                    @if ($user?->gender == 'M')
-                        {{ __('Male') }}
-                    @elseif ($user?->gender == 'F')
-                        {{ __('Femele') }}
-                    @else
-                        {{ __('Não Informado') }}
-                    @endif
-                </span>
+                <span>{{ $user?->gender_label ?? __('Não informado') }}</span>
             </div>
         </div>
     </div>

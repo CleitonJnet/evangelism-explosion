@@ -15,7 +15,7 @@ class Register extends Component
 {
     public Training $event;
 
-    public string $ispastor = 'N';
+    public string $ispastor = '0';
 
     public string $name = '';
 
@@ -60,7 +60,7 @@ class Register extends Component
             'email' => $emailRules,
             'password' => ['required', 'string', 'min:8', 'max:80', 'confirmed'],
             'birth_date' => ['nullable', 'date'],
-            'gender' => ['required', 'in:M,F'],
+            'gender' => ['required', 'in:1,2'],
         ];
     }
 
@@ -123,7 +123,7 @@ class Register extends Component
             }
 
             $user->forceFill([
-                'pastor' => $validated['ispastor'],
+                'is_pastor' => $validated['ispastor'],
                 'name' => $validated['name'],
                 'birthdate' => $validated['birth_date'],
                 'gender' => $validated['gender'],
@@ -131,7 +131,7 @@ class Register extends Component
             ])->save();
         } else {
             $user = User::create([
-                'pastor' => $validated['ispastor'],
+                'is_pastor' => $validated['ispastor'],
                 'name' => $validated['name'],
                 'birthdate' => $validated['birth_date'],
                 'gender' => $validated['gender'],

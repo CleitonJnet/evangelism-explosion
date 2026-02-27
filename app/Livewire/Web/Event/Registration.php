@@ -37,7 +37,7 @@ class Registration extends Component
     public string $password_confirmation = '';
 
     /** Fase 2 */
-    public string $ispastor = 'N';
+    public string $ispastor = '0';
 
     public string $mobile = '';
 
@@ -88,13 +88,13 @@ class Registration extends Component
 
     /** Opções */
     public array $yesNoOptions = [
-        ['value' => 'Y', 'label' => 'Sim'],
-        ['value' => 'N', 'label' => 'Não'],
+        ['value' => '1', 'label' => 'Sim'],
+        ['value' => '0', 'label' => 'Não'],
     ];
 
     public array $genderOptions = [
-        ['value' => 'M', 'label' => 'Masculino'],
-        ['value' => 'F', 'label' => 'Feminino'],
+        ['value' => '1', 'label' => 'Masculino'],
+        ['value' => '2', 'label' => 'Feminino'],
     ];
 
     public function mount(Training $event): void
@@ -145,10 +145,10 @@ class Registration extends Component
                 'password' => ['required', 'string', 'min:8', 'max:80'],
                 'password_confirmation' => ['required', 'same:password'],
 
-                'ispastor' => ['required', 'in:Y,N'],
+                'ispastor' => ['required', 'in:1,0'],
                 'mobile' => ['required', 'string', 'min:7', 'max:20'],
                 'birth_date' => ['nullable', 'date'],
-                'gender' => ['required', 'in:M,F'],
+                'gender' => ['required', 'in:1,2'],
 
                 // Se quiser exigir endereço do PARTICIPANTE, mova estas regras para "required"
                 'participantAddress.postal_code' => ['nullable', 'string', 'max:12'],
