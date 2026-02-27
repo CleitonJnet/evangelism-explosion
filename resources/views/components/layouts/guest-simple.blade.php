@@ -14,6 +14,8 @@
 
     {{ $slot }}
 
+    <x-shared.toast-stack />
+
     @livewireScripts
     @stack('js')
 

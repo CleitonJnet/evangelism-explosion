@@ -22,7 +22,7 @@ Route::name('web.')->group(function () {
     });
 
     Route::prefix('event')->name('event.')->group(function () {
-        Route::get('schedule', [SiteController::class, 'schedule'])->name('schedule-request');
+        Route::get('training-host-church', [SiteController::class, 'clinic_base'])->name('clinic-base');
         Route::get('list', [SiteController::class, 'events'])->name('index');
         Route::get('{training}/programacao', [PublicEventScheduleController::class, 'show'])->name('schedule');
         Route::get('{training}/programacao/pdf', [PublicEventScheduleController::class, 'pdf'])->name('schedule.pdf');
@@ -30,7 +30,6 @@ Route::name('web.')->group(function () {
         Route::get('{id}/details', [SiteController::class, 'details'])->name('details');
         Route::get('{id}/register', [SiteController::class, 'register'])->name('register');
         Route::get('{id}/login', [SiteController::class, 'login'])->name('login');
-        Route::get('training-host-church', [SiteController::class, 'clinic_base'])->name('clinic-base');
     });
 });
 

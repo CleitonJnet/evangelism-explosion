@@ -80,7 +80,7 @@ it('saves sanitized testimony in training notes', function () {
 
     $response
         ->assertRedirect(route('app.teacher.trainings.testimony', $training))
-        ->assertSessionHas('status');
+        ->assertSessionHas('success');
 
     $training->refresh();
 

@@ -171,6 +171,7 @@
     {{ $slot }}
 
     @livewire('shared.church-link-modal')
+    <x-shared.toast-stack />
 
     @include('components.layouts.bottom.app-scripts')
 

@@ -24,6 +24,7 @@
     </main>
 
     <x-web.footer />
+    <x-shared.toast-stack />
 
 
     @include('components.layouts.bottom.web-scripts')

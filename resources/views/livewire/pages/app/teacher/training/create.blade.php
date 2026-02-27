@@ -52,7 +52,7 @@
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-course.webp') }}"
                     alt="Ilustração do passo de seleção de curso"
-                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 aspect-21/7 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Selecione o curso que será realizado neste evento. Essa escolha define a base do conteúdo e o valor inicial da inscrição.') }}
@@ -81,16 +81,16 @@
 
         {{-- DATA DO EVENTO --}}
         <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
-            <div class="flex-1">
+            <div class="basis-2/5 flex-auto">
                 <img src="{{ asset(path: 'images/banner-create-training-datetime.webp') }}"
                     alt="Ilustração do passo de datas do evento"
-                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Defina os dias e horários') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Adicione todos os dias do treinamento com horário de início e fim. Revise os horários antes de avançar para evitar conflitos na programação.') }}
                 </div>
             </div>
-            <div class="max-h-80 space-y-10 overflow-y-auto">
+            <div class="max-h-80 space-y-10 overflow-y-auto flex-auto basis-1/2">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
                     <flux:button type="button" variant="outline" wire:click="addEventDate">
@@ -124,7 +124,7 @@
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
                     alt="Ilustração do passo de datas do evento"
-                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
                 <div class="text-slate-700 text-justify ">
                     {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
@@ -169,7 +169,7 @@
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-finance.webp') }}"
                     alt="Ilustração do passo de datas do evento"
-                    class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Revise os valores da inscrição') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Confira o preço base do curso, informe despesas extras e desconto por inscrição. O valor final é calculado automaticamente para conferência antes de salvar o evento.') }}
@@ -242,7 +242,7 @@
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-banner.webp') }}"
                     alt="Ilustração do passo de datas do evento"
-                    class="mb-4 h-40 w-full rounded-lg border border-sky-950/10 object-cover" />
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Arquivo de divulgação') }}</div>
                 <div class="text-sm text-slate-700">
                     {{ __('Você já possui uma arte para divulgar este evento nas redes sociais? Se sim, envie a imagem agora para anexá-la ao cadastro.') }}

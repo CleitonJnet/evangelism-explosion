@@ -365,10 +365,11 @@
         </div>
     </div>
 
-    <flux:modal name="statistics-mentor-selector" wire:model="showMentorSelectorModal" class="max-w-lg w-full">
+    <flux:modal name="statistics-mentor-selector" wire:model="showMentorSelectorModal" class="max-w-2xl w-full p-0!">
         <div class="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-slate-100">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-slate-100">
-                <flux:heading size="lg" class="!text-slate-100">{{ __('Alterar mentor da equipe') }}</flux:heading>
+                <flux:heading size="lg" class="!text-slate-100">{{ __('Alterar mentor da equipe') }}
+                </flux:heading>
                 <flux:subheading class="!text-sky-100">
                     {{ __('Selecione um mentor cadastrado neste treinamento.') }}
                 </flux:subheading>

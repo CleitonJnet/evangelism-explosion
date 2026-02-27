@@ -24,7 +24,7 @@
                         class="mt-2 max-h-44 space-y-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2">
                         @forelse ($searchResults as $searchResult)
                             <button type="button"
-                                class="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-left text-xs text-slate-700 hover:bg-slate-100 cursor-pointer"
+                                class="w-full rounded-md border border-slate-200 bg-white px-2 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 cursor-pointer"
                                 wire:click="addMentor({{ $searchResult->id }})" wire:loading.attr="disabled"
                                 wire:target="addMentor,removeMentor,openCreateMentorUserModal">
                                 <span class="font-semibold">{{ $searchResult->name }}</span>
@@ -62,7 +62,8 @@
                                         {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}
                                     </div>
                                     <div class="min-w-0 text-sm">
-                                        <div class="truncate font-semibold text-amber-950">{{ $mentorUser->name }}</div>
+                                        <div class="truncate font-semibold text-amber-950">{{ $mentorUser->name }}
+                                        </div>
                                         <div class="truncate text-amber-900">{{ $mentorUser->email }}</div>
                                         <div class="truncate text-xs text-amber-700">
                                             {{ $mentorUser->church?->name ?? __('Sem igreja oficial') }}

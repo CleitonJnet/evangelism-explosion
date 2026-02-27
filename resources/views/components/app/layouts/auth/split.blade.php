@@ -46,6 +46,8 @@
         </div>
     </div>
 
+    <x-shared.toast-stack />
+
     @include('components.layouts.bottom.web-scripts')
 </body>
 

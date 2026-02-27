@@ -74,7 +74,7 @@ class TrainingController extends Controller
 
         return redirect()
             ->route('app.teacher.trainings.testimony', $training)
-            ->with('status', __('Relato salvo com sucesso.'));
+            ->with('success', __('Relato salvo com sucesso.'));
     }
 
     public function destroy(Training $training): RedirectResponse
