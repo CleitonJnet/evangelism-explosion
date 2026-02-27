@@ -24,7 +24,7 @@
                     <div class="overflow-hidden bg-white border shadow-sm rounded-3xl border-slate-200">
                         <div class="h-0.75 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]"></div>
 
-                        @livewire('web.event.login', ['event' => $event])
+                        @livewire('web.event.access', ['event' => $event, 'mode' => 'login'])
                     </div>
                 </div>
             </div>
