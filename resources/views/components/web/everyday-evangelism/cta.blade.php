@@ -7,7 +7,7 @@
 @endphp
 
 {{-- CTA FINAL --}}
-<section class="py-16 md:py-24 -mb-10"
+<section class="py-16 md:py-24"
     style="background:
         radial-gradient(900px 500px at 15% 10%, rgba(199,168,64,.14), transparent 55%),
         radial-gradient(800px 450px at 85% 15%, rgba(138,116,36,.18), transparent 55%),

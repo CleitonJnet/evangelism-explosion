@@ -330,7 +330,7 @@ class PublicEventScheduleController extends Controller
 
     private function resolvePdfLogoDataUri(): ?string
     {
-        $cachedPngPath = storage_path('app/public/cache/ee-gold.png');
+        $cachedPngPath = storage_path('app/public/cache/ee-gold.webp');
         if (is_file($cachedPngPath) && is_readable($cachedPngPath)) {
             $data = file_get_contents($cachedPngPath);
             if (is_string($data) && $data !== '') {

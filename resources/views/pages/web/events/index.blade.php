@@ -56,7 +56,7 @@ Evangelho.';
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
 
-    <div class="relative min-h-screen overflow-hidden bg-linear-to-b -mb-10 from-slate-200 via-slate-50 to-slate-400">
+    <div class="relative min-h-screen overflow-hidden bg-linear-to-b from-slate-200 via-slate-50 to-slate-400">
 
         <div aria-hidden="true" class="pointer-events-none absolute -top-24 -left-24 h-130 w-130 rounded-full blur-3xl"
             style="background: radial-gradient(circle at 30% 30%, rgba(199,168,64,.22), transparent 60%);">
@@ -120,7 +120,7 @@ Evangelho.';
 
                 {{-- Seção: Crianças --}}
                 <div class="relative px-4 py-10 bg-center bg-no-repeat bg-cover max-w-8xl mx-auto sm:px-6 lg:px-10 rounded-2xl"
-                    style="background-image: url({{ asset('images/ee-kids/HFK-Graphic-blue-boat.png') }})">
+                    style="background-image: url({{ asset('images/ee-kids/HFK-Graphic-blue-boat.webp') }})">
 
                     <h3 class="text-2xl font-extrabold text-white md:text-4xl">
                         Workshop

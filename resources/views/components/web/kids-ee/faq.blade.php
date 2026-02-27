@@ -1,6 +1,6 @@
 {{-- ========================= SECTION 7 — FAQ + vídeo ao lado ========================= --}}
-<section id="faq" class="-mb-20 bg-fixed bg-bottom bg-no-repeat bg-cover"
-    style="background-image: url({{ asset('images/ee-kids/HFK-Graphic-yellow-crow.png') }})">
+<section id="faq" class="bg-fixed bg-bottom bg-no-repeat bg-cover"
+    style="background-image: url({{ asset('images/ee-kids/HFK-Graphic-yellow-crow.webp') }})">
     <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8 py-14 lg:py-20">
         <div class="grid items-start gap-10 lg:grid-cols-12">
             <div class="lg:col-span-6">

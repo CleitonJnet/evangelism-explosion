@@ -16,8 +16,9 @@
                         {{ __('Upload da arte de divulgação') }}
                     </div>
 
-                    @if ($currentBannerUrl && ! $bannerUpload)
-                        <div class="w-56 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                    @if ($currentBannerUrl && !$bannerUpload)
+                        <div
+                            class="w-56 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
                             <img src="{{ $currentBannerUrl }}" alt="Banner atual do evento"
                                 class="max-h-52 w-auto rounded object-contain">
                         </div>
@@ -34,7 +35,7 @@
                             </label>
 
                             <div class="mt-2 text-xs text-slate-600">
-                                {{ __('Formatos aceitos: JPG e PNG. Tamanho máximo: 10MB.') }}
+                                {{ __('Formatos aceitos: webp e PNG. Tamanho máximo: 10MB.') }}
                             </div>
 
                             @error('bannerUpload')

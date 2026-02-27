@@ -7,12 +7,12 @@
     $ogImage = asset('images/og/vision.webp');
 @endphp
 
-<x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
+<x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage" class="space-y-10 pb-10">
     <x-web.header :title="$title" subtitle='Nossa visão e missão como ministério e os princípios que nos guiam'
         :cover="asset('images/3rd_nations_congress_2016.webp')" />
 
     {{-- Conteúdo principal envolto em container para harmonizar com o tema --}}
-    <x-web.container class="my-10">
+    <x-web.container class="mt-10">
         {{-- VISÃO (estilo institucional conforme PDF) --}}
         <section
             class="relative mb-10 overflow-hidden border shadow-md rounded-2xl bg-white/95 border-amber-500/85 shadow-black/10">
@@ -68,98 +68,98 @@
                 <div class="w-32 h-0.5 mx-auto mt-8 bg-linear-to-r from-[#8a7424] via-[#c7a840] to-[#f1d57a]"></div>
             </div>
         </section>
-        </x-webweb.container>
-        <x-web.container>
-            {{-- Seção Princípios --}}
-            <section class="mb-4">
-                <h3 class="text-2xl sm:text-3xl lg:text-4xl text-[#8a7424] mb-6" style="font-family: 'Cinzel', serif;">
-                    5 Princípios Bíblicos Chave
-                </h3>
+    </x-web.container>
+    <x-web.container>
+        {{-- Seção Princípios --}}
+        <section>
+            <h3 class="text-2xl sm:text-3xl lg:text-4xl text-[#8a7424] mb-6" style="font-family: 'Cinzel', serif;">
+                5 Princípios Bíblicos Chave
+            </h3>
 
-                <p class="leading-relaxed text-[#574815]">
-                    Estes princípios guiam a prática do Evangelismo Explosivo, fundamentados
-                    nas Escrituras, para que todo o ministério seja alinhado à visão do chamado à Grande Comissão.
-                </p>
-                <div class="grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:grid-cols-3 2md:grid-cols-4 lg:grid-cols-5">
-                    {{-- Card 1: Participação --}}
-                    <div
-                        class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
-                        <img src="{{ asset('images/principle/1.png') }}" alt="Princípio da participação"
-                            class="object-cover w-full h-40">
-                        <div class="flex flex-col flex-1 p-4 text-center">
-                            <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
-                                Princípio da <div class="font-bold">Participação</div>
-                            </h3>
-                            <p class="flex-1 leading-relaxed text-slate-600">É uma responsabilidade e um
-                                privilégio de
-                                cada
-                                crente fazer o trabalho de evangelismo.</p>
-                        </div>
-                        <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
+            <p class="leading-relaxed text-[#574815]">
+                Estes princípios guiam a prática do Evangelismo Explosivo, fundamentados
+                nas Escrituras, para que todo o ministério seja alinhado à visão do chamado à Grande Comissão.
+            </p>
+            <div class="grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:grid-cols-3 2md:grid-cols-4 lg:grid-cols-5">
+                {{-- Card 1: Participação --}}
+                <div
+                    class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
+                    <img src="{{ asset('images/principle/1.webp') }}" alt="Princípio da participação"
+                        class="object-cover w-full h-40">
+                    <div class="flex flex-col flex-1 p-4 text-center">
+                        <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
+                            Princípio da <div class="font-bold">Participação</div>
+                        </h3>
+                        <p class="flex-1 leading-relaxed text-slate-600">É uma responsabilidade e um
+                            privilégio de
+                            cada
+                            crente fazer o trabalho de evangelismo.</p>
                     </div>
-                    {{-- Card 2: Multiplicação --}}
-                    <div
-                        class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
-                        <img src="{{ asset('images/principle/2.png') }}" alt="Princípio da multiplicação"
-                            class="object-cover w-full h-40">
-                        <div class="flex flex-col flex-1 p-4 text-center">
-                            <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
-                                Princípio da <div class="font-bold">Multiplicação</div>
-                            </h3>
-                            <p class="flex-1 leading-relaxed text-slate-600">É mais frutífero treinar um
-                                ganhador de
-                                almas
-                                do que apenas ganhar uma alma.</p>
-                        </div>
-                        <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
-                    </div>
-                    {{-- Card 3: Demonstração --}}
-                    <div
-                        class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
-                        <img src="{{ asset('images/principle/3.png') }}" alt="Princípio da demonstração"
-                            class="object-cover w-full h-40">
-                        <div class="flex flex-col flex-1 p-4 text-center">
-                            <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
-                                Princípio da <div class="font-bold">Demonstração</div>
-                            </h3>
-                            <p class="flex-1 leading-relaxed text-slate-600">O treinamento de ganhadores de
-                                almas é
-                                melhor
-                                realizado através de Saídas de Treinamento Prático (STP).</p>
-                        </div>
-                        <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
-                    </div>
-                    {{-- Card 4: Delegação --}}
-                    <div
-                        class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
-                        <img src="{{ asset('images/principle/4.png') }}" alt="Princípio da delegação"
-                            class="object-cover w-full h-40">
-                        <div class="flex flex-col flex-1 p-4 text-center">
-                            <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
-                                Princípio da <div class="font-bold">Delegação</div>
-                            </h3>
-                            <p class="flex-1 leading-relaxed text-slate-600">É tarefa do pastor equipar os
-                                crentes para
-                                o
-                                trabalho do ministério.</p>
-                        </div>
-                        <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
-                    </div>
-                    {{-- Card 5: Oração --}}
-                    <div
-                        class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
-                        <img src="{{ asset('images/principle/5.png') }}" alt="Princípio da oração"
-                            class="object-cover w-full h-40">
-                        <div class="flex flex-col flex-1 p-4 text-center">
-                            <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
-                                Princípio da <div class="font-bold">Oração</div>
-                            </h3>
-                            <p class="flex-1 leading-relaxed text-slate-600">Evangelismo sem oração é
-                                presunção.</p>
-                        </div>
-                        <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
-                    </div>
+                    <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
                 </div>
-            </section>
-            </x-webweb.container>
+                {{-- Card 2: Multiplicação --}}
+                <div
+                    class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
+                    <img src="{{ asset('images/principle/2.webp') }}" alt="Princípio da multiplicação"
+                        class="object-cover w-full h-40">
+                    <div class="flex flex-col flex-1 p-4 text-center">
+                        <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
+                            Princípio da <div class="font-bold">Multiplicação</div>
+                        </h3>
+                        <p class="flex-1 leading-relaxed text-slate-600">É mais frutífero treinar um
+                            ganhador de
+                            almas
+                            do que apenas ganhar uma alma.</p>
+                    </div>
+                    <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
+                </div>
+                {{-- Card 3: Demonstração --}}
+                <div
+                    class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
+                    <img src="{{ asset('images/principle/3.webp') }}" alt="Princípio da demonstração"
+                        class="object-cover w-full h-40">
+                    <div class="flex flex-col flex-1 p-4 text-center">
+                        <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
+                            Princípio da <div class="font-bold">Demonstração</div>
+                        </h3>
+                        <p class="flex-1 leading-relaxed text-slate-600">O treinamento de ganhadores de
+                            almas é
+                            melhor
+                            realizado através de Saídas de Treinamento Prático (STP).</p>
+                    </div>
+                    <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
+                </div>
+                {{-- Card 4: Delegação --}}
+                <div
+                    class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
+                    <img src="{{ asset('images/principle/4.webp') }}" alt="Princípio da delegação"
+                        class="object-cover w-full h-40">
+                    <div class="flex flex-col flex-1 p-4 text-center">
+                        <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
+                            Princípio da <div class="font-bold">Delegação</div>
+                        </h3>
+                        <p class="flex-1 leading-relaxed text-slate-600">É tarefa do pastor equipar os
+                            crentes para
+                            o
+                            trabalho do ministério.</p>
+                    </div>
+                    <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
+                </div>
+                {{-- Card 5: Oração --}}
+                <div
+                    class="flex flex-col overflow-hidden border shadow-md bg-white/95 border-amber-500/85 shadow-black/10 rounded-2xl">
+                    <img src="{{ asset('images/principle/5.webp') }}" alt="Princípio da oração"
+                        class="object-cover w-full h-40">
+                    <div class="flex flex-col flex-1 p-4 text-center">
+                        <h3 class="mb-2 text-lg text-[#8a7424]" style="font-family: 'Cinzel', serif;">
+                            Princípio da <div class="font-bold">Oração</div>
+                        </h3>
+                        <p class="flex-1 leading-relaxed text-slate-600">Evangelismo sem oração é
+                            presunção.</p>
+                    </div>
+                    <div class="h-1 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]"></div>
+                </div>
+            </div>
+        </section>
+    </x-web.container>
 </x-layouts.guest>

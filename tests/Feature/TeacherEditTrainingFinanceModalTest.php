@@ -80,7 +80,7 @@ it('creates finance audit when qr code is updated', function (): void {
     Livewire::actingAs($teacher)
         ->test(EditFinanceModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
-        ->set('pixQrCodeUpload', UploadedFile::fake()->image('novo-qr.png'))
+        ->set('pixQrCodeUpload', UploadedFile::fake()->image('novo-qr.webp'))
         ->call('save')
         ->assertSet('showModal', false);
 

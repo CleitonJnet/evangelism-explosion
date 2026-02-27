@@ -17,7 +17,7 @@ it('downloads the public event banner using event name and date in filename', fu
 
     $training = Training::factory()->create([
         'course_id' => $course->id,
-        'banner' => 'training-banners/'.$course->id.'/banner-evento.png',
+        'banner' => 'training-banners/'.$course->id.'/banner-evento.webp',
     ]);
 
     $training->eventDates()
@@ -37,6 +37,6 @@ it('downloads the public event banner using event name and date in filename', fu
     $response->assertOk();
     $response->assertHeader(
         'content-disposition',
-        'attachment; filename=treinamento-base-evangelismo-explosivo_21-11-2026.png',
+        'attachment; filename=treinamento-base-evangelismo-explosivo_21-11-2026.webp',
     );
 });

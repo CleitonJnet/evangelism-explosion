@@ -33,7 +33,7 @@ it('stores church pix key and qr code when creating a training', function () {
         ->set('price_church', '20,00')
         ->set('discount', '10,00')
         ->set('pix_key', '11.222.333/0001-44')
-        ->set('pixQrCodeUpload', UploadedFile::fake()->image('pix-qr.png'))
+        ->set('pixQrCodeUpload', UploadedFile::fake()->image('pix-qr.webp'))
         ->call('submit')
         ->assertHasNoErrors();
 
@@ -67,13 +67,13 @@ it('returns default pix data when training does not have church pix settings', f
 
 it('returns church pix data when training has custom settings', function () {
     Storage::fake('public');
-    Storage::disk('public')->put('training-pix-qrcodes/123/custom-qr.png', 'fake-content');
+    Storage::disk('public')->put('training-pix-qrcodes/123/custom-qr.webp', 'fake-content');
 
     $training = Training::factory()->create([
         'pix_key' => 'chave-pix-igreja-sede',
-        'pix_qr_code' => 'training-pix-qrcodes/123/custom-qr.png',
+        'pix_qr_code' => 'training-pix-qrcodes/123/custom-qr.webp',
     ]);
 
     expect($training->pixKeyForPayment())->toBe('chave-pix-igreja-sede');
-    expect($training->pixQrCodeUrlForPayment())->toBe(Storage::disk('public')->url('training-pix-qrcodes/123/custom-qr.png'));
+    expect($training->pixQrCodeUrlForPayment())->toBe(Storage::disk('public')->url('training-pix-qrcodes/123/custom-qr.webp'));
 });

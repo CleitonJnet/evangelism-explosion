@@ -69,7 +69,7 @@ it('shows registrations alert on toolbar when there are pending church issues', 
         ->get(route('app.teacher.trainings.show', $training));
 
     $response->assertOk();
-    $response->assertSee('images/alarme.png', false);
+    $response->assertSee('images/alarme.webp', false);
 });
 
 it('does not show registrations alert on toolbar when all students have validated churches', function () {
@@ -94,5 +94,5 @@ it('does not show registrations alert on toolbar when all students have validate
         ->get(route('app.teacher.trainings.show', $training));
 
     $response->assertOk();
-    $response->assertDontSee('images/alarme.png', false);
+    $response->assertDontSee('images/alarme.webp', false);
 });

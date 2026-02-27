@@ -141,16 +141,16 @@
                 </div>
             @endif
 
-            @if (! $paymentConfirmed)
+            @if (!$paymentConfirmed)
                 <div
                     class="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
                     <form wire:submit="uploadPaymentReceipt" class="flex flex-col gap-3">
                         <div class="text-xs font-semibold uppercase text-neutral-500">Comprovante de pagamento</div>
 
-                        <input type="file" wire:model="paymentReceipt" accept=".jpg,.jpeg,.png,.webp,.pdf"
+                        <input type="file" wire:model="paymentReceipt" accept=".webp,.jpeg,.webp,.webp,.pdf"
                             class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:file:bg-neutral-700" />
                         <div class="text-[11px] text-neutral-500">
-                            {{ __('Formatos aceitos: JPG, PNG, WEBP ou PDF (até 5MB).') }}
+                            {{ __('Formatos aceitos: webp, PNG, WEBP ou PDF (até 5MB).') }}
                         </div>
 
                         @error('paymentReceipt')
@@ -159,11 +159,13 @@
 
                         @if ($paymentReceipt)
                             @php
-                                $selectedReceiptExtension = strtolower((string) $paymentReceipt->getClientOriginalExtension());
+                                $selectedReceiptExtension = strtolower(
+                                    (string) $paymentReceipt->getClientOriginalExtension(),
+                                );
                                 $selectedReceiptName = (string) $paymentReceipt->getClientOriginalName();
                                 $selectedReceiptIsImage = in_array(
                                     $selectedReceiptExtension,
-                                    ['jpg', 'jpeg', 'png', 'webp'],
+                                    ['webp', 'jpeg', 'png', 'webp'],
                                     true,
                                 );
                                 $selectedReceiptIsPdf = $selectedReceiptExtension === 'pdf';
@@ -175,7 +177,8 @@
                                 </div>
 
                                 @if ($selectedReceiptIsImage)
-                                    <img src="{{ $paymentReceipt->temporaryUrl() }}" alt="{{ __('Pré-visualização do comprovante') }}"
+                                    <img src="{{ $paymentReceipt->temporaryUrl() }}"
+                                        alt="{{ __('Pré-visualização do comprovante') }}"
                                         class="h-auto max-h-56 w-auto rounded-lg border border-neutral-200 object-contain" />
                                 @elseif ($selectedReceiptIsPdf)
                                     <div class="flex items-center gap-3">
@@ -213,7 +216,8 @@
                             </div>
                         @elseif ($paymentReceiptPath)
                             <div class="text-xs text-amber-700">
-                                <span class="font-bold">{{ __('Comprovante registrado, mas indisponível no momento.') }}</span>
+                                <span
+                                    class="font-bold">{{ __('Comprovante registrado, mas indisponível no momento.') }}</span>
                             </div>
                         @endif
 
@@ -235,7 +239,8 @@
             class="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
             <div class="flex flex-col gap-2">
                 <div class="text-xs font-semibold uppercase text-neutral-500">{{ __('OJT') }}</div>
-                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('OJT Sessions') }}</div>
+                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('OJT Sessions') }}
+                </div>
                 <div class="text-sm text-neutral-600 dark:text-neutral-300">
                     {{ __('Upcoming sessions assigned to you.') }}
                 </div>
@@ -262,13 +267,15 @@
 
                         <div class="mt-3 grid gap-3 sm:grid-cols-2">
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs font-semibold uppercase text-neutral-500">{{ __('Mentor') }}</span>
+                                <span
+                                    class="text-xs font-semibold uppercase text-neutral-500">{{ __('Mentor') }}</span>
                                 <span class="font-semibold text-neutral-900 dark:text-neutral-100">
                                     {{ $assignment['mentor_name'] ?? __('Mentor') }}
                                 </span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs font-semibold uppercase text-neutral-500">{{ __('Teammate') }}</span>
+                                <span
+                                    class="text-xs font-semibold uppercase text-neutral-500">{{ __('Teammate') }}</span>
                                 <span class="font-semibold text-neutral-900 dark:text-neutral-100">
                                     {{ $assignment['teammate_name'] ?? __('Trainee') }}
                                 </span>

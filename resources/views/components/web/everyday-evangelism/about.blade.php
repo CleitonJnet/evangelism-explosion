@@ -91,7 +91,7 @@
                     class="mt-6 overflow-hidden shadow-inner rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 ring-1"
                     style="border-color: rgba(199,168,64,.25);">
 
-                    <img src="{{ asset('images/stp.jpg') }}" class="object-contain w-full h-auto"
+                    <img src="{{ asset('images/stp.webp') }}" class="object-contain w-full h-auto"
                         alt="Sala de treinamento com participantes acompanhando a aula e anotando" loading="lazy"
                         decoding="async" />
                 </figure>

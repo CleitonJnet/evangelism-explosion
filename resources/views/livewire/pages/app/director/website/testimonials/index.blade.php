@@ -119,9 +119,9 @@
                 <flux:field>
                     <flux:label>{{ __('Testemunho') }}</flux:label>
                     <div x-data="{ text: @entangle('editQuote').live }" class="space-y-1">
-                        <flux:textarea rows="6" maxlength="350" x-model="text" wire:model.live="editQuote" />
+                        <flux:textarea rows="6" maxlength="460" x-model="text" wire:model.live="editQuote" />
                         <div class="text-right text-xs text-slate-500">
-                            <span x-text="(text ?? '').length"></span>/350
+                            <span x-text="(text ?? '').length"></span>/460
                         </div>
                     </div>
                     <flux:error name="editQuote" />
@@ -129,7 +129,7 @@
 
                 <flux:field>
                     <flux:label>{{ __('Foto da pessoa') }}</flux:label>
-                    <input type="file" accept=".jpg,.jpeg,.png,.webp" wire:model.live="editPhotoUpload"
+                    <input type="file" accept=".webp,.jpeg,.webp,.webp" wire:model.live="editPhotoUpload"
                         class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white">
                     <div wire:loading.flex wire:target="editPhotoUpload"
                         class="items-center gap-2 text-xs font-semibold text-sky-900">
@@ -137,7 +137,7 @@
                         {{ __('Processando imagem...') }}
                     </div>
                     <div class="text-[11px] text-neutral-500">
-                        {{ __('Formatos aceitos: JPG, JPEG, PNG ou WEBP (até 5MB).') }}
+                        {{ __('Formatos aceitos: webp, JPEG, PNG ou WEBP (até 5MB).') }}
                     </div>
                     <div class="flex items-center gap-3">
                         <img src="{{ $editPhotoUpload ? $editPhotoUpload->temporaryUrl() : $editCurrentPhotoUrl }}"

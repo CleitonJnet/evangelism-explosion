@@ -7,7 +7,7 @@
     $ogImage = asset('images/og/faith.webp');
 @endphp
 
-<x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
+<x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage" class="pb-10">
     <x-web.header :title="$title" subtitle='Em que acreditamos como ministério' :cover="asset('images/3rd_nations_congress_2016.webp')" />
 
     {{-- Conteúdo principal em cards com grade responsiva --}}
@@ -165,5 +165,5 @@
             sem substituir as convicções denominacionais, e que cada crente pode se unir na simplicidade
             e profundidade da mensagem de Jesus.
         </p>
-        </x-webweb.container>
+    </x-web.container>
 </x-layouts.guest>

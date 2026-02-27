@@ -43,8 +43,8 @@
         }
 
         /* =========================================================
-                                                                                                                                                                                                                                                                               BOTÕES — padrão do menu (dourado forte)
-                                                                                                                                                                                                                                                                               ========================================================= */
+                                                                                                                                                                                                                                                                                               BOTÕES — padrão do menu (dourado forte)
+                                                                                                                                                                                                                                                                                               ========================================================= */
         .ee-btn-gold {
             position: relative;
             overflow: hidden;
@@ -143,8 +143,7 @@
                 </div>
 
                 <figure class="overflow-hidden shadow-sm rounded-2xl bg-white/60 ring-1 ring-slate-900/10">
-                    <img src="{{ asset('images/everyday-evangelism.webp') }}" width="600" height="400"
-                        class="object-cover w-full h-full"
+                    <img src="{{ asset('images/clinic-ee.webp') }}" class="object-cover w-full h-full aspect-video"
                         alt="Equipe de uma igreja em treinamento de evangelismo, reunida para oração e prática"
                         loading="lazy" decoding="async" />
                 </figure>

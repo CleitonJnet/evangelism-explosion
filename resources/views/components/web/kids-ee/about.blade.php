@@ -1,6 +1,6 @@
     {{-- ========================= SECTION 1 — O que é EE-Kids + EPC ========================= --}}
     <section id="o-que-e" class="bg-fixed bg-center bg-no-repeat bg-cover"
-        style="background-image: url({{ asset('images/ee-kids/Graphic-yellow-dove.png') }});">
+        style="background-image: url({{ asset('images/ee-kids/Graphic-yellow-dove.webp') }});">
         <div class="px-4 mx-auto max-w-8xl mx-auto sm:px-6 lg:px-8 py-14 lg:py-20">
             <div class="flex flex-col items-center mb-10">
                 <img src="{{ asset('images/logo/hope-for-kids.webp') }}" alt="EPC"
@@ -65,7 +65,7 @@
                 <div class="md:col-span-5">
                     <div class="relative overflow-hidden border shadow-2xl reveal rounded-3xl border-white/15">
                         <div class="absolute inset-0"
-                            style="background-image:url('{{ asset('images/ee-kids/kids-bg-blue.png') }}'); background-size:cover; background-position:center;">
+                            style="background-image:url('{{ asset('images/ee-kids/kids-bg-blue.webp') }}'); background-size:cover; background-position:center;">
                         </div>
 
                         <div class="relative p-4">

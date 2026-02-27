@@ -1,9 +1,9 @@
     {{-- ========================= HERO — Apresentação (EE-Kids + EPC) ========================= --}}
     <section class="relative overflow-hidden bg-fixed bg-center bg-cover lg:pb-60 2xl:pb-32"
-        style="background-image:url('{{ asset('images/ee-kids/HFK-Graphic-blue-boat.png') }}');">
+        style="background-image:url('{{ asset('images/ee-kids/HFK-Graphic-blue-boat.webp') }}');">
 
         <div class="absolute z-0 hidden -bottom-4 xl:bottom-4 2xl:bottom-8 -right-28 wiggle lg:block">
-            <img src="{{ asset('images/ee-kids/Farley-Head.png') }}" alt="" class="w-[360px] max-w-none">
+            <img src="{{ asset('images/ee-kids/Farley-Head.webp') }}" alt="" class="w-[360px] max-w-none">
         </div>
 
         <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-14 lg:py-20">

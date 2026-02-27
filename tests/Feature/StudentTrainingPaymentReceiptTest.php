@@ -32,7 +32,7 @@ it('allows student to upload payment receipt image', function () {
 
     Livewire::actingAs($student)
         ->test(StudentTrainingShow::class, ['training' => $training])
-        ->set('paymentReceipt', UploadedFile::fake()->image('receipt.png'))
+        ->set('paymentReceipt', UploadedFile::fake()->image('receipt.webp'))
         ->call('uploadPaymentReceipt')
         ->assertHasNoErrors()
         ->assertSet('paymentReceiptIsImage', true)
@@ -45,7 +45,7 @@ it('allows student to upload payment receipt image', function () {
     $receiptPath = $enrollment->pivot?->payment_receipt;
 
     expect($receiptPath)->not->toBeNull();
-    expect(str_ends_with((string) $receiptPath, '.png'))->toBeTrue();
+    expect(str_ends_with((string) $receiptPath, '.webp'))->toBeTrue();
     Storage::disk('public')->assertExists((string) $receiptPath);
 });
 

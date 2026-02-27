@@ -28,7 +28,7 @@
     $eventAccessLabel = $isEnrolled ? 'Acessar evento' : 'Fazer inscrição';
     $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
     $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+    $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
     $hasBannerImage =
         $bannerPath !== '' &&
         in_array($bannerExtension, $allowedImageExtensions, true) &&
@@ -37,12 +37,12 @@
 @endphp
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
-
     <x-web.header :title="'<div>' . $event->course->type . ': </div><div class=`text-nowrap>' . $event->course->name . '</div>'"
         subtitle='Conheça os objetivos, a estrutura e os valores deste treinamento, preparado para fortalecer a igreja na missão de fazer discípulos.'
         :cover="asset('images/leadership-meeting.webp')" />
 
-    {{-- HERO + RESUMO (grade alinhada) --}} <section class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8">
+    {{-- HERO + RESUMO (grade alinhada) --}}
+    <section class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8">
         <div class="grid items-start gap-8 lg:grid-cols-12 py-10">
 
             {{-- Card principal --}}
@@ -50,7 +50,7 @@
                 <div class="overflow-hidden bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <div class="relative">
                         {{-- Imagem do evento (exemplo) --}}
-                        <img src="{{ asset('images/cover.jpg') }}" alt="Workshop O Evangelho Em Sua Mão"
+                        <img src="{{ asset('images/cover.webp') }}" alt="Workshop O Evangelho Em Sua Mão"
                             class="object-cover w-full aspect-21/9">
                         <div
                             class="absolute inset-x-0 bottom-0 h-2 bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]">
@@ -260,6 +260,5 @@
     {{-- CTA fixo (sempre disponível) --}}
     <x-web.events.bar-fixed-cta :course_name="$event->course->name" :course_type="$event->course->type" :start_time="$event->eventDates()->first()->start_time" :end_time="$event->eventDates()->first()->end_time"
         :date="$event->eventDates()->first()->date" :banner="$bannerDownloadUrl" :route="$eventAccessRoute" :label="$eventAccessLabel" />
-
 
 </x-layouts.guest>

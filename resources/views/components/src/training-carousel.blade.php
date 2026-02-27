@@ -92,7 +92,7 @@
 
                     $bannerPath = is_string($item['training']->banner) ? trim($item['training']->banner) : '';
                     $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-                    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+                    $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
                     $hasBannerImage =
                         $bannerPath !== '' &&
                         in_array($bannerExtension, $allowedImageExtensions, true) &&
@@ -111,7 +111,7 @@
 
                     $bannerPath = is_string($item['training']->banner) ? trim($item['training']->banner) : '';
                     $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-                    $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+                    $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
                     $hasBannerImage =
                         $bannerPath !== '' &&
                         in_array($bannerExtension, $allowedImageExtensions, true) &&

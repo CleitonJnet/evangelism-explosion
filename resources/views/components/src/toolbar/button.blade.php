@@ -229,7 +229,7 @@
 
     {{ $slot }}
     @if ($error)
-        <img src="{{ asset('images/alarme.png') }}" alt="alerta" class="h-5 absolute -top-1.5 right-0"
+        <img src="{{ asset('images/alarme.webp') }}" alt="alerta" class="h-5 absolute -top-1.5 right-0"
             style="filter: drop-shadow(0 -1px 1px #ffffffab)">
     @endif
 </a>

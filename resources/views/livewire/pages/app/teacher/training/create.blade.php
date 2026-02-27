@@ -50,7 +50,7 @@
         {{-- SELEÇÃO DO CURSO --}}
         <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="{{ asset(path: 'images/banner-create-training-course.png') }}"
+                <img src="{{ asset(path: 'images/banner-create-training-course.webp') }}"
                     alt="Ilustração do passo de seleção de curso"
                     class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
@@ -82,7 +82,7 @@
         {{-- DATA DO EVENTO --}}
         <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="{{ asset(path: 'images/banner-create-training-datetime.png') }}"
+                <img src="{{ asset(path: 'images/banner-create-training-datetime.webp') }}"
                     alt="Ilustração do passo de datas do evento"
                     class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Defina os dias e horários') }}</div>
@@ -122,7 +122,7 @@
         {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
         <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="{{ asset(path: 'images/banner-create-training-base.png') }}"
+                <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
                     alt="Ilustração do passo de datas do evento"
                     class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
@@ -167,7 +167,7 @@
         {{-- FINANCEIRO --}}
         <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="{{ asset(path: 'images/banner-create-training-finance.png') }}"
+                <img src="{{ asset(path: 'images/banner-create-training-finance.webp') }}"
                     alt="Ilustração do passo de datas do evento"
                     class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Revise os valores da inscrição') }}</div>
@@ -240,7 +240,7 @@
         {{-- DIVULGAÇÃO --}}
         <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
             <div class="flex-1">
-                <img src="{{ asset(path: 'images/banner-create-training-banner.png') }}"
+                <img src="{{ asset(path: 'images/banner-create-training-banner.webp') }}"
                     alt="Ilustração do passo de datas do evento"
                     class="mb-4 h-40 w-full rounded-lg border border-sky-950/10 object-cover" />
                 <div class="text-base font-semibold text-sky-950">{{ __('Arquivo de divulgação') }}</div>
@@ -267,7 +267,7 @@
                             </label>
 
                             <div class="mt-2 text-xs text-slate-600">
-                                {{ __('Formatos aceitos: JPG e PNG. Tamanho máximo: 10MB.') }}
+                                {{ __('Formatos aceitos: webp e PNG. Tamanho máximo: 10MB.') }}
                             </div>
 
                             @error('bannerUpload')

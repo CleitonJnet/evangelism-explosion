@@ -163,7 +163,7 @@
                 <div class="p-6 sm:p-8">
 
                     <div class="flex sm:flex-row flex-col gap-4 justify-center items-center">
-                        <img src="{{ asset('images/cover/facilitator.jpg') }}"
+                        <img src="{{ asset('images/cover/facilitator.webp') }}"
                             class="obobject-contain h-full bg-white rounded-lg shadow max-w-40 ring-1 ring-slate-900/10 lg:order-2"
                             alt="Participantes em prática supervisionada durante uma Saída de Treinamento Prático (STP)"
                             loading="lazy" decoding="async" />

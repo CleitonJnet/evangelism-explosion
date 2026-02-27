@@ -95,10 +95,10 @@ it('updates participant statuses on the training pivot', function () {
         'church_id' => $church->id,
     ]);
     $student = User::factory()->create(['church_id' => $church->id]);
-    Storage::disk('public')->put('training-receipts/123/comprovante.png', 'fake-image-content');
+    Storage::disk('public')->put('training-receipts/123/comprovante.webp', 'fake-image-content');
 
     $training->students()->attach($student->id, [
-        'payment_receipt' => 'training-receipts/123/comprovante.png',
+        'payment_receipt' => 'training-receipts/123/comprovante.webp',
         'accredited' => 0,
         'kit' => 0,
         'payment' => 0,
@@ -113,7 +113,7 @@ it('updates participant statuses on the training pivot', function () {
     $this->assertDatabaseHas('training_user', [
         'training_id' => $training->id,
         'user_id' => $student->id,
-        'payment_receipt' => 'training-receipts/123/comprovante.png',
+        'payment_receipt' => 'training-receipts/123/comprovante.webp',
         'payment' => 1,
         'accredited' => 1,
         'kit' => 1,
@@ -132,7 +132,7 @@ it('does not confirm payment when receipt file is missing', function () {
     $student = User::factory()->create(['church_id' => $church->id]);
 
     $training->students()->attach($student->id, [
-        'payment_receipt' => 'training-receipts/999/arquivo-ausente.png',
+        'payment_receipt' => 'training-receipts/999/arquivo-ausente.webp',
         'accredited' => 0,
         'kit' => 0,
         'payment' => 0,

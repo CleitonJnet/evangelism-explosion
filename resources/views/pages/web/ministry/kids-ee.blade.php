@@ -81,7 +81,7 @@
 
 <x-layouts.guest>
     <div>
-        <x-web.header :title="$title" subtitle='Equipando crianças para levar esperança ao mundo' :cover="asset('images/ee-kids/child.png')" />
+        <x-web.header :title="$title" subtitle='Equipando crianças para levar esperança ao mundo' :cover="asset('images/ee-kids/child.webp')" />
 
         <x-web.kids-ee.hero />
         <x-web.kids-ee.about />

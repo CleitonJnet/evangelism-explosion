@@ -14,7 +14,7 @@
             <div class="max-h-[calc(100vh-220px)] space-y-6 overflow-y-auto bg-white/95 px-6 py-4">
                 <div class="flex flex-wrap gap-4">
                     <div class="basis-120 flex-auto">
-                        <img src="{{ asset(path: 'images/banner-create-training-base.png') }}"
+                        <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
                             alt="Ilustração de seleção da igreja base"
                             class="mb-4 h-32 w-full rounded-lg border border-sky-950/10 object-cover" />
                         <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}

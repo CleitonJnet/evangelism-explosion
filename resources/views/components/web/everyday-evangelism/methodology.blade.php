@@ -86,7 +86,7 @@
         }
 
         /* Remover qualquer “glow estranho” de hover:
-                                                                                                                                                                                                                                                                                                                                                                           (aqui evitamos filter e box-shadow agressivos no hover) */
+                                                                                                                                                                                                                                                                                                                                                                               (aqui evitamos filter e box-shadow agressivos no hover) */
         .ee-soft-hover:hover {
             transform: translateY(-1px);
         }
@@ -260,7 +260,7 @@
 
                 <figure
                     class="mt-8 overflow-hidden shadow-inner rounded-2xl ring-1 ring-slate-900/10 bg-white/70 lg:mt-0">
-                    <img src="{{ asset('images/class-e2-unit-5.png') }}" class="object-cover w-full max-h-96"
+                    <img src="{{ asset('images/class-e2-unit-5.webp') }}" class="object-cover w-full max-h-96"
                         alt="Saída de Treinamento Prático" loading="lazy" decoding="async" />
                 </figure>
             </div>

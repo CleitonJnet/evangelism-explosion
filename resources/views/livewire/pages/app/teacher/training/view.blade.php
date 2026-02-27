@@ -129,12 +129,12 @@
         class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-2">
             <div>
-                <h2 class="text-xl text-slate-900" style="font-family: 'Cinzel', serif;">
+                <h2 class="text-2xl text-blue-900" style="font-family: 'Cinzel', serif;">
                     {{ $course?->type ?? __('Treinamento') }}: <span
-                        class="font-semibold">{{ $course?->name ?? __('Curso não definido') }}</span>
+                        class="font-semibold text-nowrap">{{ $course?->name ?? __('Curso não definido') }}</span>
                     <span class=""> - {{ $course?->initials ?? '' }}</span>
                 </h2>
-                <p class="text-sm text-slate-600">{{ __('Ministério:') }} <span class="font-bold"></span>
+                <p class="text-sm font-bold text-slate-600">{{ __('Ministério:') }} <span class="font-bold"></span>
                     {{ $training?->course->ministry->name ?? __('-') }}</span></p>
             </div>
             <div class="flex flex-col justify-center items-end gap-1 text-right">
@@ -225,7 +225,7 @@
                                 {{ date('H:i', strtotime($eventDate->end_time)) }}
                             </span>
                             @if ($dayPlanStatus !== \App\Helpers\DayScheduleHelper::STATUS_OK)
-                                <img src="{{ asset('images/alarme.png') }}" alt="alerta"
+                                <img src="{{ asset('images/alarme.webp') }}" alt="alerta"
                                     class="h-3 absolute top-0 -right-3">
                             @endif
                         </div>

@@ -25,7 +25,7 @@
                 </flux:field>
 
                 <flux:field>
-                    <flux:label>{{ __('Visivel no site') }}</flux:label>
+                    <flux:label>{{ __('Visível no site') }}</flux:label>
                     <div class="pt-2">
                         <x-app.switch-schedule :label="__('Ativo')" key="create-testimonial-active" :checked="$isActive"
                             wire:change="$set('isActive', $event.target.checked)" />
@@ -35,9 +35,9 @@
                 <flux:field>
                     <flux:label>{{ __('Testemunho') }}</flux:label>
                     <div x-data="{ text: @entangle('quote').live }" class="space-y-1">
-                        <flux:textarea rows="6" maxlength="350" x-model="text" wire:model.live="quote" />
+                        <flux:textarea rows="6" maxlength="460" x-model="text" wire:model.live="quote" />
                         <div class="text-right text-xs text-slate-500">
-                            <span x-text="(text ?? '').length"></span>/350
+                            <span x-text="(text ?? '').length"></span>/460
                         </div>
                     </div>
                     <flux:error name="quote" />
@@ -45,7 +45,7 @@
 
                 <flux:field>
                     <flux:label>{{ __('Foto da pessoa') }}</flux:label>
-                    <input type="file" accept=".jpg,.jpeg,.png,.webp" wire:model.live="photoUpload"
+                    <input type="file" accept=".webp,.jpeg,.webp,.webp" wire:model.live="photoUpload"
                         class="w-full rounded-xl border border-neutral-200 bg-white p-2 text-sm text-neutral-700 file:me-4 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white">
                     <div wire:loading.flex wire:target="photoUpload"
                         class="items-center gap-2 text-xs font-semibold text-sky-900">
@@ -53,7 +53,7 @@
                         {{ __('Processando imagem...') }}
                     </div>
                     <div class="text-[11px] text-neutral-500">
-                        {{ __('Formatos aceitos: JPG, JPEG, PNG ou WEBP (até 5MB).') }}
+                        {{ __('Formatos aceitos: webp, JPEG, PNG ou WEBP (até 5MB).') }}
                     </div>
                     @if ($photoUpload)
                         <img src="{{ $photoUpload->temporaryUrl() }}" alt="{{ __('Pré-visualização da foto') }}"

@@ -114,7 +114,7 @@ class SiteController extends Controller
 
         $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
         $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-        $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+        $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
         $hasBannerImage = $bannerPath !== ''
             && in_array($bannerExtension, $allowedImageExtensions, true)
             && Storage::disk('public')->exists($bannerPath);
@@ -139,7 +139,7 @@ class SiteController extends Controller
             '%s_%s.%s',
             $eventNameSlug !== '' ? $eventNameSlug : 'evento',
             $eventDateFormatted,
-            $bannerExtension !== '' ? $bannerExtension : 'jpg',
+            $bannerExtension !== '' ? $bannerExtension : 'webp',
         );
 
         return response()->streamDownload(static function () use ($fileContents): void {

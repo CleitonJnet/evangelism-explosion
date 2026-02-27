@@ -19,7 +19,7 @@
     <x-web.navigation.navbar />
 
     <main
-        {{ $attributes->merge(['class' => 'relative min-h-screen pb-10 antialiased leading-relaxed text-gray-800 ee-metal-section']) }}>
+        {{ $attributes->merge(['class' => 'relative min-h-screen antialiased leading-relaxed text-gray-800 ee-metal-section']) }}>
         {{ $slot }}
     </main>
 

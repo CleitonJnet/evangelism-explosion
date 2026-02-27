@@ -1,6 +1,6 @@
 {{-- ========================= SECTION 2 — Metodologia ========================= --}}
 <section id="metodologia" class="relative overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover"
-    style="background-image:url('{{ asset('images/ee-kids/cross-background.png') }}');">
+    style="background-image:url('{{ asset('images/ee-kids/cross-background.webp') }}');">
 
     <div class="relative px-4 mx-auto max-w-8xl mx-auto sm:px-6 lg:px-8 py-14 lg:py-20">
         <h2 class="text-3xl text-sky-950 sm:text-5xl font-averia-bold">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="h-full bg-center bg-no-repeat bg-cover rounded-2xl 2md:col-span-5 aspect-square"
-                style="background-image:url('{{ asset('images/ee-kids/HFK-Jesus.png') }}');"></div>
+                style="background-image:url('{{ asset('images/ee-kids/HFK-Jesus.webp') }}');"></div>
 
             <div class="col-span-full">
                 <div class="p-6 mt-6 text-white border reveal rounded-3xl bg-sky-800/95 border-sky-800">

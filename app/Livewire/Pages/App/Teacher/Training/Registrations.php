@@ -311,7 +311,7 @@ class Registrations extends Component
             ? trim($student->pivot->payment_receipt)
             : '';
         $receiptExtension = strtolower(pathinfo($receipt, PATHINFO_EXTENSION));
-        $paymentReceiptIsImage = in_array($receiptExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+        $paymentReceiptIsImage = in_array($receiptExtension, ['webp', 'jpeg', 'png', 'gif', 'webp'], true);
         $paymentReceiptIsPdf = $receiptExtension === 'pdf';
         $hasPaymentReceipt = $receipt !== '' && Storage::disk('public')->exists($receipt);
         $paymentReceiptUrl = $hasPaymentReceipt ? Storage::disk('public')->url($receipt) : null;

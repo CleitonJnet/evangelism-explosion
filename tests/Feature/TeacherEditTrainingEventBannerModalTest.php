@@ -40,7 +40,7 @@ it('updates event banner from schedule modal', function (): void {
     Livewire::actingAs($teacher)
         ->test(EditEventBannerModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
-        ->set('bannerUpload', UploadedFile::fake()->image('banner-evento.png')->size(10240))
+        ->set('bannerUpload', UploadedFile::fake()->image('banner-evento.webp')->size(10240))
         ->call('save')
         ->assertSet('showModal', false)
         ->assertDispatched('training-banner-updated', trainingId: $training->id);
@@ -62,7 +62,7 @@ it('validates max size of ten megabytes for event banner upload', function (): v
     Livewire::actingAs($teacher)
         ->test(EditEventBannerModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
-        ->set('bannerUpload', UploadedFile::fake()->image('banner-evento.png')->size(10241))
+        ->set('bannerUpload', UploadedFile::fake()->image('banner-evento.webp')->size(10241))
         ->call('save')
         ->assertHasErrors(['bannerUpload' => 'max']);
 });

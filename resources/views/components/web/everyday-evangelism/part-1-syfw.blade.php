@@ -3,11 +3,11 @@
 -webkit-box-shadow: -25px 1px 5px -25px #2e3192 inset, 25px 1px 5px -25px #2e3192 inset, 1px -25px 2px -25px #2e3192 inset;
 -moz-box-shadow: -25px 1px 5px -25px #2e3192 inset, 25px 1px 5px -25px #2e3192 inset, 1px -25px 2px -25px #2e3192 inset;">
     {{-- Capa (sem recorte) --}}
-    @if (file_exists(public_path('images/cover/syfw.jpg')))
+    @if (file_exists(public_path('images/cover/syfw.webp')))
         <div class="w-full mx-auto md:w-1/3 lg:w-1/4 xl:w-1/5">
             {{-- “palco” da imagem: controla altura e mantém a capa completa --}}
             <div class="flex items-center justify-center p-4 md:p-6 h-[260px] md:h-full">
-                <img src="{{ asset('images/cover/syfw.jpg') }}" alt="Workshop O Evangelho Em Sua Mão"
+                <img src="{{ asset('images/cover/syfw.webp') }}" alt="Workshop O Evangelho Em Sua Mão"
                     class="object-contain w-auto max-w-full max-h-full rounded-lg drop-shadow-sm" loading="lazy"
                     decoding="async" />
             </div>

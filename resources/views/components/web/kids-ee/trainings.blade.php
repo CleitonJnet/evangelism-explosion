@@ -1,6 +1,6 @@
 {{-- ========================= SECTION 3 — Workshop/Clínica + vídeo + materiais incluídos ========================= --}}
 <section id="workshop" class="relative text-white bg-fixed bg-center bg-no-repeat bg-cover"
-    style="background-image: url({{ asset('images/ee-kids/call-event-.png') }});">
+    style="background-image: url({{ asset('images/ee-kids/call-event.webp') }});">
     <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8 py-14 lg:py-20">
         <div class="grid items-start gap-10 lg:grid-cols-12">
             <div class="lg:col-span-7">
@@ -31,7 +31,7 @@
                 <div class="mt-6 overflow-hidden border reveal rounded-3xl border-slate-200">
                     <div class="relative p-6 bg-slate-900">
                         <div class="absolute inset-0 opacity-20"
-                            style="background-image:url('{{ asset('images/ee-kids/kids-bg-blue.png') }}'); background-size:contaobject-contain; background-position:center;">
+                            style="background-image:url('{{ asset('images/ee-kids/kids-bg-blue.webp') }}'); background-size:contaobject-contain; background-position:center;">
                         </div>
                         <div class="relative">
                             <p class="text-lg font-extrabold">Clínica EE-Kids (1 a 3 líderes-chave)</p>
@@ -65,7 +65,7 @@
                     <div class="p-6 bg-white">
                         <div class="grid grid-cols-2 gap-0.5">
                             <div class="relative overflow-hidden bg-bottom bg-no-repeat bg-cover border h-60 md:h-80 lg:h-96 rounded-2xl border-slate-200"
-                                style="background-image: url({{ asset('images/ee-kids/handbook_hfk_activities-manual.png') }})">
+                                style="background-image: url({{ asset('images/ee-kids/handbook_hfk_activities-manual.webp') }})">
                                 <div
                                     class="absolute inset-x-0 bottom-0 w-full p-4 h-fit bg-linear-to-t from-black to-transparent">
                                     <p class="font-extrabold">Manual de Atividades</p>
@@ -76,7 +76,7 @@
                             </div>
 
                             <div class="relative overflow-hidden bg-bottom bg-no-repeat bg-cover border h-60 md:h-80 lg:h-96 rounded-2xl border-slate-200"
-                                style="background-image: url({{ asset('images/ee-kids/handbook_hfk_teacher.png') }})">
+                                style="background-image: url({{ asset('images/ee-kids/handbook_hfk_teacher.webp') }})">
                                 <div
                                     class="absolute inset-x-0 bottom-0 w-full p-4 h-fit bg-linear-to-t from-black to-transparent">
                                     <p class="font-extrabold">Manual do Professor</p>

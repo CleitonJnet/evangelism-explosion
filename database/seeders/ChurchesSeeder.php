@@ -31,7 +31,7 @@ class ChurchesSeeder extends Seeder
                 'contact_phone' => '21984945914',
                 'contact_email' => 'secretaria@pibinga.org.br',
                 'notes' => 'Site: pibinga.org.br | Tel.: (21) 2621-1268 | WhatsApp: (21) 98494-5914 | End.: Rua Doutor Paulo Alves, 125 - Ingá - Niterói/RJ - CEP 24210-445 | Email do pastor (Atos6): ediguimaraes@yahoo.com.br',
-                'logo' => 'https://ik.imagekit.io/a6/uploads/organization/avatar/3744/4a5753cf-8004-42e6-8519-3af3d27734ff.jpg?tr=h-100%2Cw-100',
+                'logo' => 'https://ik.imagekit.io/a6/uploads/organization/avatar/3744/4a5753cf-8004-42e6-8519-3af3d27734ff.webp?tr=h-100%2Cw-100',
             ]
         );
 
@@ -73,7 +73,7 @@ class ChurchesSeeder extends Seeder
                 'contact_phone' => '2127611176',
                 'contact_email' => 'equipecomunicacao.pibh@gmail.com',
                 'notes' => 'Site: pibheliopolis.org.br | End.: Rua Madame Mariana, 116 - Heliópolis - Belford Roxo/RJ - CEP 26123-710 | Tel.: (21) 2761-1176 | Cultos (perfil público): Dom 8h30 e 18h | Qua 19h30',
-                'logo' => 'https://yata-apix-a12c0cf0-3df6-47d2-95b4-5d3fee0f4766.s3-object.locaweb.com.br/e1f68fe4032f4cbcb93c0568c979563f.png',
+                'logo' => 'https://yata-apix-a12c0cf0-3df6-47d2-95b4-5d3fee0f4766.s3-object.locaweb.com.br/e1f68fe4032f4cbcb93c0568c979563f.webp',
             ]
         );
 

@@ -47,7 +47,7 @@ it('renders the director testimonials page', function () {
 it('creates a testimonial through the nested create modal component', function () {
     $director = createDirector();
     Storage::fake('public');
-    $photo = UploadedFile::fake()->image('samuel.jpg');
+    $photo = UploadedFile::fake()->image('samuel.webp');
 
     Livewire::actingAs($director)
         ->test(CreateModal::class)
@@ -77,18 +77,18 @@ it('edits and removes a testimonial from the director listing component', functi
     $director = createDirector();
     Storage::fake('public');
 
-    Storage::disk('public')->put('testimonials/photos/old-photo.jpg', 'old-image');
+    Storage::disk('public')->put('testimonials/photos/old-photo.webp', 'old-image');
 
     $testimonial = Testimonial::factory()->create([
         'name' => 'Maria Antiga',
         'meta' => 'Igreja Antiga',
         'quote' => 'Texto original',
-        'photo' => 'testimonials/photos/old-photo.jpg',
+        'photo' => 'testimonials/photos/old-photo.webp',
         'position' => 2,
         'is_active' => true,
     ]);
 
-    $newPhoto = UploadedFile::fake()->image('maria.jpg');
+    $newPhoto = UploadedFile::fake()->image('maria.webp');
 
     $component = Livewire::actingAs($director)
         ->test(Index::class)
@@ -100,9 +100,9 @@ it('edits and removes a testimonial from the director listing component', functi
         ->call('saveEditedTestimonial');
 
     $testimonial->refresh();
-    expect($testimonial->photo)->not->toBe('testimonials/photos/old-photo.jpg');
+    expect($testimonial->photo)->not->toBe('testimonials/photos/old-photo.webp');
     expect($testimonial->photo)->not->toBeNull();
-    Storage::disk('public')->assertMissing('testimonials/photos/old-photo.jpg');
+    Storage::disk('public')->assertMissing('testimonials/photos/old-photo.webp');
     Storage::disk('public')->assertExists((string) $testimonial->photo);
     assertTestimonialPhotoIsProcessed((string) $testimonial->photo);
     $component->assertSee((string) $testimonial->photo);

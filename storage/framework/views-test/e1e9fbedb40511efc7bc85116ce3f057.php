@@ -45,7 +45,7 @@
 <?php unset($__componentOriginal3c0808d0ccb9dfd11d29783234199f91); ?>
 <?php endif; ?>
 
-    
+
     <div class="fixed inset-x-0 z-50 max-w-5xl mx-auto bottom-2">
         <div
             class="flex items-center gap-3 p-3 border shadow-lg md:justify-between rounded-2xl bg-sky-950/90 backdrop-blur-md border-amber-300/20 ring-1 ring-white/10">
@@ -64,7 +64,7 @@
             </div>
 
             <div class="flex items-center gap-4">
-                
+
                 <img src="<?php echo e(asset('images/logo/ee-gold.webp')); ?>" class="w-8 h-8 md:hidden" alt="EE">
 
                 <?php
@@ -79,9 +79,9 @@
                         date('H:i:s', strtotime($event->eventDates()->first()->end_time)) .
                         '-03:00';
                 ?>
-                
+
                 <div class="max-w-sm" data-countdown>
-                    
+
                     <div data-countdown-timer class="grid grid-cols-4 gap-1">
                         <div class="p-0.5 text-center rounded-s-md bg-white/10 ring-1 ring-white/10">
                             <div class="text-sm font-bold text-white" data-dd>--</div>
@@ -104,7 +104,7 @@
                         </div>
                     </div>
 
-                    
+
                     <div data-countdown-live
                         class="hidden px-2 py-0.5 text-center rounded-lg bg-amber-400/15 ring-1 ring-amber-300/30">
                         <div class="text-sm font-semibold text-amber-200" style="text-shadow: 1px 1px 1px black;">
@@ -117,7 +117,7 @@
                         </div>
                     </div>
 
-                    
+
                     <div data-countdown-ended
                         class="hidden px-5 py-2 text-center rounded-2xl bg-white/10 ring-1 ring-white/10">
                         <div class="text-base font-semibold text-white/90" style="text-shadow: 1px 1px 1px black;">
@@ -261,16 +261,16 @@
         </div>
     </div>
 
-    
+
     <section class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8">
         <div class="grid items-start gap-8 lg:grid-cols-12">
 
-            
+
             <div class="lg:col-span-7" data-reveal>
                 <div class="overflow-hidden bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <div class="relative">
-                        
-                        <img src="<?php echo e(asset('images/cover.jpg')); ?>" alt="Workshop O Evangelho Em Sua Mão"
+
+                        <img src="<?php echo e(asset('images/cover.webp')); ?>" alt="Workshop O Evangelho Em Sua Mão"
                             class="object-cover w-full h-72 sm:h-80">
                         <div
                             class="absolute inset-x-0 bottom-0 h-2 bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]">
@@ -312,7 +312,7 @@
                             </a>
                         </div>
 
-                        
+
                         <div class="grid gap-3 mt-6 sm:grid-cols-2">
 
                             <?php $__currentLoopData = $event->eventDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date_event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -333,7 +333,7 @@
 
                         </div>
                         <div class="mt-2 text-xs text-right text-slate-500">Horário de Brasília</div>
-                        
+
                         <div class="p-5 mt-6 bg-white border rounded-2xl border-slate-200">
                             <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Descrição</h2>
                             <p class="mt-2 text-sm leading-relaxed text-slate-700">
@@ -342,7 +342,7 @@
                             </p>
                         </div>
 
-                        
+
                         <div class="p-5 mt-6 border rounded-2xl bg-slate-50 border-slate-200">
                             <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Público-alvo
                             </h2>
@@ -352,7 +352,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center">
                             <a id="inscricao" href="<?php echo e(route('web.event.registration', ['id' => $event->id])); ?>"
                                 class="inline-flex items-center justify-center shine px-6 py-3 text-sm font-bold text-slate-950 rounded-2xl
@@ -374,10 +374,10 @@
                 </div>
             </div>
 
-            
+
             <aside class="space-y-6 lg:col-span-5" data-reveal>
 
-                
+
                 <div class="p-6 bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <h2 class="text-lg text-slate-900" style="font-family:'Cinzel', serif;">Local</h2>
                     <div class="mt-3 space-y-2">
@@ -412,7 +412,7 @@
                     </a>
                 </div>
 
-                
+
                 <div class="p-6 bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <h2 class="pb-2 text-lg text-slate-900" style="font-family:'Cinzel', serif;">Contato</h2>
                     <div class="grid gap-3">
@@ -432,7 +432,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="my-3 h-[2px] w-full mx-auto lg:mx-0"
                             style="border-radius: 100%; background: linear-gradient(135deg,
                         #c7a8401a,
@@ -450,7 +450,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="max-w-sm bg-sky-950">
                 </div>
 

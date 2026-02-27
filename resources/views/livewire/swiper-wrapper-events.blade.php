@@ -24,7 +24,7 @@
 
             $bannerPath = is_string($event->banner) ? trim($event->banner) : '';
             $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-            $allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+            $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
             $hasBannerImage =
                 $bannerPath !== '' &&
                 in_array($bannerExtension, $allowedImageExtensions, true) &&

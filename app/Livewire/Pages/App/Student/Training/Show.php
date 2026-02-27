@@ -109,7 +109,7 @@ class Show extends Component
             'paymentReceipt' => [
                 'required',
                 'file',
-                'mimes:jpg,jpeg,png,webp,pdf',
+                'mimes:webp,jpeg,png,webp,pdf',
                 'mimetypes:image/jpeg,image/png,image/webp,application/pdf',
                 'max:5120',
             ],
@@ -144,7 +144,7 @@ class Show extends Component
         $extension = strtolower(pathinfo($receipt, PATHINFO_EXTENSION));
 
         $this->paymentReceiptUrl = Storage::disk('public')->url($receipt);
-        $this->paymentReceiptIsImage = in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true);
+        $this->paymentReceiptIsImage = in_array($extension, ['webp', 'jpeg', 'png', 'webp'], true);
         $this->paymentReceiptIsPdf = $extension === 'pdf';
     }
 

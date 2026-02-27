@@ -5,7 +5,7 @@
             'title' => 'Explicar o <div>Evangelho</div>',
             'code' => 'e²',
             'color' => '#55c5d0',
-            'cover' => '/images/cover/e2.jpg',
+            'cover' => '/images/cover/e2.webp',
             'logo' => '/images/logo/explaining-the-gospel.webp',
             'text' =>
                 'Aprofunda a prática da evangelização por meio das Saídas de Treinamento Prático, ensinando o participante a conduzir uma explicação clara, bíblica e natural do Evangelho, com sensibilidade espiritual e confiança.',
@@ -15,7 +15,7 @@
             'title' => 'Mentorear para <div>Multiplicar</div>',
             'code' => 'm²',
             'color' => '#f57315',
-            'cover' => '/images/cover/m2.jpg',
+            'cover' => '/images/cover/m2.webp',
             'logo' => '/images/logo/mentoring-for-multiplication.webp',
             'text' =>
                 'Forma mentores que acompanham novos evangelistas do e², estruturando duplas para as Saídas de Treinamento Prático e promovendo uma multiplicação saudável e intencional de discípulos na igreja.',
@@ -25,7 +25,7 @@
             'title' => 'Crescer em <div>Cristo</div>',
             'code' => 'c²',
             'color' => '#efce1d',
-            'cover' => '/images/cover/c2.jpg',
+            'cover' => '/images/cover/c2.webp',
             'logo' => '/images/logo/means-growth.webp',
             'text' =>
                 'Material de discipulado para novos convertidos que consolida a fé cristã por meio de fundamentos essenciais da vida cristã, preparando o discípulo para integração plena na igreja e retorno ao ciclo do treinamento.',
@@ -35,7 +35,7 @@
             'title' => 'Responder com a <div>Razão</div>',
             'code' => 'r²',
             'color' => '#5a5a5a',
-            'cover' => '/images/cover/r2.jpg',
+            'cover' => '/images/cover/r2.webp',
             'logo' => '/images/logo/reasonable-answers.webp',
             'text' =>
                 'Treinamento apologético que capacita o cristão a responder, de forma bíblica e amorosa, às principais perguntas e objeções à fé cristã, fortalecendo a convicção pessoal e a evangelização em contextos desafiadores.',
