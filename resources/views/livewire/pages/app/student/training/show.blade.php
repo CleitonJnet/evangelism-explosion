@@ -72,32 +72,6 @@
                 </div>
             @else
                 <div
-                    class="mt-6 rounded-2xl border border-sky-200 bg-sky-50/80 p-5 text-sm text-sky-900 shadow-sm dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-200">
-                    <div class="flex flex-col gap-2">
-                        @if ($paymentReceiptPath)
-                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
-                                Pagamento em análise
-                            </div>
-                            <div class="text-sm font-medium">
-                                Recebemos seu comprovante e ele está aguardando a confirmação da coordenação do evento.
-                            </div>
-                            <div class="text-xs text-sky-800/90 dark:text-sky-200/90">
-                                Assim que a validação for concluída, seu status será atualizado automaticamente para
-                                pagamento confirmado.
-                            </div>
-                        @else
-                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
-                                Aguardando comprovante
-                            </div>
-                            <div class="text-sm font-medium">
-                                Após realizar o pagamento, envie o comprovante para iniciar a validação da coordenação
-                                do evento.
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <div
                     class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <img src="{{ $pixQr }}" alt="QR Code PIX"
@@ -131,6 +105,33 @@
                         </div>
                     </div>
                 </div>
+                <div
+                    class="mt-6 rounded-2xl border border-sky-200 bg-sky-50/80 p-5 text-sm text-sky-900 shadow-sm dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-200">
+                    <div class="flex flex-col gap-2">
+                        @if ($paymentReceiptPath)
+                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                Pagamento em análise
+                            </div>
+                            <div class="text-sm font-medium">
+                                Recebemos seu comprovante e ele está aguardando a confirmação da coordenação do evento.
+                            </div>
+                            <div class="text-xs text-sky-800/90 dark:text-sky-200/90">
+                                Assim que a validação for concluída, seu status será atualizado automaticamente para
+                                pagamento confirmado.
+                            </div>
+                        @else
+                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                Aguardando comprovante
+                            </div>
+                            <div class="text-sm font-medium">
+                                Após realizar o pagamento, envie o comprovante para iniciar a validação da coordenação
+                                do evento.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+
             @endif
 
             @if (!$paymentConfirmed)

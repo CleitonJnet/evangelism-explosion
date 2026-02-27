@@ -217,12 +217,12 @@
         <link rel="preconnect" href="https://esm.sh" crossorigin>
         <script type="module">
             window.__trainingTestimonyTiptap = Promise.all([
-                import('https://esm.sh/@tiptap/core'),
-                import('https://esm.sh/@tiptap/starter-kit'),
-                import('https://esm.sh/@tiptap/extension-underline'),
-                import('https://esm.sh/@tiptap/extension-text-style'),
-                import('https://esm.sh/@tiptap/extension-color'),
-                import('https://esm.sh/@tiptap/extension-text-align'),
+                import('https://esm.sh/@tiptap/core@2'),
+                import('https://esm.sh/@tiptap/starter-kit@2'),
+                import('https://esm.sh/@tiptap/extension-underline@2'),
+                import('https://esm.sh/@tiptap/extension-text-style@2'),
+                import('https://esm.sh/@tiptap/extension-color@2'),
+                import('https://esm.sh/@tiptap/extension-text-align@2'),
             ]).then(([core, starterKit, underline, textStyle, color, textAlign]) => ({
                 ...core,
                 StarterKit: starterKit.default,

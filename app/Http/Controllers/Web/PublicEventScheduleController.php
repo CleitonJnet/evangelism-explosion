@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class PublicEventScheduleController extends Controller
 {
@@ -24,17 +25,10 @@ class PublicEventScheduleController extends Controller
     {
         $this->loadTrainingRelations($training);
 
-        $viewModel = $this->buildScheduleViewModel($training);
-        $viewModel['logoDataUri'] = $this->resolvePdfLogoDataUri();
-        $viewModel['generatedAt'] = now('America/Sao_Paulo');
-        $viewModel['workloadDuration'] = $this->workloadDuration($viewModel['eventDates']);
-
-        $pdf = Pdf::loadView('pdf.event-schedule', $viewModel)
-            ->setPaper('a4');
-
         $fileName = 'programacao-evento-'.$training->id.'.pdf';
+        $pdfBinary = $this->resolvePdfBinary($training, $fileName);
 
-        return response($pdf->output(), 200, [
+        return response($pdfBinary, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
             'X-Content-Type-Options' => 'nosniff',
@@ -328,9 +322,40 @@ class PublicEventScheduleController extends Controller
             : sprintf('%02dh', $hours);
     }
 
+    private function resolvePdfBinary(Training $training, string $fileName): string
+    {
+        $relativePath = 'cache/'.$fileName;
+
+        try {
+            if (Storage::disk('public')->exists($relativePath)) {
+                $cachedPdf = Storage::disk('public')->get($relativePath);
+                if ($cachedPdf !== '') {
+                    return $cachedPdf;
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        $viewModel = $this->buildScheduleViewModel($training);
+        $viewModel['logoDataUri'] = $this->resolvePdfLogoDataUri();
+        $viewModel['generatedAt'] = now('America/Sao_Paulo');
+        $viewModel['workloadDuration'] = $this->workloadDuration($viewModel['eventDates']);
+
+        $pdfBinary = Pdf::loadView('pdf.event-schedule', $viewModel)
+            ->setPaper('a4')
+            ->output();
+
+        try {
+            Storage::disk('public')->put($relativePath, $pdfBinary);
+        } catch (\Throwable) {
+        }
+
+        return $pdfBinary;
+    }
+
     private function resolvePdfLogoDataUri(): ?string
     {
-        $cachedPngPath = storage_path('app/public/cache/ee-gold.webp');
+        $cachedPngPath = storage_path('app/public/cache/ee-gold.png');
         if (is_file($cachedPngPath) && is_readable($cachedPngPath)) {
             $data = file_get_contents($cachedPngPath);
             if (is_string($data) && $data !== '') {
@@ -349,18 +374,26 @@ class PublicEventScheduleController extends Controller
 
         $cacheDirectory = dirname($cachedPngPath);
         if (! is_dir($cacheDirectory)) {
-            mkdir($cacheDirectory, 0755, true);
+            @mkdir($cacheDirectory, 0755, true);
         }
 
         $image = @imagecreatefromwebp($webpPath);
         if ($image !== false) {
-            imagepng($image, $cachedPngPath);
-            imagedestroy($image);
+            ob_start();
+            imagepng($image);
+            $pngData = ob_get_clean();
 
-            $pngData = file_get_contents($cachedPngPath);
             if (is_string($pngData) && $pngData !== '') {
+                if (is_dir($cacheDirectory) && is_writable($cacheDirectory)) {
+                    @file_put_contents($cachedPngPath, $pngData);
+                }
+
+                imagedestroy($image);
+
                 return 'data:image/png;base64,'.base64_encode($pngData);
             }
+
+            imagedestroy($image);
         }
 
         return null;

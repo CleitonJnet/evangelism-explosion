@@ -34,7 +34,7 @@
             </style>
         @endpush
 
-        <div id="testimonials" class="relative overflow-hidden py-20">
+        <div id="testimonials" class="relative overflow-hidden py-20 px-2">
 
             <div aria-hidden="true"
                 class="absolute w-1/3 rounded-full pointer-events-none -top-24 -right-24 h-4/5 blur-3xl opacity-70"

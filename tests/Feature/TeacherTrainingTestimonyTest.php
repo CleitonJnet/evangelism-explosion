@@ -43,6 +43,8 @@ it('shows testimony page for the training owner teacher', function () {
         ->assertOk()
         ->assertSee('Relato do Evento')
         ->assertSee('data-testimony-editor-root', false)
+        ->assertSee('@tiptap/core@2', false)
+        ->assertSee('@tiptap/starter-kit@2', false)
         ->assertSee('Curso Relato Evento Header')
         ->assertSee('Ministerio Relato')
         ->assertSee('Igreja Header Relato');

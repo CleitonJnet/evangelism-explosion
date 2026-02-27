@@ -274,6 +274,21 @@ a {
     margin-bottom: 0.8rem;
 }
 
+.tiptap-editor-surface .ProseMirror h2,
+.tiptap-editor-surface .ProseMirror h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 1.15rem;
+}
+
+.tiptap-editor-surface .ProseMirror :is(h2, h3):first-child {
+    margin-top: 0;
+}
+
+.tiptap-editor-surface .ProseMirror h2 + h3 {
+    margin-top: -0.6rem;
+    margin-bottom: 1.35rem;
+}
+
 .tiptap-editor-surface .ProseMirror ul,
 .tiptap-editor-surface .ProseMirror ol {
     margin-bottom: 0.8rem;

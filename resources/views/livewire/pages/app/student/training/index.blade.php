@@ -24,7 +24,7 @@ new class extends Component {
         }
 
         return Training::query()
-            ->with(['course', 'church', 'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time')])
+            ->with(['course', 'church', 'students' => fn($query) => $query->whereKey($user->id), 'eventDates' => fn($query) => $query->orderBy('date')->orderBy('start_time')])
             ->whereHas('students', fn($query) => $query->whereKey($user->id))
             ->get()
             ->sortBy(function (Training $training) {
@@ -65,6 +65,9 @@ new class extends Component {
                     $isPaid = (float) preg_replace('/\D/', '', (string) $training->payment) > 0;
                     $pixKey = $training->pixKeyForPayment();
                     $pixQr = $training->pixQrCodeUrlForPayment();
+                    $enrollment = $training->students->first();
+                    $paymentConfirmed = (bool) $enrollment?->pivot?->payment;
+                    $paymentReceiptPath = $enrollment?->pivot?->payment_receipt;
                     $addressParts = array_filter([
                         $training?->street,
                         $training?->number,
@@ -112,24 +115,69 @@ new class extends Component {
                     @endif
 
                     @if ($isPaid)
-                        <div
-                            class="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
-                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <img src="{{ $pixQr }}" alt="QR Code PIX"
-                                    class="h-16 w-16 rounded-xl border border-amber-200 bg-white p-1">
-                                <div class="space-y-1">
-                                    <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
-                                        Pagamento via PIX
+                        @if ($paymentConfirmed)
+                            <div
+                                class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-200">
+                                <div class="flex flex-col gap-2">
+                                    <div class="text-xs font-semibold uppercase text-emerald-800 dark:text-emerald-200">
+                                        Pagamento confirmado
                                     </div>
-                                    <div class="text-sm">
-                                        Chave: <span class="font-semibold">{{ $pixKey }}</span>
-                                    </div>
-                                    <div class="text-xs text-amber-700 dark:text-amber-300">
-                                        Use o QR Code ou a chave para concluir o pagamento.
+                                    <div class="text-sm font-medium">
+                                        Seu pagamento foi confirmado.
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @else
+                            {{-- <div
+                                class="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                    <img src="{{ $pixQr }}" alt="QR Code PIX"
+                                        class="h-16 w-16 rounded-xl border border-amber-200 bg-white p-1">
+                                    <div class="space-y-1">
+                                        <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
+                                            Pagamento via PIX
+                                        </div>
+                                        <div class="text-sm">
+                                            Chave: <span class="font-semibold">{{ $pixKey }}</span>
+                                        </div>
+                                        <div class="text-xs text-amber-700 dark:text-amber-300">
+                                            Use o QR Code ou a chave para concluir o pagamento.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> --}}
+
+                            <div
+                                class="rounded-2xl border border-sky-200 bg-sky-50/80 p-4 text-sm text-sky-900 shadow-sm dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-200">
+                                <div class="flex flex-col gap-2">
+                                    @if ($paymentReceiptPath)
+                                        <div
+                                            class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                            Pagamento em analise
+                                        </div>
+                                        <div class="text-sm font-medium">
+                                            Recebemos seu comprovante e ele esta aguardando a confirmacao da coordenacao
+                                            do evento.
+                                        </div>
+                                        <div class="text-xs text-sky-800/90 dark:text-sky-200/90">
+                                            Assim que a validacao for concluida, seu status sera atualizado
+                                            automaticamente para
+                                            pagamento confirmado.
+                                        </div>
+                                    @else
+                                        <div
+                                            class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                            Aguardando comprovante
+                                        </div>
+                                        <div class="text-sm font-medium">
+                                            Apos realizar o pagamento, envie o comprovante para iniciar a validacao da
+                                            coordenacao
+                                            do evento.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                     <div class="mt-auto">

@@ -424,7 +424,7 @@ async function initEditor(root) {
             const chain = chainWithSavedSelection(root, editor);
 
             if (value === "h2" || value === "h3") {
-                chain.toggleHeading({ level: Number(value.slice(1)) }).run();
+                chain.setHeading({ level: Number(value.slice(1)) }).run();
                 return;
             }
 
