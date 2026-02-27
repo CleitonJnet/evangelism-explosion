@@ -373,6 +373,12 @@ async function initEditor(root) {
                 const textLength = sanitizeTextLength(editorInstance.getText());
                 syncCounter(counter, textLength);
                 updateToolbarState(root, editorInstance);
+
+                if (root.dataset.autofocus === "true") {
+                    requestAnimationFrame(() => {
+                        editorInstance.commands.focus("end");
+                    });
+                }
             },
             onUpdate: ({ editor: editorInstance }) => {
                 hiddenInput.value = editorInstance.isEmpty

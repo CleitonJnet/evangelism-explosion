@@ -16,6 +16,8 @@ class Registrations extends Component
 
     public Training $training;
 
+    public string $search = '';
+
     public bool $showReceiptModal = false;
 
     public ?int $selectedRegistrationId = null;
@@ -144,6 +146,19 @@ class Registrations extends Component
         $this->refreshRegistrations();
     }
 
+    public function updatedSearch(string $search): void
+    {
+        $normalizedSearch = trim($search);
+
+        if ($normalizedSearch !== $search) {
+            $this->search = $normalizedSearch;
+
+            return;
+        }
+
+        $this->refreshRegistrations();
+    }
+
     public function openReceiptModal(int $userId): void
     {
         $student = $this->training->students->firstWhere('id', $userId);
@@ -213,7 +228,10 @@ class Registrations extends Component
             ])
             ->findOrFail($this->training->id);
 
+        $searchTerm = mb_strtolower(trim($this->search), 'UTF-8');
+
         $students = $this->training->students
+            ->filter(fn (User $student): bool => $this->matchesSearch($student, $searchTerm))
             ->sortBy(function (User $student): string {
                 $churchName = $this->resolveChurchLabel($student);
                 $priority = $this->hasChurchIssue($student) ? '0' : '1';
@@ -390,5 +408,33 @@ class Registrations extends Component
         }
 
         return 'No church';
+    }
+
+    private function matchesSearch(User $student, string $searchTerm): bool
+    {
+        if ($searchTerm === '') {
+            return true;
+        }
+
+        $fields = [
+            $student->name,
+            $student->email,
+            $this->resolveChurchLabel($student),
+            $student->church?->name,
+            $student->church?->city,
+            $student->church?->state,
+            $student->church?->district,
+            $student->church_temp?->name,
+            $student->church_temp?->city,
+            $student->church_temp?->state,
+            $student->church_temp?->district,
+            $student->city,
+            $student->state,
+            $student->district,
+        ];
+
+        $haystack = mb_strtolower(implode(' ', array_filter($fields)), 'UTF-8');
+
+        return str_contains($haystack, $searchTerm);
     }
 }

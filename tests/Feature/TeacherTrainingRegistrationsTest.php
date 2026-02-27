@@ -255,3 +255,73 @@ it('sorts pending church issues before validated registrations', function () {
         'Igreja Oficial',
     ]);
 });
+
+it('filters registrations by participant name, church region and email', function () {
+    $teacher = createTeacher();
+    $hostChurch = Church::factory()->create();
+    $churchNorth = Church::factory()->create([
+        'name' => 'Igreja Esperança',
+        'city' => 'Manaus',
+        'state' => 'AM',
+    ]);
+    $churchSouth = Church::factory()->create([
+        'name' => 'Igreja Paz',
+        'city' => 'Porto Alegre',
+        'state' => 'RS',
+    ]);
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $hostChurch->id,
+    ]);
+
+    $ana = User::factory()->create([
+        'name' => 'Ana Clara',
+        'email' => 'ana@example.com',
+        'church_id' => $churchNorth->id,
+        'city' => 'Manaus',
+        'state' => 'AM',
+        'district' => 'Centro',
+    ]);
+    $bruno = User::factory()->create([
+        'name' => 'Bruno Lima',
+        'email' => 'bruno@example.com',
+        'church_id' => $churchSouth->id,
+        'city' => 'Porto Alegre',
+        'state' => 'RS',
+        'district' => 'Menino Deus',
+    ]);
+    $carol = User::factory()->create([
+        'name' => 'Carol Souza',
+        'email' => 'carol@example.com',
+        'church_id' => null,
+        'church_temp_id' => null,
+        'city' => 'Recife',
+        'state' => 'PE',
+        'district' => 'Boa Viagem',
+    ]);
+
+    $training->students()->attach($ana->id);
+    $training->students()->attach($bruno->id);
+    $training->students()->attach($carol->id);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training])
+        ->assertSet('totalRegistrations', 3)
+        ->set('search', 'ana')
+        ->assertSet('totalRegistrations', 1);
+
+    expect(collect($component->get('churchGroups'))->pluck('church_name')->all())->toBe(['Igreja Esperança']);
+
+    $component
+        ->set('search', 'porto alegre')
+        ->assertSet('totalRegistrations', 1);
+
+    expect(collect($component->get('churchGroups'))->pluck('church_name')->all())->toBe(['Igreja Paz']);
+
+    $component
+        ->set('search', 'carol@example.com')
+        ->assertSet('totalRegistrations', 1);
+
+    expect(collect($component->get('churchGroups'))->pluck('church_name')->all())->toBe(['No church']);
+});

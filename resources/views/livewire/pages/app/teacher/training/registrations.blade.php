@@ -3,6 +3,25 @@
     @php
         $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
     @endphp
+
+    <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e entrega de kit com poucos cliques.')" justify="justify-between">
+        <div class="flex flex-wrap gap-2 items-center">
+            <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
+                class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
+        </div>
+
+        <div class="flex items-center gap-2 min-w-72 w-full max-w-md">
+            <label for="registrations-search" class="sr-only">
+                {{ __('Buscar inscrito, igreja/região ou e-mail') }}
+            </label>
+            <input id="registrations-search" type="text"
+                placeholder="{{ __('Buscar inscrito, igreja/região ou e-mail...') }}"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+                autofocus
+                wire:model.live.debounce.350ms="search">
+        </div>
+    </x-src.toolbar.nav>
+
     <section class="flex gap-4 flex-wrap">
         <article
             class="rounded-2xl border border-sky-950/45 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-3 flex-auto min-w-fit">
