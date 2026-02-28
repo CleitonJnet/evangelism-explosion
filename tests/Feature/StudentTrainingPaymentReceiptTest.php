@@ -99,6 +99,69 @@ it('allows student to upload payment receipt pdf', function () {
     Storage::disk('public')->assertExists((string) $receiptPath);
 });
 
+it('allows student to remove uploaded payment receipt and deletes file from storage', function () {
+    Storage::fake('public');
+
+    $church = Church::factory()->create();
+    $student = createStudentWithRoleForTrainingReceipt();
+    $student->update(['church_id' => $church->id]);
+    $training = Training::factory()->create([
+        'church_id' => $church->id,
+        'price' => '100,00',
+        'price_church' => '0,00',
+        'discount' => '0,00',
+    ]);
+
+    $storedReceiptPath = 'training-receipts/'.$training->id.'/receipt.webp';
+    Storage::disk('public')->put($storedReceiptPath, 'fake-image-content');
+
+    $training->students()->attach($student->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+        'payment_receipt' => $storedReceiptPath,
+    ]);
+
+    Livewire::actingAs($student)
+        ->test(StudentTrainingShow::class, ['training' => $training])
+        ->call('removePaymentReceipt')
+        ->assertHasNoErrors()
+        ->assertSet('paymentReceiptPath', null)
+        ->assertSet('paymentReceiptUrl', null);
+
+    Storage::disk('public')->assertMissing($storedReceiptPath);
+
+    $enrollment = $training->students()
+        ->where('users.id', $student->id)
+        ->firstOrFail();
+
+    expect($enrollment->pivot?->payment_receipt)->toBeNull();
+});
+
+it('hides pix payment block when receipt is already uploaded and pending confirmation', function () {
+    $church = Church::factory()->create();
+    $student = createStudentWithRoleForTrainingReceipt();
+    $student->update(['church_id' => $church->id]);
+    $training = Training::factory()->create([
+        'church_id' => $church->id,
+        'price' => '100,00',
+        'price_church' => '0,00',
+        'discount' => '0,00',
+    ]);
+
+    $training->students()->attach($student->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+        'payment_receipt' => 'training-receipts/pending.webp',
+    ]);
+
+    Livewire::actingAs($student)
+        ->test(StudentTrainingShow::class, ['training' => $training])
+        ->assertSee('Pagamento em análise')
+        ->assertDontSee('Pagamento via PIX');
+});
+
 it('shows payment status on student training index cards', function () {
     $church = Church::factory()->create();
     $student = createStudentWithRoleForTrainingReceipt();

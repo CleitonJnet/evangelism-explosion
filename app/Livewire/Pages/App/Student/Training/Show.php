@@ -125,6 +125,44 @@ class Show extends Component
         $this->syncPaymentReceiptMeta();
         $this->reset('paymentReceipt');
         $this->dispatch('payment-receipt-uploaded');
+        $this->dispatch('toast', type: 'success', message: 'Comprovante enviado. Pagamento em analise.');
+    }
+
+    public function clearSelectedPaymentReceipt(): void
+    {
+        if (! $this->paymentReceipt) {
+            return;
+        }
+
+        $this->reset('paymentReceipt');
+        $this->dispatch('toast', type: 'info', message: 'Arquivo selecionado removido.');
+    }
+
+    public function removePaymentReceipt(): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(401);
+        }
+
+        $existingReceipt = is_string($this->paymentReceiptPath)
+            ? trim($this->paymentReceiptPath)
+            : '';
+
+        if ($existingReceipt !== '' && Storage::disk('public')->exists($existingReceipt)) {
+            Storage::disk('public')->delete($existingReceipt);
+        }
+
+        $this->training->students()->updateExistingPivot($user->id, [
+            'payment_receipt' => null,
+        ]);
+
+        $this->paymentReceiptPath = null;
+        $this->syncPaymentReceiptMeta();
+        $this->reset('paymentReceipt');
+        $this->dispatch('payment-receipt-removed');
+        $this->dispatch('toast', type: 'success', message: 'Comprovante removido. Envie novamente para validar o pagamento.');
     }
 
     private function syncPaymentReceiptMeta(): void
