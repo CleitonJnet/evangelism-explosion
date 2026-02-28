@@ -72,7 +72,7 @@
                 @endcan
 
                 @can('access-student')
-                    <flux:menu.item :href="route('app.student.dashboard')" wire:navigate
+                    <flux:menu.item :href="route('app.student.training.index')" wire:navigate
                         class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Student') }}
                     </flux:menu.item>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,4 +40,31 @@ it('downloads the public event banner using event name and date in filename', fu
         'content-disposition',
         'attachment; filename=treinamento-base-evangelismo-explosivo_21-11-2026.webp',
     );
+});
+
+it('shows banner button on event details and downloads jpg banners', function (): void {
+    Storage::fake('public');
+
+    $course = Course::factory()->create([
+        'type' => 'Treinamento Base',
+        'name' => 'Evangelismo Explosivo',
+    ]);
+
+    $training = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => Church::factory()->create()->id,
+        'banner' => 'training-banners/'.$course->id.'/banner-evento.jpg',
+    ]);
+
+    Storage::disk('public')->put((string) $training->banner, 'fake-image-content');
+
+    $detailsResponse = $this->get(route('web.event.details', ['id' => $training->id]));
+
+    $detailsResponse->assertOk();
+    $detailsResponse->assertSee(route('web.event.banner.download', ['id' => $training->id]), false);
+
+    $downloadResponse = $this->get(route('web.event.banner.download', ['id' => $training->id]));
+
+    $downloadResponse->assertOk();
+    expect((string) $downloadResponse->headers->get('content-disposition'))->toEndWith('.jpg');
 });
