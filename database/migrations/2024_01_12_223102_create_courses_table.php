@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('order')->nullable();
+            $table->integer('order')->nullable();
             $table->integer('execution')->default(0)->nullable();
             $table->string('type')->nullable();
             $table->string('initials')->nullable();
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('knowhow')->nullable();
             $table->string('logo')->nullable();
             $table->string('banner')->nullable();
-            $table->string('price')->default('0,00');
+            $table->decimal('price', 8, 2)->default('0.00');
             $table->timestamps();
 
             $table->foreignId('ministry_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();

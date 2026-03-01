@@ -16,9 +16,9 @@ return new class extends Migration
             $table->integer(column: 'is_pastor')->default(0)->nullable();
             $table->string('name');
             $table->date('birthdate')->nullable();
-            $table->integer('gender')->nullable();
+            $table->tinyInteger('gender')->nullable();
             $table->string('profile_photo_path')->nullable();
-            $table->unsignedBigInteger('phone')->nullable();
+            $table->string('phone')->nullable();
             $table->string('email')->unique();
             $table->string('street')->nullable();
             $table->string('number')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('district')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->integer('postal_code')->nullable();
+            $table->string('postal_code')->nullable();
             $table->text('notes')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

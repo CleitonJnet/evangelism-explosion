@@ -26,9 +26,9 @@ return new class extends Migration
             $table->string('postal_code', 10)->nullable();
             $table->string('url')->nullable();
             $table->string('gpwhatsapp')->nullable();
-            $table->string('price')->default('0,00')->nullable(); // Preço da inscrição
-            $table->string('price_church')->default('0,00')->nullable(); // valor destinado a igreja para pagamento das despesas
-            $table->string('discount')->default('0,00')->nullable(); // possibilidade de porcentagem para desconto
+            $table->decimal('price', 8, 2)->default('0.00')->nullable(); // Preço da inscrição
+            $table->decimal('price_church')->default('0.00')->nullable(); // valor destinado a igreja para pagamento das despesas
+            $table->decimal('discount')->default('0.00')->nullable(); // possibilidade de porcentagem para desconto
             $table->integer('kits')->default(0)->nullable(); // informa se a pessoa já recebeu manterial
             $table->integer('totStudents')->default(0);
             $table->integer('totChurches')->default(0);
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->integer('totApproaches')->default(0);
             $table->integer('totDecisions')->default(0);
             $table->text('notes')->nullable();
-            $table->integer('status')->nullable();
+            $table->tinyInteger('status')->default(0)->nullable();
             $table->timestamps();
 
             $table->foreignId('course_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
