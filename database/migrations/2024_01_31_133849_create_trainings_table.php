@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('trainings', function (Blueprint $table) {
             $table->id();
             $table->string('banner')->nullable();
+            $table->string('leader')->nullable();
             $table->string('coordinator')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('email', 100)->nullable();
@@ -27,20 +28,13 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->string('gpwhatsapp')->nullable();
             $table->decimal('price', 8, 2)->default('0.00')->nullable(); // Preço da inscrição
-            $table->decimal('price_church')->default('0.00')->nullable(); // valor destinado a igreja para pagamento das despesas
-            $table->decimal('discount')->default('0.00')->nullable(); // possibilidade de porcentagem para desconto
+            $table->decimal('price_church', 8, 2)->default('0.00')->nullable(); // valor destinado a igreja para pagamento das despesas
+            $table->decimal('discount', 8, 2)->default('0.00')->nullable(); // possibilidade de porcentagem para desconto
             $table->integer('kits')->default(0)->nullable(); // informa se a pessoa já recebeu manterial
-            $table->integer('totStudents')->default(0);
-            $table->integer('totChurches')->default(0);
-            $table->integer('totNewChurches')->default(0);
-            $table->integer('totPastors')->default(0);
-            $table->integer('totKitsUsed')->default(0);
-            $table->integer('totListeners')->default(0);
-            $table->integer('totKitsReceived')->default(0);
-            $table->integer('totApproaches')->default(0);
-            $table->integer('totDecisions')->default(0);
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(0)->nullable();
+            $table->unsignedSmallInteger(column: 'welcome_duration_minutes')->default(30);
+            $table->json('schedule_settings')->nullable();
             $table->timestamps();
 
             $table->foreignId('course_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();

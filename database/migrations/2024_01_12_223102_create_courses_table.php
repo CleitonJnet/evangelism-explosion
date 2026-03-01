@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('banner')->nullable();
             $table->decimal('price', 8, 2)->default('0.00');
+            $table->integer('min_stp_sessions')->default(0);
             $table->timestamps();
 
             $table->foreignId('ministry_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();

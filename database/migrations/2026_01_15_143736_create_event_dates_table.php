@@ -24,10 +24,6 @@ return new class extends Migration
             $table->date('date');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
-
-            // Status do dia
-            $table->string('status')->default('scheduled'); // scheduled|canceled|completed
-
             $table->timestamps();
 
             // Evita duplicidade do mesmo dia/horário no mesmo training
