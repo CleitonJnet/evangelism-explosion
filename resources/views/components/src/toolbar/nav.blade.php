@@ -66,6 +66,19 @@
             $routeName = session()->get('toolbar.last_route_name');
         }
     }
+
+    if (
+        is_string($routeName) &&
+        $routeName !== '' &&
+        (!$route || str_starts_with((string) $route->getName(), 'livewire.'))
+    ) {
+        $resolvedRoute = app('router')->getRoutes()->getByName($routeName);
+
+        if ($resolvedRoute) {
+            $route = $resolvedRoute;
+        }
+    }
+
     $breadcrumbItems = [];
     $parameterLabels = [];
     $actionLabels = [
@@ -77,6 +90,14 @@
     ];
 
     if ($route && $routeName) {
+        $routeParameters = [];
+
+        try {
+            $routeParameters = $route->parameters();
+        } catch (\Throwable $exception) {
+            $routeParameters = [];
+        }
+
         $resolveLabel = function ($model): ?string {
             foreach (['name', 'title', 'label', 'display_name'] as $key) {
                 $value = data_get($model, $key);
@@ -120,7 +141,7 @@
             return class_basename($model) . ' #' . $routeKey;
         };
 
-        foreach ($route->parameters() as $param) {
+        foreach ($routeParameters as $param) {
             if (!$param instanceof \Illuminate\Database\Eloquent\Model) {
                 continue;
             }
@@ -186,7 +207,7 @@
                 'current' => false,
             ];
 
-            $param = $route?->parameter($singular);
+            $param = $routeParameters[$singular] ?? null;
             $paramValue = null;
             $modelLabel = null;
 

@@ -44,4 +44,5 @@ it('protects church triage routes with manageChurches gate middleware', function
     'app.director.church.make_host',
     'app.teacher.churches.index',
     'app.teacher.church.make_host',
+    'app.teacher.churches.destroy',
 ]);

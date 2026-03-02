@@ -1,16 +1,18 @@
-@props(['title' => null, 'description' => null, 'breadcrumb' => true])
+@props(['title' => null, 'description' => null, 'breadcrumb' => true, 'fixedRouteName' => null])
 
 @php
-    $route = request()->route();
-    $routeName = $route?->getName();
+    $hasFixedRouteName = is_string($fixedRouteName) && $fixedRouteName !== '';
+
+    $route = $hasFixedRouteName ? app('router')->getRoutes()->getByName($fixedRouteName) : request()->route();
+    $routeName = $hasFixedRouteName ? $fixedRouteName : $route?->getName();
     $hasSession = request()->hasSession();
 
-    if ($hasSession && $routeName && !str_starts_with($routeName, 'livewire.')) {
+    if (!$hasFixedRouteName && $hasSession && $routeName && !str_starts_with($routeName, 'livewire.')) {
         session()->put('toolbar.last_route_name', $routeName);
         session()->put('toolbar.last_url', request()->fullUrl());
     }
 
-    if (!$routeName || str_starts_with($routeName, 'livewire.')) {
+    if (!$hasFixedRouteName && (!$routeName || str_starts_with($routeName, 'livewire.'))) {
         $router = app('router');
         $resolved = false;
         $snapshotPath = data_get(request()->input('components.0.snapshot.memo'), 'path');
@@ -66,6 +68,19 @@
             $routeName = session()->get('toolbar.last_route_name');
         }
     }
+
+    if (
+        is_string($routeName) &&
+        $routeName !== '' &&
+        (!$route || str_starts_with((string) $route->getName(), 'livewire.'))
+    ) {
+        $resolvedRoute = app('router')->getRoutes()->getByName($routeName);
+
+        if ($resolvedRoute) {
+            $route = $resolvedRoute;
+        }
+    }
+
     $breadcrumbItems = [];
     $parameterLabels = [];
     $actionLabels = [
@@ -77,6 +92,14 @@
     ];
 
     if ($route && $routeName) {
+        $routeParameters = [];
+
+        try {
+            $routeParameters = $route->parameters();
+        } catch (\Throwable $exception) {
+            $routeParameters = [];
+        }
+
         $resolveLabel = function ($model): ?string {
             foreach (['name', 'title', 'label', 'display_name'] as $key) {
                 $value = data_get($model, $key);
@@ -120,7 +143,7 @@
             return class_basename($model) . ' #' . $routeKey;
         };
 
-        foreach ($route->parameters() as $param) {
+        foreach ($routeParameters as $param) {
             if (!$param instanceof \Illuminate\Database\Eloquent\Model) {
                 continue;
             }
@@ -186,7 +209,7 @@
                 'current' => false,
             ];
 
-            $param = $route?->parameter($singular);
+            $param = $routeParameters[$singular] ?? null;
             $paramValue = null;
             $modelLabel = null;
 

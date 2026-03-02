@@ -17,6 +17,9 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
     });
     Route::middleware('can:manageChurches')->resource('churches', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
+    Route::delete('churches/{church}', [ChurchController::class, 'destroy'])
+        ->middleware('can:manageChurches')
+        ->name('churches.destroy');
 
     Route::get('trainings/planning', [TrainingController::class, 'indexByStatus'])->name('trainings.planning')->defaults('status', 'planning');
     Route::get('trainings/scheduled', [TrainingController::class, 'indexByStatus'])->name('trainings.scheduled')->defaults('status', 'scheduled');
