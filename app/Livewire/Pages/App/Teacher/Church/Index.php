@@ -5,7 +5,7 @@ namespace App\Livewire\Pages\App\Teacher\Church;
 use App\Models\Church;
 use App\Models\Training;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -32,23 +32,21 @@ class Index extends Component
 
         $this->authorize('viewAny', Church::class);
 
-        $churches = $this->churchesForTeacher($user);
+        $accessibleChurchIds = $this->teacherAccessibleChurchIds($user);
+        $churches = $this->churchesForTeacher($accessibleChurchIds);
+        $churchSearch = trim($this->churchSearch);
 
         return view('livewire.pages.app.teacher.church.index', [
             'churches' => $churches,
+            'churchSearchResults' => $this->churchSearchResults($accessibleChurchIds, $churchSearch),
+            'userSearchResults' => $this->userSearchResults($accessibleChurchIds, $churchSearch),
         ]);
-    }
-
-    public function updatedChurchSearch(): void
-    {
-        $this->resetPage();
     }
 
     #[On('teacher-church-created')]
     public function handleChurchCreated(?int $churchId = null, ?string $churchName = null): void
     {
         $this->churchSearch = trim((string) $churchName);
-        $this->resetPage();
     }
 
     public function removeChurch(int $churchId): void
@@ -72,25 +70,66 @@ class Index extends Component
 
         abort_unless($user instanceof User, 403);
 
-        $churches = $this->churchesForTeacher($user);
+        $churches = $this->churchesForTeacher($this->teacherAccessibleChurchIds($user));
 
         return $churches->isEmpty() && $churches->currentPage() > 1;
     }
 
-    private function churchesForTeacher(User $user): LengthAwarePaginator
+    /**
+     * @param  array<int, int>  $accessibleChurchIds
+     */
+    private function churchesForTeacher(array $accessibleChurchIds): LengthAwarePaginator
     {
-        $accessibleChurchIds = $this->teacherAccessibleChurchIds($user);
-
         return Church::query()
             ->whereIn('id', $accessibleChurchIds)
-            ->when($this->churchSearch !== '', function (Builder $query): void {
-                $query->where('name', 'like', '%'.$this->churchSearch.'%');
-            })
             ->withCount([
                 'members as total_members_count',
             ])
             ->orderBy('name')
             ->paginate($this->perPage);
+    }
+
+    /**
+     * @param  array<int, int>  $accessibleChurchIds
+     * @return EloquentCollection<int, Church>
+     */
+    private function churchSearchResults(array $accessibleChurchIds, string $churchSearch): EloquentCollection
+    {
+        if ($churchSearch === '') {
+            return new EloquentCollection;
+        }
+
+        return Church::query()
+            ->whereIn('id', $accessibleChurchIds)
+            ->where(function ($query) use ($churchSearch): void {
+                $query->where('name', 'like', '%'.$churchSearch.'%')
+                    ->orWhere('city', 'like', '%'.$churchSearch.'%')
+                    ->orWhere('state', 'like', '%'.$churchSearch.'%');
+            })
+            ->orderBy('name')
+            ->limit(6)
+            ->get();
+    }
+
+    /**
+     * @return EloquentCollection<int, User>
+     */
+    private function userSearchResults(array $accessibleChurchIds, string $churchSearch): EloquentCollection
+    {
+        if ($churchSearch === '' || $accessibleChurchIds === []) {
+            return new EloquentCollection;
+        }
+
+        return User::query()
+            ->with('church')
+            ->whereIn('church_id', $accessibleChurchIds)
+            ->where(function ($query) use ($churchSearch): void {
+                $query->where('name', 'like', '%'.$churchSearch.'%')
+                    ->orWhere('email', 'like', '%'.$churchSearch.'%');
+            })
+            ->orderBy('name')
+            ->limit(6)
+            ->get();
     }
 
     /**

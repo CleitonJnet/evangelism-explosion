@@ -63,6 +63,8 @@ class View extends Component
             ->paginate($this->membersPerPage, pageName: 'membersPage');
 
         $trainings = $this->trainingsQuery($church)
+            ->orderByRaw('event_dates_min_date is null')
+            ->orderByDesc('event_dates_min_date')
             ->orderByDesc('id')
             ->paginate($this->trainingsPerPage, pageName: 'trainingsPage');
 
@@ -110,6 +112,7 @@ class View extends Component
                 'teacher',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
+            ->withMin('eventDates', 'date')
             ->where('church_id', $church->id);
     }
 

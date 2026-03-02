@@ -116,11 +116,16 @@ it('forbids teacher from removing own church', function (): void {
     $this->assertDatabaseHas('churches', ['id' => $church->id]);
 });
 
-it('filters churches by search term', function (): void {
+it('shows church and user results in search dropdown without filtering table rows', function (): void {
     $teacher = createTeacherUser();
 
     $churchOne = Church::factory()->create(['name' => 'Igreja Esperança']);
     $churchTwo = Church::factory()->create(['name' => 'Igreja Vitória']);
+    $matchingUser = User::factory()->create([
+        'name' => 'Carlos Esperança',
+        'email' => 'carlos.esperanca@example.com',
+        'church_id' => $churchOne->id,
+    ]);
 
     createTeacherTraining($teacher, $churchOne->id);
     createTeacherTraining($teacher, $churchTwo->id);
@@ -128,8 +133,25 @@ it('filters churches by search term', function (): void {
     Livewire::actingAs($teacher)
         ->test(ChurchIndex::class)
         ->set('churchSearch', 'Esperança')
+        ->assertSeeText('Igrejas encontradas')
         ->assertSeeText('Igreja Esperança')
-        ->assertDontSeeText('Igreja Vitória');
+        ->assertSeeText('Usuários encontrados')
+        ->assertSeeText($matchingUser->name)
+        ->assertSee(route('app.teacher.churches.show', $churchOne))
+        ->assertSeeText('Igreja Vitória');
+});
+
+it('shows not found messages in search dropdown when there are no matches', function (): void {
+    $teacher = createTeacherUser();
+    $church = Church::factory()->create(['name' => 'Igreja Base']);
+
+    createTeacherTraining($teacher, $church->id);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->set('churchSearch', 'Termo Inexistente XYZ')
+        ->assertSeeText('Igreja não encontrada.')
+        ->assertSeeText('Nenhum usuário encontrado para este termo.');
 });
 
 it('renders row navigation link for each listed church', function (): void {

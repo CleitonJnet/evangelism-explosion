@@ -83,6 +83,7 @@ it('shows complete church details to a teacher with access', function (): void {
     $response->assertSeeText('Rua Central');
     $response->assertSeeText('Carlos Membro');
     $response->assertSeeText('Curso Base de Evangelismo');
+    $response->assertSee('data-row-link="'.route('app.teacher.trainings.show', $trainingWithCourse).'"', false);
     $response->assertSeeText($teacher->name);
     $response->assertSeeText('Membros totais');
     $response->assertSeeText('Treinamentos na igreja');
@@ -97,6 +98,49 @@ it('forbids teacher from viewing church details without relation', function (): 
     $response = $this->actingAs($teacher)->get(route('app.teacher.churches.show', $church));
 
     $response->assertForbidden();
+});
+
+it('enables training row redirect only for trainings owned by logged teacher', function (): void {
+    $church = Church::factory()->create();
+    $teacher = createTeacherForChurchDetails();
+    $otherTeacher = createTeacherForChurchDetails();
+
+    $ownCourse = Course::factory()->create(['name' => 'Curso do Professor']);
+    $otherCourse = Course::factory()->create(['name' => 'Curso de Outro Professor']);
+
+    $ownTraining = Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $ownCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    $otherTraining = Training::query()->create([
+        'teacher_id' => $otherTeacher->id,
+        'church_id' => $church->id,
+        'course_id' => $otherCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    $ownTraining->eventDates()->create([
+        'date' => now()->addDays(3)->toDateString(),
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    $otherTraining->eventDates()->create([
+        'date' => now()->addDays(2)->toDateString(),
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    $response = $this->actingAs($teacher)->get(route('app.teacher.churches.show', $church));
+
+    $response->assertOk();
+    $response->assertSeeText('Curso do Professor');
+    $response->assertSeeText('Curso de Outro Professor');
+    $response->assertSee('data-row-link="'.route('app.teacher.trainings.show', $ownTraining).'"', false);
+    $response->assertDontSee('data-row-link="'.route('app.teacher.trainings.show', $otherTraining).'"', false);
 });
 
 it('updates church details from edit modal', function (): void {
@@ -162,11 +206,17 @@ it('paginates related trainings in church details with livewire', function (): v
             'name' => sprintf('Curso relacionado %02d', $index),
         ]);
 
-        Training::query()->create([
+        $training = Training::query()->create([
             'teacher_id' => $teacher->id,
             'church_id' => $church->id,
             'course_id' => $course->id,
             'status' => 1,
+        ]);
+
+        $training->eventDates()->create([
+            'date' => now()->addDays($index)->toDateString(),
+            'start_time' => '08:00:00',
+            'end_time' => '12:00:00',
         ]);
     }
 

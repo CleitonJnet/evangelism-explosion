@@ -1,10 +1,8 @@
 <div>
-    <x-src.toolbar.header :title="__('Detalhes da igreja')" :description="__('Visão completa da igreja para gestão pelo professor.')"
-        fixed-route-name="app.teacher.churches.show" />
+    <x-src.toolbar.header :title="__('Detalhes da igreja')" :description="__('Visão completa da igreja para gestão pelo professor.')" fixed-route-name="app.teacher.churches.show" />
     <x-src.toolbar.nav>
-        <x-src.toolbar.button :href="route('app.teacher.churches.index')" :label="__('Listar Igrejas')" icon="list"
-            :tooltip="__('Voltar para listagem')" />
-        <x-src.toolbar.button href="#" :label="__('Editar')" icon="pencil" :tooltip="__('Editar dados da igreja')"
+        <x-src.toolbar.button :href="route('app.teacher.churches.index')" :label="__('Listar Igrejas')" icon="list" :tooltip="__('Voltar para listagem')" />
+        <x-src.toolbar.button :label="__('Editar')" icon="pencil" :tooltip="__('Editar dados da igreja')"
             x-on:click.prevent="$dispatch('open-teacher-church-edit-modal', { churchId: {{ $church->id }} })" />
     </x-src.toolbar.nav>
 
@@ -22,10 +20,6 @@
                     </h2>
                     <p class="text-sm text-slate-600">{{ $church->pastor ?: __('Pastor não informado') }}</p>
                 </div>
-            </div>
-
-            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
-                {{ __('Cadastro # :id', ['id' => $church->id]) }}
             </div>
         </div>
 
@@ -60,23 +54,28 @@
                 <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('E-mail da igreja') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->email ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->email ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Telefone da igreja') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->phone ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->phone ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Contato responsável') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->contact ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->contact ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Telefone do contato') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->contact_phone ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->contact_phone ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <span>{{ __('E-mail do contato') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->contact_email ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->contact_email ?: __('Não informado') }}</span>
                     </div>
                 </div>
             </div>
@@ -88,31 +87,38 @@
                 <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('CEP') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->postal_code ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->postal_code ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('UF') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->state ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->state ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Logradouro') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->street ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->street ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Número') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->number ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->number ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Complemento') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->complement ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->complement ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 border-b border-sky-100/70">
                         <span>{{ __('Bairro') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->district ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->district ?: __('Não informado') }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <span>{{ __('Cidade') }}</span>
-                        <span class="text-right font-semibold text-slate-900">{{ $church->city ?: __('Não informado') }}</span>
+                        <span
+                            class="text-right font-semibold text-slate-900">{{ $church->city ?: __('Não informado') }}</span>
                     </div>
                 </div>
             </div>
@@ -124,7 +130,8 @@
             </h3>
             <div class="mt-3 grid gap-3">
                 <div>
-                    <p class="text-sm whitespace-pre-line text-slate-900">{{ $church->notes ?: __('Não informado') }}</p>
+                    <p class="text-sm whitespace-pre-line text-slate-900">{{ $church->notes ?: __('Não informado') }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -152,10 +159,12 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             @forelse ($members as $member)
-                                <tr>
+                                <tr class="odd:bg-white even:bg-slate-50">
                                     <td class="px-2 py-2 font-medium text-slate-900">{{ $member->name }}</td>
-                                    <td class="px-2 py-2 text-slate-700">{{ $member->email ?: __('Não informado') }}</td>
-                                    <td class="px-2 py-2 text-slate-700">{{ $member->phone ?: __('Não informado') }}</td>
+                                    <td class="px-2 py-2 text-slate-700">{{ $member->email ?: __('Não informado') }}
+                                    </td>
+                                    <td class="px-2 py-2 text-slate-700">{{ $member->phone ?: __('Não informado') }}
+                                    </td>
                                     <td class="px-2 py-2 text-slate-700">
                                         {{ (bool) $member->is_pastor ? __('Pastor') : __('Membro') }}
                                     </td>
@@ -193,15 +202,26 @@
                             @forelse ($trainings as $training)
                                 @php
                                     $firstDate = $training->eventDates->first();
+                                    $canAccessTraining = (int) $training->teacher_id === (int) auth()->id();
+                                    $statusTextClass = match ($training->status?->key()) {
+                                        'planning' => 'text-amber-900',
+                                        'scheduled' => 'text-sky-900',
+                                        'canceled' => 'text-rose-900',
+                                        'completed' => 'text-emerald-900',
+                                        default => 'text-slate-700',
+                                    };
                                 @endphp
-                                <tr wire:key="church-training-{{ $training->id }}">
+                                <tr wire:key="church-training-{{ $training->id }}"
+                                    class="{{ $canAccessTraining ? 'cursor-pointer hover:bg-slate-100/90' : 'cursor-not-allowed hover:bg-slate-50' }} odd:bg-white even:bg-slate-50"
+                                    @if ($canAccessTraining) data-row-link="{{ route('app.teacher.trainings.show', $training) }}" x-on:click="window.location = $el.dataset.rowLink" @endif>
                                     <td class="px-2 py-2 font-medium text-slate-900">
                                         {{ $training->course?->name ?: __('Curso não informado') }}
                                     </td>
                                     <td class="px-2 py-2 text-slate-700">
                                         {{ $training->teacher?->name ?: __('Não informado') }}
                                     </td>
-                                    <td class="px-2 py-2 text-slate-700">{{ $training->status?->label() ?? __('Não informado') }}</td>
+                                    <td class="px-2 py-2 font-semibold {{ $statusTextClass }}">
+                                        {{ $training->status?->label() ?? __('Não informado') }}</td>
                                     <td class="px-2 py-2 text-slate-700">
                                         {{ $firstDate?->date ? \Illuminate\Support\Carbon::parse($firstDate->date)->format('d/m/Y') : __('Não informado') }}
                                     </td>
@@ -242,5 +262,6 @@
         </div>
     </section>
 
-    <livewire:pages.app.teacher.church.edit-modal :church-id="$church->id" wire:key="teacher-church-edit-modal-{{ $church->id }}" />
+    <livewire:pages.app.teacher.church.edit-modal :church-id="$church->id"
+        wire:key="teacher-church-edit-modal-{{ $church->id }}" />
 </div>
