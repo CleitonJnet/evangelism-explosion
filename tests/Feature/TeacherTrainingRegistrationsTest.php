@@ -3,6 +3,7 @@
 use App\Livewire\Pages\App\Teacher\Training\Registrations;
 use App\Models\Church;
 use App\Models\ChurchTemp;
+use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -89,10 +90,12 @@ it('updates participant statuses on the training pivot', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
     Storage::fake('public');
+    $leaderCourse = Course::factory()->create(['execution' => 0]);
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
         'church_id' => $church->id,
+        'course_id' => $leaderCourse->id,
     ]);
     $student = User::factory()->create(['church_id' => $church->id]);
     Storage::disk('public')->put('training-receipts/123/comprovante.webp', 'fake-image-content');
@@ -118,6 +121,37 @@ it('updates participant statuses on the training pivot', function () {
         'accredited' => 1,
         'kit' => 1,
     ]);
+
+    $facilitatorRole = Role::query()->firstWhere('name', 'Facilitator');
+
+    expect($facilitatorRole)->not->toBeNull();
+    expect($student->fresh()->roles()->whereKey($facilitatorRole?->id)->exists())->toBeTrue();
+});
+
+it('does not assign facilitator role when accrediting in non-leader course', function (): void {
+    $teacher = createTeacher();
+    $church = Church::factory()->create();
+    $regularCourse = Course::factory()->create(['execution' => 1]);
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $regularCourse->id,
+    ]);
+
+    $student = User::factory()->create(['church_id' => $church->id]);
+
+    $training->students()->attach($student->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training])
+        ->call('toggleAccredited', $student->id, true);
+
+    expect($student->fresh()->hasRole('Facilitator'))->toBeFalse();
 });
 
 it('does not confirm payment when receipt file is missing', function () {

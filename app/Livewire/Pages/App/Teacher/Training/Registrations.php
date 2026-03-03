@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -107,6 +108,10 @@ class Registrations extends Component
     public function toggleAccredited(int $userId, bool $enabled): void
     {
         $this->updateEnrollment($userId, ['accredited' => $enabled]);
+
+        if ($enabled && $this->trainingCourseAllowsFacilitatorRole()) {
+            $this->assignFacilitatorRole($userId);
+        }
     }
 
     public function toggleKit(int $userId, bool $enabled): void
@@ -222,6 +227,7 @@ class Registrations extends Component
         $this->training = Training::query()
             ->with([
                 'church',
+                'course',
                 'students' => fn ($query) => $query
                     ->with(['church', 'church_temp'])
                     ->orderBy('name'),
@@ -436,5 +442,23 @@ class Registrations extends Component
         $haystack = mb_strtolower(implode(' ', array_filter($fields)), 'UTF-8');
 
         return str_contains($haystack, $searchTerm);
+    }
+
+    private function trainingCourseAllowsFacilitatorRole(): bool
+    {
+        return (int) ($this->training->course?->execution ?? -1) === 0;
+    }
+
+    private function assignFacilitatorRole(int $userId): void
+    {
+        $user = User::query()->find($userId);
+
+        if (! $user) {
+            return;
+        }
+
+        $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+        $user->roles()->syncWithoutDetaching([$facilitatorRole->id]);
     }
 }

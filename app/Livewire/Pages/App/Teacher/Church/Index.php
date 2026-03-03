@@ -24,6 +24,10 @@ class Index extends Component
 
     public string $churchSearch = '';
 
+    public string $sortField = 'church';
+
+    public string $sortDirection = 'asc';
+
     public function render(): View
     {
         $user = Auth::user();
@@ -64,6 +68,24 @@ class Index extends Component
         session()->flash('success', __('Igreja removida com sucesso.'));
     }
 
+    public function sortBy(string $field): void
+    {
+        $allowedFields = ['index', 'church', 'contact', 'location', 'members', 'accredited'];
+
+        if (! in_array($field, $allowedFields, true)) {
+            return;
+        }
+
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
     private function isCurrentPageEmpty(): bool
     {
         $user = Auth::user();
@@ -80,13 +102,49 @@ class Index extends Component
      */
     private function churchesForTeacher(array $accessibleChurchIds): LengthAwarePaginator
     {
-        return Church::query()
+        $query = Church::query()
             ->whereIn('id', $accessibleChurchIds)
             ->withCount([
                 'members as total_members_count',
             ])
-            ->orderBy('name')
-            ->paginate($this->perPage);
+            ->selectSub(function ($query): void {
+                $query->from('users')
+                    ->selectRaw('count(distinct users.id)')
+                    ->whereColumn('users.church_id', 'churches.id')
+                    ->whereExists(function ($query): void {
+                        $query->selectRaw('1')
+                            ->from('role_user')
+                            ->join('roles', 'roles.id', '=', 'role_user.role_id')
+                            ->whereColumn('role_user.user_id', 'users.id')
+                            ->whereRaw('LOWER(roles.name) = ?', ['facilitator']);
+                    });
+            }, 'total_accredited_members_count');
+
+        $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
+
+        match ($this->sortField) {
+            'church' => $query
+                ->orderBy('name', $sortDirection)
+                ->orderBy('pastor', $sortDirection)
+                ->orderBy('id', $sortDirection),
+            'contact' => $query
+                ->orderBy('contact', $sortDirection)
+                ->orderBy('contact_email', $sortDirection)
+                ->orderBy('id', $sortDirection),
+            'location' => $query
+                ->orderBy('state', $sortDirection)
+                ->orderBy('city', $sortDirection)
+                ->orderBy('id', $sortDirection),
+            'members' => $query
+                ->orderBy('total_members_count', $sortDirection)
+                ->orderBy('id', $sortDirection),
+            'accredited' => $query
+                ->orderBy('total_accredited_members_count', $sortDirection)
+                ->orderBy('id', $sortDirection),
+            default => $query->orderBy('id', $sortDirection),
+        };
+
+        return $query->paginate($this->perPage);
     }
 
     /**

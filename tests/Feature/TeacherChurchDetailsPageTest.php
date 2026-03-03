@@ -333,3 +333,181 @@ it('counts total linked members correctly in church indicators', function (): vo
         ->set('memberSearch', 'membro1@example.org')
         ->assertViewHas('totalMembersCount', 2);
 });
+
+it('shows accredited members grouped by leader course and total summary', function (): void {
+    $church = Church::factory()->create();
+    $otherChurch = Church::factory()->create();
+    $teacher = createTeacherForChurchDetails();
+    $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+    $leaderCourse = Course::factory()->create([
+        'name' => 'Curso de Lideres Alpha',
+        'execution' => 0,
+    ]);
+
+    $otherCourse = Course::factory()->create([
+        'name' => 'Curso Regular Beta',
+        'execution' => 1,
+    ]);
+
+    $leaderTraining = Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $leaderCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    $nonLeaderTraining = Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $otherCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    $accreditedMemberOne = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Credenciado Um',
+        'email' => 'credenciado1@example.org',
+    ]);
+
+    $accreditedMemberTwo = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Credenciado Dois',
+        'email' => 'credenciado2@example.org',
+    ]);
+
+    $nonAccreditedMember = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Nao Credenciado',
+        'email' => 'naocredenciado@example.org',
+    ]);
+
+    $memberFromOtherChurch = User::factory()->create([
+        'church_id' => $otherChurch->id,
+        'name' => 'Credenciado Externo',
+        'email' => 'externo@example.org',
+    ]);
+
+    $leaderTraining->students()->attach($accreditedMemberOne->id, ['accredited' => 1]);
+    $leaderTraining->students()->attach($accreditedMemberTwo->id, ['accredited' => 1]);
+    $leaderTraining->students()->attach($nonAccreditedMember->id, ['accredited' => 0]);
+    $leaderTraining->students()->attach($memberFromOtherChurch->id, ['accredited' => 1]);
+    $nonLeaderTraining->students()->attach($accreditedMemberOne->id, ['accredited' => 1]);
+
+    $accreditedMemberOne->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    $accreditedMemberTwo->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    $memberFromOtherChurch->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchDetailsView::class, ['church' => $church])
+        ->assertSee('Total de credenciados')
+        ->assertViewHas('totalAccreditedMembersInLeaderCourses', 2)
+        ->assertSee('Credenciados - Curso de Lideres Alpha')
+        ->assertViewHas('leaderCoursesWithAccreditedMembers', function ($cards) {
+            expect($cards)->toHaveCount(1);
+
+            $firstCard = $cards->first();
+
+            expect($firstCard['course']->name)->toBe('Curso de Lideres Alpha');
+
+            $names = $firstCard['accreditedMembers']->getCollection()
+                ->pluck('name')
+                ->values()
+                ->all();
+
+            expect($names)->toBe(['Credenciado Dois', 'Credenciado Um']);
+
+            return true;
+        });
+});
+
+it('does not show leader course accreditation cards when church has no execution zero course', function (): void {
+    $church = Church::factory()->create();
+    $teacher = createTeacherForChurchDetails();
+
+    $regularCourse = Course::factory()->create([
+        'name' => 'Curso Sem Lideranca',
+        'execution' => 1,
+    ]);
+
+    $training = Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $regularCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    $member = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Membro Sem Card',
+        'email' => 'membro-sem-card@example.org',
+    ]);
+
+    $training->students()->attach($member->id, ['accredited' => 1]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchDetailsView::class, ['church' => $church])
+        ->assertViewHas('totalAccreditedMembersInLeaderCourses', 0)
+        ->assertDontSee('Credenciados - ');
+});
+
+it('paginates accredited members by leader course with five records per page', function (): void {
+    $church = Church::factory()->create();
+    $teacher = createTeacherForChurchDetails();
+    $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+    $leaderCourse = Course::factory()->create([
+        'name' => 'Curso Lideres Paginado',
+        'execution' => 0,
+    ]);
+
+    $training = Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $leaderCourse->id,
+        'status' => TrainingStatus::Scheduled->value,
+    ]);
+
+    foreach (range(1, 6) as $index) {
+        $member = User::factory()->create([
+            'church_id' => $church->id,
+            'name' => sprintf('Membro Credenciado %02d', $index),
+            'email' => sprintf('membro%02d@example.org', $index),
+        ]);
+
+        $training->students()->attach($member->id, ['accredited' => 1]);
+        $member->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    }
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchDetailsView::class, ['church' => $church])
+        ->assertViewHas('leaderCoursesWithAccreditedMembers', function ($cards) {
+            $firstCard = $cards->first();
+            $firstPageNames = $firstCard['accreditedMembers']->getCollection()
+                ->pluck('name')
+                ->values()
+                ->all();
+
+            expect($firstPageNames)->toBe([
+                'Membro Credenciado 01',
+                'Membro Credenciado 02',
+                'Membro Credenciado 03',
+                'Membro Credenciado 04',
+                'Membro Credenciado 05',
+            ]);
+
+            return true;
+        })
+        ->call('setPage', 2, 'accreditedMembersCourse'.$leaderCourse->id.'Page')
+        ->assertViewHas('leaderCoursesWithAccreditedMembers', function ($cards) {
+            $firstCard = $cards->first();
+            $secondPageNames = $firstCard['accreditedMembers']->getCollection()
+                ->pluck('name')
+                ->values()
+                ->all();
+
+            expect($secondPageNames)->toBe(['Membro Credenciado 06']);
+
+            return true;
+        });
+});

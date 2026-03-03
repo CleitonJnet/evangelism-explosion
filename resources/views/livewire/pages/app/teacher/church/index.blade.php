@@ -115,12 +115,61 @@
             <table class="w-full min-w-4xl text-left text-sm">
                 <thead class="text-xs uppercase text-slate-500">
                     <tr class="border-b border-slate-200">
-                        <th class="px-3 py-2">{{ __('Ordem') }}</th>
+                        <th class="px-3 py-2">
+                            <button type="button" wire:click="sortBy('index')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Ordem') }}</span>
+                                @if ($sortField === 'index')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
                         <th class="px-3 py-2 text-center">{{ __('Logo') }}</th>
-                        <th class="px-3 py-2">{{ __('Igreja / Pastor') }}</th>
-                        <th class="px-3 py-2">{{ __('Contato / E-mail') }}</th>
-                        <th class="px-3 py-2">{{ __('Cidade / UF') }}</th>
-                        <th class="px-3 py-2 text-center">{{ __('Total de membros') }}</th>
+                        <th class="px-3 py-2">
+                            <button type="button" wire:click="sortBy('church')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Igreja / Pastor') }}</span>
+                                @if ($sortField === 'church')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-3 py-2">
+                            <button type="button" wire:click="sortBy('contact')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Contato / E-mail') }}</span>
+                                @if ($sortField === 'contact')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-3 py-2">
+                            <button type="button" wire:click="sortBy('location')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Cidade / UF') }}</span>
+                                @if ($sortField === 'location')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-3 py-2 text-center">
+                            <button type="button" wire:click="sortBy('members')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Total de membros') }}</span>
+                                @if ($sortField === 'members')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-3 py-2 text-center">
+                            <button type="button" wire:click="sortBy('accredited')"
+                                class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                <span>{{ __('Total de credenciados') }}</span>
+                                @if ($sortField === 'accredited')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                @endif
+                            </button>
+                        </th>
                         <th class="px-3 py-2 text-right">{{ __('Ações') }}</th>
                     </tr>
                 </thead>
@@ -172,6 +221,12 @@
                                     {{ $church->total_members_count }}
                                 </span>
                             </td>
+                            <td class="px-3 py-3 text-center align-middle">
+                                <span
+                                    class="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">
+                                    {{ (int) $church->total_accredited_members_count }}
+                                </span>
+                            </td>
                             <td class="px-3 py-3 align-middle">
                                 <div class="flex justify-end" x-on:click.stop>
                                     <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
@@ -185,7 +240,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-600">
+                            <td colspan="8" class="px-3 py-8 text-center text-sm text-slate-600">
                                 {{ __('Nenhuma igreja encontrada para os seus treinamentos.') }}
                             </td>
                         </tr>

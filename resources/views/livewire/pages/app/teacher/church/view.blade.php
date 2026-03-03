@@ -23,24 +23,29 @@
             </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+        <div class="flex flex-wrap gap-4">
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
                 <p class="text-xs uppercase text-slate-500">{{ __('Membros totais') }}</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">{{ $totalMembersCount }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
+                <p class="text-xs uppercase text-sky-700">{{ __('Total de credenciados') }}
+                </p>
+                <p class="mt-1 text-2xl font-bold text-sky-950">{{ $totalAccreditedMembersInLeaderCourses }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
                 <p class="text-xs uppercase text-slate-500">{{ __('Pastores cadastrados') }}</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">{{ $pastorMembersCount }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
                 <p class="text-xs uppercase text-slate-500">{{ __('Missionários vinculados') }}</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">{{ $church->missionaries_count }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
                 <p class="text-xs uppercase text-slate-500">{{ __('Treinamentos na igreja') }}</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">{{ $churchTrainingsCount }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+            <div class="rounded-xl border border-slate-200 bg-white/80 p-4 basis-44 flex-auto">
                 <p class="text-xs uppercase text-slate-500">{{ __('Treinamentos sob sua gestão') }}</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">{{ $teacherTrainingsCount }}</p>
             </div>
@@ -124,18 +129,6 @@
             </div>
         </div>
 
-        <div class="mt-6 rounded-xl border border-slate-200 bg-white/80 p-4">
-            <h3 class="mb-2 border-b-2 border-sky-800/30 pb-2 text-sm font-semibold text-slate-900 uppercase">
-                {{ __('Observações') }}
-            </h3>
-            <div class="mt-3 grid gap-3">
-                <div>
-                    <p class="text-sm whitespace-pre-line text-slate-900">{{ $church->notes ?: __('Não informado') }}
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <div class="mt-6 grid gap-4 xl:grid-cols-2">
             <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
                 <h3 class="border-b border-slate-200 pb-2 text-sm font-semibold uppercase text-slate-700">
@@ -159,6 +152,11 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             @forelse ($members as $member)
+                                @php
+                                    $isFacilitator = $member->roles->contains(
+                                        fn ($role): bool => mb_strtolower((string) $role->name, 'UTF-8') === 'facilitator',
+                                    );
+                                @endphp
                                 <tr class="odd:bg-white even:bg-slate-50">
                                     <td class="px-2 py-2 font-medium text-slate-900">{{ $member->name }}</td>
                                     <td class="px-2 py-2 text-slate-700">{{ $member->email ?: __('Não informado') }}
@@ -166,7 +164,11 @@
                                     <td class="px-2 py-2 text-slate-700">{{ $member->phone ?: __('Não informado') }}
                                     </td>
                                     <td class="px-2 py-2 text-slate-700">
-                                        {{ (bool) $member->is_pastor ? __('Pastor') : __('Membro') }}
+                                        @if ($isFacilitator)
+                                            {{ __('Facilitador') }}
+                                        @else
+                                            {{ (bool) $member->is_pastor ? __('Pastor') : __('Membro') }}
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
@@ -241,6 +243,56 @@
             </div>
         </div>
 
+        @if ($leaderCoursesWithAccreditedMembers->isNotEmpty())
+            <div class="mt-6 grid gap-4 xl:grid-cols-2">
+                @foreach ($leaderCoursesWithAccreditedMembers as $leaderCourseCard)
+                    @php
+                        $leaderCourse = $leaderCourseCard['course'];
+                        $accreditedMembers = $leaderCourseCard['accreditedMembers'];
+                    @endphp
+                    <div class="rounded-xl border border-slate-200 bg-white/80 p-4">
+                        <h3 class="border-b border-slate-200 pb-2 text-sm font-semibold uppercase text-slate-700">
+                            {{ __('Credenciados - :course', ['course' => $leaderCourse->name]) }}
+                        </h3>
+
+                        <div class="mt-3 overflow-x-auto">
+                            <table class="w-full min-w-xl text-left text-sm">
+                                <thead class="text-xs uppercase text-slate-500">
+                                    <tr class="border-b border-slate-200">
+                                        <th class="px-2 py-2">{{ __('Nome') }}</th>
+                                        <th class="px-2 py-2">{{ __('E-mail') }}</th>
+                                        <th class="px-2 py-2">{{ __('Telefone') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    @forelse ($accreditedMembers as $accreditedMember)
+                                        <tr class="odd:bg-white even:bg-slate-50">
+                                            <td class="px-2 py-2 font-medium text-slate-900">
+                                                {{ $accreditedMember->name }}</td>
+                                            <td class="px-2 py-2 text-slate-700">
+                                                {{ $accreditedMember->email ?: __('Não informado') }}
+                                            </td>
+                                            <td class="px-2 py-2 text-slate-700">
+                                                {{ $accreditedMember->phone ?: __('Não informado') }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="px-2 py-4 text-center text-slate-600">
+                                                {{ __('Sem membros credenciados neste curso.') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-3">{{ $accreditedMembers->links(data: ['scrollTo' => false]) }}</div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="mt-6 rounded-xl border border-slate-200 bg-white/80 p-4">
             <h3 class="mb-2 border-b-2 border-sky-800/30 pb-2 text-sm font-semibold text-slate-900 uppercase">
                 {{ __('Auditoria do cadastro') }}
@@ -260,6 +312,20 @@
                 </div>
             </div>
         </div>
+
+        <div class="mt-6 rounded-xl border border-slate-200 bg-white/80 p-4">
+            <h3 class="mb-2 border-b-2 border-sky-800/30 pb-2 text-sm font-semibold text-slate-900 uppercase">
+                {{ __('Observações') }}
+            </h3>
+            <div class="mt-3 grid gap-3">
+                <div>
+                    <p class="text-sm whitespace-pre-line text-slate-900">{{ $church->notes ?: __('Não informado') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
     </section>
 
     <livewire:pages.app.teacher.church.edit-modal :church-id="$church->id"

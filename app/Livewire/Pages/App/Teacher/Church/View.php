@@ -3,10 +3,14 @@
 namespace App\Livewire\Pages\App\Teacher\Church;
 
 use App\Models\Church;
+use App\Models\Course;
 use App\Models\Training;
+use App\Models\User;
 use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View as ViewContract;
@@ -24,6 +28,8 @@ class View extends Component
     public int $membersPerPage = 10;
 
     public int $trainingsPerPage = 8;
+
+    public int $accreditedMembersPerPage = 5;
 
     public string $memberSearch = '';
 
@@ -72,6 +78,7 @@ class View extends Component
         $teacherTrainingsCount = (clone $this->indicatorTrainingsQuery($church))
             ->where('teacher_id', $teacherId)
             ->count();
+        $leaderCoursesWithAccreditedMembers = $this->leaderCoursesWithAccreditedMembers($church);
 
         $pastorMembersCount = (clone $church->members()->getQuery())
             ->where('is_pastor', 1)
@@ -85,13 +92,15 @@ class View extends Component
             'churchTrainingsCount' => $churchTrainingsCount,
             'teacherTrainingsCount' => $teacherTrainingsCount,
             'pastorMembersCount' => $pastorMembersCount,
+            'leaderCoursesWithAccreditedMembers' => $leaderCoursesWithAccreditedMembers,
+            'totalAccreditedMembersInLeaderCourses' => $this->totalAccreditedMembersInLeaderCourses($church),
             'logoUrl' => $this->logoUrl($church),
         ]);
     }
 
     private function membersQuery(Church $church): Builder
     {
-        $query = $church->members();
+        $query = $church->members()->with('roles');
 
         if ($this->memberSearch !== '') {
             $query->where(function (Builder $query): void {
@@ -124,6 +133,82 @@ class View extends Component
                 TrainingStatus::Scheduled->value,
                 TrainingStatus::Completed->value,
             ]);
+    }
+
+    /**
+     * @return Collection<int, array{course: Course, accreditedMembers: LengthAwarePaginator}>
+     */
+    private function leaderCoursesWithAccreditedMembers(Church $church): Collection
+    {
+        $courses = Course::query()
+            ->select('courses.*')
+            ->join('trainings', 'trainings.course_id', '=', 'courses.id')
+            ->where('trainings.church_id', $church->id)
+            ->where('courses.execution', 0)
+            ->whereExists(function ($query) use ($church): void {
+                $query->selectRaw('1')
+                    ->from('training_user')
+                    ->join('users', 'users.id', '=', 'training_user.user_id')
+                    ->join('role_user', 'role_user.user_id', '=', 'users.id')
+                    ->join('roles', 'roles.id', '=', 'role_user.role_id')
+                    ->whereColumn('training_user.training_id', 'trainings.id')
+                    ->where('users.church_id', $church->id)
+                    ->whereRaw('LOWER(roles.name) = ?', ['facilitator']);
+            })
+            ->distinct()
+            ->orderBy('courses.name')
+            ->get();
+
+        return $courses->map(function (Course $course) use ($church): array {
+            $pageName = 'accreditedMembersCourse'.$course->id.'Page';
+
+            return [
+                'course' => $course,
+                'accreditedMembers' => $this->accreditedMembersInCourseQuery($church, $course)
+                    ->orderBy('name')
+                    ->paginate($this->accreditedMembersPerPage, pageName: $pageName),
+            ];
+        });
+    }
+
+    private function totalAccreditedMembersInLeaderCourses(Church $church): int
+    {
+        return $this->facilitatorMembersQuery($church)
+            ->count();
+    }
+
+    private function accreditedMembersInCourseQuery(Church $church, Course $course): Builder
+    {
+        return User::query()
+            ->whereIn('users.id', function ($query) use ($church, $course): void {
+                $query->select('users.id')
+                    ->from('users')
+                    ->join('training_user', 'training_user.user_id', '=', 'users.id')
+                    ->join('trainings', 'trainings.id', '=', 'training_user.training_id')
+                    ->join('courses', 'courses.id', '=', 'trainings.course_id')
+                    ->join('role_user', 'role_user.user_id', '=', 'users.id')
+                    ->join('roles', 'roles.id', '=', 'role_user.role_id')
+                    ->where('trainings.church_id', $church->id)
+                    ->where('users.church_id', $church->id)
+                    ->where('courses.id', $course->id)
+                    ->where('courses.execution', 0)
+                    ->whereRaw('LOWER(roles.name) = ?', ['facilitator'])
+                    ->distinct();
+            });
+    }
+
+    private function facilitatorMembersQuery(Church $church): Builder
+    {
+        return User::query()
+            ->whereIn('users.id', function ($query) use ($church): void {
+                $query->select('users.id')
+                    ->from('users')
+                    ->where('users.church_id', $church->id)
+                    ->join('role_user', 'role_user.user_id', '=', 'users.id')
+                    ->join('roles', 'roles.id', '=', 'role_user.role_id')
+                    ->whereRaw('LOWER(roles.name) = ?', ['facilitator'])
+                    ->distinct();
+            });
     }
 
     private function logoUrl(Church $church): string

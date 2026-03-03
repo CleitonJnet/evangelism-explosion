@@ -202,3 +202,156 @@ it('creates a new church from modal and relates it to the teacher', function ():
     expect($createdChurch->logo)->not->toBeNull();
     Storage::disk('public')->assertExists((string) $createdChurch->logo);
 });
+
+it('sorts churches by selected table columns with the expected precedence', function (): void {
+    $teacher = createTeacherUser();
+
+    $churchA = Church::factory()->create([
+        'name' => 'Alpha Church',
+        'pastor' => 'Zulu Pastor',
+        'contact' => 'Marina',
+        'contact_email' => 'zz@example.org',
+        'city' => 'Recife',
+        'state' => 'SP',
+    ]);
+
+    $churchB = Church::factory()->create([
+        'name' => 'Alpha Church',
+        'pastor' => 'Bravo Pastor',
+        'contact' => 'Carlos',
+        'contact_email' => 'aa@example.org',
+        'city' => 'Manaus',
+        'state' => 'AM',
+    ]);
+
+    $churchC = Church::factory()->create([
+        'name' => 'Beta Church',
+        'pastor' => 'Alpha Pastor',
+        'contact' => 'Carlos',
+        'contact_email' => 'zz@example.org',
+        'city' => 'Fortaleza',
+        'state' => 'AM',
+    ]);
+
+    createTeacherTraining($teacher, $churchA->id);
+    createTeacherTraining($teacher, $churchB->id);
+    createTeacherTraining($teacher, $churchC->id);
+
+    $memberA = User::factory()->create(['church_id' => $churchA->id]);
+    $memberB1 = User::factory()->create(['church_id' => $churchB->id]);
+    $memberB2 = User::factory()->create(['church_id' => $churchB->id]);
+    $memberC1 = User::factory()->create(['church_id' => $churchC->id]);
+    $memberC2 = User::factory()->create(['church_id' => $churchC->id]);
+    $memberC3 = User::factory()->create(['church_id' => $churchC->id]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->assertViewHas('churches', function ($paginator) use ($churchB, $churchA, $churchC) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchB->id, $churchA->id, $churchC->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'church')
+        ->assertViewHas('churches', function ($paginator) use ($churchC, $churchA, $churchB) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchC->id, $churchA->id, $churchB->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'contact')
+        ->assertViewHas('churches', function ($paginator) use ($churchB, $churchC, $churchA) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchB->id, $churchC->id, $churchA->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'location')
+        ->assertViewHas('churches', function ($paginator) use ($churchC, $churchB, $churchA) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchC->id, $churchB->id, $churchA->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'members')
+        ->assertViewHas('churches', function ($paginator) use ($churchA, $churchB, $churchC) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchA->id, $churchB->id, $churchC->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'members')
+        ->assertViewHas('churches', function ($paginator) use ($churchC, $churchB, $churchA) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchC->id, $churchB->id, $churchA->id]);
+
+            return true;
+        });
+
+    expect($memberA->church_id)->toBe($churchA->id);
+    expect($memberB1->church_id)->toBe($churchB->id);
+    expect($memberB2->church_id)->toBe($churchB->id);
+    expect($memberC1->church_id)->toBe($churchC->id);
+    expect($memberC2->church_id)->toBe($churchC->id);
+    expect($memberC3->church_id)->toBe($churchC->id);
+});
+
+it('shows total accredited members per church for leader courses and sorts by this column', function (): void {
+    $teacher = createTeacherUser();
+    $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+    $churchOne = Church::factory()->create(['name' => 'Igreja Cred 01']);
+    $churchTwo = Church::factory()->create(['name' => 'Igreja Cred 02']);
+    $churchThree = Church::factory()->create(['name' => 'Igreja Cred 03']);
+
+    createTeacherTraining($teacher, $churchOne->id);
+    createTeacherTraining($teacher, $churchTwo->id);
+    createTeacherTraining($teacher, $churchThree->id);
+
+    $churchOneMemberA = User::factory()->create(['church_id' => $churchOne->id]);
+    $churchOneMemberB = User::factory()->create(['church_id' => $churchOne->id]);
+    $churchTwoMemberA = User::factory()->create(['church_id' => $churchTwo->id]);
+    $churchTwoMemberB = User::factory()->create(['church_id' => $churchTwo->id]);
+    $churchTwoMemberC = User::factory()->create(['church_id' => $churchTwo->id]);
+
+    $churchOneMemberA->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    $churchTwoMemberA->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    $churchTwoMemberB->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->assertSeeText('Total de credenciados')
+        ->assertViewHas('churches', function ($paginator) use ($churchOne, $churchTwo, $churchThree) {
+            $churches = collect($paginator->items())->keyBy('id');
+
+            expect((int) $churches[$churchOne->id]->total_accredited_members_count)->toBe(1);
+            expect((int) $churches[$churchTwo->id]->total_accredited_members_count)->toBe(2);
+            expect((int) $churches[$churchThree->id]->total_accredited_members_count)->toBe(0);
+
+            return true;
+        });
+
+    $component
+        ->call('sortBy', 'accredited')
+        ->assertViewHas('churches', function ($paginator) use ($churchThree, $churchOne, $churchTwo) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchThree->id, $churchOne->id, $churchTwo->id]);
+
+            return true;
+        })
+        ->call('sortBy', 'accredited')
+        ->assertViewHas('churches', function ($paginator) use ($churchTwo, $churchOne, $churchThree) {
+            $orderedIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($orderedIds)->toBe([$churchTwo->id, $churchOne->id, $churchThree->id]);
+
+            return true;
+        });
+});
