@@ -81,6 +81,7 @@ it('creates finance audit when qr code is updated', function (): void {
     Livewire::actingAs($teacher)
         ->test(EditFinanceModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
+        ->set('pix_key', 'pix-igreja@teste.org')
         ->set('pixQrCodeUpload', UploadedFile::fake()->image('novo-qr.webp'))
         ->call('save')
         ->assertSet('showModal', false);
@@ -99,6 +100,45 @@ it('creates finance audit when qr code is updated', function (): void {
     expect($audit->changes)->toHaveKey('pix_qr_code');
     expect($audit->changes['pix_qr_code']['before'])->toBeNull();
     expect((string) $audit->changes['pix_qr_code']['after'])->toContain('training-pix-qrcodes/'.$training->id.'/');
+});
+
+it('requires pix key when updating qr code in finance modal', function (): void {
+    Storage::fake('public');
+
+    $teacher = createTeacherForFinanceModal();
+    $training = createTrainingForFinanceModal($teacher);
+
+    Livewire::actingAs($teacher)
+        ->test(EditFinanceModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('pix_key', '')
+        ->set('pixQrCodeUpload', UploadedFile::fake()->image('novo-qr.webp'))
+        ->call('save')
+        ->assertHasErrors(['pix_key' => 'required_with']);
+});
+
+it('clears current qr code when only pix key changes in finance modal', function (): void {
+    Storage::fake('public');
+    Storage::disk('public')->put('training-pix-qrcodes/999/original.webp', 'fake-content');
+
+    $teacher = createTeacherForFinanceModal();
+    $training = createTrainingForFinanceModal($teacher);
+    $training->update([
+        'pix_key' => 'pix-antiga@igreja.org',
+        'pix_qr_code' => 'training-pix-qrcodes/999/original.webp',
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(EditFinanceModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('pix_key', 'pix-nova@igreja.org')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $training->refresh();
+
+    expect($training->pix_key)->toBe('pix-nova@igreja.org');
+    expect($training->pix_qr_code)->toBeNull();
 });
 
 it('forbids teacher that does not own the training', function (): void {

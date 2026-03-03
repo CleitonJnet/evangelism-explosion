@@ -135,12 +135,17 @@ class Training extends Model
         return self::DEFAULT_PIX_KEY;
     }
 
-    public function pixQrCodeUrlForPayment(): string
+    public function pixQrCodeUrlForPayment(): ?string
     {
+        $pixKey = trim((string) ($this->pix_key ?? ''));
         $pixQrCodePath = trim((string) ($this->pix_qr_code ?? ''));
 
         if ($pixQrCodePath !== '' && Storage::disk('public')->exists($pixQrCodePath)) {
             return Storage::disk('public')->url($pixQrCodePath);
+        }
+
+        if ($pixKey !== '') {
+            return null;
         }
 
         return asset(self::DEFAULT_PIX_QR_CODE_ASSET_PATH);

@@ -122,7 +122,7 @@ class Create extends Component
             'price_church' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'string', 'max:50'],
             'pixQrCodeUpload' => ['nullable', 'image', 'max:5120'],
-            'pix_key' => ['nullable', 'string', 'max:255'],
+            'pix_key' => ['nullable', 'string', 'max:255', 'required_with:pixQrCodeUpload'],
             'bannerUpload' => ['nullable', 'image', 'max:10240'],
             'kits' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
@@ -163,6 +163,7 @@ class Create extends Component
             'eventDates.*.end_time.after' => 'O horário final deve ser maior que o horário inicial.',
             'welcome_duration_minutes.min' => 'O período de boas-vindas deve ter no mínimo 30 minutos.',
             'welcome_duration_minutes.max' => 'O período de boas-vindas deve ter no máximo 60 minutos.',
+            'pix_key.required_with' => 'Informe a chave PIX da igreja sede ao enviar o QR Code PIX.',
         ];
     }
 

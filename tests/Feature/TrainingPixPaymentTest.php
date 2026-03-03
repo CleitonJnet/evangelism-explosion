@@ -77,3 +77,33 @@ it('returns church pix data when training has custom settings', function () {
     expect($training->pixKeyForPayment())->toBe('chave-pix-igreja-sede');
     expect($training->pixQrCodeUrlForPayment())->toBe(Storage::disk('public')->url('training-pix-qrcodes/123/custom-qr.webp'));
 });
+
+it('omits pix qr code when training has only a custom pix key', function () {
+    $training = Training::factory()->create([
+        'pix_key' => 'pix-personalizada@igreja.org',
+        'pix_qr_code' => null,
+    ]);
+
+    expect($training->pixKeyForPayment())->toBe('pix-personalizada@igreja.org');
+    expect($training->pixQrCodeUrlForPayment())->toBeNull();
+});
+
+it('requires pix key when creating a training with pix qr code upload', function () {
+    $teacher = User::factory()->create();
+    $church = Church::factory()->create();
+    $course = Course::factory()->create(['execution' => 0]);
+
+    $course->teachers()->attach($teacher->id, ['status' => 1]);
+
+    Livewire::actingAs($teacher)
+        ->test(TeacherTrainingCreate::class)
+        ->set('course_id', $course->id)
+        ->set('church_id', $church->id)
+        ->set('eventDates.0.date', now()->addDays(10)->format('Y-m-d'))
+        ->set('eventDates.0.start_time', '08:00')
+        ->set('eventDates.0.end_time', '12:00')
+        ->set('pixQrCodeUpload', UploadedFile::fake()->image('pix-qr.webp'))
+        ->set('pix_key', '')
+        ->call('submit')
+        ->assertHasErrors(['pix_key' => 'required_with']);
+});

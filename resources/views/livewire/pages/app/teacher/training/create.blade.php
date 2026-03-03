@@ -204,7 +204,7 @@
                         </label>
 
                         <div class="text-xs text-slate-600">
-                            {{ __('Se não enviar imagem, o sistema usa o QR Code padrão do Ministério de Evangelismo Explosivo.') }}
+                            {{ __('Se informar apenas a chave PIX, o QR Code será ocultado para o aluno.') }}
                         </div>
 
                         @error('pixQrCodeUpload')
@@ -224,7 +224,7 @@
                         <x-src.form.input name="pix_key" wire:model.live="pix_key" label="Chave PIX da igreja sede"
                             width_basic="900" />
                         <div class="text-xs text-slate-600">
-                            {{ __('Se não informar a chave, o sistema usa a chave PIX padrão do Ministério de Evangelismo Explosivo.') }}
+                            {{ __('Sem chave e sem imagem, o sistema usa o PIX padrão do Ministério de Evangelismo Explosivo.') }}
                         </div>
                     </div>
                 </div>

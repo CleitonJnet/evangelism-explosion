@@ -31,7 +31,13 @@
                                 {{ __('QR Code PIX da igreja sede (opcional)') }}
                             </div>
 
-                            @if ($currentPixQrCodeUrl)
+                            @if ($pixQrCodeUpload && str_starts_with($pixQrCodeUpload->getMimeType(), 'image/'))
+                                <div
+                                    class="w-40 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                                    <img src="{{ $pixQrCodeUpload->temporaryUrl() }}" alt="Novo QR Code PIX"
+                                        class="max-h-32 w-auto rounded object-contain">
+                                </div>
+                            @elseif ($currentPixQrCodeUrl)
                                 <div
                                     class="w-40 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
                                     <img src="{{ $currentPixQrCodeUrl }}" alt="QR Code PIX atual"
@@ -48,27 +54,20 @@
                             </label>
 
                             <div class="text-xs text-red-600">
-                                {{ __('Se não enviar imagem, o sistema mantém o QR Code atual ou usa o padrão do Ministério de Evangelismo Explosivo.') }}
+                                {{ __('Se salvar apenas uma nova chave PIX, o QR Code será ocultado para o aluno.') }}
                             </div>
 
                             @error('pixQrCodeUpload')
                                 <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
                             @enderror
 
-                            @if ($pixQrCodeUpload && str_starts_with($pixQrCodeUpload->getMimeType(), 'image/'))
-                                <div
-                                    class="w-40 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
-                                    <img src="{{ $pixQrCodeUpload->temporaryUrl() }}" alt="Novo QR Code PIX"
-                                        class="max-h-32 w-auto rounded object-contain">
-                                </div>
-                            @endif
                         </div>
 
                         <div class="grid content-start gap-2">
                             <x-src.form.input name="pix_key" wire:model.live="pix_key" class="text-blue-700"
                                 label="Digite aqui a chave PIX da igreja sede" width_basic="900" />
                             <div class="text-xs text-red-600">
-                                {{ __('Se não informar a chave, o sistema usa a chave PIX padrão do Ministério de Evangelismo Explosivo.') }}
+                                {{ __('Sem chave e sem imagem, o sistema usa o PIX padrão do Ministério de Evangelismo Explosivo.') }}
                             </div>
                         </div>
                     </div>

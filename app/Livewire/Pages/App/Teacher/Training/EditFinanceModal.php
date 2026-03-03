@@ -87,9 +87,16 @@ class EditFinanceModal extends Component
                         : null,
                 ];
 
+                $currentPixKey = filled($this->training->getRawOriginal('pix_key'))
+                    ? trim((string) $this->training->getRawOriginal('pix_key'))
+                    : null;
+                $pixKeyChanged = $updates['pix_key'] !== $currentPixKey;
+
                 if ($this->pixQrCodeUpload) {
                     $path = $this->pixQrCodeUpload->store("training-pix-qrcodes/{$this->training->id}", 'public');
                     $updates['pix_qr_code'] = $path;
+                } elseif ($pixKeyChanged) {
+                    $updates['pix_qr_code'] = null;
                 }
 
                 $this->training->update($updates);
@@ -155,7 +162,17 @@ class EditFinanceModal extends Component
             'price_church' => ['nullable', 'string', 'max:50'],
             'discount' => ['nullable', 'string', 'max:50'],
             'pixQrCodeUpload' => ['nullable', 'image', 'max:5120'],
-            'pix_key' => ['nullable', 'string', 'max:255'],
+            'pix_key' => ['nullable', 'string', 'max:255', 'required_with:pixQrCodeUpload'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function messages(): array
+    {
+        return [
+            'pix_key.required_with' => 'Informe a chave PIX da igreja sede ao enviar o QR Code PIX.',
         ];
     }
 

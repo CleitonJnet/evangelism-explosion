@@ -222,6 +222,9 @@
 
         @if ($isPaid)
             {{-- =================== FASE 4: Pagamento =================== --}}
+            @php
+                $hasPixQrCode = !empty($pix['qr_svg']) || !empty($pix['qr_base64']) || !empty($pix['qr_image_url']);
+            @endphp
             <section x-show="step === 4" x-transition.opacity>
                 <div class="flex items-center gap-3">
                     <div class="flex items-center justify-center w-10 h-10 rounded-2xl ring-1 ring-black/10"
@@ -237,26 +240,25 @@
                     Efetue o pagamento via PIX. Guarde o comprovante.
                 </p>
 
-                <div class="grid gap-6 mt-5 lg:grid-cols-2">
-                    <div class="p-5 border rounded-2xl border-slate-200 bg-slate-50">
-                        <div class="text-sm font-extrabold text-slate-900">QR Code</div>
+                <div class="mt-5 grid gap-6 {{ $hasPixQrCode ? 'lg:grid-cols-2' : 'lg:grid-cols-1' }}">
+                    @if ($hasPixQrCode)
+                        <div class="p-5 border rounded-2xl border-slate-200 bg-slate-50">
+                            <div class="text-sm font-extrabold text-slate-900">QR Code</div>
 
-                        <div
-                            class="flex items-center justify-center p-4 mt-4 bg-white border rounded-2xl border-slate-200">
-                            @if (!empty($pix['qr_svg']))
-                                <div class="w-56 h-56">{!! $pix['qr_svg'] !!}</div>
-                            @elseif(!empty($pix['qr_base64']))
-                                <img class="w-56 h-56" alt="QR Code PIX"
-                                    src="data:image/png;base64,{{ $pix['qr_base64'] }}">
-                            @elseif(!empty($pix['qr_image_url']))
-                                <img class="w-56 h-56 object-contain" alt="QR Code PIX" src="{{ $pix['qr_image_url'] }}">
-                            @else
-                                <div class="flex items-center justify-center w-56 h-56 text-sm text-slate-400">
-                                    O QR Code será exibido após gerar o pagamento.
-                                </div>
-                            @endif
+                            <div
+                                class="flex items-center justify-center p-4 mt-4 bg-white border rounded-2xl border-slate-200">
+                                @if (!empty($pix['qr_svg']))
+                                    <div class="w-56 h-56">{!! $pix['qr_svg'] !!}</div>
+                                @elseif(!empty($pix['qr_base64']))
+                                    <img class="w-56 h-56" alt="QR Code PIX"
+                                        src="data:image/png;base64,{{ $pix['qr_base64'] }}">
+                                @elseif(!empty($pix['qr_image_url']))
+                                    <img class="w-56 h-56 object-contain" alt="QR Code PIX"
+                                        src="{{ $pix['qr_image_url'] }}">
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
                     <div class="p-5 border rounded-2xl border-slate-200 bg-slate-50">
                         <div class="text-sm font-extrabold text-slate-900">Chave PIX</div>

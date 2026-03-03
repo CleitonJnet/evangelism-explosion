@@ -162,6 +162,33 @@ it('hides pix payment block when receipt is already uploaded and pending confirm
         ->assertDontSee('Pagamento via PIX');
 });
 
+it('shows only pix key instructions when training has custom pix key without qr code', function () {
+    $church = Church::factory()->create();
+    $student = createStudentWithRoleForTrainingReceipt();
+    $student->update(['church_id' => $church->id]);
+    $training = Training::factory()->create([
+        'church_id' => $church->id,
+        'price' => '100,00',
+        'price_church' => '0,00',
+        'discount' => '0,00',
+        'pix_key' => 'pix-personalizada@igreja.org',
+        'pix_qr_code' => null,
+    ]);
+
+    $training->students()->attach($student->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+        'payment_receipt' => null,
+    ]);
+
+    Livewire::actingAs($student)
+        ->test(StudentTrainingShow::class, ['training' => $training])
+        ->assertSee('pix-personalizada@igreja.org')
+        ->assertSee('Use a chave PIX para concluir o pagamento do treinamento.')
+        ->assertDontSee('Use o QR Code ou a chave para concluir o pagamento do treinamento.');
+});
+
 it('shows payment status on student training index cards', function () {
     $church = Church::factory()->create();
     $student = createStudentWithRoleForTrainingReceipt();

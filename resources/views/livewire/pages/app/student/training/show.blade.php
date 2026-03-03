@@ -89,8 +89,10 @@
 
                             @if (!$paymentReceiptPath)
                                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center" data-payment-pix-card>
-                                    <img src="{{ $pixQr }}" alt="QR Code PIX"
-                                        class="h-36 w-36 rounded-xl border border-amber-200 bg-white p-1">
+                                    @if ($pixQr)
+                                        <img src="{{ $pixQr }}" alt="QR Code PIX"
+                                            class="h-36 w-36 rounded-xl border border-amber-200 bg-white p-1">
+                                    @endif
                                     <div class="space-y-2">
                                         <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
                                             Pagamento via PIX
@@ -108,7 +110,7 @@
                                         </div>
 
                                         <div class="text-xs text-amber-700 dark:text-amber-300">
-                                            Use o QR Code ou a chave para concluir o pagamento do treinamento.
+                                            {{ $pixQr ? 'Use o QR Code ou a chave para concluir o pagamento do treinamento.' : 'Use a chave PIX para concluir o pagamento do treinamento.' }}
                                         </div>
                                         <div>
                                             <x-src.btn-silver label="Copiar chave Pix" class="py-1.5! text-xs"
