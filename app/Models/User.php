@@ -330,4 +330,10 @@ class User extends Authenticatable
             ->withPivot('created_by')
             ->withTimestamps();
     }
+
+    public function assistedTrainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'training_assistant_teacher')
+            ->withTimestamps();
+    }
 }

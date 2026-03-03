@@ -73,16 +73,6 @@ class Create extends Component
 
     public ?int $kits = null;
 
-    public ?int $totNewChurches = null;
-
-    public ?int $totListeners = null;
-
-    public ?int $totKitsReceived = null;
-
-    public ?int $totApproaches = null;
-
-    public ?int $totDecisions = null;
-
     public ?string $notes = null;
 
     public ?int $status = TrainingStatus::Scheduled->value;
@@ -135,11 +125,6 @@ class Create extends Component
             'pix_key' => ['nullable', 'string', 'max:255'],
             'bannerUpload' => ['nullable', 'image', 'max:10240'],
             'kits' => ['nullable', 'integer', 'min:0'],
-            'totNewChurches' => ['nullable', 'integer', 'min:0'],
-            'totListeners' => ['nullable', 'integer', 'min:0'],
-            'totKitsReceived' => ['nullable', 'integer', 'min:0'],
-            'totApproaches' => ['nullable', 'integer', 'min:0'],
-            'totDecisions' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
             'status' => ['nullable', 'integer', 'in:0,1,2,3'],
             'welcome_duration_minutes' => ['nullable', 'integer', 'min:30', 'max:60'],
@@ -430,11 +415,6 @@ class Create extends Component
                 'discount' => $validated['discount'] ?? null,
                 'pix_key' => filled($validated['pix_key'] ?? null) ? trim((string) $validated['pix_key']) : null,
                 'kits' => $validated['kits'] ?? null,
-                'totNewChurches' => $validated['totNewChurches'] ?? 0,
-                'totListeners' => $validated['totListeners'] ?? 0,
-                'totKitsReceived' => $validated['totKitsReceived'] ?? 0,
-                'totApproaches' => $validated['totApproaches'] ?? 0,
-                'totDecisions' => $validated['totDecisions'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
                 'status' => $validated['status'] ?? TrainingStatus::Scheduled,
                 'welcome_duration_minutes' => $validated['welcome_duration_minutes'] ?? 30,

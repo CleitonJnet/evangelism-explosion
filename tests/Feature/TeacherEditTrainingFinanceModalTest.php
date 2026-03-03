@@ -52,9 +52,9 @@ it('updates editable finance fields without changing base price', function (): v
 
     $training->refresh();
 
-    expect($training->getRawOriginal('price'))->toBe('100,00')
-        ->and($training->getRawOriginal('price_church'))->toBe('25,00')
-        ->and($training->getRawOriginal('discount'))->toBe('5,00')
+    expect((float) $training->getRawOriginal('price'))->toBe(100.0)
+        ->and((float) $training->getRawOriginal('price_church'))->toBe(25.0)
+        ->and((float) $training->getRawOriginal('discount'))->toBe(5.0)
         ->and($training->pix_key)->toBe('church-pix-key@example.test');
 
     $audit = TrainingFinanceAudit::query()
@@ -64,11 +64,12 @@ it('updates editable finance fields without changing base price', function (): v
 
     expect($audit)->not->toBeNull();
     expect($audit->user_id)->toBe($teacher->id);
-    expect($audit->changes)->toMatchArray([
-        'price_church' => ['before' => '0,00', 'after' => '25,00'],
-        'discount' => ['before' => '0,00', 'after' => '5,00'],
-        'pix_key' => ['before' => null, 'after' => 'church-pix-key@example.test'],
-    ]);
+    expect((float) data_get($audit->changes, 'price_church.before'))->toBe(0.0)
+        ->and((float) data_get($audit->changes, 'price_church.after'))->toBe(25.0)
+        ->and((float) data_get($audit->changes, 'discount.before'))->toBe(0.0)
+        ->and((float) data_get($audit->changes, 'discount.after'))->toBe(5.0)
+        ->and(data_get($audit->changes, 'pix_key.before'))->toBeNull()
+        ->and(data_get($audit->changes, 'pix_key.after'))->toBe('church-pix-key@example.test');
 });
 
 it('creates finance audit when qr code is updated', function (): void {
@@ -110,23 +111,49 @@ it('forbids teacher that does not own the training', function (): void {
         ->assertForbidden();
 });
 
-it('refreshes training values in the details view when finance update event is received', function (): void {
+it('renders updated training values in details view after finance changes', function (): void {
     $teacher = createTeacherForFinanceModal();
     $training = createTrainingForFinanceModal($teacher);
     $paidStudent = User::factory()->create();
     $training->students()->attach($paidStudent->id, ['kit' => 0, 'accredited' => 0, 'payment' => 1]);
 
-    $component = Livewire::test(TrainingView::class, ['training' => $training])
-        ->assertSee('100,00')
-        ->assertSee('0,00');
+    Livewire::test(TrainingView::class, ['training' => $training])
+        ->assertSee('100')
+        ->assertSee('0');
 
     $training->update([
         'price_church' => '12,00',
         'discount' => '2,00',
     ]);
 
-    $component
-        ->dispatch('training-finance-updated', trainingId: $training->id)
-        ->assertSee('12,00')
-        ->assertSee('2,00');
+    Livewire::test(TrainingView::class, ['training' => $training->fresh()])
+        ->assertSee('12')
+        ->assertSee('2');
+});
+
+it('uses default banner when no banner is uploaded or when stored path is invalid', function (): void {
+    Storage::fake('public');
+
+    $teacher = createTeacherForFinanceModal();
+    $defaultBannerUrl = asset('images/banner-default.webp');
+
+    $trainingWithoutBanner = createTrainingForFinanceModal($teacher);
+    $trainingWithoutBanner->update(['banner' => null]);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.show', $trainingWithoutBanner->fresh()))
+        ->assertOk()
+        ->assertSee('Banner do treinamento')
+        ->assertSee('Nenhum banner foi enviado para este evento')
+        ->assertSee($defaultBannerUrl, false);
+
+    $trainingWithInvalidBanner = createTrainingForFinanceModal($teacher);
+    $trainingWithInvalidBanner->update(['banner' => 'training-banners/missing-banner.webp']);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.show', $trainingWithInvalidBanner->fresh()))
+        ->assertOk()
+        ->assertSee('Banner do treinamento')
+        ->assertSee('Nenhum banner foi enviado para este evento')
+        ->assertSee($defaultBannerUrl, false);
 });

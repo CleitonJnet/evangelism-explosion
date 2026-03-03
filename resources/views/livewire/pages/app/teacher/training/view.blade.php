@@ -3,11 +3,11 @@
     use App\Helpers\DayScheduleHelper;
     use App\Services\Training\TestimonySanitizer;
     use Carbon\Carbon;
+    use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Collection;
 
     $course = $training->course;
     $ministry = $course?->ministry;
-    $teacher = $training->teacher;
     $church = $training->church;
     $eventAddress = AddressHelper::format_address(
         $training->street ?: $church?->street,
@@ -19,7 +19,10 @@
         $training->postal_code ?: $church?->postal_code,
     );
     $statusLabel = $training->status?->label() ?? __('Status não definido');
-    $bannerUrl = $training->banner ? asset('storage/' . $training->banner) : null;
+    $normalizedBannerPath = ltrim(trim((string) $training->banner), '/');
+    $hasUploadedBanner = $normalizedBannerPath !== '' && Storage::disk('public')->exists($normalizedBannerPath);
+    $defaultBannerUrl = asset('images/banner-default.webp');
+    $bannerUrl = $hasUploadedBanner ? asset('storage/' . $normalizedBannerPath) : $defaultBannerUrl;
     $workloadMinutes = $eventDates->reduce(function (int $total, $eventDate): int {
         if (!$eventDate->start_time || !$eventDate->end_time) {
             return $total;
@@ -137,18 +140,32 @@
                 <p class="text-sm font-bold text-slate-600">{{ __('Ministério:') }} <span class="font-bold"></span>
                     {{ $training?->course->ministry->name ?? __('-') }}</span></p>
             </div>
-            <div class="flex flex-col justify-center items-end gap-1 text-right">
-                <p class="text-sm text-slate-700 uppercase">{{ __('Professor Responsável:') }}<span
-                        class="font-bold">{{ $training?->teacher->name ?? __('-') }}</span></p>
-                <p class="text-sm text-slate-500">
-                    (<span class="text-nowrap">{{ $training?->teacher->email ?? __('-') }}</span> /
-                    <span class="text-nowrap">{{ $training?->teacher->phone ?? __('-') }}</span>)
-                </p>
-            </div>
         </div>
 
         <div class="mt-6 grid gap-6 lg:flex flex-wrap">
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-3/5 flex-auto">
+            <div
+                class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg basis-64 h-96 max-h-96 overflow-hidden">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
+                <div class="relative mt-3 h-80 w-full overflow-hidden rounded-xl border border-slate-800/40">
+                    <img src="{{ $bannerUrl }}" alt="{{ __('Banner do treinamento') }}"
+                        class="h-full w-full object-cover"
+                        onerror="this.onerror=null;this.src='{{ $defaultBannerUrl }}';">
+
+                    @if (!$hasUploadedBanner)
+                        <div class="absolute inset-0 flex items-center justify-center bg-slate-900/35 p-4 text-center">
+                            <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800">
+                                {{ __('Nenhum banner foi enviado para este evento') }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <livewire:pages.app.teacher.training.event-teachers :training-id="$training->id"
+                wire:key="training-event-teachers-{{ $training->id }}" />
+
+
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-150 flex-auto">
                 <h3 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Igreja Base') }}
                 </h3>
@@ -196,7 +213,7 @@
             </div>
 
             <div
-                class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-72 flex-auto relative overflow-hidden">
+                class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-60 flex-auto relative overflow-hidden">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Datas do evento') }}</h4>
                 <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
@@ -241,16 +258,7 @@
 
             </div>
 
-            @if ($bannerUrl)
-                <div
-                    class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg basis-60 h-96 max-h-96 overflow-hidden">
-                    <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
-                    <img src="{{ $bannerUrl }}" alt="{{ __('Banner do treinamento') }}"
-                        class="mt-3 block rounded-xl border border-slate-800/40 object-contain">
-                </div>
-            @endif
-
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-72 flex-auto">
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-62 flex-auto">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Resumo STP') }}
                 </h4>
@@ -294,7 +302,7 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 flex-auto">
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-70 flex-auto">
                 <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
                     {{ __('Valores por inscrição') }}</h4>
                 <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
@@ -333,7 +341,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Repasse ao ') }} <span
-                                class="hidden xs:inline">{{ __('Ministério Nacional de') }}</span>
+                                class="hidden 3xl:inline">{{ __('Ministério Nacional de') }}</span>
                             {{ __(' EE') }}</span>
                         <span class="font-semibold text-slate-900">
                             {{ $eeMinistryBalance ?? '-' }}
@@ -341,7 +349,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
                         <span class="text-slate-500">{{ __('Repasse para') }} <span
-                                class="hidden xs:inline">{{ __('despesas da') }}</span>
+                                class="hidden 3xl:inline">{{ __('despesas da') }}</span>
                             {{ __('igreja base') }}</span>
                         <span class="font-semibold text-slate-900">
                             {{ $hostChurchExpenseBalance ?? '-' }}

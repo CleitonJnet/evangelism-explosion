@@ -79,8 +79,6 @@
             <x-src.form.input name="gpwhatsapp" wire:model="gpwhatsapp" label="WhatsApp" width_basic="300" />
             <x-src.form.input name="url" wire:model="url" label="Link do evento online" width_basic="320"
                 type="url" />
-            <x-src.form.input name="totKitsReceived" wire:model="totKitsReceived" label="Kits recebidos"
-                width_basic="200" type="number" />
             <x-src.form.textarea name="notes" wire:model="notes" label="Observações" rows="2" />
             <div class="flex flex-col gap-3" style="flex: 1 1 100%">
                 <label for="bannerUpload" class="text-sm text-body cursor-pointer">{{ __('Banner') }}</label>

@@ -28,6 +28,9 @@
                 x-on:click.prevent="$dispatch('open-edit-event-church-modal', { trainingId: {{ $training->id }} })" />
             <x-src.toolbar.button href="#" :label="__('Financeiro')" icon="payment" :tooltip="__('Editar despesas, desconto e PIX')"
                 x-on:click.prevent="$dispatch('open-edit-finance-modal', { trainingId: {{ $training->id }} })" />
+            <x-src.toolbar.button href="#" :label="__('Professores')" icon="user-work"
+                :tooltip="__('Atualizar professor titular e auxiliares')"
+                x-on:click.prevent="$dispatch('open-manage-training-teachers-modal', { trainingId: {{ $training->id }} })" />
             <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
             <x-src.toolbar.button :href="route('app.teacher.trainings.registrations', $training)" :label="__('Inscrições')" icon="user-work" :tooltip="__('Gerenciador de Inscrições')"
                 :error="$hasRegistrationsError" />

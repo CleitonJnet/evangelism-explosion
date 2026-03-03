@@ -21,7 +21,7 @@ class Training extends Model
 
     private const DEFAULT_PIX_QR_CODE_ASSET_PATH = 'images/qrcode-pix-ee.webp';
 
-    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'leader', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'totNewChurches', 'totKitsReceived', 'totApproaches', 'totDecisions', 'totListeners', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'schedule_attention_shown_at', 'schedule_adjusted_at'];
+    protected $fillable = ['course_id', 'teacher_id', 'church_id', 'coordinator', 'leader', 'banner', 'url', 'gpwhatsapp', 'phone', 'email', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'price', 'price_church', 'discount', 'pix_qr_code', 'pix_key', 'kits', 'notes', 'status', 'welcome_duration_minutes', 'schedule_settings', 'schedule_attention_shown_at', 'schedule_adjusted_at'];
 
     /**
      * @return array<string, string>
@@ -80,14 +80,29 @@ class Training extends Model
         return MoneyHelper::format_money($value);
     }
 
+    public function setPriceAttribute(string|int|float|null $value): void
+    {
+        $this->attributes['price'] = $this->normalizeMoneyForDatabase($value);
+    }
+
     public function getPriceChurchAttribute(string|int|float|null $value): ?string
     {
         return MoneyHelper::format_money($value);
     }
 
+    public function setPriceChurchAttribute(string|int|float|null $value): void
+    {
+        $this->attributes['price_church'] = $this->normalizeMoneyForDatabase($value);
+    }
+
     public function getDiscountAttribute(string|int|float|null $value): ?string
     {
         return MoneyHelper::format_money($value);
+    }
+
+    public function setDiscountAttribute(string|int|float|null $value): void
+    {
+        $this->attributes['discount'] = $this->normalizeMoneyForDatabase($value);
     }
 
     public function getPaymentAttribute(): ?string
@@ -194,6 +209,12 @@ class Training extends Model
         return $this->hasMany(Mentor::class);
     }
 
+    public function assistantTeachers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'training_assistant_teacher')
+            ->withTimestamps();
+    }
+
     public function stpSessions(): HasMany
     {
         return $this->hasMany(StpSession::class);
@@ -202,5 +223,16 @@ class Training extends Model
     public function financeAudits(): HasMany
     {
         return $this->hasMany(TrainingFinanceAudit::class);
+    }
+
+    private function normalizeMoneyForDatabase(string|int|float|null $value): ?string
+    {
+        $floatValue = MoneyHelper::toFloat($value);
+
+        if ($floatValue === null) {
+            return null;
+        }
+
+        return number_format($floatValue, 2, '.', '');
     }
 }
