@@ -269,7 +269,7 @@
                     organize a reunião de lançamento e defina responsabilidades; um mês antes, recrute alunos e
                     companheiros de oração; duas semanas antes, ajuste o local e os equipamentos; na véspera,
                     prepare os kits de visitação e a recepção.
-                    Durante o evento, garanta saídas de treinamento prático (SEP), sessões de testemunhos e
+                    Durante o evento, garanta Saídas de Treinamento Prático (STP), sessões de testemunhos e
                     acompanhamento estatístico. Lembre‑se de que um evento bem preparado é um testemunho de
                     excelência para a comunidade.
                 </p>
@@ -288,7 +288,8 @@
                 <p class="leading-relaxed text-gray-700">
                     Após o evento, a verdadeira jornada começa. A Igreja Base (IB) acompanhará sua igreja
                     nas fases de promoção, planejamento e implementação.
-                    O objetivo é que a igreja com <strong>ministério de EE emergente (IE)</strong> avance para igreja
+                    O objetivo é que a igreja com <strong>ministério de EE em Igreja Nova (IN)</strong> avance para
+                    igreja
                     com <strong>ministério de EE em crescimento (IC)</strong> e depois se torne igreja com
                     <strong>ministério de EE multiplicador</strong> (IM). O processo de mentoria segue quatro passos:
                     <strong>Demonstração</strong> (a IM/IB modela o ministério),
@@ -313,8 +314,8 @@
                 </h3>
                 <p class="leading-relaxed text-gray-700">
                     Finalmente, quando sua igreja estiver discipulando e evangelizando de forma contínua, será
-                    hora de multiplicar. Igrejas multiplicadoras adotam até cinco igrejas emergentes,
-                    transferindo recursos e visão até que estas alcancem o próximo nível.
+                    hora de multiplicar. Igrejas multiplicadoras adotam até cinco igrejas que estão començando a
+                    implementação local, transferindo recursos e visão até que estas alcancem o próximo nível.
                     Ao se tornar uma Igreja Base, você realizará eventos regulares de capacitação e ajudará
                     congregações em toda a região. Assim, o ciclo continua e a Grande Comissão avança.
                 </p>
@@ -330,7 +331,7 @@
 
                     <h2 class="mb-6 font-serif text-3xl text-amber-300">Não desanime!</h2>
                     <p class="mb-4 font-bold leading-relaxed text-sky-50">
-                        “Pessoas bem mentoreadas compartilharão sua fé com clareza e amor.” <br> — Dr. D. James Kennedy.
+                        “Pessoas bem mentoreadas compartilharão sua fé com clareza e amor.” <br> — Dr. James Kennedy.
                     </p>
                     <p class="leading-relaxed text-sky-200">
                         Se a caminhada parecer longa, lembre-se que o Senhor da seara está no controle. Ele usa pessoas

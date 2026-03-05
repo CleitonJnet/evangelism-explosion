@@ -45,7 +45,7 @@
                     <li class="py-2 2md:py-0"><em>
                             <span class="block font-semibold text-amber-950 2md:inline"
                                 style="font-family: 'Cinzel', serif;">» Evangelismo:</span>
-                            <span class="block pl-3 2md:pl-0 2md:inline">apresentação clara e fiel das
+                            <span class="block pl-3 2md:pl-0 2md:inline">explicação clara e fiel das
                                 Boas-Novas.</span>
                         </em></li>
                     <li class="py-2 2md:py-0"><em>

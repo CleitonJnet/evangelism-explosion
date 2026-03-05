@@ -111,7 +111,7 @@
                     "Pessoas bem mentoreadas compartilharão sua fé com clareza e amor."
                 </span>
                 <div class="font-light text-right text-white/60">
-                    Dr. D. James Kennedy
+                    Dr. James Kennedy
                 </div>
             </div>
 
