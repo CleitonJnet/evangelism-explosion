@@ -4,7 +4,6 @@ namespace App\Livewire\Shared;
 
 use App\Models\Church;
 use App\Models\Training;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -175,14 +174,7 @@ class CreateChurchModal extends Component
 
     private function authorizeTraining(): void
     {
-        Gate::authorize('access-teacher');
-
-        $teacherId = Auth::id();
-
         $training = Training::query()->findOrFail($this->trainingId);
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 }

@@ -5,9 +5,18 @@
             <x-src.toolbar.button :label="__('Nova igreja')" icon="plus" :tooltip="__('Cadastrar nova igreja')"
                 x-on:click.prevent="$dispatch('open-teacher-church-create-modal')" />
 
-            <div class="ml-auto w-full min-w-64 max-w-md">
-                <flux:input wire:model.live.debounce.300ms="churchSearch"
-                    :placeholder="__('Buscar igreja ou usuário por nome')" />
+            <div class="relative ml-auto w-full min-w-64 max-w-md">
+                <input type="text" wire:model.live.debounce.300ms="churchSearch"
+                    x-on:keydown.escape="$wire.set('churchSearch', '')"
+                    placeholder="{{ __('Buscar igreja ou usuário por nome') }}"
+                    class="w-full rounded-xl border border-slate-300 bg-white/95 px-3 py-2 pr-10 text-sm text-slate-900 shadow-xs outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+                @if (trim($churchSearch) !== '')
+                    <button type="button" wire:click="$set('churchSearch', '')"
+                        class="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                        aria-label="{{ __('Limpar busca') }}">
+                        <span class="text-base leading-none">&times;</span>
+                    </button>
+                @endif
             </div>
         </x-src.toolbar.nav>
 
@@ -250,9 +259,208 @@
         </div>
 
         <div class="mt-5">
-            {{ $churches->links() }}
+            {{ $churches->links(data: ['scrollTo' => false]) }}
         </div>
     </section>
+
+    <section
+        class="mt-6 rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-6">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-200/80 pb-3">
+            <div class="flex flex-col gap-1">
+                <h2 class="text-xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
+                    {{ __('Pessoas sem igreja vinculada') }}
+                </h2>
+                <p class="text-sm text-slate-600">
+                    {{ __('Somente inscritos nos treinamentos em que você é o professor titular.') }}
+                </p>
+            </div>
+            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                {{ __('Total listado: :count', ['count' => $unlinkedUsers->total()]) }}
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-4xl text-left text-sm">
+                <thead class="text-xs uppercase text-slate-500">
+                    <tr class="border-b border-slate-200">
+                        <th class="px-3 py-2">{{ __('Ordem') }}</th>
+                        <th class="px-3 py-2">{{ __('Nome') }}</th>
+                        <th class="px-3 py-2">{{ __('E-mail') }}</th>
+                        <th class="px-3 py-2">{{ __('Telefone') }}</th>
+                        <th class="px-3 py-2 text-center">{{ __('Inscrições') }}</th>
+                        <th class="px-3 py-2 text-right">{{ __('Ações') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    @forelse ($unlinkedUsers as $user)
+                        <tr wire:key="teacher-unlinked-user-{{ $user->id }}"
+                            class="cursor-pointer transition odd:bg-white even:bg-slate-50 hover:bg-slate-100/80"
+                            wire:click="openUnlinkedUserModal({{ $user->id }})">
+                            <td class="px-3 py-3 align-middle">
+                                {{ ($unlinkedUsers->currentPage() - 1) * $unlinkedUsers->perPage() + $loop->iteration }}
+                            </td>
+                            <td class="px-3 py-3 align-middle font-semibold text-slate-900">
+                                {{ $user->name }}
+                            </td>
+                            <td class="px-3 py-3 align-middle text-slate-800">
+                                {{ $user->email }}
+                            </td>
+                            <td class="px-3 py-3 align-middle text-slate-800">
+                                {{ $user->phone ?: __('Não informado') }}
+                            </td>
+                            <td class="px-3 py-3 text-center align-middle">
+                                <span
+                                    class="inline-flex rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                    {{ (int) ($user->teacher_training_registrations_count ?? 0) }}
+                                </span>
+                            </td>
+                            <td class="px-3 py-3 align-middle">
+                                <div class="flex justify-end gap-2" x-on:click.stop>
+                                    <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
+                                        wire:click.stop="removeUnlinkedUser({{ $user->id }})"
+                                        wire:confirm="{{ __('Deseja remover este usuário sem igreja vinculada? Esta ação é permanente.') }}"
+                                        aria-label="{{ __('Remover usuário') }}">
+                                    </flux:button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-3 py-8 text-center text-sm text-slate-600">
+                                {{ __('Nenhum inscrito sem igreja vinculada encontrado nos seus treinamentos.') }}
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-5">
+            {{ $unlinkedUsers->links(data: ['scrollTo' => false]) }}
+        </div>
+    </section>
+
+    <flux:modal name="teacher-unlinked-user-modal" wire:model="showUnlinkedUserModal" class="max-w-5xl w-full bg-sky-950! p-0!">
+        <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
+            <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
+                <flux:heading size="lg"><span class="text-white!">{{ __('Detalhes do participante sem igreja') }}</span></flux:heading>
+                <flux:subheading><span class="text-white! opacity-80">{{ $selectedUnlinkedUserName }}</span></flux:subheading>
+            </div>
+
+            <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-white/95 px-6 py-4">
+                <section class="grid gap-4 md:grid-cols-2">
+                    <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <h3 class="text-sm font-semibold text-slate-800">{{ __('Dados do usuário') }}</h3>
+                        <dl class="mt-3 grid gap-2 text-sm text-slate-700">
+                            <div>
+                                <dt class="text-xs uppercase text-slate-500">{{ __('E-mail') }}</dt>
+                                <dd>{{ $selectedUnlinkedUserEmail ?: __('Não informado') }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs uppercase text-slate-500">{{ __('Telefone') }}</dt>
+                                <dd>{{ $selectedUnlinkedUserPhone ?: __('Não informado') }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs uppercase text-slate-500">{{ __('Cidade / UF') }}</dt>
+                                <dd>
+                                    {{ $selectedUnlinkedUserCity ?: __('Cidade não informada') }}
+                                    / {{ $selectedUnlinkedUserState ?: __('UF não informada') }}
+                                </dd>
+                            </div>
+                        </dl>
+                    </article>
+
+                    <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <h3 class="text-sm font-semibold text-slate-800">{{ __('Associar igreja oficial') }}</h3>
+                        <div class="mt-3 space-y-3">
+                            <input type="text" wire:model.live.debounce.300ms="linkChurchSearch"
+                                placeholder="{{ __('Buscar igreja por nome, cidade ou UF') }}"
+                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+
+                            <div class="max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+                                @forelse ($linkableChurches as $church)
+                                    <label wire:key="teacher-link-church-{{ $church->id }}"
+                                        class="mb-1 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-slate-50">
+                                        <input type="radio" wire:model.live="linkChurchId" value="{{ $church->id }}"
+                                            class="h-4 w-4 border-slate-300 text-sky-700 focus:ring-sky-300">
+                                        <span class="min-w-0">
+                                            <span class="block truncate text-sm font-semibold text-slate-900">
+                                                {{ $church->name }}
+                                            </span>
+                                            <span class="block truncate text-xs text-slate-500">
+                                                {{ $church->city ?: __('Cidade não informada') }} / {{ $church->state ?: __('UF não informada') }}
+                                            </span>
+                                        </span>
+                                    </label>
+                                @empty
+                                    <p class="px-2 py-3 text-sm text-slate-600">{{ __('Nenhuma igreja encontrada para este filtro.') }}</p>
+                                @endforelse
+                            </div>
+
+                            @error('linkChurchId')
+                                <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            <div class="flex justify-end">
+                                <flux:button variant="primary" wire:click="associateChurchToSelectedUser">
+                                    {{ __('Associar igreja') }}
+                                </flux:button>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="rounded-xl border border-slate-200">
+                    <header class="border-b border-slate-200 bg-slate-50 px-4 py-3">
+                        <h3 class="text-sm font-semibold text-slate-800">{{ __('Treinamentos cursados') }}</h3>
+                    </header>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-3xl text-left text-sm">
+                            <thead class="text-xs uppercase text-slate-500">
+                                <tr class="border-b border-slate-200">
+                                    <th class="px-3 py-2">{{ __('Treinamento') }}</th>
+                                    <th class="px-3 py-2">{{ __('Curso') }}</th>
+                                    <th class="px-3 py-2">{{ __('Igreja sede') }}</th>
+                                    <th class="px-3 py-2 text-right">{{ __('Link') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                @forelse ($selectedUserTrainings as $training)
+                                    <tr wire:key="teacher-modal-training-{{ $training->id }}" class="odd:bg-white even:bg-slate-50">
+                                        <td class="px-3 py-2 font-semibold text-slate-900">#{{ $training->id }}</td>
+                                        <td class="px-3 py-2 text-slate-700">
+                                            {{ trim((string) $training->course?->type . ' ' . (string) $training->course?->name) ?: __('Não informado') }}
+                                        </td>
+                                        <td class="px-3 py-2 text-slate-700">{{ $training->church?->name ?: __('Não informada') }}</td>
+                                        <td class="px-3 py-2 text-right">
+                                            <a href="{{ route('app.teacher.trainings.show', $training) }}"
+                                                class="text-sm font-semibold text-sky-700 hover:underline">
+                                                {{ __('Ver treinamento') }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-3 py-6 text-center text-sm text-slate-600">
+                                            {{ __('Nenhum treinamento encontrado para este usuário.') }}
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4">
+                <div class="flex justify-end">
+                    <x-src.btn-silver type="button" wire:click="closeUnlinkedUserModal">
+                        {{ __('Fechar') }}
+                    </x-src.btn-silver>
+                </div>
+            </div>
+        </div>
+    </flux:modal>
 
     <livewire:pages.app.teacher.church.create-modal wire:key="teacher-church-create-modal" />
 </div>

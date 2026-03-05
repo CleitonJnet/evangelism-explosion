@@ -4,10 +4,13 @@ use App\Http\Controllers\System\Director\ChurchController;
 use App\Http\Controllers\System\Director\CourseController;
 use App\Http\Controllers\System\Director\InventoryController;
 use App\Http\Controllers\System\Director\MinistryController;
+use App\Http\Controllers\System\Director\OjtController;
 use App\Http\Controllers\System\Director\ProfileController;
 use App\Http\Controllers\System\Director\SiteController;
+use App\Http\Controllers\System\Director\StpApproachController;
 use App\Http\Controllers\System\Director\TrainingController;
 use App\Http\Controllers\TrainingScheduleController;
+use App\Http\Middleware\ShowScheduleAttentionModal;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -37,7 +40,34 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
     Route::get('training/canceled', [TrainingController::class, 'indexByStatus'])->name('training.canceled')->defaults('status', 'canceled');
     Route::get('training/completed', [TrainingController::class, 'indexByStatus'])->name('training.completed')->defaults('status', 'completed');
 
+    Route::get('training/{training}/registrations', [TrainingController::class, 'registrations'])->name('training.registrations');
+    Route::get('training/{training}/schedule', [TrainingController::class, 'schedule'])->middleware(ShowScheduleAttentionModal::class)->name('training.schedule');
+    Route::get('training/{training}/statistics', [OjtController::class, 'statistics'])->name('training.statistics');
+    Route::get('training/{training}/stp/approaches', [StpApproachController::class, 'board'])->name('training.stp.approaches');
+    Route::get('training/{training}/testimony', [TrainingController::class, 'testimony'])->name('training.testimony');
+    Route::put('training/{training}/testimony', [TrainingController::class, 'updateTestimony'])->name('training.testimony.update');
+
     Route::resource('training', TrainingController::class)->only(['index', 'show', 'create', 'edit', 'destroy']);
+
+    Route::get('trainings/planning', [TrainingController::class, 'indexByStatus'])->name('trainings.planning')->defaults('status', 'planning');
+    Route::get('trainings/scheduled', [TrainingController::class, 'indexByStatus'])->name('trainings.scheduled')->defaults('status', 'scheduled');
+    Route::get('trainings/canceled', [TrainingController::class, 'indexByStatus'])->name('trainings.canceled')->defaults('status', 'canceled');
+    Route::get('trainings/completed', [TrainingController::class, 'indexByStatus'])->name('trainings.completed')->defaults('status', 'completed');
+    Route::get('trainings/{training}/registrations', [TrainingController::class, 'registrations'])->name('trainings.registrations');
+    Route::get('trainings/{training}/schedule', [TrainingController::class, 'schedule'])->middleware(ShowScheduleAttentionModal::class)->name('trainings.schedule');
+    Route::get('trainings/{training}/statistics', [OjtController::class, 'statistics'])->name('trainings.statistics');
+    Route::get('trainings/{training}/stp/approaches', [StpApproachController::class, 'board'])->name('trainings.stp.approaches');
+    Route::get('trainings/{training}/testimony', [TrainingController::class, 'testimony'])->name('trainings.testimony');
+    Route::put('trainings/{training}/testimony', [TrainingController::class, 'updateTestimony'])->name('trainings.testimony.update');
+    Route::resource('trainings', TrainingController::class)
+        ->only(['index', 'show', 'create', 'edit', 'destroy'])
+        ->names([
+            'index' => 'trainings.index',
+            'show' => 'trainings.show',
+            'create' => 'trainings.create',
+            'edit' => 'trainings.edit',
+            'destroy' => 'trainings.destroy',
+        ]);
 
     Route::prefix('trainings/{training}')->name('trainings.')->group(function () {
         Route::post('schedule/regenerate', [TrainingScheduleController::class, 'regenerate'])->name('schedule.regenerate');

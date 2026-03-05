@@ -5,7 +5,6 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Models\Training;
 use App\Services\Schedule\TrainingScheduleResetService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -221,10 +220,7 @@ class EditEventDatesModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-
-        if (Auth::id() !== $training->teacher_id) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 
     /**

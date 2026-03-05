@@ -62,18 +62,125 @@ it('lists only churches related to the teachers trainings including own church',
     $response->assertDontSeeText('Igreja Sem Vínculo');
 });
 
-it('paginates churches list with 15 rows per page', function (): void {
+it('lists only unlinked users enrolled in trainings where the teacher is titular', function (): void {
+    $teacher = createTeacherUser();
+    $otherTeacher = createTeacherUser();
+
+    $training = createTeacherTraining($teacher);
+    $otherTraining = createTeacherTraining($otherTeacher);
+
+    $unlinkedStudent = User::factory()->create([
+        'name' => 'Aluno Sem Igreja Listado',
+        'email' => 'aluno.sem.igreja@example.com',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $linkedChurch = Church::factory()->create(['name' => 'Igreja do Aluno Vinculado']);
+    $linkedStudent = User::factory()->create([
+        'name' => 'Aluno Com Igreja Oculto',
+        'email' => 'aluno.com.igreja@example.com',
+        'church_id' => $linkedChurch->id,
+    ]);
+
+    $unlinkedFromOtherTeacher = User::factory()->create([
+        'name' => 'Aluno Sem Igreja Outro Professor',
+        'email' => 'aluno.outro.professor@example.com',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $training->students()->attach([$unlinkedStudent->id, $linkedStudent->id]);
+    $otherTraining->students()->attach([$unlinkedFromOtherTeacher->id]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->assertViewHas('unlinkedUsers', function ($paginator) use ($unlinkedStudent, $linkedStudent, $unlinkedFromOtherTeacher) {
+            $listedUserIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($listedUserIds)->toContain($unlinkedStudent->id);
+            expect($listedUserIds)->not->toContain($linkedStudent->id);
+            expect($listedUserIds)->not->toContain($unlinkedFromOtherTeacher->id);
+
+            return true;
+        });
+});
+
+it('allows teacher to remove unlinked user enrolled in own trainings', function (): void {
+    $teacher = createTeacherUser();
+    $training = createTeacherTraining($teacher);
+
+    $unlinkedStudent = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $training->students()->attach($unlinkedStudent->id);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->call('removeUnlinkedUser', $unlinkedStudent->id);
+
+    $this->assertDatabaseMissing('users', ['id' => $unlinkedStudent->id]);
+});
+
+it('allows teacher to associate church and lists only own trainings in modal', function (): void {
+    $teacher = createTeacherUser();
+    $otherTeacher = createTeacherUser();
+
+    $teacherChurch = Church::factory()->create(['name' => 'Igreja Para Vinculo Professor']);
+    $otherChurch = Church::factory()->create(['name' => 'Igreja Outro Professor']);
+
+    $teacherTraining = createTeacherTraining($teacher, $teacherChurch->id);
+    $otherTraining = createTeacherTraining($otherTeacher, $otherChurch->id);
+
+    $unlinkedStudent = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $teacherTraining->students()->attach($unlinkedStudent->id);
+    $otherTraining->students()->attach($unlinkedStudent->id);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->call('openUnlinkedUserModal', $unlinkedStudent->id)
+        ->assertSet('selectedUnlinkedUserId', $unlinkedStudent->id)
+        ->assertViewHas('selectedUserTrainings', function ($trainings) use ($teacherTraining, $otherTraining) {
+            $trainingIds = collect($trainings->all())->pluck('id')->all();
+
+            expect($trainingIds)->toContain($teacherTraining->id);
+            expect($trainingIds)->not->toContain($otherTraining->id);
+
+            return true;
+        })
+        ->set('linkChurchId', $teacherChurch->id)
+        ->call('associateChurchToSelectedUser')
+        ->assertSet('showUnlinkedUserModal', false);
+
+    $unlinkedStudent->refresh();
+
+    expect($unlinkedStudent->church_id)->toBe($teacherChurch->id);
+    expect($unlinkedStudent->church_temp_id)->toBeNull();
+});
+
+it('paginates churches list with 5 rows per page', function (): void {
     $teacher = createTeacherUser();
     $lastChurchId = null;
+    $firstChurchId = null;
 
-    for ($index = 1; $index <= 16; $index++) {
+    for ($index = 1; $index <= 6; $index++) {
         $church = Church::factory()->create([
             'name' => sprintf('Igreja %02d', $index),
         ]);
 
         createTeacherTraining($teacher, $church->id);
 
-        if ($index === 16) {
+        if ($index === 1) {
+            $firstChurchId = $church->id;
+        }
+
+        if ($index === 6) {
             $lastChurchId = $church->id;
         }
     }
@@ -88,7 +195,7 @@ it('paginates churches list with 15 rows per page', function (): void {
 
     $secondPage->assertOk();
     $secondPage->assertSee(sprintf('teacher-church-%d', $lastChurchId));
-    $secondPage->assertDontSeeText('Igreja 01');
+    $secondPage->assertDontSee(sprintf('teacher-church-%d', $firstChurchId));
 });
 
 it('allows teacher to remove a related church', function (): void {
@@ -139,6 +246,43 @@ it('shows church and user results in search dropdown without filtering table row
         ->assertSeeText($matchingUser->name)
         ->assertSee(route('app.teacher.churches.show', $churchOne))
         ->assertSeeText('Igreja Vitória');
+});
+
+it('searches church and user dropdown by pastor city state and email', function (): void {
+    $teacher = createTeacherUser();
+
+    $church = Church::factory()->create([
+        'name' => 'Igreja Filtrada Professor',
+        'pastor' => 'Pr. Elias Filtro',
+        'city' => 'Uberlandia',
+        'state' => 'MG',
+        'contact_email' => 'filtro.igreja@example.com',
+    ]);
+
+    $user = User::factory()->create([
+        'name' => 'Membro Filtro Professor',
+        'email' => 'membro.filtro.professor@example.com',
+        'city' => 'Uberlandia',
+        'state' => 'MG',
+        'church_id' => $church->id,
+    ]);
+
+    createTeacherTraining($teacher, $church->id);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->set('churchSearch', 'Elias Filtro')
+        ->assertSeeText($church->name)
+        ->set('churchSearch', 'Uberlandia')
+        ->assertSeeText($church->name)
+        ->assertSeeText($user->name)
+        ->set('churchSearch', 'MG')
+        ->assertSeeText($church->name)
+        ->assertSeeText($user->name)
+        ->set('churchSearch', 'filtro.igreja@example.com')
+        ->assertSeeText($church->name)
+        ->set('churchSearch', 'membro.filtro.professor@example.com')
+        ->assertSeeText($user->name);
 });
 
 it('shows not found messages in search dropdown when there are no matches', function (): void {

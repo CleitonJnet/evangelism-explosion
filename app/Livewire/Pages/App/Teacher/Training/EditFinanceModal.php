@@ -5,7 +5,6 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Helpers\MoneyHelper;
 use App\Models\Training;
 use App\Models\TrainingFinanceAudit;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -193,10 +192,7 @@ class EditFinanceModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-
-        if (Auth::id() !== $training->teacher_id) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 
     private function formatRawMoney(mixed $rawValue, ?string $default = '0,00'): ?string

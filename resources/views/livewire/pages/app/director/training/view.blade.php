@@ -1,398 +1,386 @@
 @php
-    $updateTemplate = route('app.director.trainings.schedule-items.update', [
-        'training' => $training->id,
-        'item' => 'ITEM_ID',
-    ]);
-    $deleteTemplate = route('app.director.trainings.schedule-items.destroy', [
-        'training' => $training->id,
-        'item' => 'ITEM_ID',
-    ]);
-    $storeUrl = route('app.director.trainings.schedule-items.store', [
-        'training' => $training->id,
-    ]);
+    use App\Helpers\AddressHelper;
+    use App\Helpers\DayScheduleHelper;
+    use App\Services\Training\TestimonySanitizer;
+    use Carbon\Carbon;
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Collection;
+
+    $course = $training->course;
+    $ministry = $course?->ministry;
+    $church = $training->church;
+    $eventAddress = AddressHelper::format_address(
+        $training->street ?: $church?->street,
+        $training->number ?: $church?->number,
+        $training->complement ?: $church?->complement,
+        $training->district ?: $church?->district,
+        $training->city ?: $church?->city,
+        $training->state ?: $church?->state,
+        $training->postal_code ?: $church?->postal_code,
+    );
+    $statusLabel = $training->status?->label() ?? __('Status não definido');
+    $normalizedBannerPath = ltrim(trim((string) $training->banner), '/');
+    $hasUploadedBanner = $normalizedBannerPath !== '' && Storage::disk('public')->exists($normalizedBannerPath);
+    $defaultBannerUrl = asset('images/banner-default.webp');
+    $bannerUrl = $hasUploadedBanner ? asset('storage/' . $normalizedBannerPath) : $defaultBannerUrl;
+    $workloadMinutes = $eventDates->reduce(function (int $total, $eventDate): int {
+        if (!$eventDate->start_time || !$eventDate->end_time) {
+            return $total;
+        }
+
+        $start = Carbon::parse($eventDate->date . ' ' . $eventDate->start_time);
+        $end = Carbon::parse($eventDate->date . ' ' . $eventDate->end_time);
+
+        if ($end->lessThanOrEqualTo($start)) {
+            return $total;
+        }
+
+        return $total + $start->diffInMinutes($end);
+    }, 0);
+    $workloadDuration = '00h';
+    if ($workloadMinutes > 0) {
+        $hours = intdiv($workloadMinutes, 60);
+        $minutes = $workloadMinutes % 60;
+        $workloadDuration = $minutes > 0 ? sprintf('%02dh%02d', $hours, $minutes) : sprintf('%02dh', $hours);
+    }
+
+    /** @var Collection<int, \App\Models\TrainingScheduleItem> $scheduleItems */
+    $scheduleItems = $training->scheduleItems;
+    $scheduleItemsByDate = $scheduleItems->groupBy(fn($item) => $item->date?->format('Y-m-d'));
+    $dayPlanStatusByDate = $eventDates->mapWithKeys(function ($eventDate) use ($scheduleItemsByDate): array {
+        $dateValue = is_string($eventDate->date)
+            ? $eventDate->date
+            : Carbon::parse((string) $eventDate->date)->format('Y-m-d');
+
+        $itemsForDay = $scheduleItemsByDate->get($dateValue, collect());
+        $status = DayScheduleHelper::planStatus($dateValue, $eventDate->end_time, $itemsForDay);
+
+        return [$dateValue => $status];
+    });
+    $hasOverplannedDay = $eventDates->contains(function ($eventDate) use ($scheduleItemsByDate): bool {
+        $dateValue = is_string($eventDate->date)
+            ? $eventDate->date
+            : Carbon::parse((string) $eventDate->date)->format('Y-m-d');
+
+        $itemsForDay = $scheduleItemsByDate->get($dateValue, collect());
+        $status = DayScheduleHelper::planStatus($dateValue, $eventDate->end_time, $itemsForDay);
+
+        return $status === DayScheduleHelper::STATUS_OVER;
+    });
+    $allDaysMatch = DayScheduleHelper::hasAllDaysMatch($eventDates, $scheduleItems);
+    $scheduleBadgeClasses = '';
+    $scheduleStatusLabel = __('Carga horária incompleta');
+
+    if ($hasOverplannedDay) {
+        $scheduleBadgeClasses .= ' bg-red-100 text-red-700';
+        $scheduleStatusLabel = __('Acima do período previsto');
+    } elseif ($allDaysMatch) {
+        $scheduleBadgeClasses .= ' bg-emerald-100 text-emerald-700';
+        $scheduleStatusLabel = __('Adequada ao plano');
+    } else {
+        $scheduleBadgeClasses .= ' bg-amber-100 text-amber-800';
+    }
+
+    $formattedNotes = TestimonySanitizer::sanitize($training->notes);
 @endphp
 
-<div x-data="trainingScheduleBoard({
-    regenerateUrl: @js(route('app.director.trainings.schedule.regenerate', $training)),
-    storeUrl: @js($storeUrl),
-    updateUrlTemplate: @js($updateTemplate),
-    deleteUrlTemplate: @js($deleteTemplate),
-    csrf: @js(csrf_token()),
-})" class="space-y-6">
-    <section class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <flux:heading size="sm" level="2">{{ __('Agenda do treinamento') }}</flux:heading>
-                <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-                    {{ $training->course?->name ?? __('Curso não definido') }}
-                </flux:text>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <flux:button variant="primary" type="button" icon="arrow-path"
-                    tooltip="{{ __('Regenerar agenda') }}" aria-label="{{ __('Regenerar agenda') }}"
-                    x-on:click="regenerate" x-bind:disabled="busy" />
-            </div>
-        </div>
-    </section>
-
-    <section class="grid gap-6">
-        @forelse ($eventDates as $eventDate)
-            @php
-                $dateKey = $eventDate->date;
-                $items = $scheduleByDate->get($dateKey, collect())->sortBy('starts_at');
-                $dayStart = \Carbon\Carbon::parse($eventDate->date . ' ' . $eventDate->start_time)->format(
-                    'Y-m-d H:i:s',
-                );
-            @endphp
-            <div class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-4"
-                @drop.prevent="dropOn('{{ $dateKey }}', '{{ $dayStart }}')">
-                <div class="mb-4">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <div class="text-sm font-semibold text-heading">
-                                {{ \Carbon\Carbon::parse($dateKey)->format('d/m/Y') }}</div>
-                            <div class="text-xs text-[color:var(--ee-app-muted)]">
-                                {{ $eventDate->start_time }} - {{ $eventDate->end_time }}
-                            </div>
-                        </div>
-                        <flux:button size="sm" type="button" variant="outline" icon="plus"
-                            tooltip="{{ __('Adicionar sessão') }}"
-                            aria-label="{{ __('Adicionar sessão') }}"
-                            x-on:click="openCreate('{{ $dateKey }}', '{{ substr($eventDate->start_time ?? '', 0, 5) }}')" />
-                    </div>
-                </div>
-
-                <div class="overflow-hidden rounded-xl border border-[color:var(--ee-app-border)] bg-white">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs uppercase text-[color:var(--ee-app-muted)]">
-                            <tr class="border-b border-[color:var(--ee-app-border)]">
-                                <th class="px-3 py-2">{{ __('Horário') }}</th>
-                                <th class="px-3 py-2">{{ __('Sessão') }}</th>
-                                <th class="px-3 py-2">{{ __('Duração') }}</th>
-                                <th class="px-3 py-2 text-right">{{ __('Ações') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[color:var(--ee-app-border)]">
-                            @forelse ($items as $item)
-                                @php
-                                    $hasConflict = $item->status === 'CONFLICT';
-                                    $tooltip = $hasConflict
-                                        ? __('Conflito: sobreposição com item #:id', [
-                                            'id' => $item->conflict_reason['with'] ?? '-',
-                                        ])
-                                        : '';
-                                @endphp
-                                @php
-                                    $rowIndex = $loop->index;
-                                @endphp
-                                @php
-                                    $hour = (int) $item->starts_at->format('H');
-                                    if ($hour < 12) {
-                                        $periodClass = 'bg-sky-50/70';
-                                    } elseif ($hour < 18) {
-                                        $periodClass = 'bg-amber-50/60';
-                                    } else {
-                                        $periodClass = 'bg-indigo-50/60';
-                                    }
-                                @endphp
-                                <tr class="items-center {{ $periodClass }}"
-                                    :class="{
-                                        'bg-red-50 text-red-700': {{ $hasConflict ? 'true' : 'false' }},
-                                        'opacity-70': busy,
-                                        'bg-yellow-100 ring-2 ring-yellow-300/70': draggingId === {{ $item->id }},
-                                        'bg-yellow-50 ring-2 ring-yellow-300/80': dropTarget && dropTarget.date === '{{ $item->date->format('Y-m-d') }}' && dropTarget.startsAt === '{{ $item->starts_at->format('Y-m-d H:i:s') }}',
-                                        'translate-y-2': draggingId && dropTarget && dropTarget.order !== null && draggingIndex !== null && dropTarget.order < draggingIndex && dropTarget.order <= {{ $rowIndex }} && draggingIndex > {{ $rowIndex }},
-                                        '-translate-y-2': draggingId && dropTarget && dropTarget.order !== null && draggingIndex !== null && dropTarget.order > draggingIndex && dropTarget.order >= {{ $rowIndex }} && draggingIndex < {{ $rowIndex }},
-                                        'transition-transform duration-150': draggingId,
-                                    }"
-                                    draggable="true" title="{{ $tooltip }}"
-                                    @dragstart="startDrag({{ $item->id }}, '{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragend="endDrag"
-                                    @dragenter.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @dragover.stop.prevent="setDropTarget('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}', {{ $rowIndex }})"
-                                    @drop.prevent="dropOn('{{ $item->date->format('Y-m-d') }}', '{{ $item->starts_at->format('Y-m-d H:i:s') }}')">
-                                    <td class="px-3 py-2 whitespace-nowrap">
-                                        {{ $item->starts_at->format('H:i') }} - {{ $item->ends_at->format('H:i') }}
-                                    </td>
-                                    <td class="px-3 py-2">
-                                        <div class="font-semibold text-heading">{{ $item->title }}</div>
-                                        @if ($item->section?->devotional)
-                                            <div class="text-xs text-[color:var(--ee-app-muted)]">
-                                                {{ $item->section->devotional }}
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td class="px-3 py-2 whitespace-nowrap">
-                                        {{ $item->planned_duration_minutes }} {{ __('min') }}
-                                    </td>
-                                    <td class="px-3 py-2 text-right">
-                                        <div class="flex flex-wrap justify-end gap-2">
-                                            <flux:button type="button" size="sm" variant="danger" icon="trash"
-                                                tooltip="{{ __('Remover sessão') }}"
-                                                aria-label="{{ __('Remover sessão') }}"
-                                                x-on:click.stop="deleteItem({{ $item->id }})">
-                                            </flux:button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td class="px-3 py-4 text-xs text-[color:var(--ee-app-muted)]" colspan="4">
-                                        {{ __('Nenhum item para este dia.') }}
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @empty
-            <div
-                class="rounded-2xl border border-dashed border-[color:var(--ee-app-border)] p-6 text-sm text-[color:var(--ee-app-muted)]">
-                {{ __('Nenhuma data cadastrada para este treinamento.') }}
-            </div>
-        @endforelse
-    </section>
-
-    <div x-show="modalOpen" x-cloak x-transition class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/50" x-on:click="closeModal"></div>
+<div class="space-y-4">
+    <section id="indicators" class="flex flex-wrap gap-4">
         <div
-            class="relative w-full max-w-lg rounded-2xl border border-[color:var(--ee-app-border)] bg-white p-6 shadow-xl">
-            <div class="text-sm font-semibold text-heading">
-                <span>{{ __('Adicionar sessão') }}</span>
-            </div>
-
-            <div class="mt-4 grid gap-4">
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-title">{{ __('Título') }}</label>
-                    <input id="schedule-title" type="text" x-model="form.title"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm"
-                        maxlength="255" />
-                </div>
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-type">{{ __('Tipo') }}</label>
-                    <select id="schedule-type" x-model="form.type"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm">
-                        <option value="SECTION">{{ __('Sessão') }}</option>
-                        <option value="BREAK">{{ __('Intervalo') }}</option>
-                        <option value="MEAL">{{ __('Refeição') }}</option>
-                        <option value="WELCOME">{{ __('Boas-vindas') }}</option>
-                        <option value="OPENING">{{ __('Abertura') }}</option>
-                        <option value="PRACTICE">{{ __('Prática') }}</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="grid gap-2">
-                        <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                            for="schedule-date">{{ __('Data') }}</label>
-                        <input id="schedule-date" type="date" x-model="form.date"
-                            class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                    </div>
-                    <div class="grid gap-2">
-                        <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                            for="schedule-time">{{ __('Início') }}</label>
-                        <input id="schedule-time" type="time" x-model="form.time"
-                            class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                    </div>
-                </div>
-                <div class="grid gap-2">
-                    <label class="text-xs font-semibold text-[color:var(--ee-app-muted)]"
-                        for="schedule-duration">{{ __('Duração (min)') }}</label>
-                    <input id="schedule-duration" type="number" min="1" max="720" x-model="form.duration"
-                        class="w-full rounded-md border border-[color:var(--ee-app-border)] px-3 py-2 text-sm" />
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <flux:button type="button" variant="outline" x-on:click="closeModal">
-                    {{ __('Cancelar') }}
-                </flux:button>
-                <flux:button type="button" variant="primary" x-on:click="submitModal" x-bind:disabled="busy">
-                    {{ __('Salvar') }}
-                </flux:button>
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/people-network.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de alunos:') }}</div>
+                {{ $totalRegistrations }}
             </div>
         </div>
-    </div>
+        <div
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/church.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de igrejas:') }}</div>
+                {{ $totalParticipatingChurches }}
+            </div>
+        </div>
+        <div
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/new-church.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de igrejas novas:') }}</div>
+                {{ $totalNewChurches }}
+            </div>
+        </div>
+        <div
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/pastor.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de pastores:') }}</div>
+                {{ $totalPastors }}
+            </div>
+        </div>
+        <div
+            class="rounded-lg border border-sky-950/50 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-2.5 text-2xl font-bold flex-auto flex gap-3 items-center">
+            <div><img src="{{ asset('images/svg/dove.svg') }}" alt="indicator" class="h-10"></div>
+            <div>
+                <div class="text-xs opacity-75">{{ __('Total de decisões:') }}</div>
+                {{ $totalDecisions }}
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-2">
+            <div>
+                <h2 class="text-2xl text-blue-900" style="font-family: 'Cinzel', serif;">
+                    {{ $course?->type ?? __('Treinamento') }}: <span
+                        class="font-semibold text-nowrap">{{ $course?->name ?? __('Curso não definido') }}</span>
+                    <span class=""> - {{ $course?->initials ?? '' }}</span>
+                </h2>
+                <p class="text-sm font-bold text-slate-600">{{ __('Ministério:') }} <span class="font-bold"></span>
+                    {{ $training?->course->ministry->name ?? __('-') }}</span></p>
+            </div>
+        </div>
+
+        <div class="mt-6 grid gap-6 lg:flex flex-wrap">
+            <div
+                class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg basis-64 h-96 max-h-96 overflow-hidden">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
+                <div class="relative mt-3 h-80 w-full overflow-hidden rounded-xl border border-slate-800/40">
+                    <img src="{{ $bannerUrl }}" alt="{{ __('Banner do treinamento') }}"
+                        class="h-full w-full object-cover"
+                        onerror="this.onerror=null;this.src='{{ $defaultBannerUrl }}';">
+
+                    @if (!$hasUploadedBanner)
+                        <div class="absolute inset-0 flex items-center justify-center bg-slate-900/35 p-4 text-center">
+                            <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800">
+                                {{ __('Nenhum banner foi enviado para este evento') }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <livewire:pages.app.director.training.event-teachers :training-id="$training->id"
+                wire:key="training-event-teachers-{{ $training->id }}" />
+
+
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-150 flex-auto">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
+                    {{ __('Igreja Base') }}
+                </h3>
+                <div class="mt-3 flex flex-col gap-4 text-sm text-slate-700">
+                    <div class="flex flex-wrap items-center justify-between gap-x-4  border-b border-sky-100/70">
+                        <span class="">{{ __('Nome da Igreja') }}</span>
+                        <div></div>
+                        <span class="font-semibold text-slate-900">
+                            <div class="mt-1 text-slate-900 text-right uppercase">
+                                {{ $church?->name ?? __('Não informado') }}
+                            </div>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="">{{ __('Líder da Clínica') }}<span
+                                class="hidden xs:inline">/{{ __('Pastor') }}</span></span>
+                        <span
+                            class="font-semibold text-slate-900 text-right">{{ $training->leader ?? __(key: 'Não informado') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="">{{ __('Coordenador') }}</span>
+                        <span
+                            class="font-semibold text-slate-900">{{ $training->coordinator ?? __(key: 'Não informado') }}</span>
+                    </div>
+                    <x-src.line-theme />
+                    <div class="flex flex-wrap gap-4 justify-between items-center">
+                        <div class="">{{ __('Telefone') }}</div>
+                        <div class="text-xs text-slate-800 flex-auto text-right font-bold">
+                            {{ $training->phone ?? __('Não informado') }}</div>
+                    </div>
+                    <div class="flex flex-wrap gap-4 justify-between items-center">
+                        <div class="">{{ __('Email') }}</div>
+                        <div class="text-xs text-slate-800 flex-auto text-right font-bold">
+                            {{ $training->email ?? __('Não informado') }}
+                        </div>
+                    </div>
+                    <x-src.line-theme />
+                    <div class="flex flex-wrap gap-4 justify-between items-center">
+                        <div class="">{{ __('Endereço') }}</div>
+                        <div class="text-xs text-slate-800 flex-auto text-right font-bold">
+                            {{ $eventAddress !== '' ? $eventAddress : __('Não informado') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-60 flex-auto relative overflow-hidden">
+                <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
+                    {{ __('Datas do evento') }}</h4>
+                <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
+                    @forelse ($eventDates as $eventDate)
+                        @php
+                            $dateValue = is_string($eventDate->date)
+                                ? $eventDate->date
+                                : \Carbon\Carbon::parse((string) $eventDate->date)->format('Y-m-d');
+                            $dayPlanStatus = $dayPlanStatusByDate->get(
+                                $dateValue,
+                                \App\Helpers\DayScheduleHelper::STATUS_UNDER,
+                            );
+                            $dayTimeClass =
+                                $dayPlanStatus === \App\Helpers\DayScheduleHelper::STATUS_OVER
+                                    ? 'text-red-600'
+                                    : ($dayPlanStatus === \App\Helpers\DayScheduleHelper::STATUS_UNDER
+                                        ? 'text-amber-600'
+                                        : 'text-slate-500');
+                        @endphp
+                        <div class="flex flex-wrap items-center justify-between gap-3 relative">
+                            <span class="font-semibold text-slate-900">
+                                {{ \Carbon\Carbon::parse($eventDate->date)->format('d/m/Y') }}
+                            </span>
+                            <span class="{{ $dayTimeClass }}">
+                                {{ date('H:i', strtotime($eventDate->start_time)) }} -
+                                {{ date('H:i', strtotime($eventDate->end_time)) }}
+                            </span>
+                            @if ($dayPlanStatus !== \App\Helpers\DayScheduleHelper::STATUS_OK)
+                                <img src="{{ asset('images/alarme.webp') }}" alt="alerta"
+                                    class="h-3 absolute top-0 -right-3">
+                            @endif
+                        </div>
+                    @empty
+                        <span class="text-slate-500">{{ __('Nenhuma data cadastrada.') }}</span>
+                    @endforelse
+                </div>
+                <div
+                    class="absolute inset-x-0 bottom-0 px-3 py-1 text-xs font-semibold text-center {{ $scheduleBadgeClasses }}">
+                    <div class="uppercase">{{ __('Programação:') }}</div>
+                    <div>{{ __('Carga Horária') }}: {{ $workloadDuration }} · {{ $scheduleStatusLabel }}</div>
+                </div>
+
+            </div>
+
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-62 flex-auto">
+                <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
+                    {{ __('Resumo STP') }}
+                </h4>
+                <div class="mt-3 grid gap-3 text-sm text-slate-700">
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Concluídas / Previstas') }}</span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $resumoStp['sessoes_concluidas'] }} /
+                            {{ $resumoStp['sessoes_previstas'] }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Quantas vezes?') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['evangelho_explicado'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Para quantas pessoas?') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['pessoas_ouviram'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Decisão') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['decisao'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Sem decisão/ interessado') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['sem_decisao_interessado'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Rejeição') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['rejeicao'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Para segurança/Já é crente') }}</span>
+                        <span
+                            class="font-semibold text-slate-900">{{ $resumoStp['para_seguranca_ja_e_crente'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Visita agendada (7 dias após)') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $resumoStp['visita_agendada'] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-800/40 bg-white/90 p-4 basis-70 flex-auto">
+                <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pb-2 mb-2">
+                    {{ __('Valores por inscrição') }}</h4>
+                <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Preço') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $training->price ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Despesas Extras') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $training->price_church ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Desconto') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $training->discount ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Total por cada inscrição') }}</span>
+                        <span class="font-semibold text-slate-900">{{ $training->payment ?? '-' }}</span>
+                    </div>
+                </div>
+                <h4 class="text-sm font-semibold text-slate-900 uppercase border-b-2 border-sky-800/30 pt-4 pb-2 mb-2">
+                    {{ __('Resumo financeiro') }}</h4>
+                <div class="mt-3 flex flex-col gap-3 text-sm text-slate-700">
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Total de pagantes') }}</span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $paidStudentsCount }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Receita') }} <span
+                                class="hidden xs:inline">{{ __('total de inscrições') }}</span></span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $totalReceivedFromRegistrations ?? '-' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Repasse ao ') }} <span
+                                class="hidden 3xl:inline">{{ __('Ministério Nacional de') }}</span>
+                            {{ __(' EE') }}</span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $eeMinistryBalance ?? '-' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4  border-b border-sky-100/70">
+                        <span class="text-slate-500">{{ __('Repasse para') }} <span
+                                class="hidden 3xl:inline">{{ __('despesas da') }}</span>
+                            {{ __('igreja base') }}</span>
+                        <span class="font-semibold text-slate-900">
+                            {{ $hostChurchExpenseBalance ?? '-' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
+        <h4 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Testemunho do professor') }}</h4>
+        @if ($formattedNotes)
+            <div class="mt-3 space-y-3 text-sm leading-6 text-slate-700">
+                {!! $formattedNotes !!}
+            </div>
+        @else
+            <p class="mt-3 text-sm text-slate-700">
+                {{ __('Nenhum testemunho registrado.') }}
+            </p>
+        @endif
+    </section>
+
+    {{-- @if ($bannerUrl)
+        <section class="rounded-2xl border border-amber-300/30 bg-white p-4 shadow-lg">
+            <h3 class="text-sm font-semibold text-slate-900 uppercase">{{ __('Banner do treinamento') }}</h3>
+            <div class="mt-3 overflow-hidden rounded-xl border border-slate-800/40">
+                <img src="{{ $bannerUrl }}" alt="{{ __('Banner do treinamento') }}"
+                    class="h-64 w-full object-cover">
+            </div>
+        </section>
+    @endif --}}
 </div>
-
-@once
-    <script data-navigate-once>
-        window.trainingScheduleBoard = function (config) {
-            return {
-                draggingId: null,
-                draggingIndex: null,
-                dropTarget: {
-                    date: null,
-                    startsAt: null,
-                    order: null,
-                },
-                busy: false,
-                modalOpen: false,
-                form: {
-                    title: '',
-                    type: 'SECTION',
-                    date: '',
-                    time: '',
-                    duration: 60,
-                },
-                headers() {
-                    return {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': config.csrf,
-                    };
-                },
-                urlFromTemplate(template, id) {
-                    return template.replace('ITEM_ID', id);
-                },
-                setDropTarget(date, startsAt, order) {
-                    if (!this.draggingId) {
-                        return;
-                    }
-
-                    this.dropTarget = {
-                        date,
-                        startsAt,
-                        order,
-                    };
-                },
-                clearDropTarget() {
-                    this.dropTarget = {
-                        date: null,
-                        startsAt: null,
-                        order: null,
-                    };
-                },
-                openCreate(date, time) {
-                    this.form = {
-                        title: '',
-                        type: 'SECTION',
-                        date: date || '',
-                        time: time || '',
-                        duration: 60,
-                    };
-                    this.modalOpen = true;
-                },
-                closeModal() {
-                    this.modalOpen = false;
-                },
-                buildStartsAt(date, time) {
-                    if (!date || !time) {
-                        return null;
-                    }
-
-                    return `${date} ${time}:00`;
-                },
-                async submitModal() {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    const startsAt = this.buildStartsAt(this.form.date, this.form.time);
-
-                    if (!startsAt) {
-                        return;
-                    }
-
-                    this.busy = true;
-
-                    const payload = {
-                        date: this.form.date,
-                        starts_at: startsAt,
-                        planned_duration_minutes: Number(this.form.duration),
-                        title: this.form.title,
-                        type: this.form.type,
-                    };
-
-                    const response = await fetch(config.storeUrl, {
-                        method: 'POST',
-                        headers: this.headers(),
-                        body: JSON.stringify(payload),
-                    });
-
-                    this.busy = false;
-
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                },
-                startDrag(id, date, startsAt, order) {
-                    this.draggingId = id;
-                    this.draggingIndex = order;
-                    this.setDropTarget(date, startsAt, order);
-                },
-                endDrag() {
-                    this.draggingId = null;
-                    this.draggingIndex = null;
-                    this.clearDropTarget();
-                },
-                async regenerate() {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-
-                    const response = await fetch(config.regenerateUrl, {
-                        method: 'POST',
-                        headers: this.headers(),
-                        body: JSON.stringify({}),
-                    });
-
-                    this.busy = false;
-
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                },
-                async dropOn(date, startsAt) {
-                    if (!this.draggingId || this.busy) {
-                        return;
-                    }
-
-                    this.busy = true;
-
-                    const response = await fetch(this.urlFromTemplate(config.updateUrlTemplate, this.draggingId), {
-                        method: 'PATCH',
-                        headers: this.headers(),
-                        body: JSON.stringify({
-                            date,
-                            starts_at: startsAt
-                        }),
-                    });
-
-                    this.busy = false;
-                    this.clearDropTarget();
-
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                },
-                async deleteItem(id) {
-                    if (this.busy) {
-                        return;
-                    }
-
-                    if (!window.confirm('{{ __('Remover esta sessão?') }}')) {
-                        return;
-                    }
-
-                    this.busy = true;
-
-                    const response = await fetch(this.urlFromTemplate(config.deleteUrlTemplate, id), {
-                        method: 'DELETE',
-                        headers: this.headers(),
-                    });
-
-                    this.busy = false;
-
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                },
-            };
-        };
-    </script>
-@endonce

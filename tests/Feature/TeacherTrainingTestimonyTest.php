@@ -50,7 +50,7 @@ it('shows testimony page for the training owner teacher', function () {
         ->assertSee('Igreja Header Relato');
 });
 
-it('forbids another teacher from accessing testimony page and update action', function () {
+it('allows another teacher to access testimony page and update action', function () {
     $ownerTeacher = createTeacherForTrainingTestimony();
     $otherTeacher = createTeacherForTrainingTestimony();
     $training = Training::factory()->create([
@@ -59,13 +59,14 @@ it('forbids another teacher from accessing testimony page and update action', fu
 
     $this->actingAs($otherTeacher)
         ->get(route('app.teacher.trainings.testimony', $training))
-        ->assertForbidden();
+        ->assertOk();
 
     $this->actingAs($otherTeacher)
         ->put(route('app.teacher.trainings.testimony.update', $training), [
             'notes' => '<p>Relato</p>',
         ])
-        ->assertForbidden();
+        ->assertRedirect(route('app.teacher.trainings.testimony', $training))
+        ->assertSessionHas('success');
 });
 
 it('saves sanitized testimony in training notes', function () {

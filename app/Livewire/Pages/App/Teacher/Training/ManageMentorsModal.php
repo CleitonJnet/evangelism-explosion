@@ -188,11 +188,6 @@ class ManageMentorsModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-
-        $teacherId = Auth::id();
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 }

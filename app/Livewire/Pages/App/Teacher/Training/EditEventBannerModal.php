@@ -3,7 +3,6 @@
 namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Models\Training;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -122,10 +121,7 @@ class EditEventBannerModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-
-        if (Auth::id() !== $training->teacher_id) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 
     private function currentBannerUrl(): ?string

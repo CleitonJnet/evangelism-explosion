@@ -24,7 +24,7 @@ class TrainingPolicy
 
     private function canManageTraining(User $user, Training $training): bool
     {
-        if ($user->hasRole('Director')) {
+        if ($user->hasRole('Director') || $user->hasRole('Teacher')) {
             return true;
         }
 

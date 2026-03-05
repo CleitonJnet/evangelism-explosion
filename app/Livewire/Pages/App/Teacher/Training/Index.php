@@ -6,7 +6,6 @@ use App\Models\Training;
 use App\TrainingStatus;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -14,53 +13,63 @@ class Index extends Component
 {
     public string $statusKey = 'scheduled';
 
+    public string $searchTerm = '';
+
     /**
      * @var array<int, int>
      */
     public array $extraCourseIds = [2];
 
-    public ?int $userId = null;
-
     public function mount(?string $statusKey = null): void
     {
         $this->statusKey = $this->normalizeStatusKey($statusKey);
-        $this->userId = Auth::id();
     }
 
     public function render(): View
     {
         $status = $this->statusFromKey($this->statusKey);
 
-        $trainings = collect();
+        $trainingsQuery = Training::query()
+            ->select('trainings.*')
+            ->join('courses', 'courses.id', '=', 'trainings.course_id')
+            ->with([
+                'teacher',
+                'church',
+                'course.ministry',
+                'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
+            ])
+            ->withCount('newChurches')
+            ->whereHas('course', function ($query): void {
+                $query->where('execution', 0)
+                    ->orWhereIn('id', $this->extraCourseIds);
+            })
+            ->where('status', $status->value)
+            ->orderBy('courses.type')
+            ->orderBy('courses.name');
 
-        if ($this->userId) {
-            $trainingsQuery = Training::query()
-                ->select('trainings.*')
-                ->join('courses', 'courses.id', '=', 'trainings.course_id')
-                ->with([
-                    'teacher',
-                    'church',
-                    'course.ministry',
-                    'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
-                ])
-                ->withCount('newChurches')
-                ->whereHas('course', function ($query): void {
-                    $query->where('execution', 0)
-                        ->orWhereIn('id', $this->extraCourseIds);
-                })
-                ->where('status', $status->value)
-                ->where('teacher_id', $this->userId)
-                ->orderBy('courses.type')
-                ->orderBy('courses.name');
-
-            if ($status === TrainingStatus::Scheduled) {
-                $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
-                    $query->whereDate('date', '<', Carbon::today());
-                });
-            }
-
-            $trainings = $trainingsQuery->get();
+        $searchTerm = trim($this->searchTerm);
+        if ($searchTerm !== '') {
+            $trainingsQuery->where(function ($query) use ($searchTerm): void {
+                $query->where('trainings.city', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('trainings.state', 'like', '%'.$searchTerm.'%')
+                    ->orWhereHas('church', function ($churchQuery) use ($searchTerm): void {
+                        $churchQuery->where('name', 'like', '%'.$searchTerm.'%')
+                            ->orWhere('city', 'like', '%'.$searchTerm.'%')
+                            ->orWhere('state', 'like', '%'.$searchTerm.'%');
+                    })
+                    ->orWhereHas('teacher', function ($teacherQuery) use ($searchTerm): void {
+                        $teacherQuery->where('name', 'like', '%'.$searchTerm.'%');
+                    });
+            });
         }
+
+        if ($status === TrainingStatus::Scheduled) {
+            $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
+                $query->whereDate('date', '<', Carbon::today());
+            });
+        }
+
+        $trainings = $trainingsQuery->get();
 
         return view('livewire.pages.app.teacher.training.index', [
             'statusKey' => $this->statusKey,

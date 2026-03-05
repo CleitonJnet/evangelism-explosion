@@ -6,5 +6,8 @@
         <div id="director-testimonials-toolbar" class="flex flex-wrap items-center gap-2"></div>
     </x-src.toolbar.nav>
 
-    <livewire:pages.app.director.website.testimonials.index />
+    <section
+        class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
+        <livewire:pages.app.director.website.testimonials.index />
+    </section>
 </x-layouts.app>

@@ -6,7 +6,6 @@ use App\Helpers\PhoneHelper;
 use App\Models\Church;
 use App\Models\Training;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -360,9 +359,6 @@ class EditEventChurchModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-
-        if (Auth::id() !== $training->teacher_id) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 }

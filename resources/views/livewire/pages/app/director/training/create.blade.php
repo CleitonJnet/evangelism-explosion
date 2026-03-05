@@ -1,102 +1,319 @@
-<form wire:submit="submit">
-    <div class="text-sm font-semibold text-heading">{{ __('Informações do treinamento') }}</div>
+<section x-data="{
+    step: @entangle('step').live,
+    totalSteps: 5,
+    canProceed: false,
+    async refreshCanProceed() {
+        this.canProceed = await this.$wire.canProceedStep(Number(this.step));
+    },
+    async init() {
+        await this.refreshCanProceed();
 
-    <div class="flex flex-wrap mt-6 gap-y-8 gap-x-4">
-        <x-src.form.select name="course_id" wire:model.live="course_id" label="Curso" width_basic="500" :options="$courses
-            ->map(fn($course) => ['value' => $course->id, 'label' => $course->type . ': ' . $course->name])
-            ->toArray()"
-            required />
+        this.$watch('step', async () => {
+            await this.refreshCanProceed();
+        });
+    },
+    async handleEnter(event) {
+        if (event.target?.closest?.('[data-church-modal-root]')) {
+            return;
+        }
 
-        <x-src.form.select name="teacher_id" wire:model="teacher_id" label="Professor" width_basic="500"
-            :options="$teachers->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name])->toArray()" />
+        const tagName = (event.target?.tagName || '').toLowerCase();
+        const inputType = (event.target?.getAttribute?.('type') || '').toLowerCase();
 
-        <x-src.form.input name="price" wire:model="price" label="Preço sugerido" width_basic="200" disabled />
+        if (tagName === 'textarea' || event.target?.isContentEditable) {
+            return;
+        }
 
-        <x-src.form.input name="price_church" wire:model="price_church" label="Preço igreja" width_basic="200" />
+        if (inputType === 'button' || inputType === 'submit') {
+            return;
+        }
 
-        <x-src.form.input name="discount" wire:model="discount" label="Desconto" width_basic="200" />
+        if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
 
-        <x-src.form.select name="status" wire:model="status" label="Status" width_basic="200" :options="collect($statusOptions)
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
-            ->values()
-            ->toArray()" />
+        if (this.step >= this.totalSteps) {
+            return;
+        }
 
-        <x-src.form.input name="welcome_duration_minutes" wire:model="welcome_duration_minutes"
-            label="Boas-vindas (min)" width_basic="200" type="number" min="30" max="60" />
-    </div>
+        event.preventDefault();
+        await this.$wire.nextStep();
+        await this.refreshCanProceed();
+    },
+}" x-on:step-validity-updated.window="refreshCanProceed()"
+    class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg relative h-[calc(100vh-252px)]">
 
-    <div class="mt-8 flex flex-col gap-4">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
-            <flux:button type="button" variant="outline" wire:click="addEventDate">
-                {{ __('Adicionar dia') }}
-            </flux:button>
-        </div>
-
-        <div class="flex flex-col gap-4">
-            @foreach ($eventDates as $index => $eventDate)
-                <div class="flex flex-wrap items-end gap-4">
-                    <x-src.form.input name="eventDates.{{ $index }}.date"
-                        wire:model="eventDates.{{ $index }}.date" label="Data" type="date" width_basic="220"
-                        required />
-                    <x-src.form.input name="eventDates.{{ $index }}.start_time"
-                        wire:model="eventDates.{{ $index }}.start_time" label="Início" type="time"
-                        width_basic="160" required />
-                    <x-src.form.input name="eventDates.{{ $index }}.end_time"
-                        wire:model="eventDates.{{ $index }}.end_time" label="Fim" type="time"
-                        width_basic="160" required />
-                    <flux:button type="button" variant="danger" class="shrink-0"
-                        wire:click="removeEventDate({{ $index }})">
-                        {{ __('Remover') }}
-                    </flux:button>
+    <form x-on:submit.prevent x-on:keydown.enter="handleEnter($event)"
+        x-on:input.debounce.150ms="if ($event.target.closest('[data-church-modal-root]')) return; refreshCanProceed()"
+        x-on:change="if ($event.target.closest('[data-church-modal-root]')) return; refreshCanProceed()"
+        class="h-full pb-20">
+        {{-- SELEÇÃO DO CURSO --}}
+        <div x-cloak x-show="step === 1" id="step_1" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="{{ asset(path: 'images/banner-create-training-course.webp') }}"
+                    alt="Ilustração do passo de seleção de curso"
+                    class="mb-4 aspect-21/7 w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Escolha o curso do treinamento') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Selecione o curso que será realizado neste evento. Essa escolha define a base do conteúdo e o valor inicial da inscrição.') }}
                 </div>
-            @endforeach
-        </div>
-    </div>
-
-    <div class="mt-10 space-y-6">
-        <div class="text-sm font-semibold text-heading">{{ __('Igreja sede') }}</div>
-        <div class="flex flex-wrap gap-8">
-            <x-src.form.input name="churchSearch" wire:model.live="churchSearch" label="Buscar igreja"
-                width_basic="900" />
-            <x-src.form.select name="church_id" wire:model.live="church_id" label="Igreja sede" width_basic="900"
-                :select="empty($churchSearch)" :options="$churches
-                    ->map(fn($church) => ['value' => $church->id, 'label' => $church->name . ' - ' . $church->city])
-                    ->toArray()" />
-        </div>
-
-        <livewire:address-fields wire:model="address" title="Endereço do treinamento" wire:key="training-address" />
-    </div>
-
-    <div class="mt-10">
-        <div class="text-sm font-semibold text-heading">{{ __('Informações gerais') }}</div>
-        <div class="mt-6 flex flex-wrap gap-y-8 gap-x-4">
-            <x-src.form.input name="coordinator" wire:model="coordinator" label="Coordenador" width_basic="400" />
-            <x-src.form.input name="email" wire:model="email" label="Email" width_basic="400" />
-            <x-src.form.input name="phone" wire:model="phone" label="Telefone" width_basic="300" />
-            <x-src.form.input name="gpwhatsapp" wire:model="gpwhatsapp" label="WhatsApp" width_basic="300" />
-            <x-src.form.input name="url" wire:model="url" label="Link do evento online" width_basic="320"
-                type="url" />
-            <x-src.form.textarea name="notes" wire:model="notes" label="Observações" rows="2" />
-            <div class="flex flex-col gap-3" style="flex: 1 1 100%">
-                <label for="bannerUpload" class="text-sm text-body cursor-pointer">{{ __('Banner') }}</label>
-                <input id="bannerUpload" name="bannerUpload" type="file" accept="image/*"
-                    wire:model="bannerUpload"
-                    class="block w-full text-sm text-heading file:mr-4 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-neutral-700 hover:file:bg-neutral-200 cursor-pointer" />
-                @error('bannerUpload')
-                    <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
-                @enderror
-                @if ($bannerUpload)
-                    <div class="mt-2">
-                        <img src="{{ $bannerUpload->temporaryUrl() }}" alt="{{ __('Prévia do banner') }}"
-                            class="h-24 w-auto rounded-lg border border-[color:var(--ee-app-border)] object-cover" />
+            </div>
+            <div class="flex-1 grid gap-4">
+                @foreach ($courses as $course)
+                    <div wire:key="course-option-{{ $course->id }}">
+                        <input type="radio" wire:model.change="course_id" name="course" class="peer sr-only"
+                            id="course-{{ $course->id }}" value="{{ $course->id }}">
+                        <label for="course-{{ $course->id }}"
+                            class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 p-4 peer-checked:border-sky-900 peer-checked:[&_.course-check]:inline-flex transition-all hover:bg-white hover:shadow-[0_0_0_2px_#cad5e2]">
+                            <div class="flex gap-2 justify-between">
+                                <div class="font-bold">{{ $course->type }} {{ $course->name }}</div>
+                                <div
+                                    class="course-check hidden size-6 items-center justify-center rounded-full bg-sky-900 text-white">
+                                    <div>&#x2713;</div>
+                                </div>
+                            </div>
+                            <div class="text-xs opacity-80">{{ $course->ministry?->name }}</div>
+                        </label>
                     </div>
-                @endif
+                @endforeach
             </div>
         </div>
-    </div>
 
-    <flux:button variant="primary" type="submit" class="mt-8 w-full">
-        {{ __('Salvar treinamento') }}
-    </flux:button>
-</form>
+        {{-- DATA DO EVENTO --}}
+        <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
+            <div class="basis-2/5 flex-auto">
+                <img src="{{ asset(path: 'images/banner-create-training-datetime.webp') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Defina os dias e horários') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Adicione todos os dias do treinamento com horário de início e fim. Revise os horários antes de avançar para evitar conflitos na programação.') }}
+                </div>
+            </div>
+            <div class="max-h-80 space-y-10 overflow-y-auto flex-auto basis-1/2">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-sm font-semibold text-heading">{{ __('Datas do treinamento') }}</div>
+                    <flux:button type="button" variant="outline" wire:click="addEventDate">
+                        {{ __('Adicionar dia') }}
+                    </flux:button>
+                </div>
+
+                @foreach ($eventDates as $index => $eventDate)
+                    <div wire:key="event-date-{{ $index }}" class="flex flex-wrap items-end gap-4">
+                        <x-src.form.input name="eventDates.{{ $index }}.date"
+                            wire:model.live="eventDates.{{ $index }}.date" label="Data" type="date"
+                            width_basic="220" required />
+                        <x-src.form.input name="eventDates.{{ $index }}.start_time"
+                            wire:model.live="eventDates.{{ $index }}.start_time" label="Início" type="time"
+                            width_basic="160" required />
+                        <x-src.form.input name="eventDates.{{ $index }}.end_time"
+                            wire:model.live="eventDates.{{ $index }}.end_time" label="Fim" type="time"
+                            width_basic="160" required />
+                        <flux:button type="button" variant="danger" class="shrink-0"
+                            wire:click="removeEventDate({{ $index }})">
+                            {{ __('Remover') }}
+                        </flux:button>
+                    </div>
+                @endforeach
+
+            </div>
+        </div>
+
+        {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
+        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Escolha a igreja base do evento') }}</div>
+                <div class="text-slate-700 text-justify ">
+                    {{ __('Use a busca para localizar a igreja anfitriã e selecioná-la na lista. Se a igreja ainda não existir no sistema, use o botão abaixo para cadastrar e continuar sem sair deste registro.') }}
+
+                    <livewire:pages.app.director.training.create-church-modal wire:model="newChurchSelection"
+                        :training-course-id="$course_id" wire:key="teacher-training-create-church-modal" />
+                </div>
+            </div>
+            <div class="flex-1 grid gap-4">
+                <x-src.form.input name="churchSearch" wire:model.live="churchSearch" label="Buscar igreja"
+                    width_basic="900" autofocus="" />
+
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                    @foreach ($churches as $church)
+                        <div wire:key="church-option-{{ $church->id }}">
+                            <input type="radio" name="church" class="peer sr-only" id="church-{{ $church->id }}"
+                                value="{{ $church->id }}" wire:click="selectChurch({{ $church->id }})"
+                                @checked((int) $church_id === (int) $church->id)>
+                            <label for="church-{{ $church->id }}"
+                                class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 py-2 px-4 peer-checked:border-sky-900 peer-checked:[&_.church-check]:inline-flex">
+                                <div class="flex gap-2 justify-between">
+                                    <div class="font-bold">{{ $church->name }}</div>
+                                    <div
+                                        class="church-check hidden size-6 items-center justify-center rounded-full bg-sky-900 text-white">
+                                        <div>&#x2713;</div>
+                                    </div>
+                                </div>
+                                <div class="text-xs uppercase border-b border-sky-950/20 pb-1 mb-1">
+                                    {{ $church->pastor }}
+                                </div>
+                                <div class="text-xs opacity-80">{{ $church->district }}, {{ $church->city }},
+                                    {{ $church->state }}</div>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- FINANCEIRO --}}
+        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="{{ asset(path: 'images/banner-create-training-finance.webp') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Revise os valores da inscrição') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Confira o preço base do curso, informe despesas extras e desconto por inscrição. O valor final é calculado automaticamente para conferência antes de salvar o evento.') }}
+                </div>
+            </div>
+            <div class="flex-1 grid gap-10">
+                <div class="flex justify-between gap-0.5s">
+                    <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
+                    <div class="border-b border-dashed border-sky-950 flex-auto"></div>
+                    <div>{{ __('R$') }} {{ $price }}</div>
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <x-src.form.input name="price_church" wire:model.live="price_church" label="Despesas extras"
+                        class="text-right" width_basic="10" />
+                    <x-src.form.input name="discount" wire:model.live="discount" label="Desconto por inscrição"
+                        class="text-right" width_basic="10" />
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="grid gap-3 rounded-xl border border-slate-300 bg-white/70 p-4">
+                        <div class="text-sm font-semibold text-sky-950">
+                            {{ __('QR Code PIX da igreja sede (opcional)') }}
+                        </div>
+
+                        <input id="event-church-pix-qr-upload" type="file" accept="image/*"
+                            wire:model.live="pixQrCodeUpload" class="sr-only">
+
+                        <label for="event-church-pix-qr-upload"
+                            class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-sky-950 bg-sky-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-900">
+                            {{ __('Selecionar QR Code') }}
+                        </label>
+
+                        <div class="text-xs text-slate-600">
+                            {{ __('Se informar apenas a chave PIX, o QR Code será ocultado para o aluno.') }}
+                        </div>
+
+                        @error('pixQrCodeUpload')
+                            <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                        @enderror
+
+                        @if ($pixQrCodeUpload && str_starts_with($pixQrCodeUpload->getMimeType(), 'image/'))
+                            <div
+                                class="w-40 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                                <img src="{{ $pixQrCodeUpload->temporaryUrl() }}" alt="QR Code PIX da igreja sede"
+                                    class="max-h-32 w-auto rounded object-contain">
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="grid content-start gap-2">
+                        <x-src.form.input name="pix_key" wire:model.live="pix_key" label="Chave PIX da igreja sede"
+                            width_basic="900" />
+                        <div class="text-xs text-slate-600">
+                            {{ __('Sem chave e sem imagem, o sistema usa o PIX padrão do Ministério de Evangelismo Explosivo.') }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between gap-0.5 font-bold">
+                    <div class="">{{ __('Valor final para cada inscrição:') }}</div>
+                    <div class="border-b border-dashed border-sky-950 flex-auto"></div>
+                    <div>{{ __('R$') }} {{ $this->finalPricePerRegistration }}</div>
+                </div>
+            </div>
+        </div>
+
+        {{-- DIVULGAÇÃO --}}
+        <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <img src="{{ asset(path: 'images/banner-create-training-banner.webp') }}"
+                    alt="Ilustração do passo de datas do evento"
+                    class="mb-4 aspect-21/6 w-full rounded-lg border border-sky-950/10 object-cover" />
+                <div class="text-base font-semibold text-sky-950">{{ __('Arquivo de divulgação') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Você já possui uma arte para divulgar este evento nas redes sociais? Se sim, envie a imagem agora para anexá-la ao cadastro.') }}
+                </div>
+            </div>
+            <div class="flex-1 grid gap-6">
+                <div class="grid gap-4 rounded-xl border border-slate-300 bg-white/70 p-4">
+                    <div class="text-sm font-semibold text-sky-950">
+                        {{ __('Upload da arte de divulgação (opcional)') }}</div>
+                    <div class="text-sm text-slate-700">
+                        {{ __('Se você já possui uma imagem de divulgação, envie o arquivo abaixo.') }}
+                    </div>
+
+                    <div class="flex flex-wrap items-start gap-4">
+                        <div class="min-w-0 flex-auto basis-48">
+                            <input id="event-promotion-upload" type="file" accept="image/*"
+                                wire:model.live="bannerUpload" class="sr-only">
+
+                            <label for="event-promotion-upload"
+                                class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-sky-950 bg-sky-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-900">
+                                {{ __('Selecionar imagem do computador') }}
+                            </label>
+
+                            <div class="mt-2 text-xs text-slate-600">
+                                {{ __('Formatos aceitos: webp e PNG. Tamanho máximo: 10MB.') }}
+                            </div>
+
+                            @error('bannerUpload')
+                                <p class="mt-2 text-sm font-semibold text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($bannerUpload && str_starts_with($bannerUpload->getMimeType(), 'image/'))
+                            <div
+                                class="w-56 flex-auto flex justify-center rounded-lg border border-slate-300 bg-slate-50 p-2">
+                                <img src="{{ $bannerUpload->temporaryUrl() }}" alt="Arte de divulgação"
+                                    class="max-h-52 w-auto rounded object-contain">
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-2 inset-x-0 z-10 w-full px-4">
+            <div
+                class="flex items-center justify-between rounded-lg border border-sky-950 bg-white/80 px-6 py-3 shadow">
+                <div class="min-w-24">
+                    <button type="button" x-show="step > 1" wire:click="previousStep">&#x276E; Voltar</button>
+                </div>
+                <div class="text-sm font-semibold text-sky-950">
+                    <span x-text="`Passo ${step} de ${totalSteps}`"></span>
+                </div>
+                <div class="flex justify-end">
+                    @if ($step < 5)
+                        <button type="button" wire:click="nextStep" x-bind:disabled="!canProceed"
+                            class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
+                            &#x276F;</button>
+                    @endif
+                    @if ($step === 5)
+                        <button type="button" wire:click="submit">{{ __('Salvar evento') }} &#x2713;</button>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div wire:loading.flex wire:target="bannerUpload,pixQrCodeUpload"
+            class="absolute inset-0 z-40 items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
+            <div class="rounded-xl bg-white px-5 py-4 text-sm font-semibold text-sky-950 shadow-lg">
+                {{ __('Enviando arquivo. Aguarde...') }}
+            </div>
+        </div>
+    </form>
+</section>

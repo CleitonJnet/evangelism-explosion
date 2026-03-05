@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Director\Training;
 
 use App\Models\Training;
 use App\TrainingStatus;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -11,6 +12,8 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $statusKey = 'scheduled';
+
+    public string $searchTerm = '';
 
     /**
      * @var array<int, int>
@@ -26,19 +29,47 @@ class Index extends Component
     {
         $status = $this->statusFromKey($this->statusKey);
 
-        $trainings = Training::query()
+        $trainingsQuery = Training::query()
+            ->select('trainings.*')
+            ->join('courses', 'courses.id', '=', 'trainings.course_id')
             ->with([
                 'teacher',
                 'church',
                 'course.ministry',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
+            ->withCount('newChurches')
             ->whereHas('course', function ($query): void {
                 $query->where('execution', 0)
                     ->orWhereIn('id', $this->extraCourseIds);
             })
             ->where('status', $status->value)
-            ->get();
+            ->orderBy('courses.type')
+            ->orderBy('courses.name');
+
+        $searchTerm = trim($this->searchTerm);
+        if ($searchTerm !== '') {
+            $trainingsQuery->where(function ($query) use ($searchTerm): void {
+                $query->where('trainings.city', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('trainings.state', 'like', '%'.$searchTerm.'%')
+                    ->orWhereHas('church', function ($churchQuery) use ($searchTerm): void {
+                        $churchQuery->where('name', 'like', '%'.$searchTerm.'%')
+                            ->orWhere('city', 'like', '%'.$searchTerm.'%')
+                            ->orWhere('state', 'like', '%'.$searchTerm.'%');
+                    })
+                    ->orWhereHas('teacher', function ($teacherQuery) use ($searchTerm): void {
+                        $teacherQuery->where('name', 'like', '%'.$searchTerm.'%');
+                    });
+            });
+        }
+
+        if ($status === TrainingStatus::Scheduled) {
+            $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
+                $query->whereDate('date', '<', Carbon::today());
+            });
+        }
+
+        $trainings = $trainingsQuery->get();
 
         return view('livewire.pages.app.director.training.index', [
             'statusKey' => $this->statusKey,

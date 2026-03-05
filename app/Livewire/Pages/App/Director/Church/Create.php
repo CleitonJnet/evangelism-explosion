@@ -3,11 +3,15 @@
 namespace App\Livewire\Pages\App\Director\Church;
 
 use App\Models\Church;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
 
 class Create extends Component
 {
+    use AuthorizesRequests;
+
     public ?string $church_logo = null;
 
     public string $church_name = '';
@@ -100,18 +104,22 @@ class Create extends Component
 
     public function updated(string $property): void
     {
-        if (! array_key_exists($property, $this->rules())) {
-            return;
-        }
+        foreach (array_keys($this->rules()) as $ruleKey) {
+            if (Str::is($ruleKey, $property)) {
+                $this->validateOnly($property);
 
-        $this->validateOnly($property);
+                break;
+            }
+        }
     }
 
     public function submit(): void
     {
+        $this->authorize('create', Church::class);
+
         $validated = $this->validate();
 
-        Church::create([
+        $church = Church::create([
             'logo' => $validated['church_logo'],
             'name' => $validated['church_name'],
             'pastor' => $validated['pastor_name'],
@@ -127,10 +135,12 @@ class Create extends Component
             'complement' => $validated['churchAddress']['complement'],
             'district' => $validated['churchAddress']['district'],
             'city' => $validated['churchAddress']['city'],
-            'state' => $validated['churchAddress']['state'],
+            'state' => strtoupper($validated['churchAddress']['state']),
         ]);
 
-        session()->flash('success', 'Igreja cadastrada com sucesso.');
+        session()->flash('success', __('Igreja cadastrada com sucesso.'));
+
+        $this->redirectRoute('app.director.church.show', ['church' => $church->id]);
     }
 
     public function render(): View

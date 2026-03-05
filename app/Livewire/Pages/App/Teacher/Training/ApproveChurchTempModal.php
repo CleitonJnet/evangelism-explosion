@@ -5,7 +5,6 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Models\ChurchTemp;
 use App\Models\Training;
 use App\Services\ChurchTempResolverService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -186,11 +185,6 @@ class ApproveChurchTempModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('manageChurches');
-
-        $teacherId = Auth::id();
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 }

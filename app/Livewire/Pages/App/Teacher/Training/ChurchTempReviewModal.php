@@ -7,7 +7,6 @@ use App\Models\ChurchTemp;
 use App\Models\Training;
 use App\Models\User;
 use App\Services\ChurchTempResolverService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -284,12 +283,7 @@ class ChurchTempReviewModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('manageChurches');
-
-        $teacherId = Auth::id();
-
-        if (! $teacherId || $training->teacher_id !== $teacherId) {
-            abort(403);
-        }
+        Gate::authorize('update', $training);
     }
 
     private function normalizeName(string $name): string

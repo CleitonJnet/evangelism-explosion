@@ -24,7 +24,7 @@ dataset('teacher training protected routes', [
     'testimony' => fn (Training $training): string => route('app.teacher.trainings.testimony', $training),
 ]);
 
-it('forbids a teacher from accessing another teacher training', function (callable $routeResolver) {
+it('allows a teacher to access trainings created by other teachers', function (callable $routeResolver) {
     $ownerTeacher = createTeacherWithRole();
     $otherTeacher = createTeacherWithRole();
     $training = Training::factory()->create([
@@ -33,7 +33,7 @@ it('forbids a teacher from accessing another teacher training', function (callab
 
     $response = $this->actingAs($otherTeacher)->get($routeResolver($training));
 
-    $response->assertForbidden();
+    $response->assertOk();
 })->with('teacher training protected routes');
 
 it('allows the training owner teacher to access their training', function (callable $routeResolver) {

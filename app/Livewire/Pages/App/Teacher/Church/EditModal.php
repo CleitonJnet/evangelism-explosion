@@ -109,6 +109,8 @@ class EditModal extends Component
                     $logoPath = $this->logoUpload->store('church-logos', 'public');
                 }
 
+                $normalizedState = strtoupper(trim((string) ($validated['churchAddress']['state'] ?? '')));
+
                 $church->update([
                     'logo' => $logoPath,
                     'name' => $validated['church_name'],
@@ -125,7 +127,7 @@ class EditModal extends Component
                     'complement' => $validated['churchAddress']['complement'] ?? null,
                     'district' => $validated['churchAddress']['district'],
                     'city' => $validated['churchAddress']['city'],
-                    'state' => strtoupper($validated['churchAddress']['state']),
+                    'state' => $normalizedState !== '' ? $normalizedState : null,
                 ]);
             });
 
@@ -150,21 +152,21 @@ class EditModal extends Component
     {
         return [
             'logoUpload' => ['nullable', 'image', 'max:5120'],
-            'church_name' => ['required', 'string', 'max:255'],
-            'pastor_name' => ['required', 'string', 'max:255'],
-            'phone_church' => ['required', 'string', 'max:30'],
+            'church_name' => ['nullable', 'string', 'max:255'],
+            'pastor_name' => ['nullable', 'string', 'max:255'],
+            'phone_church' => ['nullable', 'string', 'max:30'],
             'church_email' => ['nullable', 'email', 'max:255'],
-            'church_contact' => ['required', 'string', 'max:255'],
-            'church_contact_phone' => ['required', 'string', 'max:30'],
+            'church_contact' => ['nullable', 'string', 'max:255'],
+            'church_contact_phone' => ['nullable', 'string', 'max:30'],
             'church_contact_email' => ['nullable', 'email', 'max:255'],
             'church_notes' => ['nullable', 'string', 'max:2000'],
-            'churchAddress.postal_code' => ['required', 'string', 'max:20'],
-            'churchAddress.street' => ['required', 'string', 'max:255'],
-            'churchAddress.number' => ['required', 'string', 'max:20'],
+            'churchAddress.postal_code' => ['nullable', 'string', 'max:20'],
+            'churchAddress.street' => ['nullable', 'string', 'max:255'],
+            'churchAddress.number' => ['nullable', 'string', 'max:20'],
             'churchAddress.complement' => ['nullable', 'string', 'max:255'],
-            'churchAddress.district' => ['required', 'string', 'max:255'],
-            'churchAddress.city' => ['required', 'string', 'max:255'],
-            'churchAddress.state' => ['required', 'string', 'size:2'],
+            'churchAddress.district' => ['nullable', 'string', 'max:255'],
+            'churchAddress.city' => ['nullable', 'string', 'max:255'],
+            'churchAddress.state' => ['nullable', 'string', 'max:2'],
         ];
     }
 

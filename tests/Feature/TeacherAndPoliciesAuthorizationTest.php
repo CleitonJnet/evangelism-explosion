@@ -30,7 +30,7 @@ it('allows access-teacher gate only for users with Teacher role', function (stri
     'mentor denied' => ['Mentor', false],
 ]);
 
-it('allows training policy for owner teacher and director and denies other teacher', function (): void {
+it('allows training policy for owner teacher, other teachers, and director', function (): void {
     $ownerTeacher = userWithRole('Teacher');
     $otherTeacher = userWithRole('Teacher');
     $director = userWithRole('Director');
@@ -41,8 +41,8 @@ it('allows training policy for owner teacher and director and denies other teach
 
     foreach (['view', 'update', 'delete'] as $ability) {
         expect(Gate::forUser($ownerTeacher)->allows($ability, $training))->toBeTrue();
+        expect(Gate::forUser($otherTeacher)->allows($ability, $training))->toBeTrue();
         expect(Gate::forUser($director)->allows($ability, $training))->toBeTrue();
-        expect(Gate::forUser($otherTeacher)->allows($ability, $training))->toBeFalse();
     }
 });
 

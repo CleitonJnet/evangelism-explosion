@@ -31,7 +31,12 @@ class ChurchPolicy
 
     public function delete(User $user, Church $church): bool
     {
-        if ($user->hasRole('Teacher') && (int) $user->church_id === $church->id) {
+        if (
+            $user->hasRole('Teacher')
+            && ! $user->hasRole('Director')
+            && ! $user->hasRole('FieldWorker')
+            && (int) $user->church_id === $church->id
+        ) {
             return false;
         }
 
@@ -49,6 +54,10 @@ class ChurchPolicy
     {
         if (! $this->canManageChurches($user)) {
             return false;
+        }
+
+        if ($user->hasRole('Director') || $user->hasRole('FieldWorker')) {
+            return true;
         }
 
         if (! $user->hasRole('Teacher')) {

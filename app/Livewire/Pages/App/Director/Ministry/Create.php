@@ -5,14 +5,17 @@ namespace App\Livewire\Pages\App\Director\Ministry;
 use App\Models\Ministry;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Create extends Component
 {
+    use WithFileUploads;
+
+    public mixed $logoUpload = null;
+
     public string $initials = '';
 
     public string $name = '';
-
-    public ?string $logo = null;
 
     public ?string $color = null;
 
@@ -24,9 +27,9 @@ class Create extends Component
     protected function rules(): array
     {
         return [
+            'logoUpload' => ['nullable', 'image', 'max:5120'],
             'initials' => ['required', 'string', 'max:20'],
             'name' => ['required', 'string', 'max:255'],
-            'logo' => ['nullable', 'string', 'max:255'],
             'color' => ['nullable', 'string', 'max:20'],
             'description' => ['nullable', 'string'],
         ];
@@ -40,6 +43,7 @@ class Create extends Component
         return [
             'required' => 'O campo :attribute é obrigatório.',
             'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+            'image' => 'O campo :attribute deve ser uma imagem válida.',
         ];
     }
 
@@ -49,9 +53,9 @@ class Create extends Component
     protected function validationAttributes(): array
     {
         return [
+            'logoUpload' => 'logo',
             'initials' => 'sigla',
             'name' => 'nome',
-            'logo' => 'logo',
             'color' => 'cor',
             'description' => 'descrição',
         ];
@@ -70,7 +74,18 @@ class Create extends Component
     {
         $validated = $this->validate();
 
-        Ministry::create($validated);
+        $logoPath = null;
+        if ($this->logoUpload) {
+            $logoPath = $this->logoUpload->store('ministry-logos', 'public');
+        }
+
+        Ministry::query()->create([
+            'initials' => $validated['initials'],
+            'name' => $validated['name'],
+            'logo' => $logoPath,
+            'color' => $validated['color'] ?? null,
+            'description' => $validated['description'] ?? null,
+        ]);
     }
 
     public function render(): View
