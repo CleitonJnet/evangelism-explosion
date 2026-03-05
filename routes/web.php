@@ -34,10 +34,8 @@ Route::name('web.')->group(function () {
 });
 
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('force-password-change', [ForcePasswordChangeController::class, 'edit'])
-        ->name('force-password-change.show');
-    Route::put('force-password-change', [ForcePasswordChangeController::class, 'update'])
-        ->name('force-password-change.update');
+    Route::get('force-password-change', [ForcePasswordChangeController::class, 'edit'])->name('force-password-change.show');
+    Route::put('force-password-change', [ForcePasswordChangeController::class, 'update'])->name('force-password-change.update');
 });
 
 require __DIR__.'/app/start.php';

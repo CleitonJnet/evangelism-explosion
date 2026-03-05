@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Teacher\Training;
 
+use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -111,6 +112,7 @@ class Registrations extends Component
 
         if ($enabled && $this->trainingCourseAllowsFacilitatorRole()) {
             $this->assignFacilitatorRole($userId);
+            $this->assignTeacherToImplementationCourses($userId);
         }
     }
 
@@ -460,5 +462,25 @@ class Registrations extends Component
         $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
 
         $user->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+    }
+
+    private function assignTeacherToImplementationCourses(int $userId): void
+    {
+        $ministryId = $this->training->course?->ministry_id;
+
+        if (! $ministryId) {
+            return;
+        }
+
+        $implementationCourses = Course::query()
+            ->where('ministry_id', $ministryId)
+            ->where('execution', 1)
+            ->get();
+
+        foreach ($implementationCourses as $course) {
+            $course->teachers()->syncWithoutDetaching([
+                $userId => ['status' => 1],
+            ]);
+        }
     }
 }

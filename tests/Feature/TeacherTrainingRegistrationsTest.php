@@ -4,6 +4,7 @@ use App\Livewire\Pages\App\Teacher\Training\Registrations;
 use App\Models\Church;
 use App\Models\ChurchTemp;
 use App\Models\Course;
+use App\Models\Ministry;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -90,7 +91,30 @@ it('updates participant statuses on the training pivot', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
     Storage::fake('public');
-    $leaderCourse = Course::factory()->create(['execution' => 0]);
+    $ministry = Ministry::query()->create([
+        'initials' => 'EE',
+        'name' => 'Evangelismo',
+    ]);
+    $leaderCourse = Course::factory()->create([
+        'execution' => 0,
+        'ministry_id' => $ministry->id,
+    ]);
+    $implementationCourseOne = Course::factory()->create([
+        'execution' => 1,
+        'ministry_id' => $ministry->id,
+    ]);
+    $implementationCourseTwo = Course::factory()->create([
+        'execution' => 1,
+        'ministry_id' => $ministry->id,
+    ]);
+    $otherMinistry = Ministry::query()->create([
+        'initials' => 'KID',
+        'name' => 'Kids',
+    ]);
+    $unrelatedImplementationCourse = Course::factory()->create([
+        'execution' => 1,
+        'ministry_id' => $otherMinistry->id,
+    ]);
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -126,12 +150,37 @@ it('updates participant statuses on the training pivot', function () {
 
     expect($facilitatorRole)->not->toBeNull();
     expect($student->fresh()->roles()->whereKey($facilitatorRole?->id)->exists())->toBeTrue();
+    $this->assertDatabaseHas('course_user', [
+        'course_id' => $implementationCourseOne->id,
+        'user_id' => $student->id,
+        'status' => 1,
+    ]);
+    $this->assertDatabaseHas('course_user', [
+        'course_id' => $implementationCourseTwo->id,
+        'user_id' => $student->id,
+        'status' => 1,
+    ]);
+    $this->assertDatabaseMissing('course_user', [
+        'course_id' => $unrelatedImplementationCourse->id,
+        'user_id' => $student->id,
+    ]);
 });
 
 it('does not assign facilitator role when accrediting in non-leader course', function (): void {
     $teacher = createTeacher();
     $church = Church::factory()->create();
-    $regularCourse = Course::factory()->create(['execution' => 1]);
+    $ministry = Ministry::query()->create([
+        'initials' => 'EE',
+        'name' => 'Evangelismo',
+    ]);
+    $regularCourse = Course::factory()->create([
+        'execution' => 1,
+        'ministry_id' => $ministry->id,
+    ]);
+    $implementationCourse = Course::factory()->create([
+        'execution' => 1,
+        'ministry_id' => $ministry->id,
+    ]);
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -152,6 +201,10 @@ it('does not assign facilitator role when accrediting in non-leader course', fun
         ->call('toggleAccredited', $student->id, true);
 
     expect($student->fresh()->hasRole('Facilitator'))->toBeFalse();
+    $this->assertDatabaseMissing('course_user', [
+        'course_id' => $implementationCourse->id,
+        'user_id' => $student->id,
+    ]);
 });
 
 it('does not confirm payment when receipt file is missing', function () {
