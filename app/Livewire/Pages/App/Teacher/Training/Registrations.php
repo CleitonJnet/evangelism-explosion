@@ -350,7 +350,7 @@ class Registrations extends Component
             'email' => $student->email,
             'phone' => $student->phone,
             'is_pastor' => (bool) ($student->is_pastor ?? false),
-            'pastor_label' => (bool) ($student->is_pastor ?? false) ? 'Sim' : 'Nao',
+            'pastor_label' => (bool) ($student->is_pastor ?? false) ? 'Sim' : 'Não',
             'accredited' => (bool) $student->pivot?->accredited,
             'kit' => (bool) $student->pivot?->kit,
             'has_payment_receipt' => $hasPaymentReceipt,

@@ -164,7 +164,7 @@
             <div>
                 <flux:heading size="lg">{{ __('Remover testemunho') }}</flux:heading>
                 <flux:text class="mt-2 text-sm text-slate-600">
-                    {{ __('Tem certeza que deseja remover este testemunho? Esta acao nao pode ser desfeita.') }}
+                    {{ __('Tem certeza que deseja remover este testemunho? Esta ação não pode ser desfeita.') }}
                 </flux:text>
                 <flux:text class="mt-1 text-sm font-semibold text-slate-900">{{ $selectedTestimonialName }}
                 </flux:text>
@@ -175,7 +175,7 @@
                 </flux:button>
                 <flux:button type="button" variant="danger" wire:click="deleteSelectedTestimonial"
                     wire:loading.attr="disabled" wire:target="deleteSelectedTestimonial">
-                    {{ __('Confirmar remocao') }}
+                    {{ __('Confirmar remoção') }}
                 </flux:button>
             </div>
         </div>

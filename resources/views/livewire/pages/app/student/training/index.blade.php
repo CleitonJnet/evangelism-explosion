@@ -48,17 +48,16 @@ new class extends Component {
 
     <div class="flex flex-col gap-6">
         @if ($this->trainings->isEmpty())
-            <div
-                class="rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-600 shadow-sm">
-                Voce ainda nao se inscreveu em nenhum treinamento.
+            <div class="rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-600 shadow-sm">
+                Você ainda não se inscreveu em nenhum treinamento.
             </div>
         @else
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @foreach ($this->trainings as $training)
                     @php
                         $courseType = $training->course?->type ?? 'Treinamento';
-                        $courseName = $training->course?->name ?? 'Nao informado';
-                        $churchName = $training->church?->name ?? 'Base nao informada';
+                        $courseName = $training->course?->name ?? 'Não informado';
+                        $churchName = $training->church?->name ?? 'Base não informada';
                         $dates = $training->eventDates;
                         $firstDate = $dates->first();
                         $isPaid = (float) preg_replace('/\D/', '', (string) $training->payment) > 0;
@@ -74,7 +73,7 @@ new class extends Component {
                             $training?->city,
                             $training?->state,
                         ]);
-                        $address = $addressParts ? implode(', ', $addressParts) : 'Endereco nao informado';
+                        $address = $addressParts ? implode(', ', $addressParts) : 'Endereco não informado';
                     @endphp
 
                     <div wire:key="training-{{ $training->id }}"
@@ -91,8 +90,7 @@ new class extends Component {
 
                         <div class="flex flex-col gap-1">
                             <span class="text-xs font-semibold uppercase text-neutral-500">Base</span>
-                            <span
-                                class="font-semibold text-neutral-900">{{ $churchName }}</span>
+                            <span class="font-semibold text-neutral-900">{{ $churchName }}</span>
                             <span class="text-sm">{{ $address }}</span>
                         </div>
 
@@ -119,8 +117,7 @@ new class extends Component {
                                 <div
                                     class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-emerald-900">
                                     <div class="flex flex-col gap-2">
-                                        <div
-                                            class="text-xs font-semibold uppercase text-emerald-800">
+                                        <div class="text-xs font-semibold uppercase text-emerald-800">
                                             Pagamento confirmado
                                         </div>
                                         <div class="text-sm font-medium">
@@ -133,8 +130,7 @@ new class extends Component {
                                     class="rounded-2xl border border-sky-200 bg-sky-50/80 p-4 text-sm text-sky-900 shadow-sm">
                                     <div class="flex flex-col gap-2">
                                         @if ($paymentReceiptPath)
-                                            <div
-                                                class="text-xs font-semibold uppercase tracking-wide text-sky-800">
+                                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800">
                                                 Pagamento em analise
                                             </div>
                                             <div class="text-sm font-medium">
@@ -148,8 +144,7 @@ new class extends Component {
                                                 pagamento confirmado.
                                             </div>
                                         @else
-                                            <div
-                                                class="text-xs font-semibold uppercase tracking-wide text-sky-800">
+                                            <div class="text-xs font-semibold uppercase tracking-wide text-sky-800">
                                                 Aguardando comprovante
                                             </div>
                                             <div class="text-sm font-medium">

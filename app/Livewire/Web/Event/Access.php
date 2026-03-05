@@ -63,14 +63,14 @@ class Access extends Component
             $this->gender = $user->gender ? (string) $user->gender : null;
             $this->ispastor = ((int) ($user->getRawOriginal('is_pastor') ?? 0)) > 0 ? '1' : '0';
             $this->emailNotice = $this->isAlreadyEnrolled($user)
-                ? 'Conta encontrada. Voce ja esta inscrito neste evento, faca login para acessar.'
-                : 'Conta encontrada. Informe sua senha para entrar e concluir a inscricao.';
+                ? 'Conta encontrada. Você ja esta inscrito neste evento, faca login para acessar.'
+                : 'Conta encontrada. Informe sua senha para entrar e concluir a inscrição.';
 
             return;
         }
 
         $this->mode = 'register';
-        $this->emailNotice = 'Nao encontramos este e-mail. Complete os dados para criar sua inscricao.';
+        $this->emailNotice = 'Não encontramos este e-mail. Complete os dados para criar sua inscrição.';
     }
 
     public function switchToLogin(): void
@@ -109,7 +109,7 @@ class Access extends Component
         $user = Auth::user();
 
         if (! $user) {
-            $this->addError('email', 'Nao foi possivel autenticar.');
+            $this->addError('email', 'Não foi possivel autenticar.');
 
             return;
         }
@@ -144,8 +144,8 @@ class Access extends Component
 
         if ($user && $this->isAlreadyEnrolled($user)) {
             $this->mode = 'login';
-            $this->emailNotice = 'Voce ja esta inscrito neste evento. Faca login para continuar.';
-            $this->addError('email', 'Voce ja esta inscrito neste evento.');
+            $this->emailNotice = 'Você ja esta inscrito neste evento. Faca login para continuar.';
+            $this->addError('email', 'Você ja esta inscrito neste evento.');
 
             return;
         }
@@ -194,8 +194,8 @@ class Access extends Component
             'email' => 'O campo :attribute deve ser um e-mail valido.',
             'unique' => 'Este :attribute ja esta cadastrado.',
             'min' => 'O campo :attribute precisa de pelo menos :min caracteres.',
-            'max' => 'O campo :attribute nao pode ter mais de :max caracteres.',
-            'confirmed' => 'A confirmacao de senha nao confere.',
+            'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+            'confirmed' => 'A confirmacao de senha não confere.',
             'in' => 'Selecione uma opcao valida para :attribute.',
             'date' => 'O campo :attribute deve ser uma data valida.',
         ];
@@ -214,7 +214,7 @@ class Access extends Component
             'password' => 'Senha',
             'password_confirmation' => 'Confirmacao de senha',
             'birth_date' => 'Data de Nascimento',
-            'gender' => 'Genero',
+            'gender' => 'Gênero',
         ];
     }
 

@@ -5,11 +5,11 @@
             <img src="{{ asset('images/svg/user-work.svg') }}" alt="user" class="h-full object-cover">
         </div>
 
-        <h4 class="text-center text-lg font-extrabold text-slate-900">Acessar ou fazer inscricao no evento</h4>
+        <h4 class="text-center text-lg font-extrabold text-slate-900">Acessar ou fazer inscrição no evento</h4>
     </div>
 
     <p class="mt-2 text-center text-sm text-slate-600">
-        Informe seu e-mail e o sistema direciona voce para entrar ou criar a inscricao em poucos passos.
+        Informe seu e-mail e o sistema direciona você para entrar ou criar a inscrição em poucos passos.
     </p>
 
     <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -27,11 +27,11 @@
     <div class="mt-6 flex flex-wrap items-center gap-2">
         <button type="button" wire:click="switchToLogin"
             class="{{ $mode === 'login' ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-300 bg-white text-slate-700' }} rounded-xl border px-4 py-2 text-sm font-semibold transition hover:bg-slate-100">
-            Ja tenho conta
+            Já tenho conta
         </button>
         <button type="button" wire:click="switchToRegister"
             class="{{ $mode === 'register' ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-300 bg-white text-slate-700' }} rounded-xl border px-4 py-2 text-sm font-semibold transition hover:bg-slate-100">
-            Criar inscricao
+            Criar inscrição
         </button>
     </div>
 
@@ -55,7 +55,7 @@
             <form wire:submit="registerEvent" class="mt-6 space-y-8">
                 <div class="flex flex-wrap gap-x-4 gap-y-8">
                     <x-src.form.select name="ispastor" wire:model="ispastor" label="E pastor?" width_basic="90"
-                        :select="false" value="0" :options="[['value' => '1', 'label' => 'Sim'], ['value' => '0', 'label' => 'Nao']]" />
+                        :select="false" value="0" :options="[['value' => '1', 'label' => 'Sim'], ['value' => '0', 'label' => 'Não']]" />
 
                     <x-src.form.input name="name" wire:model="name" label="Nome completo" type="text"
                         width_basic="400" required />
@@ -75,13 +75,13 @@
                     <x-src.form.input type="date" name="birth_date" wire:model="birth_date"
                         label="Data de Nascimento" width_basic="200" />
 
-                    <x-src.form.select name="gender" wire:model="gender" label="Genero" width_basic="200"
+                    <x-src.form.select name="gender" wire:model="gender" label="Gênero" width_basic="200"
                         :options="[['value' => '1', 'label' => 'Masculino'], ['value' => '2', 'label' => 'Feminino']]" />
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2">
-                    <div class="w-full text-xs text-red-600">Os campos com <sup>&#10033;</sup> sao obrigatorios.</div>
-                    <x-src.btn-gold label="Confirmar inscricao" type="submit" class="text-nowrap" />
+                    <div class="w-full text-xs text-red-600">Os campos com <sup>&#10033;</sup> são obrigatórios.</div>
+                    <x-src.btn-gold label="Confirmar inscrição" type="submit" class="text-nowrap" />
                 </div>
             </form>
         @endif

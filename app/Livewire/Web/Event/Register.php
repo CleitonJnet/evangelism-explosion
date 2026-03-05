@@ -74,8 +74,8 @@ class Register extends Component
             'email' => 'O campo :attribute deve ser um e-mail valido.',
             'unique' => 'Este :attribute ja esta cadastrado.',
             'min' => 'O campo :attribute precisa de pelo menos :min caracteres.',
-            'max' => 'O campo :attribute nao pode ter mais de :max caracteres.',
-            'confirmed' => 'A confirmacao de senha nao confere.',
+            'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+            'confirmed' => 'A confirmacao de senha não confere.',
             'in' => 'Selecione uma opcao valida para :attribute.',
             'date' => 'O campo :attribute deve ser uma data valida.',
         ];
@@ -94,7 +94,7 @@ class Register extends Component
             'password' => 'Senha',
             'password_confirmation' => 'Confirmacao de senha',
             'birth_date' => 'Data de Nascimento',
-            'gender' => 'Genero',
+            'gender' => 'Gênero',
         ];
     }
 

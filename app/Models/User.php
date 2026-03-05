@@ -153,7 +153,7 @@ class User extends Authenticatable
             return 1;
         }
 
-        if (in_array($normalized, ['N', 'NAO', 'NÃO', 'NO', 'FALSE'], true)) {
+        if (in_array($normalized, ['N', 'NÃO', 'NÃO', 'NO', 'FALSE'], true)) {
             return 0;
         }
 

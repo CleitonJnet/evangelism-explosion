@@ -128,7 +128,7 @@ it('shows only active testimonials on the public home component', function () {
 
     Testimonial::factory()->create([
         'name' => 'Publico Inativo',
-        'quote' => 'Este nao pode aparecer no site.',
+        'quote' => 'Este não pode aparecer no site.',
         'is_active' => false,
         'position' => 0,
     ]);
@@ -141,7 +141,7 @@ it('shows only active testimonials on the public home component', function () {
 it('does not render testimonials section when there is no active testimonial', function () {
     Testimonial::factory()->create([
         'name' => 'Inativo',
-        'quote' => 'Nao deve aparecer.',
+        'quote' => 'Não deve aparecer.',
         'is_active' => false,
     ]);
 

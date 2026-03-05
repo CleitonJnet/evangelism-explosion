@@ -23,7 +23,7 @@ class TestimonialSeeder extends Seeder
             [
                 'name' => 'Maria Oliveira',
                 'meta' => 'Lider de Evangelismo - Niteroi/RJ',
-                'quote' => 'Aprendi que evangelizar nao e apenas falar de Cristo, mas caminhar com pessoas. O EE me ensinou a discipular e mentorear outros.',
+                'quote' => 'Aprendi que evangelizar não e apenas falar de Cristo, mas caminhar com pessoas. O EE me ensinou a discipular e mentorear outros.',
                 'position' => 2,
                 'is_active' => true,
             ],

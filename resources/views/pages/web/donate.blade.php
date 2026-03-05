@@ -129,7 +129,7 @@
                         showFeedback();
                     }
                 } catch (error) {
-                    console.warn('Nao foi possivel copiar a chave PIX.', error);
+                    console.warn('Não foi possivel copiar a chave PIX.', error);
                 }
             });
         });

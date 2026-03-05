@@ -17,8 +17,7 @@
             <input id="registrations-search" type="text"
                 placeholder="{{ __('Buscar inscrito, igreja/região ou e-mail...') }}"
                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
-                autofocus
-                wire:model.live.debounce.350ms="search">
+                autofocus wire:model.live.debounce.350ms="search">
         </div>
     </x-src.toolbar.nav>
 
@@ -204,7 +203,7 @@
                 class="rounded-2xl border border-slate-300 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 text-sm text-slate-700">
                 <h2 class="text-base font-semibold text-slate-900">{{ __('Nenhum inscrito encontrado') }}</h2>
                 <p class="mt-2">
-                    {{ __('Ainda nao existem participantes vinculados a este evento. Quando houver inscrições, voce podera atualizar comprovante, credenciamento e kit nesta tela.') }}
+                    {{ __('Ainda não existem participantes vinculados a este evento. Quando houver inscrições, você podera atualizar comprovante, credenciamento e kit nesta tela.') }}
                 </p>
             </article>
         @endforelse

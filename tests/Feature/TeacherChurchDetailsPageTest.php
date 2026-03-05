@@ -378,8 +378,8 @@ it('shows accredited members grouped by leader course and total summary', functi
 
     $nonAccreditedMember = User::factory()->create([
         'church_id' => $church->id,
-        'name' => 'Nao Credenciado',
-        'email' => 'naocredenciado@example.org',
+        'name' => 'Não Credenciado',
+        'email' => 'nãocredenciado@example.org',
     ]);
 
     $memberFromOtherChurch = User::factory()->create([

@@ -6,8 +6,7 @@
 @endphp
 
 <div class="flex flex-col gap-6">
-    <div
-        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-2">
             <div class="text-sm font-semibold text-neutral-500">Bem-vindo(a)</div>
             <div class="text-2xl font-bold text-neutral-900">{{ $user?->name }}</div>
@@ -19,21 +18,20 @@
             </div>
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase text-neutral-500">Telefone</span>
-                <span>{{ $user?->phone ?? 'Nao informado' }}</span>
+                <span>{{ $user?->phone ?? 'Não informado' }}</span>
             </div>
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase text-neutral-500">Nascimento</span>
-                <span>{{ $user?->birthdate?->format('d/m/Y') ?? 'Nao informado' }}</span>
+                <span>{{ $user?->birthdate?->format('d/m/Y') ?? 'Não informado' }}</span>
             </div>
             <div class="flex flex-col gap-1">
-                <span class="text-xs font-semibold uppercase text-neutral-500">Genero</span>
+                <span class="text-xs font-semibold uppercase text-neutral-500">Gênero</span>
                 <span>{{ $user?->gender_label ?? __('Não informado') }}</span>
             </div>
         </div>
     </div>
 
-    <div
-        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-2">
             <span class="text-sm font-semibold text-neutral-500">Treinamento</span>
             <div class="text-2xl font-bold text-neutral-900">
@@ -47,20 +45,17 @@
         <div class="mt-5 flex flex-wrap gap-3 text-sm">
             <span
                 class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700">
-                Carga horaria: <strong
-                    class="text-neutral-900">{{ $workloadDuration ?? '00h' }}</strong>
+                Carga horaria: <strong class="text-neutral-900">{{ $workloadDuration ?? '00h' }}</strong>
             </span>
             <span
                 class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700">
-                Investimento: <strong
-                    class="text-neutral-900">{{ $training->payment ?? 'Gratuito' }}</strong>
+                Investimento: <strong class="text-neutral-900">{{ $training->payment ?? 'Gratuito' }}</strong>
             </span>
         </div>
 
         @if ($isPaid)
             @if ($paymentConfirmed)
-                <div
-                    class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-sm text-emerald-900">
+                <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-sm text-emerald-900">
                     <div class="flex flex-col gap-2">
                         <div class="text-xs font-semibold uppercase text-emerald-800">
                             Pagamento confirmado
@@ -71,8 +66,7 @@
                     </div>
                 </div>
             @else
-                <div
-                    class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900">
+                <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900">
                     <div class="grid gap-4 lg:grid-cols-2">
                         <div class="rounded-xl border border-amber-200/80 bg-white/60 p-4">
                             <div class="mb-3 flex flex-col gap-1">
@@ -135,8 +129,7 @@
                             <div class="mt-4 border-t border-amber-200/70 pt-4">
                                 <div class="flex flex-col gap-2">
                                     @if ($paymentReceiptPath)
-                                        <div
-                                            class="text-xs font-semibold uppercase tracking-wide text-sky-800">
+                                        <div class="text-xs font-semibold uppercase tracking-wide text-sky-800">
                                             Pagamento em análise
                                         </div>
                                         <div class="text-sm font-medium text-sky-900">
@@ -144,12 +137,12 @@
                                             do evento.
                                         </div>
                                         <div class="text-xs text-sky-700">
-                                            Assim que a validação for concluída, seu status será atualizado automaticamente para
+                                            Assim que a validação for concluída, seu status será atualizado
+                                            automaticamente para
                                             pagamento confirmado.
                                         </div>
                                     @else
-                                        <div
-                                            class="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                                        <div class="text-xs font-semibold uppercase tracking-wide text-amber-800">
                                             Aguardando comprovante
                                         </div>
                                         <div class="text-sm font-medium text-amber-900">
@@ -161,10 +154,10 @@
                             </div>
                         </div>
 
-                        <div
-                            class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700">
+                        <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700">
                             <form wire:submit="uploadPaymentReceipt" class="flex flex-col gap-3">
-                                <div class="text-xs font-semibold uppercase text-neutral-500">Passo 2: comprovante de pagamento</div>
+                                <div class="text-xs font-semibold uppercase text-neutral-500">Passo 2: comprovante de
+                                    pagamento</div>
 
                                 <input id="payment-receipt-input" type="file" wire:model="paymentReceipt"
                                     accept=".webp,.jpeg,.png,.pdf" class="hidden" />
@@ -294,15 +287,13 @@
         </div>
 
         <div class="mt-6 flex flex-wrap gap-4 text-sm text-neutral-700">
-            <div style="flex: 1 1 350px;"
-                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <div style="flex: 1 1 350px;" class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div class="text-xs font-semibold uppercase text-neutral-500">Local</div>
                 <div class="mt-2 font-semibold text-neutral-900">{{ $training->church?->name }}
                 </div>
-                <div class="mt-1">{{ $churchAddress ?: 'Endereco nao informado' }}</div>
+                <div class="mt-1">{{ $churchAddress ?: 'Endereco não informado' }}</div>
             </div>
-            <div style="flex: 1 1 auto;"
-                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <div style="flex: 1 1 auto;" class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div class="text-xs font-semibold uppercase text-neutral-500">Contato</div>
                 <div class="mt-2 font-semibold text-neutral-900">{{ $training->coordinator }}
                 </div>
@@ -378,7 +369,7 @@
                         showFeedback(copyFeedback);
                     }
                 } catch (error) {
-                    console.warn('Nao foi possivel copiar a chave PIX.', error);
+                    console.warn('Não foi possivel copiar a chave PIX.', error);
                 }
             });
         })();

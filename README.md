@@ -68,7 +68,7 @@ Rotas e telas principais (routes/web.php + SiteController)
 | `/event/schedule`               | `SiteController@schedule`            | `pages.web.events.schedule`              | Calendario                 |
 | `/event/list`                   | `SiteController@events`              | `pages.web.events.index`                 | Lista de eventos           |
 | `/event/{id}/details`           | `SiteController@details`             | `pages.web.events.details`               | Detalhes do treinamento    |
-| `/event/{id}/register`          | `SiteController@register`            | `pages.web.events.register`              | Inscricao em evento        |
+| `/event/{id}/register`          | `SiteController@register`            | `pages.web.events.register`              | Inscricão em evento        |
 | `/event/{id}/login`             | `SiteController@login`               | `pages.web.events.login`                 | Acesso vinculado ao evento |
 | `/event/training-host-church`   | `SiteController@clinic_base`         | `pages.web.events.clinic-base`           | Clinica base               |
 
@@ -109,7 +109,7 @@ Funcionalidades do Director (rotas ativas)
 
 Observacao sobre telas prontas
 
-- Existem views para outras roles e modulos (ex: `resources/views/pages/app/roles/fieldworker/...`), mesmo que algumas rotas ainda nao estejam expostas no backend. Ao habilitar novas rotas, atualize esta secao.
+- Existem views para outras roles e modulos (ex: `resources/views/pages/app/roles/fieldworker/...`), mesmo que algumas rotas ainda não estejam expostas no backend. Ao habilitar novas rotas, atualize esta secao.
 
 ## Autenticacao e seguranca
 
@@ -142,7 +142,7 @@ Conteudo
 
 ## Estrutura de arquivos (mapa)
 
-Observacao: `vendor/` e `node_modules/` sao gerados por dependencias e nao devem ser versionados manualmente.
+Observacao: `vendor/` e `node_modules/` sao gerados por dependencias e não devem ser versionados manualmente.
 
 ```
 /

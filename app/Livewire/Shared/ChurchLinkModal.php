@@ -77,7 +77,7 @@ class ChurchLinkModal extends Component
         $user = Auth::user();
 
         if (! $user) {
-            $this->addError('selectedChurchId', 'Nao foi possivel vincular a igreja.');
+            $this->addError('selectedChurchId', 'Não foi possivel vincular a igreja.');
 
             return;
         }

@@ -51,7 +51,7 @@ class CreateChurchTempModal extends Component
         $user = Auth::user();
 
         if (! $user) {
-            $this->addError('churchTempName', 'Nao foi possivel salvar a igreja.');
+            $this->addError('churchTempName', 'Não foi possivel salvar a igreja.');
 
             return;
         }

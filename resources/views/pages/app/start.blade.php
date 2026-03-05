@@ -97,7 +97,7 @@
                 @endif
                 <flux:heading size="xl" level="1">{{ __('Escolha como deseja acessar') }}</flux:heading>
                 <flux:text class="max-w-2xl text-base text-[color:var(--ee-app-muted)]">
-                    {{ __('Selecione o perfil que voce deseja usar agora. Apenas perfis autorizados ficam liberados.') }}
+                    {{ __('Selecione o perfil que você deseja usar agora. Apenas perfis autorizados ficam liberados.') }}
                 </flux:text>
             </div>
 
@@ -116,7 +116,7 @@
 
             @if (!$hasAnyRole)
                 <flux:callout variant="warning" icon="exclamation-triangle"
-                    heading="{{ __('Seu usuario ainda nao possui um perfil habilitado.') }}" />
+                    heading="{{ __('Seu usuario ainda não possui um perfil habilitado.') }}" />
             @endif
 
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

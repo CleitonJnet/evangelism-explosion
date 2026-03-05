@@ -20,11 +20,11 @@ it('renders the unified access component on register and login event pages', fun
 
     $this->get(route('web.event.register', $training->id))
         ->assertOk()
-        ->assertSee('Acessar ou fazer inscricao no evento');
+        ->assertSee('Acessar ou fazer inscrição no evento');
 
     $this->get(route('web.event.login', $training->id))
         ->assertOk()
-        ->assertSee('Acessar ou fazer inscricao no evento');
+        ->assertSee('Acessar ou fazer inscrição no evento');
 });
 
 it('routes email to login mode when account already exists', function (): void {

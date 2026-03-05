@@ -41,7 +41,7 @@ class Login extends Component
             'required' => 'O campo :attribute e obrigatorio.',
             'email' => 'O campo :attribute deve ser um e-mail valido.',
             'min' => 'O campo :attribute precisa de pelo menos :min caracteres.',
-            'max' => 'O campo :attribute nao pode ter mais de :max caracteres.',
+            'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
         ];
     }
 
@@ -71,7 +71,7 @@ class Login extends Component
         $user = Auth::user();
 
         if (! $user) {
-            $this->addError('email', 'Nao foi possivel autenticar.');
+            $this->addError('email', 'Não foi possivel autenticar.');
 
             return;
         }

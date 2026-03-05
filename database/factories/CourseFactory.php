@@ -24,7 +24,7 @@ class CourseFactory extends Factory
             'name' => fake()->words(3, true),
             'slogan' => fake()->sentence(),
             'learnMoreLink' => fake()->url(),
-            'certificate' => fake()->randomElement(['Sim', 'Nao']),
+            'certificate' => fake()->randomElement(['Sim', 'Não']),
             'color' => fake()->hexColor(),
             'price' => fake()->randomElement(['0,00', '49,90', '99,90']),
             'description' => fake()->paragraph(),
