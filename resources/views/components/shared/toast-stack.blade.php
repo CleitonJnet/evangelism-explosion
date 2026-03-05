@@ -138,29 +138,29 @@
 
                     toastClasses(type) {
                         return {
-                            success: 'border-emerald-200 bg-white text-emerald-900 dark:border-emerald-800/60 dark:bg-neutral-900 dark:text-emerald-100',
-                            error: 'border-red-200 bg-white text-red-900 dark:border-red-800/60 dark:bg-neutral-900 dark:text-red-100',
-                            warning: 'border-amber-200 bg-white text-amber-900 dark:border-amber-800/60 dark:bg-neutral-900 dark:text-amber-100',
-                            info: 'border-sky-200 bg-white text-sky-900 dark:border-sky-800/60 dark:bg-neutral-900 dark:text-sky-100',
-                        }[type] ?? 'border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-neutral-900 dark:text-slate-100';
+                            success: 'border-emerald-200 bg-white text-emerald-900',
+                            error: 'border-red-200 bg-white text-red-900',
+                            warning: 'border-amber-200 bg-white text-amber-900',
+                            info: 'border-sky-200 bg-white text-sky-900',
+                        }[type] ?? 'border-slate-200 bg-white text-slate-900';
                     },
 
                     iconContainerClasses(type) {
                         return {
-                            success: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300',
-                            error: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300',
-                            warning: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300',
-                            info: 'bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300',
-                        }[type] ?? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300';
+                            success: 'bg-emerald-100 text-emerald-600',
+                            error: 'bg-red-100 text-red-600',
+                            warning: 'bg-amber-100 text-amber-600',
+                            info: 'bg-sky-100 text-sky-600',
+                        }[type] ?? 'bg-slate-100 text-slate-600';
                     },
 
                     closeButtonClasses(type) {
                         return {
-                            success: 'text-emerald-500 hover:bg-emerald-100 hover:text-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/50',
-                            error: 'text-red-500 hover:bg-red-100 hover:text-red-700 dark:text-red-300 dark:hover:bg-red-900/50',
-                            warning: 'text-amber-500 hover:bg-amber-100 hover:text-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/50',
-                            info: 'text-sky-500 hover:bg-sky-100 hover:text-sky-700 dark:text-sky-300 dark:hover:bg-sky-900/50',
-                        }[type] ?? 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800';
+                            success: 'text-emerald-500 hover:bg-emerald-100 hover:text-emerald-700',
+                            error: 'text-red-500 hover:bg-red-100 hover:text-red-700',
+                            warning: 'text-amber-500 hover:bg-amber-100 hover:text-amber-700',
+                            info: 'text-sky-500 hover:bg-sky-100 hover:text-sky-700',
+                        }[type] ?? 'text-slate-500 hover:bg-slate-100 hover:text-slate-700';
                     },
                 }));
             });

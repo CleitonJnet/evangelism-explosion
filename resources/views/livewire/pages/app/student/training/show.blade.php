@@ -7,12 +7,12 @@
 
 <div class="flex flex-col gap-6">
     <div
-        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-2">
             <div class="text-sm font-semibold text-neutral-500">Bem-vindo(a)</div>
-            <div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ $user?->name }}</div>
+            <div class="text-2xl font-bold text-neutral-900">{{ $user?->name }}</div>
         </div>
-        <div class="mt-4 grid gap-3 text-sm text-neutral-700 dark:text-neutral-200 sm:grid-cols-2">
+        <div class="mt-4 grid gap-3 text-sm text-neutral-700 sm:grid-cols-2">
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase text-neutral-500">E-mail</span>
                 <span>{{ $user?->email }}</span>
@@ -33,36 +33,36 @@
     </div>
 
     <div
-        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-2">
             <span class="text-sm font-semibold text-neutral-500">Treinamento</span>
-            <div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            <div class="text-2xl font-bold text-neutral-900">
                 {{ $training->course?->type }}: {{ $training->course?->name }}
             </div>
             @if ($training->course?->slogan)
-                <p class="text-sm text-neutral-600 dark:text-neutral-300">{{ $training->course?->slogan }}</p>
+                <p class="text-sm text-neutral-600">{{ $training->course?->slogan }}</p>
             @endif
         </div>
 
         <div class="mt-5 flex flex-wrap gap-3 text-sm">
             <span
-                class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700">
                 Carga horaria: <strong
-                    class="text-neutral-900 dark:text-neutral-100">{{ $workloadDuration ?? '00h' }}</strong>
+                    class="text-neutral-900">{{ $workloadDuration ?? '00h' }}</strong>
             </span>
             <span
-                class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                class="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-neutral-700">
                 Investimento: <strong
-                    class="text-neutral-900 dark:text-neutral-100">{{ $training->payment ?? 'Gratuito' }}</strong>
+                    class="text-neutral-900">{{ $training->payment ?? 'Gratuito' }}</strong>
             </span>
         </div>
 
         @if ($isPaid)
             @if ($paymentConfirmed)
                 <div
-                    class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-sm text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-200">
+                    class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-sm text-emerald-900">
                     <div class="flex flex-col gap-2">
-                        <div class="text-xs font-semibold uppercase text-emerald-800 dark:text-emerald-200">
+                        <div class="text-xs font-semibold uppercase text-emerald-800">
                             Pagamento confirmado
                         </div>
                         <div class="text-sm">
@@ -72,17 +72,17 @@
                 </div>
             @else
                 <div
-                    class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+                    class="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900">
                     <div class="grid gap-4 lg:grid-cols-2">
                         <div class="rounded-xl border border-amber-200/80 bg-white/60 p-4">
                             <div class="mb-3 flex flex-col gap-1">
-                                <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
+                                <div class="text-xs font-semibold uppercase text-amber-800">
                                     Passo 1: dados para pagamento
                                 </div>
-                                <div class="text-sm text-amber-900 dark:text-amber-200">
+                                <div class="text-sm text-amber-900">
                                     Realize o pagamento do treinamento pelos dados abaixo.
                                 </div>
-                                <div class="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                                <div class="text-sm font-semibold text-amber-900">
                                     Valor a pagar: {{ $training->payment ?? 'Gratuito' }}
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                                             class="h-36 w-36 rounded-xl border border-amber-200 bg-white p-1">
                                     @endif
                                     <div class="space-y-2">
-                                        <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
+                                        <div class="text-xs font-semibold uppercase text-amber-800">
                                             Pagamento via PIX
                                         </div>
                                         <div class="mt-3 flex flex-col relative gap-3 sm:flex-row sm:items-start">
@@ -109,7 +109,7 @@
                                             </span>
                                         </div>
 
-                                        <div class="text-xs text-amber-700 dark:text-amber-300">
+                                        <div class="text-xs text-amber-700">
                                             {{ $pixQr ? 'Use o QR Code ou a chave para concluir o pagamento do treinamento.' : 'Use a chave PIX para concluir o pagamento do treinamento.' }}
                                         </div>
                                         <div>
@@ -120,13 +120,13 @@
                                 </div>
                             @else
                                 <div class="flex h-full flex-col justify-center gap-2 text-sm">
-                                    <div class="text-xs font-semibold uppercase text-amber-800 dark:text-amber-200">
+                                    <div class="text-xs font-semibold uppercase text-amber-800">
                                         Comprovante enviado
                                     </div>
-                                    <div class="font-medium text-amber-900 dark:text-amber-200">
+                                    <div class="font-medium text-amber-900">
                                         O QR Code e os dados PIX ficam ocultos apos o envio do comprovante.
                                     </div>
-                                    <div class="text-xs text-amber-700 dark:text-amber-300">
+                                    <div class="text-xs text-amber-700">
                                         Se precisar reenviar, exclua o comprovante atual para exibir os dados novamente.
                                     </div>
                                 </div>
@@ -136,23 +136,23 @@
                                 <div class="flex flex-col gap-2">
                                     @if ($paymentReceiptPath)
                                         <div
-                                            class="text-xs font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-200">
+                                            class="text-xs font-semibold uppercase tracking-wide text-sky-800">
                                             Pagamento em análise
                                         </div>
-                                        <div class="text-sm font-medium text-sky-900 dark:text-sky-200">
+                                        <div class="text-sm font-medium text-sky-900">
                                             Recebemos seu comprovante e ele está aguardando a confirmação da coordenação
                                             do evento.
                                         </div>
-                                        <div class="text-xs text-sky-700 dark:text-sky-300">
+                                        <div class="text-xs text-sky-700">
                                             Assim que a validação for concluída, seu status será atualizado automaticamente para
                                             pagamento confirmado.
                                         </div>
                                     @else
                                         <div
-                                            class="text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+                                            class="text-xs font-semibold uppercase tracking-wide text-amber-800">
                                             Aguardando comprovante
                                         </div>
-                                        <div class="text-sm font-medium text-amber-900 dark:text-amber-200">
+                                        <div class="text-sm font-medium text-amber-900">
                                             Após realizar o pagamento, envie o comprovante para iniciar a validação da
                                             coordenação do evento.
                                         </div>
@@ -162,7 +162,7 @@
                         </div>
 
                         <div
-                            class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                            class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700">
                             <form wire:submit="uploadPaymentReceipt" class="flex flex-col gap-3">
                                 <div class="text-xs font-semibold uppercase text-neutral-500">Passo 2: comprovante de pagamento</div>
 
@@ -173,7 +173,7 @@
                                 </div>
 
                                 @error('paymentReceipt')
-                                    <div class="text-xs text-red-600 dark:text-red-400">{{ $message }}</div>
+                                    <div class="text-xs text-red-600">{{ $message }}</div>
                                 @enderror
 
                                 @if ($paymentReceipt)
@@ -279,13 +279,13 @@
         <div class="mt-6 flex flex-wrap gap-3">
             @foreach ($training->eventDates as $dateEvent)
                 <div wire:key="date-{{ $dateEvent->id }}"
-                    class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                    class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700"
                     style="flex: 1 1 350px;">
-                    <span class="font-semibold text-neutral-900 dark:text-neutral-100">
+                    <span class="font-semibold text-neutral-900">
                         {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($dateEvent->date)->locale('pt_BR')->isoFormat('dddd')) }}
                         - {{ date('d/m', strtotime($dateEvent->date)) }}
                     </span>
-                    <span class="text-neutral-600 dark:text-neutral-300">
+                    <span class="text-neutral-600">
                         das {{ date('H:i', strtotime($dateEvent->start_time)) }} as
                         {{ date('H:i', strtotime($dateEvent->end_time)) }}
                     </span>
@@ -293,18 +293,18 @@
             @endforeach
         </div>
 
-        <div class="mt-6 flex flex-wrap gap-4 text-sm text-neutral-700 dark:text-neutral-200">
+        <div class="mt-6 flex flex-wrap gap-4 text-sm text-neutral-700">
             <div style="flex: 1 1 350px;"
-                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div class="text-xs font-semibold uppercase text-neutral-500">Local</div>
-                <div class="mt-2 font-semibold text-neutral-900 dark:text-neutral-100">{{ $training->church?->name }}
+                <div class="mt-2 font-semibold text-neutral-900">{{ $training->church?->name }}
                 </div>
                 <div class="mt-1">{{ $churchAddress ?: 'Endereco nao informado' }}</div>
             </div>
             <div style="flex: 1 1 auto;"
-                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div class="text-xs font-semibold uppercase text-neutral-500">Contato</div>
-                <div class="mt-2 font-semibold text-neutral-900 dark:text-neutral-100">{{ $training->coordinator }}
+                <div class="mt-2 font-semibold text-neutral-900">{{ $training->coordinator }}
                 </div>
                 <div class="mt-1">{{ $training->phone }}</div>
                 <div class="truncate">{{ $training->email }}</div>

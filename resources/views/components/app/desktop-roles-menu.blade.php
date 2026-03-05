@@ -27,7 +27,7 @@
         </button>
 
         <flux:menu
-            class="border-slate-600! bg-slate-50! dark:border-slate-600! dark:bg-slate-700! text-white! w-56! min-w-56! backdrop-blur-3xl">
+            class="border-slate-600! bg-slate-50! text-white! w-56! min-w-56! backdrop-blur-3xl">
             <flux:menu.radio.group>
                 @can('access-board')
                     <flux:menu.item :href="route('app.board.dashboard')" wire:navigate

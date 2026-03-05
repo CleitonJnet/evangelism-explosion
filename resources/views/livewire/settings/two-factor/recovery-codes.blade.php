@@ -45,7 +45,7 @@ new class extends Component {
     }
 }; ?>
 
-<div class="py-6 space-y-6 border shadow-sm rounded-xl border-zinc-200 dark:border-white/10" wire:cloak
+<div class="py-6 space-y-6 border shadow-sm rounded-xl border-zinc-200" wire:cloak
     x-data="{ showRecoveryCodes: false }">
     <div class="px-6 space-y-2">
         <div class="flex items-center gap-2">
@@ -85,7 +85,7 @@ new class extends Component {
                 @enderror
 
                 @if (filled($recoveryCodes))
-                    <div class="grid gap-1 p-4 font-mono text-sm rounded-lg bg-zinc-100 dark:bg-white/5" role="list"
+                    <div class="grid gap-1 p-4 font-mono text-sm rounded-lg bg-zinc-100" role="list"
                         aria-label="{{ __('Recovery codes') }}">
                         @foreach ($recoveryCodes as $code)
                             <div role="listitem" class="select-text" wire:loading.class="opacity-50 animate-pulse">

@@ -101,7 +101,7 @@ new class extends Component {
                 </flux:select>
 
                 @error('selectedUserId')
-                    <flux:text class="text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                    <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
                 @enderror
             </div>
         </div>
@@ -124,7 +124,7 @@ new class extends Component {
             </div>
 
             @error('selectedRoleIds.*')
-                <flux:text class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                <flux:text class="mt-2 text-sm text-red-600">{{ $message }}</flux:text>
             @enderror
 
             <div class="mt-6">

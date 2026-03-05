@@ -265,7 +265,7 @@
             </div>
 
             @error('sectionForm.name')
-                <flux:text class="text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
             @enderror
 
             <div class="flex flex-wrap justify-end gap-2">
@@ -340,7 +340,7 @@
                             $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
                     @endphp
                     @if ($selectedAlreadyAssigned)
-                        <flux:text class="text-sm text-amber-700 dark:text-amber-400">
+                        <flux:text class="text-sm text-amber-700">
                             {{ __('Este professor já está na lista de professores.') }}
                         </flux:text>
                     @endif
@@ -352,10 +352,10 @@
                 </flux:select>
 
                 @error('teacherForm.user_id')
-                    <flux:text class="text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                    <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
                 @enderror
                 @error('teacherForm.status')
-                    <flux:text class="text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                    <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
                 @enderror
             </div>
 

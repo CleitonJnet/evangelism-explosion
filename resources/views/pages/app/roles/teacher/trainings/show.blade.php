@@ -54,23 +54,23 @@
         <div x-cloak x-show="showDeleteModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
             x-on:click.self="showDeleteModal = false">
-            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                 <form method="POST" action="{{ route('app.teacher.trainings.destroy', $training) }}"
                     class="flex flex-col gap-6">
                     @csrf
                     @method('DELETE')
 
                     <div class="space-y-2">
-                        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        <h2 class="text-lg font-semibold text-slate-900">
                             {{ __('Confirmar exclusão') }}
                         </h2>
-                        <p class="text-sm text-slate-600 dark:text-slate-300">
+                        <p class="text-sm text-slate-600">
                             {{ __('Esta ação é permanente e removerá todas as informações do treinamento.') }}
                         </p>
                     </div>
 
                     <div class="flex items-center justify-end gap-3">
-                        <button type="button" class="text-sm font-semibold text-slate-600 dark:text-slate-300"
+                        <button type="button" class="text-sm font-semibold text-slate-600"
                             x-on:click="showDeleteModal = false">
                             {{ __('Cancelar') }}
                         </button>

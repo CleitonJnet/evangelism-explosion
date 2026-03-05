@@ -142,12 +142,12 @@
                             </div>
                             @can($role['gate'])
                                 <span
-                                    class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-emerald-700 dark:text-emerald-300">
+                                    class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-emerald-700">
                                     {{ __('Acesso liberado') }}
                                 </span>
                             @else
                                 <span
-                                    class="rounded-full bg-zinc-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-zinc-500 dark:text-white/50">
+                                    class="rounded-full bg-zinc-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-zinc-500">
                                     {{ __('Sem acesso') }}
                                 </span>
                             @endcan
