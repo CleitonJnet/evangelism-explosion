@@ -180,9 +180,6 @@
         </div>
 
         <div class="basis-120 flex-auto">
-            <livewire:settings.appearance :embedded="true" />
-        </div>
-        <div class="basis-120 flex-auto">
             <livewire:settings.delete-user-form :embedded="true" />
         </div>
     </div>

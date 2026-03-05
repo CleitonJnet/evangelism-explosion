@@ -5,5 +5,4 @@
 <link rel="stylesheet" href="{{ asset('build/assets/app-Q49GAPoV.css') }}"> --}}
 
 @livewireStyles
-@fluxAppearance
 @stack('css')
