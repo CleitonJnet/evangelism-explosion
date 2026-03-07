@@ -59,7 +59,7 @@ it('filters teacher trainings index with a single search input', function (): vo
 
 it('filters director trainings index with a single search input', function (): void {
     $actingDirector = User::factory()->create();
-    $matchingTeacher = User::factory()->create(['name' => 'Professora Ana']);
+    $matchingTeacher = User::factory()->create(['name' => 'Professora Zuleica']);
     $otherTeacher = User::factory()->create(['name' => 'Professora Bia']);
 
     $matchingChurch = Church::factory()->create(['name' => 'Igreja Vida Plena']);
@@ -92,7 +92,7 @@ it('filters director trainings index with a single search input', function (): v
     $groups = $component->viewData('groups');
     expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
 
-    $groups = $component->set('searchTerm', 'Ana')->viewData('groups');
+    $groups = $component->set('searchTerm', 'Zulei')->viewData('groups');
     expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
 
     $groups = $component->set('searchTerm', 'Curi')->viewData('groups');
@@ -100,4 +100,58 @@ it('filters director trainings index with a single search input', function (): v
 
     $groups = $component->set('searchTerm', 'AC')->viewData('groups');
     expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+});
+
+it('shows only leadership trainings on the teacher index', function (): void {
+    $actingTeacher = User::factory()->create();
+    $leadershipCourse = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Clínica de Liderança',
+    ]);
+    $membersCourse = Course::factory()->create([
+        'execution' => 1,
+        'name' => 'Treinamento para Membros',
+    ]);
+
+    Training::factory()->create([
+        'course_id' => $leadershipCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    Training::factory()->create([
+        'course_id' => $membersCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+
+    $groups = Livewire::actingAs($actingTeacher)
+        ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
+        ->viewData('groups');
+
+    expect($groups->pluck('course.name')->filter()->values()->all())->toBe(['Clínica de Liderança']);
+});
+
+it('shows only leadership trainings on the director index', function (): void {
+    $actingDirector = User::factory()->create();
+    $leadershipCourse = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Clínica de Liderança',
+    ]);
+    $membersCourse = Course::factory()->create([
+        'execution' => 1,
+        'name' => 'Treinamento para Membros',
+    ]);
+
+    Training::factory()->create([
+        'course_id' => $leadershipCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    Training::factory()->create([
+        'course_id' => $membersCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+
+    $groups = Livewire::actingAs($actingDirector)
+        ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
+        ->viewData('groups');
+
+    expect($groups->pluck('course.name')->filter()->values()->all())->toBe(['Clínica de Liderança']);
 });

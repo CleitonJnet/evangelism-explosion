@@ -10,11 +10,6 @@ use Livewire\Component;
 
 class SwiperWrapperEvents extends Component
 {
-    /**
-     * @var array<int, int>
-     */
-    public array $extraCourseIds = [2];
-
     public $events;
 
     public bool $showScheduleRequestCard = false;
@@ -26,7 +21,8 @@ class SwiperWrapperEvents extends Component
     public function mount(
         array|int|null $ministry = null,
         array|int|null $ministryNot = null,
-        ?string $audience = null
+        ?string $audience = null,
+        ?string $courseType = null
     ): void {
         $query = Training::query()
             ->with([
@@ -35,10 +31,7 @@ class SwiperWrapperEvents extends Component
                 'teacher',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
-            ->whereHas('course', function ($query): void {
-                $query->where('execution', 0)
-                    ->orWhereIn('id', $this->extraCourseIds);
-            })
+            ->whereHas('course', fn ($query) => $query->where('execution', 0))
             ->whereHas('eventDates')
             ->whereDoesntHave('eventDates', function ($query) {
                 $query->whereDate('date', '<', Carbon::today());
@@ -90,6 +83,11 @@ class SwiperWrapperEvents extends Component
             fn ($query) => $query->whereHas('course', fn ($query) => $query->where('execution', '>', 0))
         );
 
+        $query->when(
+            filled($courseType),
+            fn ($query) => $query->whereHas('course', fn ($query) => $query->where('type', $courseType))
+        );
+
         $this->events = $query->get();
 
         $leadersEventsQuery = Training::query()
@@ -116,7 +114,7 @@ class SwiperWrapperEvents extends Component
             ))
         );
 
-        $this->showScheduleRequestCard = $audience !== 'members' && ! $leadersEventsQuery->exists();
+        $this->showScheduleRequestCard = blank($courseType) && $audience !== 'members' && ! $leadersEventsQuery->exists();
     }
 
     public function render(): View

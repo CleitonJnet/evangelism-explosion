@@ -22,11 +22,6 @@ class Edit extends Component
 
     public Training $training;
 
-    /**
-     * @var array<int, int>
-     */
-    public array $extraCourseIds = [2];
-
     public ?int $course_id = null;
 
     public ?int $teacher_id = null;
@@ -363,10 +358,7 @@ class Edit extends Component
     private function loadCourses(): Collection
     {
         return Course::query()
-            ->where(function ($query): void {
-                $query->where('execution', 0)
-                    ->orWhereIn('id', $this->extraCourseIds);
-            })
+            ->where('execution', 0)
             ->when($this->course_id, function ($query): void {
                 $query->orWhere('id', $this->course_id);
             })

@@ -7,15 +7,10 @@
 Evangelho.';
     $keywords = 'agenda, eventos, treinamentos, evangelismo, EE Brasil';
     $ogImage = asset('images/leadership-meeting.webp');
-    $extraCourseIds = [2];
 
-    $hasAudienceEvents = function (?int $ministryId, ?array $ministryNotIds, string $audience) use (
-        $extraCourseIds,
-    ): bool {
+    $hasAudienceEvents = function (?int $ministryId, ?array $ministryNotIds, string $audience): bool {
         $query = Training::query()
-            ->whereHas('course', function ($query) use ($extraCourseIds): void {
-                $query->where('execution', 0)->orWhereIn('id', $extraCourseIds);
-            })
+            ->whereHas('course', fn($query) => $query->where('execution', 0))
             ->whereHas('eventDates')
             ->whereDoesntHave('eventDates', function ($query): void {
                 $query->whereDate('date', '<', Carbon::today());
@@ -48,6 +43,63 @@ Evangelho.';
 
         return $query->exists();
     };
+
+    $audienceTypes = function (
+        ?int $ministryId,
+        ?array $ministryNotIds,
+        string $audience,
+    ): \Illuminate\Support\Collection {
+        $query = Training::query()
+            ->select('courses.type', 'courses.name', 'courses.targetAudience')
+            ->join('courses', 'courses.id', '=', 'trainings.course_id')
+            ->where('courses.execution', 0)
+            ->whereNotNull('courses.type')
+            ->where('courses.type', '!=', '')
+            ->whereHas('eventDates')
+            ->whereDoesntHave('eventDates', function ($query): void {
+                $query->whereDate('date', '<', Carbon::today());
+            })
+            ->where('trainings.status', 1);
+
+        if ($ministryId !== null) {
+            $query->where('courses.ministry_id', $ministryId);
+        }
+
+        if ($ministryNotIds !== null) {
+            $query->whereNotIn('courses.ministry_id', $ministryNotIds);
+        }
+
+        if ($audience === 'leaders') {
+            $query->where('courses.execution', 0);
+        }
+
+        if ($audience === 'members') {
+            $query->where('courses.execution', '>', 0);
+        }
+
+        return $query
+            ->orderBy('courses.type')
+            ->get()
+            ->groupBy('type')
+            ->map(
+                fn($courses, string $type): array => [
+                    'type' => $type,
+                    'courseName' => $courses
+                        ->pluck('name')
+                        ->map(fn(?string $value): string => trim((string) $value))
+                        ->first(fn(string $value): bool => $value !== ''),
+                    'targetAudience' => $courses
+                        ->pluck('targetAudience')
+                        ->map(fn(?string $value): string => trim((string) $value))
+                        ->first(fn(string $value): bool => $value !== ''),
+                ],
+            )
+            ->values();
+    };
+
+    $leadershipTypesMinistry1 = $audienceTypes(1, null, 'leaders');
+    $leadershipTypesMinistry2 = $audienceTypes(2, null, 'leaders');
+    $leadershipTypesOthers = $audienceTypes(null, [1, 2], 'leaders');
 
     $hasMembersMinistry1 = $hasAudienceEvents(1, null, 'members');
     $hasMembersMinistry2 = $hasAudienceEvents(2, null, 'members');
@@ -90,13 +142,31 @@ Evangelho.';
                     </h3>
 
                     <div class="relative z-10 space-y-8">
-                        <div class="space-y-3">
-                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
-                            <p class="text-sm text-white/80">
-                                Eventos com foco em liderança e implementação ministerial.
-                            </p>
-                            <x-src.carousel :ministry="1" audience="leaders" />
-                        </div>
+                        @forelse ($leadershipTypesMinistry1 as $typeGroup)
+                            <div class="space-y-3 text-center">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">
+                                    {{ trim($typeGroup['type'] . ' ' . ($typeGroup['courseName'] ?? '')) }}
+                                </h4>
+                                <p class="max-w-4xl mx-auto text-sm text-white/80">
+                                    {{ $typeGroup['targetAudience'] ?: 'Público-alvo não informado.' }}
+                                </p>
+                                <x-src.carousel :ministry="1" audience="leaders" :course-type="$typeGroup['type']" />
+                            </div>
+                            @if (! $loop->last)
+                                <div class="my-4 h-0.5 w-11/12 mx-auto"
+                                    style="border-radius: 100%; background: linear-gradient(135deg, rgba(199,168,64,.18), rgba(199,168,64,.55), rgba(199,168,64,.18));">
+                                </div>
+                            @endif
+                        @empty
+                            <div class="space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes
+                                </h4>
+                                <p class="text-sm text-white/80">
+                                    Eventos com foco em liderança e implementação ministerial.
+                                </p>
+                                <x-src.carousel :ministry="1" audience="leaders" />
+                            </div>
+                        @endforelse
 
                         @if ($hasMembersMinistry1)
                             <div class="pt-4 border-t border-white/15 space-y-3">
@@ -130,13 +200,28 @@ Evangelho.';
                         style="filter: drop-shadow(0 0 4px #fff)">
 
                     <div class="relative z-10 space-y-8">
-                        <div class="space-y-3">
-                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
-                            {{-- <p class="text-sm text-white/80">
-                                Eventos com foco em liderança e implementação ministerial.
-                            </p> --}}
-                            <x-src.carousel :ministry="2" audience="leaders" />
-                        </div>
+                        @forelse ($leadershipTypesMinistry2 as $typeGroup)
+                            <div class="space-y-3 text-center">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">
+                                    {{ trim($typeGroup['type'] . ' ' . ($typeGroup['courseName'] ?? '')) }}
+                                </h4>
+                                <p class="max-w-4xl mx-auto text-sm text-white/80">
+                                    {{ $typeGroup['targetAudience'] ?: 'Público-alvo não informado.' }}
+                                </p>
+                                <x-src.carousel :ministry="2" audience="leaders" :course-type="$typeGroup['type']" />
+                            </div>
+                            @if (! $loop->last)
+                                <div class="my-4 h-0.5 w-11/12 mx-auto"
+                                    style="border-radius: 100%; background: linear-gradient(135deg, rgba(199,168,64,.18), rgba(199,168,64,.55), rgba(199,168,64,.18));">
+                                </div>
+                            @endif
+                        @empty
+                            <div class="space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes
+                                </h4>
+                                <x-src.carousel :ministry="2" audience="leaders" />
+                            </div>
+                        @endforelse
 
                         @if ($hasMembersMinistry2)
                             <div class="pt-4 border-t border-white/15 space-y-3">
@@ -174,13 +259,31 @@ Evangelho.';
                     </h3>
 
                     <div class="relative z-10 space-y-8">
-                        <div class="space-y-3">
-                            <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes</h4>
-                            <p class="text-sm text-white/80">
-                                Eventos com foco em liderança e implementação ministerial.
-                            </p>
-                            <x-src.carousel :ministry-not="[1, 2]" audience="leaders" />
-                        </div>
+                        @forelse ($leadershipTypesOthers as $typeGroup)
+                            <div class="space-y-3 text-center">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">
+                                    {{ trim($typeGroup['type'] . ' ' . ($typeGroup['courseName'] ?? '')) }}
+                                </h4>
+                                <p class="max-w-4xl mx-auto text-sm text-white/80">
+                                    {{ $typeGroup['targetAudience'] ?: 'Público-alvo não informado.' }}
+                                </p>
+                                <x-src.carousel :ministry-not="[1, 2]" audience="leaders" :course-type="$typeGroup['type']" />
+                            </div>
+                            @if (! $loop->last)
+                                <div class="my-4 h-0.5 w-11/12 mx-auto"
+                                    style="border-radius: 100%; background: linear-gradient(135deg, rgba(199,168,64,.18), rgba(199,168,64,.55), rgba(199,168,64,.18));">
+                                </div>
+                            @endif
+                        @empty
+                            <div class="space-y-3">
+                                <h4 class="text-base font-semibold text-amber-200 sm:text-lg">Treinamentos para Líderes
+                                </h4>
+                                <p class="text-sm text-white/80">
+                                    Eventos com foco em liderança e implementação ministerial.
+                                </p>
+                                <x-src.carousel :ministry-not="[1, 2]" audience="leaders" />
+                            </div>
+                        @endforelse
 
                         @if ($hasMembersOthers)
                             <div class="pt-4 border-t border-white/15 space-y-3">

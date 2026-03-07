@@ -26,11 +26,6 @@ class Create extends Component
 {
     use WithFileUploads;
 
-    /**
-     * @var array<int, int>
-     */
-    public array $extraCourseIds = [2];
-
     public ?int $course_id = null;
 
     #[Locked]
@@ -492,10 +487,7 @@ class Create extends Component
             ->whereHas('teachers', function ($query) use ($teacherId): void {
                 $query->whereKey($teacherId);
             })
-            ->where(function ($query): void {
-                $query->where('courses.execution', 0)
-                    ->orWhereIn('courses.id', $this->extraCourseIds);
-            })
+            ->where('courses.execution', 0)
             ->orderBy('ministries.name')
             ->orderBy('courses.order')
             ->get();

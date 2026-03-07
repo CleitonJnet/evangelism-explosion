@@ -29,11 +29,6 @@ class Create extends Component
 
     private const MAX_STEP = 6;
 
-    /**
-     * @var array<int, int>
-     */
-    public array $extraCourseIds = [2];
-
     public ?int $course_id = null;
 
     public ?int $teacher_id = null;
@@ -539,10 +534,7 @@ class Create extends Component
                     $teacherQuery->whereKey($user->id);
                 });
             })
-            ->where(function ($query): void {
-                $query->where('courses.execution', 0)
-                    ->orWhereIn('courses.id', $this->extraCourseIds);
-            })
+            ->where('courses.execution', 0)
             ->orderBy('ministries.name')
             ->orderBy('courses.order')
             ->get();

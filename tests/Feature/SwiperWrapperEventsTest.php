@@ -10,7 +10,7 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('lists public events including extra courses ordered by date and time when ministry is not informed', function () {
+it('lists only leadership public events ordered by date and time when ministry is not informed', function () {
     $ministryA = Ministry::query()->create([
         'initials' => 'MINA',
         'name' => 'Ministerio A',
@@ -40,8 +40,6 @@ it('lists public events including extra courses ordered by date and time when mi
         'name' => 'Curso Excluido',
         'ministry_id' => $ministryB->id,
     ]);
-
-    expect($courseExtra->id)->toBe(2);
 
     $trainingAlpha = Training::factory()->create([
         'course_id' => $courseAlpha->id,
@@ -90,9 +88,9 @@ it('lists public events including extra courses ordered by date and time when mi
 
     expect($events->pluck('id')->all())->toBe([
         $trainingGamma->id,
-        $trainingExtra->id,
         $trainingAlpha->id,
     ]);
+    expect($events->pluck('id')->all())->not->toContain($trainingExtra->id);
     expect($events->pluck('id')->all())->not->toContain($trainingExcluded->id);
 });
 
@@ -217,8 +215,6 @@ it('filters events by audience type', function () {
         'ministry_id' => $ministry->id,
     ]);
 
-    expect($courseMembers->id)->toBe(2);
-
     $trainingLeader = Training::factory()->create([
         'course_id' => $courseLeader->id,
         'status' => TrainingStatus::Scheduled,
@@ -253,7 +249,7 @@ it('filters events by audience type', function () {
     ])->viewData('events');
 
     expect($leadersEvents->pluck('id')->all())->toBe([$trainingLeader->id]);
-    expect($membersEvents->pluck('id')->all())->toBe([$trainingMembers->id]);
+    expect($membersEvents->pluck('id')->all())->toBe([]);
 });
 
 it('does not render schedule request card for members audience', function () {
@@ -289,6 +285,58 @@ it('does not render schedule request card for members audience', function () {
         'ministry' => $ministry->id,
         'audience' => 'members',
     ])->assertDontSee('Agende um Treinamento Local');
+});
+
+it('filters events by course type', function () {
+    $ministry = Ministry::query()->create([
+        'initials' => 'MNA',
+        'name' => 'Ministerio A',
+    ]);
+
+    $leadershipClinic = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Clínica',
+        'name' => 'Curso Lideres A',
+        'ministry_id' => $ministry->id,
+    ]);
+    $leadershipWorkshop = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Workshop',
+        'name' => 'Curso Lideres B',
+        'ministry_id' => $ministry->id,
+    ]);
+
+    $trainingClinic = Training::factory()->create([
+        'course_id' => $leadershipClinic->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    $trainingWorkshop = Training::factory()->create([
+        'course_id' => $leadershipWorkshop->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+
+    $trainingClinic->eventDates()->delete();
+    $trainingWorkshop->eventDates()->delete();
+
+    $trainingClinic->eventDates()->create([
+        'date' => now()->addDays(6)->toDateString(),
+        'start_time' => '10:00:00',
+        'end_time' => '12:00:00',
+    ]);
+    $trainingWorkshop->eventDates()->create([
+        'date' => now()->addDays(7)->toDateString(),
+        'start_time' => '10:00:00',
+        'end_time' => '12:00:00',
+    ]);
+
+    $events = Livewire::test(SwiperWrapperEvents::class, [
+        'ministry' => $ministry->id,
+        'audience' => 'leaders',
+        'courseType' => 'Clínica',
+    ])->viewData('events');
+
+    expect($events->pluck('id')->all())->toBe([$trainingClinic->id]);
+    expect($events->pluck('id')->all())->not->toContain($trainingWorkshop->id);
 });
 
 it('renders schedule request card for leaders only when there are no execution zero events', function () {

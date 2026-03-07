@@ -46,6 +46,25 @@ it('shows available courses for the director on the create flow', function (): v
         ->assertSee('Clínica de Liderança');
 });
 
+it('does not show member courses for the director on the create flow', function (): void {
+    $director = createDirectorForTrainingCreate();
+
+    Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Clínica de Liderança',
+    ]);
+    Course::factory()->create([
+        'execution' => 1,
+        'name' => 'Treinamento para Membros',
+    ]);
+
+    $this->actingAs($director);
+
+    Livewire::test(Create::class)
+        ->assertSee('Clínica de Liderança')
+        ->assertDontSee('Treinamento para Membros');
+});
+
 it('shows the save button only on the sixth step for the director flow', function (): void {
     $director = createDirectorForTrainingCreate();
 

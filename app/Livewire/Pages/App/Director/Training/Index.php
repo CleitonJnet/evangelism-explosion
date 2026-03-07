@@ -15,11 +15,6 @@ class Index extends Component
 
     public string $searchTerm = '';
 
-    /**
-     * @var array<int, int>
-     */
-    public array $extraCourseIds = [2];
-
     public function mount(?string $statusKey = null): void
     {
         $this->statusKey = $this->normalizeStatusKey($statusKey);
@@ -39,10 +34,7 @@ class Index extends Component
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
             ->withCount('newChurches')
-            ->whereHas('course', function ($query): void {
-                $query->where('execution', 0)
-                    ->orWhereIn('id', $this->extraCourseIds);
-            })
+            ->whereHas('course', fn ($query) => $query->where('execution', 0))
             ->where('status', $status->value)
             ->orderBy('courses.type')
             ->orderBy('courses.name');

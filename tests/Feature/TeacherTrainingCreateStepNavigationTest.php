@@ -24,6 +24,27 @@ it('shows save button only on last step', function () {
         ->assertSee('Salvar evento');
 });
 
+it('does not show member courses for the teacher on the create flow', function () {
+    $teacher = User::factory()->create();
+    $leadershipCourse = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Clínica de Liderança',
+    ]);
+    $membersCourse = Course::factory()->create([
+        'execution' => 1,
+        'name' => 'Treinamento para Membros',
+    ]);
+
+    $leadershipCourse->teachers()->attach($teacher->id, ['status' => 1]);
+    $membersCourse->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $this->actingAs($teacher);
+
+    Livewire::test(Create::class)
+        ->assertSee('Clínica de Liderança')
+        ->assertDontSee('Treinamento para Membros');
+});
+
 it('resets step to one when course changes', function () {
     $teacher = User::factory()->create();
     $course = Course::factory()->create(['execution' => 0]);
