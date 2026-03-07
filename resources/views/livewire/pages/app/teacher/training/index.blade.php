@@ -55,13 +55,15 @@
 
             @if ($groups->isNotEmpty())
                 @foreach ($groups as $group)
-                    @php
-                        $course = $group['course'];
-                        $courseLabel = $course?->initials ?? __('Curso');
-                        $courseId = $course?->id ?? 'curso';
-                        $courseName = $course?->name ?? $courseLabel;
-                    @endphp
-                    <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
+                    @foreach ($group['courses'] as $courseGroup)
+                        @php
+                            $course = $courseGroup['course'];
+                            $courseLabel = $course?->initials ?? __('Curso');
+                            $courseId = $course?->id ?? 'curso';
+                            $courseName = $course?->name ?? $courseLabel;
+                        @endphp
+                        <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
+                    @endforeach
                 @endforeach
             @endif
         </div>
@@ -79,7 +81,7 @@
                 </p>
             </div>
             <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
-                {{ __('Total de eventos:') . ' ' . $groups->sum(fn($group) => $group['items']->count()) }}
+                {{ __('Total de eventos:') . ' ' . $groups->sum(fn($group) => $group['courses']->sum(fn($courseGroup) => $courseGroup['items']->count())) }}
             </div>
         </div>
 
@@ -91,23 +93,42 @@
             <div class="flex flex-col gap-12">
                 @foreach ($groups as $group)
                     @php
-                        $course = $group['course'];
-                        $courseType = $course?->type ?? __('Treinamento');
-                        $courseName = $course?->name ?? __('Curso não informado');
-                        $courseId = $course?->id ?? 'curso';
+                        $ministry = $group['ministry'];
+                        $ministryName = $ministry?->name ?? __('Sem ministério');
                     @endphp
 
-                    <div id="course-{{ $courseId }}" class="">
-                        <h3 class="text-lg text-slate-900 flex gap-1.5 items-center justify-between mb-4 border-b border-slate-200/80 px-2 py-0.5 rounded-lg bg-white"
-                            style="font-family: 'Cinzel', serif;">
-                            <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
-                            <span
-                                class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
-                                {{ __('Eventos:') }} {{ $group['items']->count() }}
+                    <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-sm">
+                        <div class="mb-6 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
+                            <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
+                                {{ $ministryName }}
+                            </h3>
+                            <span class="inline-flex items-center rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
+                                {{ __('Cursos:') }} {{ $group['courses']->count() }}
                             </span>
-                        </h3>
+                        </div>
 
-                        <x-src.training-carousel :items="$group['items']" role="teacher" />
+                        <div class="flex flex-col gap-8">
+                            @foreach ($group['courses'] as $courseGroup)
+                                @php
+                                    $course = $courseGroup['course'];
+                                    $courseType = $course?->type ?? __('Treinamento');
+                                    $courseName = $course?->name ?? __('Curso não informado');
+                                    $courseId = $course?->id ?? 'curso';
+                                @endphp
+
+                                <div id="course-{{ $courseId }}">
+                                    <h4 class="mb-4 flex items-center justify-between gap-1.5 rounded-lg border-b border-slate-200/80 bg-slate-50 px-2 py-1 text-lg text-slate-900"
+                                        style="font-family: 'Cinzel', serif;">
+                                        <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
+                                        <span class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
+                                            {{ __('Eventos:') }} {{ $courseGroup['items']->count() }}
+                                        </span>
+                                    </h4>
+
+                                    <x-src.training-carousel :items="$courseGroup['items']" role="teacher" />
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endforeach
             </div>

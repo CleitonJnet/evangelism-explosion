@@ -12,6 +12,11 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+function totalTrainingItems(\Illuminate\Support\Collection $groups): int
+{
+    return $groups->sum(fn (array $group): int => $group['courses']->sum(fn (array $courseGroup): int => $courseGroup['items']->count()));
+}
+
 it('filters teacher trainings index with a single search input', function (): void {
     $actingTeacher = User::factory()->create();
     $matchingTeacher = User::factory()->create(['name' => 'Professor Jonas']);
@@ -45,16 +50,16 @@ it('filters teacher trainings index with a single search input', function (): vo
         ->set('searchTerm', 'Central');
 
     $groups = $component->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'Jonas')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'Sao')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'SP')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 });
 
 it('filters director trainings index with a single search input', function (): void {
@@ -90,16 +95,16 @@ it('filters director trainings index with a single search input', function (): v
         ->set('searchTerm', 'Plena');
 
     $groups = $component->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'Zulei')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'Curi')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 
     $groups = $component->set('searchTerm', 'AC')->viewData('groups');
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTrainingItems($groups))->toBe(1);
 });
 
 it('shows only leadership trainings on the teacher index', function (): void {
@@ -126,7 +131,7 @@ it('shows only leadership trainings on the teacher index', function (): void {
         ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
         ->viewData('groups');
 
-    expect($groups->pluck('course.name')->filter()->values()->all())->toBe(['Clínica de Liderança']);
+    expect($groups->flatMap(fn (array $group) => $group['courses']->pluck('course.name'))->filter()->values()->all())->toBe(['Clínica de Liderança']);
 });
 
 it('shows only leadership trainings on the director index', function (): void {
@@ -153,5 +158,77 @@ it('shows only leadership trainings on the director index', function (): void {
         ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
         ->viewData('groups');
 
-    expect($groups->pluck('course.name')->filter()->values()->all())->toBe(['Clínica de Liderança']);
+    expect($groups->flatMap(fn (array $group) => $group['courses']->pluck('course.name'))->filter()->values()->all())->toBe(['Clínica de Liderança']);
+});
+
+it('groups director trainings by ministry', function (): void {
+    $actingDirector = User::factory()->create();
+    $ministryAlpha = \App\Models\Ministry::query()->create(['initials' => 'ALP', 'name' => 'Ministerio Alpha']);
+    $ministryBeta = \App\Models\Ministry::query()->create(['initials' => 'BET', 'name' => 'Ministerio Beta']);
+
+    $courseOne = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso A',
+        'ministry_id' => $ministryAlpha->id,
+    ]);
+    $courseTwo = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso B',
+        'ministry_id' => $ministryAlpha->id,
+    ]);
+    $courseThree = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso C',
+        'ministry_id' => $ministryBeta->id,
+    ]);
+
+    Training::factory()->create(['course_id' => $courseOne->id, 'status' => TrainingStatus::Scheduled]);
+    Training::factory()->create(['course_id' => $courseTwo->id, 'status' => TrainingStatus::Scheduled]);
+    Training::factory()->create(['course_id' => $courseThree->id, 'status' => TrainingStatus::Scheduled]);
+
+    $groups = Livewire::actingAs($actingDirector)
+        ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
+        ->viewData('groups');
+
+    expect($groups)->toHaveCount(2)
+        ->and($groups->first()['ministry']?->name)->toBe('Ministerio Alpha')
+        ->and($groups->first()['courses'])->toHaveCount(2)
+        ->and($groups->last()['ministry']?->name)->toBe('Ministerio Beta')
+        ->and($groups->last()['courses'])->toHaveCount(1);
+});
+
+it('groups teacher trainings by ministry', function (): void {
+    $actingTeacher = User::factory()->create();
+    $ministryAlpha = \App\Models\Ministry::query()->create(['initials' => 'ALP', 'name' => 'Ministerio Alpha']);
+    $ministryBeta = \App\Models\Ministry::query()->create(['initials' => 'BET', 'name' => 'Ministerio Beta']);
+
+    $courseOne = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso A',
+        'ministry_id' => $ministryAlpha->id,
+    ]);
+    $courseTwo = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso B',
+        'ministry_id' => $ministryAlpha->id,
+    ]);
+    $courseThree = Course::factory()->create([
+        'execution' => 0,
+        'name' => 'Curso C',
+        'ministry_id' => $ministryBeta->id,
+    ]);
+
+    Training::factory()->create(['course_id' => $courseOne->id, 'status' => TrainingStatus::Scheduled]);
+    Training::factory()->create(['course_id' => $courseTwo->id, 'status' => TrainingStatus::Scheduled]);
+    Training::factory()->create(['course_id' => $courseThree->id, 'status' => TrainingStatus::Scheduled]);
+
+    $groups = Livewire::actingAs($actingTeacher)
+        ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
+        ->viewData('groups');
+
+    expect($groups)->toHaveCount(2)
+        ->and($groups->first()['ministry']?->name)->toBe('Ministerio Alpha')
+        ->and($groups->first()['courses'])->toHaveCount(2)
+        ->and($groups->last()['ministry']?->name)->toBe('Ministerio Beta')
+        ->and($groups->last()['courses'])->toHaveCount(1);
 });

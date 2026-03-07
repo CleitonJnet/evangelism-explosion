@@ -10,6 +10,11 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+function totalTeacherIndexItems(\Illuminate\Support\Collection $groups): int
+{
+    return $groups->sum(fn (array $group): int => $group['courses']->sum(fn (array $courseGroup): int => $courseGroup['items']->count()));
+}
+
 it('hides past events when status is scheduled', function (): void {
     $teacher = User::factory()->create();
     $course = Course::factory()->create(['execution' => 0]);
@@ -31,7 +36,7 @@ it('hides past events when status is scheduled', function (): void {
         ->test(TrainingIndex::class, ['statusKey' => 'scheduled'])
         ->viewData('groups');
 
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(0);
+    expect(totalTeacherIndexItems($groups))->toBe(0);
 });
 
 it('shows past events when status is different from scheduled', function (): void {
@@ -55,5 +60,5 @@ it('shows past events when status is different from scheduled', function (): voi
         ->test(TrainingIndex::class, ['statusKey' => 'canceled'])
         ->viewData('groups');
 
-    expect($groups->sum(fn (array $group): int => $group['items']->count()))->toBe(1);
+    expect(totalTeacherIndexItems($groups))->toBe(1);
 });

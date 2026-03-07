@@ -27,6 +27,7 @@ class Index extends Component
         $trainingsQuery = Training::query()
             ->select('trainings.*')
             ->join('courses', 'courses.id', '=', 'trainings.course_id')
+            ->leftJoin('ministries', 'ministries.id', '=', 'courses.ministry_id')
             ->with([
                 'teacher',
                 'church',
@@ -36,6 +37,7 @@ class Index extends Component
             ->withCount('newChurches')
             ->whereHas('course', fn ($query) => $query->where('execution', 0))
             ->where('status', $status->value)
+            ->orderBy('ministries.name')
             ->orderBy('courses.type')
             ->orderBy('courses.name');
 
@@ -66,7 +68,7 @@ class Index extends Component
         return view('livewire.pages.app.teacher.training.index', [
             'statusKey' => $this->statusKey,
             'statuses' => $this->statusTabs(),
-            'groups' => $this->groupByCourse($trainings),
+            'groups' => $this->groupByMinistry($trainings),
         ]);
     }
 
@@ -109,18 +111,29 @@ class Index extends Component
 
     /**
      * @param  Collection<int, Training>  $trainings
-     * @return Collection<int, array{course: \App\Models\Course|null, items: Collection<int, array{training: Training, dates: Collection<int, \App\Models\EventDate>}>}>
+     * @return Collection<int, array{ministry: \App\Models\Ministry|null, courses: Collection<int, array{course: \App\Models\Course|null, items: Collection<int, array{training: Training, dates: Collection<int, \App\Models\EventDate>}>}>}>
      */
-    private function groupByCourse(Collection $trainings): Collection
+    private function groupByMinistry(Collection $trainings): Collection
     {
         return $trainings
-            ->groupBy(fn (Training $training) => $training->course_id ?? 0)
-            ->map(function (Collection $group): array {
-                $course = $group->first()?->course;
+            ->groupBy(fn (Training $training) => $training->course?->ministry_id ?? 0)
+            ->map(function (Collection $ministryGroup): array {
+                $ministry = $ministryGroup->first()?->course?->ministry;
+                $courses = $ministryGroup
+                    ->groupBy(fn (Training $training) => $training->course_id ?? 0)
+                    ->map(function (Collection $courseGroup): array {
+                        $course = $courseGroup->first()?->course;
+
+                        return [
+                            'course' => $course,
+                            'items' => $this->mapTrainings($courseGroup),
+                        ];
+                    })
+                    ->values();
 
                 return [
-                    'course' => $course,
-                    'items' => $this->mapTrainings($group),
+                    'ministry' => $ministry,
+                    'courses' => $courses,
                 ];
             })
             ->values();
