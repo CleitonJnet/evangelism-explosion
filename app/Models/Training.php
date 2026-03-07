@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class Training extends Model
@@ -48,6 +49,32 @@ class Training extends Model
         $statusEnum = TrainingStatus::tryFrom((int) $status);
 
         return $statusEnum?->key() ?? TrainingStatus::Planning->key();
+    }
+
+    public function requiresCompletionReview(?Carbon $referenceDate = null): bool
+    {
+        if ($this->status !== TrainingStatus::Scheduled) {
+            return false;
+        }
+
+        $referenceDate ??= Carbon::today();
+
+        $eventDates = $this->relationLoaded('eventDates')
+            ? $this->eventDates
+            : $this->eventDates()->get();
+
+        return $eventDates->contains(function (EventDate $eventDate) use ($referenceDate): bool {
+            if ($eventDate->date === null) {
+                return false;
+            }
+
+            return Carbon::parse((string) $eventDate->date)->startOfDay()->lt($referenceDate->copy()->startOfDay());
+        });
+    }
+
+    public function completionReviewAlertMessage(): string
+    {
+        return 'Revise e complete todas as informações do treinamento, depois marque este evento como concluído.';
     }
 
     public function getPhoneAttribute(?string $value): ?string

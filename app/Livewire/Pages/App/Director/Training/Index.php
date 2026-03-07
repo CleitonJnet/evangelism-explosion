@@ -4,7 +4,6 @@ namespace App\Livewire\Pages\App\Director\Training;
 
 use App\Models\Training;
 use App\TrainingStatus;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -39,12 +38,6 @@ class Index extends Component
             ->orderBy('courses.type')
             ->orderBy('courses.name');
 
-        if ($status === TrainingStatus::Scheduled) {
-            $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
-                $query->whereDate('date', '<', Carbon::today());
-            });
-        }
-
         $trainings = $trainingsQuery->get();
 
         return view('livewire.pages.app.director.training.index', [
@@ -60,7 +53,7 @@ class Index extends Component
      */
     private function mapTrainings(Collection $trainings): Collection
     {
-        return $trainings
+        $mappedTrainings = $trainings
             ->map(function (Training $training) {
                 $dates = $training->eventDates
                     ->sortBy(fn ($eventDate) => sprintf(
@@ -87,8 +80,13 @@ class Index extends Component
                     $firstDate->date,
                     $firstDate->start_time ?? '00:00:00'
                 );
-            })
-            ->values();
+            });
+
+        if ($this->statusKey === TrainingStatus::Completed->key()) {
+            return $mappedTrainings->values()->reverse()->values();
+        }
+
+        return $mappedTrainings->values();
     }
 
     /**

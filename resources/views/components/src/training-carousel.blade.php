@@ -75,7 +75,7 @@
                     $type = $course?->type ?? 'Treinamento';
                     $eventName = $course?->name ?? 'Treinamento';
                     $date = $eventDate?->date
-                        ? \Illuminate\Support\Carbon::parse($eventDate->date)->format('d/m')
+                        ? \Illuminate\Support\Carbon::parse($eventDate->date)->format('d/m/Y')
                         : 'A definir';
                     $startTime = $eventDate?->start_time
                         ? \Illuminate\Support\Carbon::parse($eventDate->start_time)->format('H:i')
@@ -128,12 +128,14 @@
                     $detailsRoute = \Illuminate\Support\Facades\Route::has($detailsRouteName)
                         ? route($detailsRouteName, $training->id)
                         : '#';
-
+                    $requiresCompletionReview = $training->requiresCompletionReview();
+                    $completionReviewAlertMessage = $training->completionReviewAlertMessage();
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
                     :start_time="$startTime" :city="$training->city" :state="$training->state" :route="$detailsRoute" :schedule="$schedule"
-                    :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0" />
+                    :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0"
+                    :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" />
             @endforeach
         </div>
         <div class="swiper-button-prev -left-2!"></div>
