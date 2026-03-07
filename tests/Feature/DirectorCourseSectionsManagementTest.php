@@ -53,7 +53,7 @@ it('creates a new section at the end of the course list and stores its uploaded 
         ->test(CourseSections::class, ['course' => $course])
         ->call('openCreateSectionModal')
         ->set('sectionForm.name', 'Unidade 3')
-        ->set('sectionForm.duration', '45 min')
+        ->set('sectionForm.duration', 45)
         ->set('sectionForm.devotional', 'João 3')
         ->set('sectionForm.description', 'Descrição da unidade')
         ->set('sectionForm.knowhow', 'Conhecimento da unidade')
@@ -68,4 +68,58 @@ it('creates a new section at the end of the course list and stores its uploaded 
         ->and($section->banner)->not->toBeNull();
 
     Storage::disk('public')->assertExists($section->banner);
+});
+
+it('validates section data on the backend while the modal form is updated', function (): void {
+    $ministry = Ministry::query()->create([
+        'name' => 'Escola de líderes',
+        'initials' => 'EL',
+    ]);
+
+    $course = Course::factory()->create([
+        'ministry_id' => $ministry->id,
+    ]);
+
+    $section = Section::factory()->create([
+        'course_id' => $course->id,
+        'name' => 'Unidade válida',
+        'duration' => '45 min',
+    ]);
+
+    $director = createDirectorForCourseSectionsManagement();
+
+    Livewire::actingAs($director)
+        ->test(CourseSections::class, ['course' => $course])
+        ->call('openEditSectionModal', $section->id)
+        ->set('sectionForm.name', '')
+        ->assertHasErrors(['sectionForm.name' => ['required']])
+        ->set('sectionForm.duration', '45 min')
+        ->assertHasErrors(['sectionForm.duration' => ['integer']])
+        ->set('sectionForm.duration', 43)
+        ->assertHasErrors(['sectionForm.duration' => ['multiple_of']])
+        ->set('sectionForm.devotional', str_repeat('b', 256))
+        ->assertHasErrors(['sectionForm.devotional' => ['max']]);
+});
+
+it('normalizes legacy section duration to minutes when opening the edit modal', function (): void {
+    $ministry = Ministry::query()->create([
+        'name' => 'Capacitação',
+        'initials' => 'CP',
+    ]);
+
+    $course = Course::factory()->create([
+        'ministry_id' => $ministry->id,
+    ]);
+
+    $section = Section::factory()->create([
+        'course_id' => $course->id,
+        'duration' => '45 min',
+    ]);
+
+    $director = createDirectorForCourseSectionsManagement();
+
+    Livewire::actingAs($director)
+        ->test(CourseSections::class, ['course' => $course])
+        ->call('openEditSectionModal', $section->id)
+        ->assertSet('sectionForm.duration', 45);
 });

@@ -224,14 +224,75 @@
 
                                 <div class="space-y-6 lg:col-span-8">
                                     <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                        <x-src.form.input name="section-name" wire:model.live="sectionForm.name"
+                                        <x-src.form.input name="sectionForm.name" wire:model.live="sectionForm.name"
                                             label="Nome da unidade" type="text" width_basic="460" required />
-                                        <x-src.form.input name="section-devotional"
+                                        <x-src.form.input name="sectionForm.devotional"
                                             wire:model.live="sectionForm.devotional" label="Título da devocional"
                                             type="text" width_basic="420" />
-                                        <x-src.form.input name="section-duration"
-                                            wire:model.live="sectionForm.duration" label="Duração" type="number"
-                                            width_basic="180" />
+                                        <div class="space-y-2" style="flex: 0 0 250px">
+                                            <label for="sectionForm.duration"
+                                                class="text-sm text-body duration-300 origin-[0]">
+                                                {{ __('Duração') }}
+                                            </label>
+                                            <div x-data="{
+                                                step(delta) {
+                                                    const input = this.$refs.durationInput;
+                                                    let value = parseInt(input.value, 10);
+
+                                                    if (Number.isNaN(value)) {
+                                                        value = {{ (int) ($sectionForm['duration'] ?? 0) }};
+                                                    }
+
+                                                    value = Math.max(0, value + delta);
+                                                    value = Math.round(value / 5) * 5;
+                                                    value = Math.max(0, value);
+                                                    input.value = String(value);
+                                                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                                                }
+                                            }"
+                                                class="flex items-center gap-2">
+                                                <div
+                                                    class="flex items-center rounded-md border border-(--ee-app-border) bg-white/60">
+                                                    <button type="button"
+                                                        class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                                                        x-on:click="step(-5)"
+                                                        aria-label="{{ __('Subtrair 5 minutos') }}">
+                                                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20" class="h-3 w-3 fill-current">
+                                                            <path d="M10 14 4 6h12l-6 8Z" />
+                                                        </svg>
+                                                    </button>
+                                                    <input id="sectionForm.duration" type="text" inputmode="numeric"
+                                                        pattern="[0-9]*" x-ref="durationInput"
+                                                        x-on:input="
+                                                            $el.value = $el.value.replace(/[^0-9]/g, '');
+                                                            if ($el.value === '') { return; }
+                                                            const value = parseInt($el.value, 10);
+                                                            if (!Number.isNaN(value)) {
+                                                                let roundedValue = Math.round(value / 5) * 5;
+                                                                roundedValue = Math.max(0, roundedValue);
+                                                                $el.value = String(roundedValue);
+                                                            }
+                                                        "
+                                                        class="w-14 border-x border-(--ee-app-border) py-1 text-center text-sm bg-white focus-within:bg-white"
+                                                        wire:model.live.debounce.300ms="sectionForm.duration"
+                                                        wire:loading.attr="disabled" wire:target="sectionForm.duration" />
+                                                    <button type="button"
+                                                        class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                                                        x-on:click="step(5)"
+                                                        aria-label="{{ __('Adicionar 5 minutos') }}">
+                                                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20" class="h-3 w-3 fill-current">
+                                                            <path d="M10 6 4 14h12L10 6Z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <span class="text-xs text-(--ee-app-muted)">{{ __('minutos') }}</span>
+                                            </div>
+                                            @error('sectionForm.duration')
+                                                <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -246,16 +307,12 @@
                             </div>
 
                             <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                <x-src.form.textarea name="section-description"
+                                <x-src.form.textarea name="sectionForm.description"
                                     wire:model.live="sectionForm.description" label="Descrição" rows="4" />
-                                <x-src.form.textarea name="section-knowhow" wire:model.live="sectionForm.knowhow"
+                                <x-src.form.textarea name="sectionForm.knowhow" wire:model.live="sectionForm.knowhow"
                                     label="Conhecimento" rows="4" />
                             </div>
                         </section>
-
-                        @error('sectionForm.name')
-                            <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 

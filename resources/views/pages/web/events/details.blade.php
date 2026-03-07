@@ -24,6 +24,7 @@
         'Confira ou agende eventos e treinamentos do ministério Evangelismo Explosivo no Brasil, participando da expansão do Evangelho.';
     $keywords = 'agenda, eventos, treinamentos, evangelismo, EE Brasil';
     $courseBannerUrl = $resolveAssetUrl($event->course->banner ?? null) ?: asset('images/cover.webp');
+    $courseLogoUrl = $resolveAssetUrl($event->course->logo ?? null);
     $ogImage = $courseBannerUrl;
     $churchAddress = implode(
         ', ',
@@ -91,13 +92,21 @@
                             </span>
                         </div>
 
-                        <h1 id="page-title"
-                            class="mt-8 mb-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-                            <div class="text-2xl font-semibold">
-                                {{ $event->course->type }}
-                            </div>
-                            {{ $event->course->name }}
-                        </h1>
+                        <div class="mt-8 mb-2 flex flex-wrap items-start gap-4">
+                            @if ($courseLogoUrl)
+                                <img src="{{ $courseLogoUrl }}"
+                                    alt="{{ __('Logo do curso :course', ['course' => $event->course->name]) }}"
+                                    class="h-16 shrink-0 object-contain sm:h-20">
+                            @endif
+
+                            <h1 id="page-title"
+                                class="min-w-0 flex-1 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                                <div class="text-2xl font-semibold">
+                                    {{ $event->course->type }}
+                                </div>
+                                {{ $event->course->name }}
+                            </h1>
+                        </div>
 
                         @if ($event->course->slogan)
                             <p class="text-slate-600">

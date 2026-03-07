@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View as ViewView;
 use Livewire\Attributes\On;
@@ -19,7 +20,7 @@ class View extends Component
     public int $courseId;
 
     /**
-     * @var array{name: string, banner: string|null, order: int|null, duration: string|null, devotional: string|null, description: string|null, knowhow: string|null}
+     * @var array{name: string, banner: string|null, order: int|null, duration: int|string|null, devotional: string|null, description: string|null, knowhow: string|null}
      */
     public array $sectionForm = [];
 
@@ -112,7 +113,7 @@ class View extends Component
             'name' => $section->name,
             'banner' => $section->banner,
             'order' => $section->order,
-            'duration' => $section->duration,
+            'duration' => $this->normalizeDuration($section->duration),
             'devotional' => $section->devotional,
             'description' => $section->description,
             'knowhow' => $section->knowhow,
@@ -126,6 +127,24 @@ class View extends Component
         $this->showSectionModal = false;
         $this->resetSectionForm();
         $this->resetErrorBag();
+    }
+
+    public function updated(string $property): void
+    {
+        foreach (array_keys($this->sectionRules()) as $ruleKey) {
+            if (Str::is($ruleKey, $property)) {
+                $this->validateOnly($property, $this->sectionRules());
+
+                break;
+            }
+        }
+    }
+
+    public function updatedSectionFormDuration(mixed $value): void
+    {
+        if ($value === '') {
+            $this->sectionForm['duration'] = null;
+        }
     }
 
     public function saveSection(): void
@@ -333,10 +352,10 @@ class View extends Component
             'sectionForm.name' => ['required', 'string', 'max:255'],
             'sectionForm.banner' => ['nullable', 'string', 'max:255'],
             'sectionForm.order' => ['nullable', 'integer', 'min:0'],
-            'sectionForm.duration' => ['nullable', 'string', 'max:255'],
+            'sectionForm.duration' => ['nullable', 'integer', 'min:0', 'multiple_of:5'],
             'sectionForm.devotional' => ['nullable', 'string', 'max:255'],
-            'sectionForm.description' => ['nullable', 'string'],
-            'sectionForm.knowhow' => ['nullable', 'string'],
+            'sectionForm.description' => ['nullable', 'string', 'max:2000'],
+            'sectionForm.knowhow' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
@@ -423,5 +442,16 @@ class View extends Component
     private function course(): Course
     {
         return Course::query()->findOrFail($this->courseId);
+    }
+
+    private function normalizeDuration(?string $duration): ?int
+    {
+        if ($duration === null) {
+            return null;
+        }
+
+        preg_match('/\d+/', $duration, $matches);
+
+        return isset($matches[0]) ? (int) $matches[0] : null;
     }
 }

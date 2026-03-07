@@ -13,8 +13,6 @@ class Index extends Component
 {
     public string $statusKey = 'scheduled';
 
-    public string $searchTerm = '';
-
     public function mount(?string $statusKey = null): void
     {
         $this->statusKey = $this->normalizeStatusKey($statusKey);
@@ -40,22 +38,6 @@ class Index extends Component
             ->orderBy('ministries.name')
             ->orderBy('courses.type')
             ->orderBy('courses.name');
-
-        $searchTerm = trim($this->searchTerm);
-        if ($searchTerm !== '') {
-            $trainingsQuery->where(function ($query) use ($searchTerm): void {
-                $query->where('trainings.city', 'like', '%'.$searchTerm.'%')
-                    ->orWhere('trainings.state', 'like', '%'.$searchTerm.'%')
-                    ->orWhereHas('church', function ($churchQuery) use ($searchTerm): void {
-                        $churchQuery->where('name', 'like', '%'.$searchTerm.'%')
-                            ->orWhere('city', 'like', '%'.$searchTerm.'%')
-                            ->orWhere('state', 'like', '%'.$searchTerm.'%');
-                    })
-                    ->orWhereHas('teacher', function ($teacherQuery) use ($searchTerm): void {
-                        $teacherQuery->where('name', 'like', '%'.$searchTerm.'%');
-                    });
-            });
-        }
 
         if ($status === TrainingStatus::Scheduled) {
             $trainingsQuery->whereDoesntHave('eventDates', function ($query): void {
