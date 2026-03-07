@@ -1,221 +1,309 @@
-<div class="space-y-8">
-    <div>
-        <div class="text-lg font-bold uppercase">{{ $course->type }}: {{ $course->name }}:</div>
-        <div class="border-b-4 border-amber-800 pb-4">
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Banner') }}:</div>
-                <div class="col-span-10">{{ $course->banner }}</div>
+@php
+    use App\Helpers\MoneyHelper;
+    use Illuminate\Support\Facades\Storage;
+
+    $resolveAssetUrl = static function (?string $asset): ?string {
+        $assetValue = trim((string) $asset);
+
+        if ($assetValue === '') {
+            return null;
+        }
+
+        if (str_starts_with($assetValue, 'http')) {
+            return $assetValue;
+        }
+
+        $normalizedAsset = ltrim($assetValue, '/');
+
+        return Storage::disk('public')->exists($normalizedAsset)
+            ? Storage::disk('public')->url($normalizedAsset)
+            : null;
+    };
+
+    $badgeTextColor = static function (?string $hexColor): string {
+        $color = trim((string) $hexColor);
+
+        if (!preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color)) {
+            return '#0f172a';
+        }
+
+        $normalized = ltrim($color, '#');
+
+        if (strlen($normalized) === 3) {
+            $normalized = collect(str_split($normalized))->map(fn(string $char): string => $char . $char)->implode('');
+        }
+
+        $red = hexdec(substr($normalized, 0, 2));
+        $green = hexdec(substr($normalized, 2, 2));
+        $blue = hexdec(substr($normalized, 4, 2));
+        $luminance = ($red * 299 + $green * 587 + $blue * 114) / 1000;
+
+        return $luminance >= 160 ? '#0f172a' : '#f8fafc';
+    };
+
+    $formatExecution = static fn(?int $execution): string => match ((int) $execution) {
+        1 => __('Implementação local'),
+        default => __('Liderança'),
+    };
+
+    $formatCurrency = static fn($value): string => MoneyHelper::format_money($value) ?: __('Não informado');
+    $teacherLabel = (int) $course->execution === 1 ? __('Facilitador') : __('Professor');
+    $teachersLabel = (int) $course->execution === 1 ? __('Facilitadores do curso') : __('Professores do curso');
+
+    $logoUrl = $resolveAssetUrl($course->logo);
+    $bannerUrl = $resolveAssetUrl($course->banner) ?: asset('images/cover.webp');
+@endphp
+
+<div class="space-y-6">
+    <section
+        class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-200/80 pb-4">
+            <div class="flex flex-1 items-start gap-4">
+                <div
+                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm h-60 aspect-21/9 relative">
+                    <img src="{{ $bannerUrl }}" alt="{{ __('Banner do curso') }}" class="h-full w-full object-cover">
+
+                    {{-- Logo do curso --}}
+                    @if ($logoUrl)
+                        <img src="{{ $logoUrl }}" alt="{{ __('Logo do curso') }}"
+                            class="h-20 w-20 rounded-2xl backdrop-blur object-contain shadow-sm absolute right-2 top-1">
+                    @else
+                        <div class="inline-flex h-28 min-w-32 items-center justify-center rounded-2xl text-lg font-bold shadow-sm absolute right-2 top-1"
+                            style="background-color: {{ $course->color ?: '#e2e8f0' }}; color: {{ $badgeTextColor($course->color) }}">
+                            {{ str($course->initials ?: $course->name)->limit(4, '') ?: 'CUR' }}
+                        </div>
+                    @endif
+                </div>
+
+                <div class="flex items-start gap-4">
+
+                    <div class="space-y-2 pt-1">
+                        @if ($course->type)
+                            <span class="rounded-full bg-white/80 py-1 text-sm font-bold uppercase text-slate-700">
+                                {{ $course->type }}
+                            </span>
+                        @endif
+
+
+                        <h2 class="text-2xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
+                            {{ $course->name ?: __('Curso sem nome cadastrado') }} -
+                            {{ $course->initials ?: __('Sem sigla cadastrada') }}
+                        </h2>
+
+                        <p class="max-w-3xl text-sm leading-6 text-slate-600">
+                            {{ $course->slogan ?: __('Este curso ainda não possui apresentação resumida cadastrada.') }}
+                        </p>
+                        <span class="rounded-full px-3 py-1 text-xs font-light tracking-wide"
+                            style="background-color: {{ $course->color ?: '#e2e8f0' }}; color: {{ $badgeTextColor($course->color) }}">
+                            {{ $formatExecution($course->execution) }}
+                        </span>
+
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Logo') }}:</div>
-                <div class="col-span-10">{{ $course->logo }}</div>
+
+            <div class="flex flex-col items-end gap-3">
+                <div
+                    class="flex items-center gap-3 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800">
+                    <span class="h-3.5 w-3.5 rounded-full border border-slate-300"
+                        style="background-color: {{ $course->color ?: '#e2e8f0' }}"></span>
+                    <span>{{ __('Cor temática: :color', ['color' => $course->color ?: __('Não informada')]) }}</span>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700">
+                    <div class="font-semibold text-slate-900">{{ __('Ministério vinculado') }}</div>
+                    <div>{{ $course->ministry?->name ?: __('Não informado') }}</div>
+                </div>
             </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Iniciais') }}:</div>
-                <div class="col-span-10">{{ $course->initials }}</div>
+        </div>
+    </section>
+
+    <div class="flex flex-wrap gap-3">
+        <div class="min-w-40 flex-1 rounded-xl border border-slate-200 bg-white p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Unidades') }}</div>
+            <div class="mt-2 text-2xl font-bold text-slate-900">{{ $sections->total() }}</div>
+        </div>
+
+        <div class="min-w-40 flex-1 rounded-xl border border-slate-200 bg-white p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Professores') }}</div>
+            <div class="mt-2 text-2xl font-bold text-slate-900">{{ $teachersCount }}</div>
+        </div>
+
+        <div class="min-w-40 flex-1 rounded-xl border border-slate-200 bg-white p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Professores ativos') }}
             </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Target Audience') }}:</div>
-                <div class="col-span-10">{{ $course->targetAudience }}</div>
+            <div class="mt-2 text-2xl font-bold text-slate-900">{{ $activeTeachersCount }}</div>
+        </div>
+
+        <div class="min-w-40 flex-1 rounded-xl border border-slate-200 bg-white p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Sessões mínimas STP') }}
             </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Learn More Link') }}:</div>
-                <div class="col-span-10">{{ $course->learnMoreLink }}</div>
-            </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Suggested price') }}:</div>
-                <div class="col-span-10">{{ $course->price }}</div>
-            </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Color') }}:</div>
-                <div class="col-span-10">{{ $course->color }}</div>
-            </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Certificate') }}:</div>
-                <div class="col-span-10">{{ $course->certificate }}</div>
-            </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Know How') }}:</div>
-                <div class="col-span-10">{{ $course->knowhow }}</div>
-            </div>
-            <div class="grid grid-cols-12 gap-4 even:bg-slate-50 odd:bg-slate-100 px-1">
-                <div class="col-span-2 font-semibold">{{ __('Description') }}:</div>
-                <div class="col-span-10">{{ $course->description }}</div>
-            </div>
+            <div class="mt-2 text-2xl font-bold text-slate-900">{{ $course->min_stp_sessions ?: 0 }}</div>
         </div>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
-        <section class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <flux:heading size="sm" level="2">{{ __('Unidades do curso') }}</flux:heading>
-                    <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-                        {{ __('Gerencie as unidades do manual de treinamento.') }}
-                    </flux:text>
+    <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <section class="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
+            <div class="border-b border-slate-200 pb-3">
+                <h3 class="text-lg font-semibold text-slate-900">{{ __('Informações do curso') }}</h3>
+                <p class="text-sm text-slate-600">
+                    {{ __('Consulte a identificação, classificação e dados de apresentação do curso selecionado.') }}
+                </p>
+            </div>
+
+            <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Sessões mínimas STP') }}</div>
+                    <div class="mt-2 text-sm font-semibold text-slate-900">{{ $course->min_stp_sessions ?: 0 }}</div>
                 </div>
-                <flux:button variant="primary" wire:click="openCreateSectionModal">
-                    {{ __('Adicionar unidade') }}
-                </flux:button>
-            </div>
 
-            <div class="mt-6 overflow-x-auto" x-data="{
-                draggingId: null,
-                overIndex: null,
-                overPosition: 'before',
-                pageBoundaryIndex: {{ $sections->currentPage() * $sections->perPage() }},
-                pageStartIndex: {{ ($sections->currentPage() - 1) * $sections->perPage() }},
-                startDrag(id) {
-                    this.draggingId = id;
-                },
-                endDrag() {
-                    this.draggingId = null;
-                    this.overIndex = null;
-                },
-                setOver(event, index) {
-                    if (this.draggingId === null) {
-                        return;
-                    }
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Preço sugerido') }}</div>
+                    <div class="mt-2 text-sm font-semibold text-slate-900">{{ $formatCurrency($course->price) }}</div>
+                </div>
 
-                    const rect = event.currentTarget.getBoundingClientRect();
-                    const offset = event.clientY - rect.top;
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Saiba mais') }}
+                    </div>
+                    <div class="mt-2 text-sm font-semibold text-slate-900">
+                        @if ($course->learnMoreLink)
+                            <a href="{{ $course->learnMoreLink }}" target="_blank" rel="noreferrer"
+                                class="break-all text-amber-800 underline decoration-amber-300 underline-offset-4">
+                                {{ $course->learnMoreLink }}
+                            </a>
+                        @else
+                            {{ __('Não informado') }}
+                        @endif
+                    </div>
+                </div>
 
-                    this.overPosition = offset > rect.height / 2 ? 'after' : 'before';
-                    this.overIndex = index;
-                },
-                dropOn(index, isLastInPage, isFirstInPage) {
-                    if (this.draggingId === null) {
-                        return;
-                    }
-
-                    const forceNextPage = isLastInPage && this.overPosition === 'after';
-                    const forcePrevPage = isFirstInPage && this.overPosition === 'before' && this.pageStartIndex > 0;
-
-                    let insertIndex = this.overPosition === 'after' ? index + 1 : index;
-                    let forceIndex = false;
-
-                    if (forceNextPage) {
-                        insertIndex = this.pageBoundaryIndex;
-                        forceIndex = true;
-                    } else if (forcePrevPage) {
-                        insertIndex = this.pageStartIndex - 1;
-                        forceIndex = true;
-                    }
-
-                    $wire.reorderSectionByIndex(this.draggingId, insertIndex, forceIndex);
-                    this.endDrag();
-                },
-            }">
-                <table class="w-full text-left text-sm">
-                    <thead class="text-xs uppercase text-[color:var(--ee-app-muted)]">
-                        <tr class="border-b border-[color:var(--ee-app-border)]">
-                            <th class="px-3 py-2">{{ __('Ordem') }}</th>
-                            <th class="px-3 py-2">{{ __('Unidade') }}</th>
-                            <th class="px-3 py-2">{{ __('Duração') }}</th>
-                            <th class="px-3 py-2 w-24 text-right">{{ __('Ações') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[color:var(--ee-app-border)]">
-                        @forelse ($sections as $section)
-                            @php
-                                $sectionIndex = (($sections->firstItem() ?? 1) - 1) + $loop->index;
-                            @endphp
-                            <tr
-                                wire:key="section-{{ $section->id }}"
-                                draggable="true"
-                                class="cursor-grab"
-                                :class="{
-                                    'cursor-grabbing bg-amber-50': draggingId === {{ $section->id }},
-                                    'border-t-2 border-amber-400': overIndex === {{ $sectionIndex }} && overPosition === 'before',
-                                    'border-b-2 border-amber-400': overIndex === {{ $sectionIndex }} && overPosition === 'after',
-                                }"
-                                @dragstart="startDrag({{ $section->id }})"
-                                @dragend="endDrag"
-                                @dragover.prevent="setOver($event, {{ $sectionIndex }})"
-                                @drop.prevent="dropOn({{ $sectionIndex }}, {{ $loop->last ? 'true' : 'false' }}, {{ $loop->first ? 'true' : 'false' }})"
-                            >
-                                <td class="px-3 py-2">{{ $section->order ?? '-' }}</td>
-                                <td class="px-3 py-2">
-                                    <div class="font-semibold">{{ $section->name }}</div>
-                                    <div class="text-xs text-[color:var(--ee-app-muted)]">
-                                        {{ $section->devotional ?? __('Sem devocional') }}
-                                    </div>
-                                </td>
-                                <td class="px-3 py-2">{{ $section->duration ?? '-' }}</td>
-                                <td class="px-3 py-2 w-24">
-                                    <div class="flex items-center justify-end gap-2 whitespace-nowrap">
-                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
-                                            variant="outline" icon="pencil-square" icon:variant="outline"
-                                            aria-label="{{ __('Editar') }}"
-                                            wire:click="openEditSectionModal({{ $section->id }})" />
-                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
-                                            variant="danger" icon="trash" icon:variant="outline"
-                                            aria-label="{{ __('Remover') }}"
-                                            wire:click="openDeleteSectionModal({{ $section->id }})" />
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="px-3 py-4 text-sm text-[color:var(--ee-app-muted)]" colspan="4">
-                                    {{ __('Nenhuma unidade cadastrada.') }}
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-4">
-                {{ $sections->links() }}
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Slogan') }}</div>
+                    <div class="mt-2 text-sm font-semibold text-slate-900">{{ $course->slogan ?: __('Não informado') }}
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section class="rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
+        <section class="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
+            <div class="border-b border-slate-200 pb-3">
+                <h3 class="text-lg font-semibold text-slate-900">{{ __('Mídia e identidade') }}</h3>
+                <p class="text-sm text-slate-600">
+                    {{ __('Revise os arquivos de apresentação e os atributos visuais usados neste curso.') }}
+                </p>
+            </div>
+
+            <div class="mt-5 space-y-4">
+                ...
+            </div>
+        </section>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
+        <div class="border-b border-slate-200 pb-3">
+            <h3 class="text-lg font-semibold text-slate-900">{{ __('Conteúdo pedagógico') }}</h3>
+            <p class="text-sm text-slate-600">
+                {{ __('Acompanhe os textos descritivos e o conhecimento-base associado ao curso.') }}
+            </p>
+        </div>
+
+        <div class="mt-5 grid gap-4 lg:grid-cols-2">
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Público-alvo') }}
+                </div>
+                <div class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">
+                    {{ $course->targetAudience ?: __('Não informado') }}
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Descrição') }}</div>
+                <div class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">
+                    {{ $course->description ?: __('Não informada') }}
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Know how') }}</div>
+                <div class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">
+                    {{ $course->knowhow ?: __('Não informado') }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
                 <div>
-                    <flux:heading size="sm" level="2">{{ __('Professores do curso') }}</flux:heading>
-                    <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-                        {{ __('Associe professores responsáveis por este curso.') }}
+                    <flux:heading size="sm" level="2">{{ $teachersLabel }}</flux:heading>
+                    <flux:text class="text-sm text-slate-600">
+                        {{ __('Lista de :label responsáveis por ministrar o ensino das aulas em grupo deste curso.', ['label' => mb_strtolower($teachersLabel)]) }}
                     </flux:text>
                 </div>
                 <flux:button variant="primary" wire:click="openCreateTeacherModal">
-                    {{ __('Adicionar professor') }}
+                    {{ __('Adicionar') }} {{ mb_strtolower($teacherLabel) }}
                 </flux:button>
             </div>
 
             <div class="mt-6 overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="text-xs uppercase text-[color:var(--ee-app-muted)]">
-                        <tr class="border-b border-[color:var(--ee-app-border)]">
-                            <th class="px-3 py-2">{{ __('Professor') }}</th>
-                            <th class="px-3 py-2">{{ __('Status') }}</th>
-                            <th class="px-3 py-2 w-24 text-right">{{ __('Ações') }}</th>
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                        <col class="w-28">
+                        <col class="w-16">
+                    </colgroup>
+                    <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                        <tr class="border-b border-slate-200">
+                            <th class="px-3 py-2">{{ $teacherLabel }}</th>
+                            <th class="px-3 py-2">{{ __('Igreja') }}</th>
+                            <th class="px-3 py-2">{{ __('Cidade / Estado') }}</th>
+                            <th class="px-3 py-2 text-center">{{ __('Status') }}</th>
+                            <th class="px-3 py-2 w-16 text-right">{{ __('Ações') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-[color:var(--ee-app-border)]">
+                    <tbody class="divide-y divide-slate-200">
                         @forelse ($teachers as $teacher)
                             <tr wire:key="teacher-{{ $teacher->id }}">
                                 <td class="px-3 py-2">
                                     @if ($teacher->church_id)
-                                        <a class="font-semibold"
+                                        <a class="font-semibold text-slate-900"
                                             href="{{ route('app.director.church.profile.show', ['church' => $teacher->church_id, 'profile' => $teacher->id]) }}">
                                             {{ $teacher->name }}
                                         </a>
                                     @else
-                                        <span class="font-semibold">{{ $teacher->name }}</span>
+                                        <span class="font-semibold text-slate-900">{{ $teacher->name }}</span>
                                     @endif
-                                    <div class="text-xs text-[color:var(--ee-app-muted)]">{{ $teacher->email }}</div>
+                                    <div class="text-xs text-slate-500">{{ $teacher->email }}</div>
                                 </td>
-                                <td class="px-3 py-2">
-                                    {{ (int) ($teacher->pivot->status ?? 0) === 1 ? __('Ativo') : __('Inativo') }}
+                                <td class="px-3 py-2 text-slate-700">
+                                    @if ($teacher->church)
+                                        <div class="font-semibold text-slate-900">{{ $teacher->church->name }}</div>
+                                        <div class="text-xs text-slate-500">
+                                            {{ $teacher->church->pastor ?: __('Pastor não informado') }}
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-slate-500">{{ __('Sem igreja vinculada') }}</span>
+                                    @endif
                                 </td>
-                                <td class="px-3 py-2 w-24">
+                                <td class="px-3 py-2 text-slate-700">
+                                    @php
+                                        $teacherLocation = implode(' / ', array_filter([$teacher->city, $teacher->state]));
+                                    @endphp
+                                    {{ $teacherLocation !== '' ? $teacherLocation : __('Não informado') }}
+                                </td>
+                                <td class="px-3 py-2 text-center text-slate-700">
+                                    <x-app.switch-schedule :label="(int) ($teacher->pivot->status ?? 0) === 1 ? __('Ativo') : __('Inativo')"
+                                        :key="'course-teacher-status-' . $teacher->id" :checked="(int) ($teacher->pivot->status ?? 0) === 1"
+                                        wrapperClass="bg-red-50 hover:bg-red-100 border-red-200 [&:has(input:checked)]:bg-sky-50 [&:has(input:checked)]:hover:bg-sky-100 [&:has(input:checked)]:border-sky-200"
+                                        trackClass="bg-red-300 peer-checked:bg-sky-950 border-red-400/70 peer-checked:border-slate-400/70"
+                                        wire:change="toggleTeacherStatus({{ $teacher->id }}, $event.target.checked)" />
+                                </td>
+                                <td class="px-3 py-2 w-16">
                                     <div class="flex items-center justify-end gap-2 whitespace-nowrap">
-                                        <flux:button class="shrink-0 px-2" size="sm" :square="false"
-                                            variant="outline" icon="pencil-square" icon:variant="outline"
-                                            aria-label="{{ __('Editar') }}"
-                                            wire:click="openEditTeacherModal({{ $teacher->id }})" />
                                         <flux:button class="shrink-0 px-2" size="sm" :square="false"
                                             variant="danger" icon="trash" icon:variant="outline"
                                             aria-label="{{ __('Remover') }}"
@@ -225,7 +313,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-3 py-4 text-sm text-[color:var(--ee-app-muted)]" colspan="3">
+                                <td class="px-3 py-4 text-sm text-slate-600" colspan="5">
                                     {{ __('Nenhum professor associado.') }}
                                 </td>
                             </tr>
@@ -235,165 +323,103 @@
             </div>
 
             <div class="mt-4">
-                {{ $teachers->links() }}
+                {{ $teachers->links(data: ['scrollTo' => false]) }}
             </div>
         </section>
-    </div>
 
-    <flux:modal name="section-modal" wire:model="showSectionModal" class="max-w-2xl">
-        <form class="space-y-6" wire:submit="saveSection">
-            <div>
-                <flux:heading size="lg">
-                    {{ $editingSectionId ? __('Atualizar unidade') : __('Adicionar unidade') }}
-                </flux:heading>
-                <flux:subheading>
-                    {{ __('Preencha os dados da unidade do manual de treinamento.') }}
-                </flux:subheading>
-            </div>
+    <flux:modal name="teacher-modal" wire:model="showTeacherModal" class="max-w-xl w-full bg-sky-950! p-0!">
+        <form wire:submit="saveTeacher">
+            <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
+                <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
+                    <h3 class="text-lg font-semibold">{{ __('Adicionar') . ' ' . mb_strtolower($teacherLabel) }}</h3>
+                    <p class="text-sm opacity-90">
+                        {{ __('Associe novos responsáveis ao curso e defina o status inicial.') }}
+                    </p>
+                </header>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <flux:input wire:model="sectionForm.name" :label="__('Nome da unidade')" required autofocus />
-                <flux:input wire:model="sectionForm.order" :label="__('Ordem')" type="number" min="0" />
-                <flux:input wire:model="sectionForm.duration" :label="__('Duração')" />
-                <flux:input wire:model="sectionForm.devotional" :label="__('Devocional')" />
-                <flux:input wire:model="sectionForm.banner" :label="__('Banner')" />
-            </div>
+                <div class="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-6">
+                    <div class="space-y-6">
+                        <p class="text-sm text-slate-600">
+                            {{ __('Para adicionar :label, primeiro atribua a função Professor ao usuário no setup do sistema.', ['label' => mb_strtolower($teachersLabel)]) }}
+                        </p>
 
-            <div class="grid gap-4">
-                <flux:textarea wire:model="sectionForm.description" :label="__('Descrição')" rows="3" />
-                <flux:textarea wire:model="sectionForm.knowhow" :label="__('Conhecimento')" rows="3" />
-            </div>
+                        @if ($teacherAlreadyAssignedWarning)
+                            <flux:callout variant="warning" icon="exclamation-triangle"
+                                heading="{{ __('Não foi possível salvar o registro.') }}">
+                                {{ __('Este registro já está na lista deste curso.') }}
+                            </flux:callout>
+                        @endif
 
-            @error('sectionForm.name')
-                <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
-            @enderror
-
-            <div class="flex flex-wrap justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="closeSectionModal">
-                    {{ __('Cancelar') }}
-                </flux:button>
-                <flux:button type="submit" variant="primary" wire:loading.attr="disabled"
-                    wire:target="saveSection">
-                    {{ __('Salvar') }}
-                </flux:button>
-            </div>
-        </form>
-    </flux:modal>
-
-    <flux:modal name="teacher-modal" wire:model="showTeacherModal" class="max-w-lg">
-        <form class="space-y-6" wire:submit="saveTeacher">
-            <div>
-                <flux:heading size="lg">
-                    {{ $editingTeacherId ? __('Atualizar professor') : __('Adicionar professor') }}
-                </flux:heading>
-                <flux:subheading>
-                    {{ __('Associe professores ao curso e ajuste o status.') }}
-                </flux:subheading>
-                <flux:text class="mt-2 text-sm text-[color:var(--ee-app-muted)]">
-                    {{ __('Para adicionar professores, deve primeiro atribuir a função Professor ao usuário no setup do sistema.') }}
-                </flux:text>
-            </div>
-
-            @if ($teacherAlreadyAssignedWarning)
-                <flux:callout variant="warning" icon="exclamation-triangle"
-                    heading="{{ __('Não foi possível salvar o professor.') }}">
-                    {{ __('Este professor já está na lista de professores.') }}
-                </flux:callout>
-            @endif
-
-            <div class="grid gap-4">
-                @if ($editingTeacherId)
-                    <input type="hidden" wire:model="teacherForm.user_id" />
-                    <div
-                        class="rounded-xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-4 text-sm text-[color:var(--ee-app-muted)]">
-                        <div class="font-semibold text-[color:var(--ee-app-text)]">{{ $editingTeacherName }}</div>
-                        <div>{{ __('Professor selecionado') }}</div>
-                    </div>
-                @else
-                    <flux:input wire:model.live.debounce.300ms="teacherSearch" :label="__('Buscar professor')"
-                        :placeholder="__('Digite o nome ou e-mail')" autofocus />
-                    <flux:select wire:model="teacherForm.user_id" :label="__('Professor')"
-                        :placeholder="__('Selecione um professor')">
-                        @forelse ($teacherCandidates as $teacher)
+                        <div class="grid gap-4">
+                            <flux:input wire:model.live.debounce.300ms="teacherSearch" :label="__('Buscar') . ' ' . mb_strtolower($teacherLabel)"
+                                :placeholder="__('Digite o nome ou e-mail')" autofocus />
+                            <flux:select wire:model="teacherForm.user_id" :label="$teacherLabel"
+                                :placeholder="__('Selecione') . ' ' . mb_strtolower($teacherLabel)">
+                                @forelse ($teacherCandidates as $teacher)
+                                    @php
+                                        $isAssigned = in_array($teacher->id, $assignedTeacherIds, true);
+                                    @endphp
+                                    <option value="{{ $teacher->id }}" @if ($isAssigned) disabled @endif>
+                                        {{ $teacher->name }} ({{ $teacher->email }})
+                                        @if ($isAssigned)
+                                            - {{ __('Já selecionado') }}
+                                        @endif
+                                    </option>
+                                @empty
+                                    <option value="" disabled>{{ __('Nenhum professor disponível.') }}</option>
+                                @endforelse
+                            </flux:select>
+                            <flux:text class="text-xs text-slate-500">
+                                {{ __('Mostrando até 15 resultados.') }}
+                            </flux:text>
+                            <flux:text class="text-xs text-slate-500">
+                                {{ __('Registros já associados aparecem desabilitados.') }}
+                            </flux:text>
                             @php
-                                $isAssigned = in_array($teacher->id, $assignedTeacherIds, true);
+                                $selectedTeacherId = $teacherForm['user_id'] ?? null;
+                                $selectedAlreadyAssigned =
+                                    $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
                             @endphp
-                            <option value="{{ $teacher->id }}" @if ($isAssigned) disabled @endif>
-                                {{ $teacher->name }} ({{ $teacher->email }})
-                                @if ($isAssigned)
-                                    - {{ __('Já selecionado') }}
-                                @endif
-                            </option>
-                        @empty
-                            <option value="" disabled>{{ __('Nenhum professor disponível.') }}</option>
-                        @endforelse
-                    </flux:select>
-                    <flux:text class="text-xs text-[color:var(--ee-app-muted)]">
-                        {{ __('Mostrando até 15 resultados.') }}
-                    </flux:text>
-                    <flux:text class="text-xs text-[color:var(--ee-app-muted)]">
-                        {{ __('Professores já associados aparecem desabilitados.') }}
-                    </flux:text>
-                    @php
-                        $selectedTeacherId = $teacherForm['user_id'] ?? null;
-                        $selectedAlreadyAssigned =
-                            $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
-                    @endphp
-                    @if ($selectedAlreadyAssigned)
-                        <flux:text class="text-sm text-amber-700">
-                            {{ __('Este professor já está na lista de professores.') }}
-                        </flux:text>
-                    @endif
-                @endif
+                            @if ($selectedAlreadyAssigned)
+                                <flux:text class="text-sm text-amber-700">
+                                    {{ __('Este registro já está na lista deste curso.') }}
+                                </flux:text>
+                            @endif
 
-                <flux:select wire:model="teacherForm.status" :label="__('Status')" :autofocus="$editingTeacherId">
-                    <option value="1">{{ __('Ativo') }}</option>
-                    <option value="0">{{ __('Inativo') }}</option>
-                </flux:select>
+                            <flux:select wire:model="teacherForm.status" :label="__('Status')">
+                                <option value="1">{{ __('Ativo') }}</option>
+                                <option value="0">{{ __('Inativo') }}</option>
+                            </flux:select>
 
-                @error('teacherForm.user_id')
-                    <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
-                @enderror
-                @error('teacherForm.status')
-                    <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
-                @enderror
-            </div>
+                            @error('teacherForm.user_id')
+                                <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
+                            @enderror
+                            @error('teacherForm.status')
+                                <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
 
-            <div class="flex flex-wrap justify-end gap-2">
-                @php
-                    $selectedTeacherId = $teacherForm['user_id'] ?? null;
-                    $selectedAlreadyAssigned =
-                        $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
-                @endphp
-                <flux:button type="button" variant="ghost" wire:click="closeTeacherModal">
-                    {{ __('Cancelar') }}
-                </flux:button>
-                <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="saveTeacher"
-                    :disabled="$selectedAlreadyAssigned">
-                    {{ __('Salvar') }}
-                </flux:button>
+                <footer class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
+                    <div class="flex justify-between gap-3">
+                        @php
+                            $selectedTeacherId = $teacherForm['user_id'] ?? null;
+                            $selectedAlreadyAssigned =
+                                $selectedTeacherId && in_array($selectedTeacherId, $assignedTeacherIds, true);
+                        @endphp
+                        <x-src.btn-silver type="button" wire:click="closeTeacherModal" wire:loading.attr="disabled"
+                            wire:target="saveTeacher">
+                            {{ __('Cancelar') }}
+                        </x-src.btn-silver>
+                        <x-src.btn-gold type="submit" wire:loading.attr="disabled" wire:target="saveTeacher"
+                            :disabled="$selectedAlreadyAssigned">
+                            {{ __('Salvar') }}
+                        </x-src.btn-gold>
+                    </div>
+                </footer>
             </div>
         </form>
-    </flux:modal>
-
-    <flux:modal name="delete-section-modal" wire:model="showDeleteSectionModal" class="max-w-md">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">{{ __('Remover unidade') }}</flux:heading>
-                <flux:subheading>
-                    {{ __('Esta ação é permanente. Deseja continuar?') }}
-                </flux:subheading>
-            </div>
-
-            <div class="flex flex-wrap justify-end gap-2">
-                <flux:button variant="ghost" wire:click="closeDeleteSectionModal">
-                    {{ __('Cancelar') }}
-                </flux:button>
-                <flux:button variant="danger" wire:click="confirmDeleteSection">
-                    {{ __('Remover') }}
-                </flux:button>
-            </div>
-        </div>
     </flux:modal>
 
     <flux:modal name="delete-teacher-modal" wire:model="showDeleteTeacherModal" class="max-w-md">

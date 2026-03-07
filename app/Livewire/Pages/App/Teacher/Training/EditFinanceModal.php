@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\App\Teacher\Training;
 use App\Helpers\MoneyHelper;
 use App\Models\Training;
 use App\Models\TrainingFinanceAudit;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -26,9 +27,9 @@ class EditFinanceModal extends Component
 
     public ?string $price = null;
 
-    public ?string $price_church = '0,00';
+    public ?string $price_church = null;
 
-    public ?string $discount = '0,00';
+    public ?string $discount = null;
 
     public mixed $pixQrCodeUpload = null;
 
@@ -135,7 +136,7 @@ class EditFinanceModal extends Component
 
         $total = $price + $priceChurch - $discount;
 
-        return number_format($total, 2, ',', '.');
+        return MoneyHelper::formatInput($total, '0') ?? '0';
     }
 
     public function render(): View
@@ -183,9 +184,9 @@ class EditFinanceModal extends Component
 
     private function fillFromTraining(): void
     {
-        $this->price = $this->formatRawMoney($this->training->getRawOriginal('price'), null);
-        $this->price_church = $this->formatRawMoney($this->training->getRawOriginal('price_church'), '0,00');
-        $this->discount = $this->formatRawMoney($this->training->getRawOriginal('discount'), '0,00');
+        $this->price = MoneyHelper::formatInput($this->training->getRawOriginal('price'));
+        $this->price_church = MoneyHelper::formatInput($this->training->getRawOriginal('price_church'), MoneyHelper::formatInput(0, '0'));
+        $this->discount = MoneyHelper::formatInput($this->training->getRawOriginal('discount'), MoneyHelper::formatInput(0, '0'));
         $this->pix_key = $this->training->pix_key;
     }
 
@@ -193,17 +194,6 @@ class EditFinanceModal extends Component
     {
         Gate::authorize('access-teacher');
         Gate::authorize('update', $training);
-    }
-
-    private function formatRawMoney(mixed $rawValue, ?string $default = '0,00'): ?string
-    {
-        $floatValue = MoneyHelper::toFloat($rawValue);
-
-        if ($floatValue === null) {
-            return $default;
-        }
-
-        return number_format($floatValue, 2, ',', '.');
     }
 
     /**

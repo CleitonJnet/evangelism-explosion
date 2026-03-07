@@ -1,6 +1,6 @@
 <section x-data="{
     step: @entangle('step').live,
-    totalSteps: 5,
+    totalSteps: 6,
     canProceed: false,
     async refreshCanProceed() {
         this.canProceed = await this.$wire.canProceedStep(Number(this.step));
@@ -79,8 +79,56 @@
             </div>
         </div>
 
-        {{-- DATA DO EVENTO --}}
+        {{-- SELEÇÃO DO PROFESSOR --}}
         <div x-cloak x-show="step === 2" id="step_2" class="flex flex-wrap gap-4">
+            <div class="flex-1">
+                <div
+                    class="relative mb-4 aspect-21/6 overflow-hidden rounded-lg border border-sky-950/10 bg-slate-100">
+                    <x-app.placeholder-pattern class="absolute inset-0 h-full w-full stroke-sky-950/10" />
+                    <div class="absolute inset-0 flex items-center justify-center p-6">
+                        <div class="rounded-full border border-sky-950/10 bg-white/80 px-4 py-2 text-sm font-semibold text-sky-950 shadow-sm">
+                            {{ __('Imagem placeholder') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="text-base font-semibold text-sky-950">{{ __('Escolha o professor do treinamento') }}</div>
+                <div class="text-sm text-slate-700">
+                    {{ __('Digite o nome do professor para filtrar a lista e selecione quem conduzirá este treinamento. Apenas professores ativos cadastrados no curso escolhido aparecem aqui.') }}
+                </div>
+            </div>
+            <div class="flex-1 grid gap-4">
+                <x-src.form.input name="teacherSearch" wire:model.live="teacherSearch" label="Buscar professor"
+                    width_basic="900" autofocus="" />
+
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                    @forelse ($teachers as $teacher)
+                        <div wire:key="teacher-option-{{ $teacher->id }}">
+                            <input type="radio" name="teacher" class="peer sr-only"
+                                id="teacher-{{ $teacher->id }}" value="{{ $teacher->id }}"
+                                wire:click="selectTeacher({{ $teacher->id }})" @checked((int) $teacher_id === (int) $teacher->id)>
+                            <label for="teacher-{{ $teacher->id }}"
+                                class="block cursor-pointer select-none rounded-lg border-2 border-slate-300 py-2 px-4 peer-checked:border-sky-900 peer-checked:[&_.teacher-check]:inline-flex">
+                                <div class="flex gap-2 justify-between">
+                                    <div class="font-bold">{{ $teacher->name }}</div>
+                                    <div
+                                        class="teacher-check hidden size-6 items-center justify-center rounded-full bg-sky-900 text-white">
+                                        <div>&#x2713;</div>
+                                    </div>
+                                </div>
+                                <div class="text-xs opacity-80">{{ $teacher->email }}</div>
+                            </label>
+                        </div>
+                    @empty
+                        <div class="rounded-lg border border-dashed border-slate-300 bg-white/70 px-4 py-6 text-sm text-slate-600">
+                            {{ __('Nenhum professor ativo deste curso foi encontrado com esse filtro.') }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        {{-- DATA DO EVENTO --}}
+        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
             <div class="basis-2/5 flex-auto">
                 <img src="{{ asset(path: 'images/banner-create-training-datetime.webp') }}"
                     alt="Ilustração do passo de datas do evento"
@@ -120,7 +168,7 @@
         </div>
 
         {{-- SELEÇÃO A IGREJA BASE DO EVENTO --}}
-        <div x-cloak x-show="step === 3" id="step_3" class="flex flex-wrap gap-4">
+        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
                     alt="Ilustração do passo de datas do evento"
@@ -165,7 +213,7 @@
         </div>
 
         {{-- FINANCEIRO --}}
-        <div x-cloak x-show="step === 4" id="step_4" class="flex flex-wrap gap-4">
+        <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-finance.webp') }}"
                     alt="Ilustração do passo de datas do evento"
@@ -179,7 +227,7 @@
                 <div class="flex justify-between gap-0.5s">
                     <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
                     <div class="border-b border-dashed border-sky-950 flex-auto"></div>
-                    <div>{{ __('R$') }} {{ $price }}</div>
+                    <div>{{ \App\Helpers\MoneyHelper::symbol() }} {{ $price }}</div>
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-2">
@@ -238,7 +286,7 @@
         </div>
 
         {{-- DIVULGAÇÃO --}}
-        <div x-cloak x-show="step === 5" id="step_5" class="flex flex-wrap gap-4">
+        <div x-cloak x-show="step === 6" id="step_6" class="flex flex-wrap gap-4">
             <div class="flex-1">
                 <img src="{{ asset(path: 'images/banner-create-training-banner.webp') }}"
                     alt="Ilustração do passo de datas do evento"
@@ -297,12 +345,12 @@
                     <span x-text="`Passo ${step} de ${totalSteps}`"></span>
                 </div>
                 <div class="flex justify-end">
-                    @if ($step < 5)
+                    @if ($step < 6)
                         <button type="button" wire:click="nextStep" x-bind:disabled="!canProceed"
                             class="disabled:cursor-not-allowed disabled:opacity-50">{{ __('Próximo') }}
                             &#x276F;</button>
                     @endif
-                    @if ($step === 5)
+                    @if ($step === 6)
                         <button type="button" wire:click="submit">{{ __('Salvar evento') }} &#x2713;</button>
                     @endif
                 </div>

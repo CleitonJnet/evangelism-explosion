@@ -1,11 +1,30 @@
 @php
     use Illuminate\Support\Facades\Storage;
 
+    $resolveAssetUrl = static function (?string $asset): ?string {
+        $assetValue = trim((string) $asset);
+
+        if ($assetValue === '') {
+            return null;
+        }
+
+        if (str_starts_with($assetValue, 'http')) {
+            return $assetValue;
+        }
+
+        $normalizedAsset = ltrim($assetValue, '/');
+
+        return Storage::disk('public')->exists($normalizedAsset)
+            ? Storage::disk('public')->url($normalizedAsset)
+            : null;
+    };
+
     $title = __('Eventos & treinamentos');
     $description =
         'Confira ou agende eventos e treinamentos do ministério Evangelismo Explosivo no Brasil, participando da expansão do Evangelho.';
     $keywords = 'agenda, eventos, treinamentos, evangelismo, EE Brasil';
-    $ogImage = asset('images/leadership-meeting.webp');
+    $courseBannerUrl = $resolveAssetUrl($event->course->banner ?? null) ?: asset('images/cover.webp');
+    $ogImage = $courseBannerUrl;
     $churchAddress = implode(
         ', ',
         array_filter([
@@ -39,7 +58,7 @@
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
     <x-web.header :title="'<div>' . $event->course->type . ': </div><div class=`text-nowrap>' . $event->course->name . '</div>'"
         subtitle='Conheça os objetivos, a estrutura e os valores deste treinamento, preparado para fortalecer a igreja na missão de fazer discípulos.'
-        :cover="asset('images/leadership-meeting.webp')" />
+        :cover="$courseBannerUrl" />
 
     {{-- HERO + RESUMO (grade alinhada) --}}
     <section class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-8">
@@ -49,8 +68,7 @@
             <div class="lg:col-span-7" data-reveal>
                 <div class="overflow-hidden bg-white border shadow-sm rounded-3xl ring-1 ring-slate-900/10">
                     <div class="relative">
-                        {{-- Imagem do evento (exemplo) --}}
-                        <img src="{{ asset('images/cover.webp') }}" alt="Workshop O Evangelho Em Sua Mão"
+                        <img src="{{ $courseBannerUrl }}" alt="{{ $event->course->name }}"
                             class="object-cover w-full aspect-21/9">
                         <div
                             class="absolute inset-x-0 bottom-0 h-2 bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]">

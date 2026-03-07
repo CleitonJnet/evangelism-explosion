@@ -232,12 +232,6 @@ class Training extends Model
 
     private function normalizeMoneyForDatabase(string|int|float|null $value): ?string
     {
-        $floatValue = MoneyHelper::toFloat($value);
-
-        if ($floatValue === null) {
-            return null;
-        }
-
-        return number_format($floatValue, 2, '.', '');
+        return MoneyHelper::toDatabase($value);
     }
 }

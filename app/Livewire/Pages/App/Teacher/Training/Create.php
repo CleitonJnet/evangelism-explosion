@@ -63,9 +63,9 @@ class Create extends Component
 
     public ?string $price = null;
 
-    public ?string $price_church = '0,00';
+    public ?string $price_church = null;
 
-    public ?string $discount = '0,00';
+    public ?string $discount = null;
 
     public mixed $pixQrCodeUpload = null;
 
@@ -180,6 +180,12 @@ class Create extends Component
             'pix_key' => 'chave PIX da igreja sede',
             'welcome_duration_minutes' => 'boas-vindas',
         ];
+    }
+
+    public function mount(): void
+    {
+        $this->price_church = MoneyHelper::formatInput(0, '0');
+        $this->discount = MoneyHelper::formatInput(0, '0');
     }
 
     public function updatedCourseId(?string $value): void
@@ -387,7 +393,7 @@ class Create extends Component
 
         $total = $price + $priceChurch - $discount;
 
-        return number_format($total, 2, ',', '.');
+        return MoneyHelper::formatInput($total, '0') ?? '0';
     }
 
     public function submit(TrainingScheduleGenerator $generator): void

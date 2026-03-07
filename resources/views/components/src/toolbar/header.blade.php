@@ -190,6 +190,7 @@
             $baseSegments[] = $segment;
             $label = \Illuminate\Support\Str::title(str_replace(['-', '_'], ' ', $segment));
             $singular = \Illuminate\Support\Str::singular($segment);
+            $routeContextParameters ??= [];
 
             $indexRoute = implode('.', $baseSegments) . '.index';
             $singularSegments = $baseSegments;
@@ -220,15 +221,19 @@
                 $paramValue = $param;
             }
 
+            if ($paramValue !== null) {
+                $routeContextParameters[$singular] = $paramValue;
+            }
+
             $showRoute = implode('.', $baseSegments) . '.show';
             $showRouteSingular = implode('.', $singularSegments) . '.show';
             $showUrl = null;
 
             if ($paramValue !== null) {
                 if (\Illuminate\Support\Facades\Route::has($showRoute)) {
-                    $showUrl = route($showRoute, [$singular => $paramValue]);
+                    $showUrl = route($showRoute, $routeContextParameters);
                 } elseif (\Illuminate\Support\Facades\Route::has($showRouteSingular)) {
-                    $showUrl = route($showRouteSingular, [$singular => $paramValue]);
+                    $showUrl = route($showRouteSingular, $routeContextParameters);
                 }
             }
 

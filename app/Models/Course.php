@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\MoneyHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,6 +21,16 @@ class Course extends Model
             'execution' => 'integer',
             'min_stp_sessions' => 'integer',
         ];
+    }
+
+    public function getPriceAttribute(string|int|float|null $value): ?string
+    {
+        return MoneyHelper::formatInput($value);
+    }
+
+    public function setPriceAttribute(string|int|float|null $value): void
+    {
+        $this->attributes['price'] = MoneyHelper::toDatabase($value);
     }
 
     public function ministry()

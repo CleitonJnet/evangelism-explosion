@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\MoneyHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +11,16 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'photo', 'status', 'price', 'description'];
+
+    public function getPriceAttribute(string|int|float|null $value): ?string
+    {
+        return MoneyHelper::formatInput($value);
+    }
+
+    public function setPriceAttribute(string|int|float|null $value): void
+    {
+        $this->attributes['price'] = MoneyHelper::toDatabase($value);
+    }
 
     public function categories()
     {

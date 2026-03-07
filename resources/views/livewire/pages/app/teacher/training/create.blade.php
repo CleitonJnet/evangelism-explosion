@@ -179,7 +179,7 @@
                 <div class="flex justify-between gap-0.5s">
                     <div class="">{{ __('O custo do treinamento selecionado é:') }}</div>
                     <div class="border-b border-dashed border-sky-950 flex-auto"></div>
-                    <div>{{ __('R$') }} {{ $price }}</div>
+                    <div>{{ \App\Helpers\MoneyHelper::symbol() }} {{ $price }}</div>
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-2">

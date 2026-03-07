@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View as ViewView;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -43,10 +44,6 @@ class View extends Component
 
     public ?int $editingSectionId = null;
 
-    public ?int $editingTeacherId = null;
-
-    public string $editingTeacherName = '';
-
     public ?int $deletingSectionId = null;
 
     public ?int $deletingTeacherId = null;
@@ -60,6 +57,14 @@ class View extends Component
         $this->resetTeacherForm();
     }
 
+    #[On('director-course-updated')]
+    public function refreshCourse(int $courseId): void
+    {
+        if ($this->courseId !== $courseId) {
+            return;
+        }
+    }
+
     public function render(): ViewView
     {
         $course = $this->course();
@@ -69,8 +74,13 @@ class View extends Component
             ->paginate($this->sectionsPerPage, pageName: 'sectionsPage');
 
         $teachers = $course->teachers()
+            ->with('church')
             ->orderBy('name')
             ->paginate($this->teachersPerPage, pageName: 'teachersPage');
+        $teachersCount = $course->teachers()->count();
+        $activeTeachersCount = $course->teachers()
+            ->wherePivot('status', 1)
+            ->count();
 
         $teacherCandidates = $this->teacherCandidates($this->teacherSearch);
         $assignedTeacherIds = $teachers->pluck('id')->all();
@@ -79,6 +89,8 @@ class View extends Component
             'course' => $course,
             'sections' => $sections,
             'teachers' => $teachers,
+            'teachersCount' => $teachersCount,
+            'activeTeachersCount' => $activeTeachersCount,
             'teacherCandidates' => $teacherCandidates,
             'assignedTeacherIds' => $assignedTeacherIds,
         ]);
@@ -140,26 +152,9 @@ class View extends Component
 
     public function openCreateTeacherModal(): void
     {
-        $this->editingTeacherId = null;
-        $this->editingTeacherName = '';
         $this->teacherSearch = '';
         $this->teacherAlreadyAssignedWarning = false;
         $this->resetTeacherForm();
-        $this->showTeacherModal = true;
-    }
-
-    public function openEditTeacherModal(int $teacherId): void
-    {
-        $teacher = $this->findTeacher($teacherId);
-
-        $this->editingTeacherId = $teacher->id;
-        $this->editingTeacherName = $teacher->name;
-        $this->teacherAlreadyAssignedWarning = false;
-        $this->teacherForm = [
-            'user_id' => $teacher->id,
-            'status' => (int) ($teacher->pivot->status ?? 0),
-        ];
-
         $this->showTeacherModal = true;
     }
 
@@ -186,12 +181,6 @@ class View extends Component
 
     public function updatedTeacherFormUserId(?int $userId): void
     {
-        if ($this->editingTeacherId) {
-            $this->teacherAlreadyAssignedWarning = false;
-
-            return;
-        }
-
         if (! $userId) {
             $this->teacherAlreadyAssignedWarning = false;
 
@@ -218,28 +207,29 @@ class View extends Component
             return;
         }
 
-        if ($this->editingTeacherId) {
-            $this->course()->teachers()->updateExistingPivot($this->editingTeacherId, [
-                'status' => $status,
-            ]);
-        } else {
-            $alreadyAssigned = $this->course()->teachers()
-                ->where('users.id', $teacherId)
-                ->exists();
+        $alreadyAssigned = $this->course()->teachers()
+            ->where('users.id', $teacherId)
+            ->exists();
 
-            if ($alreadyAssigned) {
-                $this->teacherAlreadyAssignedWarning = true;
+        if ($alreadyAssigned) {
+            $this->teacherAlreadyAssignedWarning = true;
 
-                return;
-            }
-
-            $this->course()->teachers()->syncWithoutDetaching([
-                $teacherId => ['status' => $status],
-            ]);
+            return;
         }
+
+        $this->course()->teachers()->syncWithoutDetaching([
+            $teacherId => ['status' => $status],
+        ]);
 
         $this->resetPage('teachersPage');
         $this->closeTeacherModal();
+    }
+
+    public function toggleTeacherStatus(int $teacherId, bool $isActive): void
+    {
+        $this->course()->teachers()->updateExistingPivot($teacherId, [
+            'status' => $isActive ? 1 : 0,
+        ]);
     }
 
     public function deleteTeacher(int $teacherId): void
@@ -370,7 +360,7 @@ class View extends Component
     private function teacherMessages(): array
     {
         return [
-            'teacherForm.user_id.required' => __('Este professor já se encontra na lista de professores do curso.'),
+            'teacherForm.user_id.required' => __('Selecione um responsável válido para o curso.'),
         ];
     }
 
@@ -399,13 +389,6 @@ class View extends Component
         return Section::query()
             ->where('course_id', $this->courseId)
             ->findOrFail($sectionId);
-    }
-
-    private function findTeacher(int $teacherId): User
-    {
-        return $this->course()->teachers()
-            ->where('users.id', $teacherId)
-            ->firstOrFail();
     }
 
     private function resetSectionForm(): void

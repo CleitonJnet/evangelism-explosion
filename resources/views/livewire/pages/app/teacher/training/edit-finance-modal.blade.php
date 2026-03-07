@@ -1,3 +1,7 @@
+@php
+    use App\Helpers\MoneyHelper;
+@endphp
+
 <div>
     <flux:modal name="edit-finance-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
@@ -15,7 +19,7 @@
                     <div class="flex justify-between gap-0.5s">
                         <div>{{ __('O custo do treinamento selecionado é:') }}</div>
                         <div class="border-b border-dashed border-sky-950 flex-auto"></div>
-                        <div>{{ __('R$') }} {{ $price }}</div>
+                        <div>{{ MoneyHelper::symbol() }} {{ $price }}</div>
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-2">
@@ -75,7 +79,7 @@
                     <div class="flex justify-between gap-0.5 font-bold">
                         <div>{{ __('Valor final para cada inscrição:') }}</div>
                         <div class="border-b border-dashed border-sky-950 flex-auto"></div>
-                        <div>{{ __('R$') }} {{ $this->finalPricePerRegistration }}</div>
+                        <div>{{ MoneyHelper::symbol() }} {{ $this->finalPricePerRegistration }}</div>
                     </div>
 
                     @if ($latestFinanceAudit)

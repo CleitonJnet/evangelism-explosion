@@ -32,6 +32,7 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
 
     Route::resource('ministry', MinistryController::class)->only(['index', 'show', 'create', 'edit']);
     Route::prefix('ministry/{ministry}')->name('ministry.')->group(function () {
+        Route::get('course/{course}/sections', [CourseController::class, 'sections'])->name('course.sections');
         Route::resource('course', CourseController::class)->only(['create', 'show', 'edit']);
     });
 

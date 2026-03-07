@@ -6,6 +6,7 @@ use App\Helpers\MoneyHelper;
 use App\Models\Church;
 use App\Models\Course;
 use App\Models\Training;
+use App\Models\User;
 use App\Services\Schedule\TrainingScheduleGenerator;
 use App\Services\Training\TeacherTrainingCreateService;
 use App\TrainingStatus;
@@ -16,8 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -26,6 +27,8 @@ class Create extends Component
 {
     use WithFileUploads;
 
+    private const MAX_STEP = 6;
+
     /**
      * @var array<int, int>
      */
@@ -33,8 +36,9 @@ class Create extends Component
 
     public ?int $course_id = null;
 
-    #[Locked]
     public ?int $teacher_id = null;
+
+    public string $teacherSearch = '';
 
     public ?int $church_id = null;
 
@@ -63,9 +67,9 @@ class Create extends Component
 
     public ?string $price = null;
 
-    public ?string $price_church = '0,00';
+    public ?string $price_church = null;
 
-    public ?string $discount = '0,00';
+    public ?string $discount = null;
 
     public mixed $pixQrCodeUpload = null;
 
@@ -111,6 +115,12 @@ class Create extends Component
     {
         return [
             'course_id' => ['required', 'integer', 'exists:courses,id'],
+            'teacher_id' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id'),
+                Rule::in($this->loadTeachers()->pluck('id')->all()),
+            ],
             'church_id' => ['nullable', 'integer', 'exists:churches,id'],
             'banner' => ['nullable', 'string', 'max:255'],
             'coordinator' => ['nullable', 'string', 'max:255'],
@@ -150,6 +160,9 @@ class Create extends Component
         return [
             'course_id.required' => 'Selecione um curso.',
             'course_id.exists' => 'O curso selecionado é inválido.',
+            'teacher_id.required' => 'Selecione um professor.',
+            'teacher_id.exists' => 'O professor selecionado é inválido.',
+            'teacher_id.in' => 'O professor selecionado não pertence à lista do curso.',
             'church_id.exists' => 'A igreja selecionada é inválida.',
             'eventDates.required' => 'Adicione ao menos um dia.',
             'eventDates.min' => 'Adicione ao menos um dia.',
@@ -174,6 +187,7 @@ class Create extends Component
     {
         return [
             'course_id' => 'curso',
+            'teacher_id' => 'professor',
             'church_id' => 'igreja',
             'bannerUpload' => 'arquivo de divulgação',
             'pixQrCodeUpload' => 'QR Code PIX da igreja sede',
@@ -182,9 +196,17 @@ class Create extends Component
         ];
     }
 
+    public function mount(): void
+    {
+        $this->price_church = MoneyHelper::formatInput(0, '0');
+        $this->discount = MoneyHelper::formatInput(0, '0');
+    }
+
     public function updatedCourseId(?string $value): void
     {
         $this->step = 1;
+        $this->teacher_id = null;
+        $this->teacherSearch = '';
 
         if (! $value) {
             $this->price = null;
@@ -195,9 +217,34 @@ class Create extends Component
         $this->price = $this->createService()->resolveCoursePrice($value);
     }
 
+    public function selectTeacher(int $teacherId): void
+    {
+        if (! $this->loadTeachers()->contains('id', $teacherId)) {
+            return;
+        }
+
+        $this->teacher_id = $teacherId;
+    }
+
+    public function updatedTeacherSearch(string $value): void
+    {
+        $teachers = $this->loadTeachers();
+        $firstId = $teachers->first()?->id;
+
+        if (! $firstId) {
+            $this->teacher_id = null;
+
+            return;
+        }
+
+        if ($this->teacher_id !== $firstId) {
+            $this->teacher_id = $firstId;
+        }
+    }
+
     public function updatedStep(mixed $value): void
     {
-        $normalizedStep = $this->createService()->normalizeStep((int) $value);
+        $normalizedStep = $this->createService()->normalizeStep((int) $value, self::MAX_STEP);
 
         if ($this->step !== $normalizedStep) {
             $this->step = $normalizedStep;
@@ -333,12 +380,20 @@ class Create extends Component
                 'course_id' => ['required', 'integer', 'exists:courses,id'],
             ],
             2 => [
+                'teacher_id' => [
+                    'required',
+                    'integer',
+                    Rule::exists('users', 'id'),
+                    Rule::in($this->loadTeachers()->pluck('id')->all()),
+                ],
+            ],
+            3 => [
                 'eventDates' => ['required', 'array', 'min:1'],
                 'eventDates.*.date' => ['required', 'date_format:Y-m-d', 'distinct'],
                 'eventDates.*.start_time' => ['required', 'date_format:H:i'],
                 'eventDates.*.end_time' => ['required', 'date_format:H:i', 'after:eventDates.*.start_time'],
             ],
-            3 => [
+            4 => [
                 'church_id' => ['required', 'integer', 'exists:churches,id'],
             ],
             default => [],
@@ -351,6 +406,7 @@ class Create extends Component
         return ! Validator::make(
             [
                 'course_id' => $this->course_id,
+                'teacher_id' => $this->teacher_id,
                 'church_id' => $this->church_id,
                 'eventDates' => $this->eventDates,
             ],
@@ -366,12 +422,12 @@ class Create extends Component
             return;
         }
 
-        $this->step = $this->createService()->normalizeStep($this->step + 1);
+        $this->step = $this->createService()->normalizeStep($this->step + 1, self::MAX_STEP);
     }
 
     public function previousStep(): void
     {
-        $this->step = $this->createService()->normalizeStep($this->step - 1);
+        $this->step = $this->createService()->normalizeStep($this->step - 1, self::MAX_STEP);
     }
 
     public function getCanProceedToNextStepProperty(): bool
@@ -387,23 +443,17 @@ class Create extends Component
 
         $total = $price + $priceChurch - $discount;
 
-        return number_format($total, 2, ',', '.');
+        return MoneyHelper::formatInput($total, '0') ?? '0';
     }
 
     public function submit(TrainingScheduleGenerator $generator): void
     {
-        $teacherId = Auth::id();
-
-        if (! $teacherId) {
-            abort(403);
-        }
-
         $validated = $this->validate();
 
-        $training = DB::transaction(function () use ($validated, $teacherId): Training {
+        $training = DB::transaction(function () use ($validated): Training {
             $training = Training::create([
                 'course_id' => $validated['course_id'],
-                'teacher_id' => $teacherId,
+                'teacher_id' => $validated['teacher_id'],
                 'church_id' => $validated['church_id'] ?? null,
                 'banner' => $validated['banner'] ?? null,
                 'coordinator' => $validated['coordinator'] ?? null,
@@ -463,6 +513,7 @@ class Create extends Component
     {
         return view('livewire.pages.app.director.training.create', [
             'courses' => $this->loadCourses(),
+            'teachers' => $this->loadTeachers(),
             'churches' => $this->loadChurches(),
             'statusOptions' => TrainingStatus::labels(),
         ]);
@@ -473,9 +524,9 @@ class Create extends Component
      */
     private function loadCourses(): Collection
     {
-        $teacherId = Auth::id();
+        $user = Auth::user();
 
-        if (! $teacherId) {
+        if (! $user) {
             return collect();
         }
 
@@ -483,8 +534,10 @@ class Create extends Component
             ->with('ministry')
             ->leftJoin('ministries', 'ministries.id', '=', 'courses.ministry_id')
             ->select('courses.*')
-            ->whereHas('teachers', function ($query) use ($teacherId): void {
-                $query->whereKey($teacherId);
+            ->when(! $user->hasRole('Director'), function ($query) use ($user): void {
+                $query->whereHas('teachers', function ($teacherQuery) use ($user): void {
+                    $teacherQuery->whereKey($user->id);
+                });
             })
             ->where(function ($query): void {
                 $query->where('courses.execution', 0)
@@ -493,6 +546,36 @@ class Create extends Component
             ->orderBy('ministries.name')
             ->orderBy('courses.order')
             ->get();
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    private function loadTeachers(): Collection
+    {
+        if (! $this->course_id) {
+            return collect();
+        }
+
+        $search = trim($this->teacherSearch);
+
+        return Course::query()
+            ->find($this->course_id)
+            ?->teachers()
+            ->wherePivot('status', 1)
+            ->whereHas('roles', function ($query): void {
+                $query->where('name', 'Teacher');
+            })
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($teacherQuery) use ($search): void {
+                    $teacherQuery->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
+                });
+            })
+            ->orderBy('name')
+            ->limit(5)
+            ->get(['users.id', 'users.name', 'users.email', 'users.profile_photo_path'])
+            ?? collect();
     }
 
     /**
