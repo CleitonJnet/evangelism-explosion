@@ -37,6 +37,8 @@
             <x-src.toolbar.button :href="route('app.director.training.statistics', $training)" :label="__('STP')" icon="users-chat"
                 :tooltip="__('Saída de Treinamento Prático')" />{{-- On-The-Job Training --}}
             <x-src.toolbar.button :href="route('app.director.training.testimony', $training)" :label="__('Relato')" icon="document-text" :tooltip="__('Relato e testemunho do evento')" />
+            <x-src.toolbar.button :href="route('app.director.inventory.index')" :label="__('Estoques')" icon="archive-box"
+                :tooltip="__('Abrir o módulo de estoque do diretor')" />
 
             <livewire:pages.app.director.training.event-status-button :training-id="$training->id"
                 wire:key="event-status-button-{{ $training->id }}" />

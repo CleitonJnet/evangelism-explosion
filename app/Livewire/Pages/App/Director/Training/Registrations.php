@@ -116,11 +116,6 @@ class Registrations extends Component
         }
     }
 
-    public function toggleKit(int $userId, bool $enabled): void
-    {
-        $this->updateEnrollment($userId, ['kit' => $enabled]);
-    }
-
     public function removeRegistration(int $userId): void
     {
         if ($this->busy) {
@@ -150,6 +145,16 @@ class Registrations extends Component
     #[On('church-temp-reviewed')]
     public function handleChurchTempReviewed(): void
     {
+        $this->refreshRegistrations();
+    }
+
+    #[On('training-material-delivered')]
+    public function handleTrainingMaterialDelivered(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
         $this->refreshRegistrations();
     }
 

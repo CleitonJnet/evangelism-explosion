@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\System\Director;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
 
 class InventoryController extends Controller
 {
@@ -16,12 +17,12 @@ class InventoryController extends Controller
         return view('pages.app.roles.director.inventory.create');
     }
 
-    public function show(string $inventory)
+    public function show(Inventory $inventory)
     {
         return view('pages.app.roles.director.inventory.show', ['inventory' => $inventory]);
     }
 
-    public function edit(string $inventory)
+    public function edit(Inventory $inventory)
     {
         return view('pages.app.roles.director.inventory.edit', ['inventory' => $inventory]);
     }

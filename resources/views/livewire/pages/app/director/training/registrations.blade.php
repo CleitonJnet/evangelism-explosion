@@ -1,5 +1,5 @@
 <div wire:loading.class="pointer-events-none"
-    wire:target="togglePayment,toggleAccredited,toggleKit,removeRegistration,openReceiptModal">
+    wire:target="togglePayment,toggleAccredited,removeRegistration,openReceiptModal">
     @php
         $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
     @endphp
@@ -8,6 +8,10 @@
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route('app.director.training.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
                 class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
+            <x-src.toolbar.button href="#" :label="__('Entrega manual')" icon="box"
+                :tooltip="__('Registrar saída física de material para este treinamento')"
+                x-on:click.prevent="$dispatch('open-training-material-delivery-modal', { trainingId: {{ $training->id }} })"
+                class="!bg-amber-100 !text-amber-900 !border-amber-300 hover:!bg-amber-200" />
         </div>
 
         <div class="flex items-center gap-2 min-w-72 w-full max-w-md">
@@ -20,6 +24,10 @@
                 autofocus wire:model.live.debounce.350ms="search">
         </div>
     </x-src.toolbar.nav>
+
+    <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+        {{ __('Pagamento continua sendo controle financeiro. A entrega física de kit/material agora deve ser registrada pelo fluxo de estoque para gerar baixa real e histórico auditável.') }}
+    </div>
 
     <section class="flex gap-4 flex-wrap">
         <article
@@ -98,7 +106,7 @@
                                     <th class="px-3 py-2">{{ __('Nome') }}</th>
                                     <th class="px-3 py-2">{{ __('Contato') }}</th>
                                     <th class="px-3 py-2 w-44 text-center">{{ __('Comprovante') }}</th>
-                                    <th class="px-3 py-2 w-28 text-center">{{ __('Kit') }}</th>
+                                    <th class="px-3 py-2 w-40 text-center">{{ __('Entrega física') }}</th>
                                     <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
                                     <th class="px-3 py-2 w-20 text-center">{{ __('Ação') }}</th>
                                 </tr>
@@ -168,11 +176,17 @@
                                             </div>
                                         </td>
                                         <td class="px-3 py-2 align-top">
-                                            <div class="grid justify-items-center">
-                                                <x-app.switch-schedule :label="__('Kit')" :key="'kit-' . $registration['id']"
-                                                    :checked="$registration['kit']"
-                                                    wire:change="toggleKit({{ $registration['id'] }}, $event.target.checked)"
-                                                    wire:loading.attr="disabled" wire:target="toggleKit" />
+                                            <div class="grid justify-items-center gap-2">
+                                                <span
+                                                    class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold {{ $registration['kit'] ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' }}">
+                                                    {{ $registration['kit'] ? __('Kit entregue') : __('Sem kit entregue') }}
+                                                </span>
+
+                                                <button type="button"
+                                                    class="inline-flex items-center justify-center rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100"
+                                                    x-on:click.prevent="$dispatch('open-training-material-delivery-modal', { trainingId: {{ $training->id }}, participantId: {{ $registration['id'] }} })">
+                                                    {{ __('Registrar entrega') }}
+                                                </button>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2 align-top">
@@ -273,4 +287,6 @@
         wire:key="church-temp-review-modal-{{ $training->id }}" />
     <livewire:pages.app.director.training.approve-church-temp-modal :training="$training"
         wire:key="approve-church-temp-modal-{{ $training->id }}" />
+    <livewire:pages.app.director.training.deliver-material-modal :training-id="$training->id"
+        wire:key="deliver-material-modal-{{ $training->id }}" />
 </div>

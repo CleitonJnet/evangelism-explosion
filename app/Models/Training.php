@@ -224,6 +224,11 @@ class Training extends Model
             ->withPivot('accredited', 'kit', 'payment', 'payment_receipt');
     }
 
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
     public function newChurches(): HasMany
     {
         return $this->hasMany(TrainingNewChurch::class);

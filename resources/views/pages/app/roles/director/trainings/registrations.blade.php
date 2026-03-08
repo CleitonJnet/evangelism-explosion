@@ -23,6 +23,12 @@
                 </div>
             </div>
         </x-slot:right>
-    </x-src.toolbar.header>
+</x-src.toolbar.header>
+    <x-src.toolbar.nav>
+        <x-src.toolbar.button :href="route('app.director.training.show', $training)" :label="__('Detalhes do treinamento')" icon="eye"
+            :tooltip="__('Voltar para os detalhes do treinamento')" />
+        <x-src.toolbar.button :href="route('app.director.inventory.index')" :label="__('Estoques')" icon="archive-box"
+            :tooltip="__('Abrir o módulo de estoque do diretor')" />
+    </x-src.toolbar.nav>
     <livewire:pages.app.director.training.registrations :training="$training" />
 </x-layouts.app>

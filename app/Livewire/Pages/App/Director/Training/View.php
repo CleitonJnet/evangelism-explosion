@@ -5,6 +5,8 @@ namespace App\Livewire\Pages\App\Director\Training;
 use App\Enums\StpApproachResult;
 use App\Enums\StpApproachStatus;
 use App\Helpers\MoneyHelper;
+use App\Models\Material;
+use App\Models\StockMovement;
 use App\Models\StpApproach;
 use App\Models\StpSession;
 use App\Models\Training;
@@ -27,6 +29,26 @@ class View extends Component
      * @var Collection<int, \App\Models\User>
      */
     public Collection $students;
+
+    /**
+     * @var Collection<int, \App\Models\Material>
+     */
+    public Collection $courseMaterials;
+
+    /**
+     * @var Collection<int, \App\Models\Material>
+     */
+    public Collection $recommendedKits;
+
+    /**
+     * @var Collection<int, \App\Models\StockMovement>
+     */
+    public Collection $trainingStockMovements;
+
+    /**
+     * @var Collection<int, array{material_name: string, quantity: int, type: string}>
+     */
+    public Collection $consumedMaterialsSummary;
 
     public int $paidStudentsCount = 0;
 
@@ -98,6 +120,16 @@ class View extends Component
         $this->loadTrainingData($this->training->id);
     }
 
+    #[On('training-material-delivered')]
+    public function handleMaterialDelivered(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->loadTrainingData($this->training->id);
+    }
+
     public function render(): ViewResponse
     {
         return view('livewire.pages.app.director.training.view');
@@ -107,15 +139,48 @@ class View extends Component
     {
         $this->training = Training::query()->with([
             'course.ministry',
+            'course.materials.components.componentMaterial',
             'teacher',
             'church',
             'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             'scheduleItems' => fn ($query) => $query->orderBy('date')->orderBy('starts_at')->orderBy('position'),
             'students' => fn ($query) => $query->orderBy('name'),
+            'stockMovements' => fn ($query) => $query
+                ->with(['inventory', 'material', 'user'])
+                ->latest()
+                ->limit(20),
         ])->findOrFail($trainingId)->loadCount('scheduleItems');
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;
+        $this->courseMaterials = $this->training->course?->materials?->sortBy('name')->values() ?? new Collection;
+        $this->recommendedKits = $this->courseMaterials
+            ->filter(fn (Material $material): bool => $material->isComposite())
+            ->values();
+        $this->trainingStockMovements = $this->training->stockMovements->values();
+        $this->consumedMaterialsSummary = StockMovement::query()
+            ->with('material')
+            ->where('training_id', $this->training->id)
+            ->get()
+            ->filter(fn (StockMovement $movement): bool => in_array($movement->movement_type, [
+                StockMovement::TYPE_EXIT,
+                StockMovement::TYPE_LOSS,
+                StockMovement::TYPE_KIT_COMPONENT_EXIT,
+                StockMovement::TYPE_TRANSFER_OUT,
+            ], true))
+            ->groupBy('material_id')
+            ->map(function (Collection $movements): array {
+                /** @var StockMovement|null $firstMovement */
+                $firstMovement = $movements->first();
+
+                return [
+                    'material_name' => $firstMovement?->material?->name ?? __('Material'),
+                    'quantity' => (int) $movements->sum('quantity'),
+                    'type' => $firstMovement?->material?->isComposite() ? __('Composto') : __('Simples'),
+                ];
+            })
+            ->sortBy('material_name')
+            ->values();
         $this->totalRegistrations = $this->students->count();
         $this->totalParticipatingChurches = $this->students
             ->pluck('church_id')
