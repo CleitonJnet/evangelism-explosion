@@ -159,7 +159,7 @@
                                     </g>
                                 </svg>
                             </span>
-                            {{ __('Reviso os dados do evento e marque como CONCLUÍDO, ou se foi cancelado, marque-o como CANCELADO') }}
+                            {{ __('Revise os dados do evento e marque como CONCLUÍDO, ou se foi cancelado, marque-o como CANCELADO') }}
                         </span>
                     </div>
                 @endif

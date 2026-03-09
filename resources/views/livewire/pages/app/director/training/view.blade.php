@@ -159,7 +159,7 @@
                                     </g>
                                 </svg>
                             </span>
-                            {{ __('Reviso os dados do evento e marque como CONCLUÍDO, ou se foi cancelado, marque-o como CANCELADO') }}
+                            {{ __('Revise os dados do evento e marque como CONCLUÍDO, ou se foi cancelado, marque-o como CANCELADO') }}
                         </span>
                     </div>
                 @endif
@@ -388,7 +388,8 @@
         class="rounded-2xl border border-amber-300/30 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-3">
             <div>
-                <h4 class="text-sm font-semibold uppercase text-slate-900">{{ __('Apoio operacional de materiais') }}</h4>
+                <h4 class="text-sm font-semibold uppercase text-slate-900">{{ __('Apoio operacional de materiais') }}
+                </h4>
                 <p class="mt-1 text-sm text-slate-600">
                     {{ __('O treinamento aproveita os materiais vinculados ao curso. O financeiro continua separado da entrega física.') }}
                 </p>
@@ -403,7 +404,8 @@
         <div class="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
             <div class="space-y-4">
                 <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Materiais vinculados ao curso') }}</h5>
+                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Materiais vinculados ao curso') }}</h5>
 
                     @if ($courseMaterials->isEmpty())
                         <p class="mt-3 text-sm text-slate-600">
@@ -423,7 +425,8 @@
                                         </div>
 
                                         @if ($material->price)
-                                            <div class="text-sm font-semibold text-slate-700">{{ $material->price }}</div>
+                                            <div class="text-sm font-semibold text-slate-700">{{ $material->price }}
+                                            </div>
                                         @endif
                                     </div>
 
@@ -434,8 +437,10 @@
                                             </div>
                                             <div class="mt-2 flex flex-wrap gap-2">
                                                 @foreach ($material->components as $component)
-                                                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                                                        {{ $component->componentMaterial?->name ?? __('Componente removido') }} x{{ $component->quantity }}
+                                                    <span
+                                                        class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                                        {{ $component->componentMaterial?->name ?? __('Componente removido') }}
+                                                        x{{ $component->quantity }}
                                                     </span>
                                                 @endforeach
                                             </div>
@@ -448,7 +453,8 @@
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Kits recomendados para este curso') }}</h5>
+                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Kits recomendados para este curso') }}</h5>
 
                     @if ($recommendedKits->isEmpty())
                         <p class="mt-3 text-sm text-slate-600">
@@ -468,7 +474,8 @@
 
             <div class="space-y-4">
                 <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Resumo de consumo') }}</h5>
+                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Resumo de consumo') }}</h5>
 
                     @if ($consumedMaterialsSummary->isEmpty())
                         <p class="mt-3 text-sm text-slate-600">
@@ -477,13 +484,16 @@
                     @else
                         <div class="mt-3 grid gap-3">
                             @foreach ($consumedMaterialsSummary as $summary)
-                                <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 px-4 py-3">
+                                <div
+                                    class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 px-4 py-3">
                                     <div>
-                                        <div class="font-semibold text-slate-900">{{ $summary['material_name'] }}</div>
+                                        <div class="font-semibold text-slate-900">{{ $summary['material_name'] }}
+                                        </div>
                                         <div class="text-xs uppercase text-slate-500">{{ $summary['type'] }}</div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-lg font-bold text-slate-900">{{ $summary['quantity'] }}</div>
+                                        <div class="text-lg font-bold text-slate-900">{{ $summary['quantity'] }}
+                                        </div>
                                         <div class="text-xs text-slate-500">{{ __('unidades') }}</div>
                                     </div>
                                 </div>
@@ -493,7 +503,8 @@
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Histórico de consumo auditável') }}</h5>
+                    <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {{ __('Histórico de consumo auditável') }}</h5>
                     <div class="mt-1 text-xs text-slate-500">
                         {{ __('Vínculo auditável com o treinamento #:id', ['id' => $training->id]) }}
                     </div>
@@ -522,15 +533,20 @@
                                             <td class="px-3 py-2 text-slate-700">
                                                 {{ $movement->created_at?->format('d/m/Y H:i') ?? '-' }}
                                             </td>
-                                            <td class="px-3 py-2 text-slate-700">{{ $movement->inventory?->name ?? '-' }}</td>
-                                            <td class="px-3 py-2 font-semibold text-slate-900">{{ $movement->material?->name ?? '-' }}</td>
+                                            <td class="px-3 py-2 text-slate-700">
+                                                {{ $movement->inventory?->name ?? '-' }}</td>
+                                            <td class="px-3 py-2 font-semibold text-slate-900">
+                                                {{ $movement->material?->name ?? '-' }}</td>
                                             <td class="px-3 py-2 text-slate-700">{{ $movement->movement_type }}</td>
-                                            <td class="px-3 py-2 text-right font-semibold text-slate-900">{{ $movement->quantity }}</td>
-                                            <td class="px-3 py-2 text-right text-slate-700">{{ $movement->balance_after ?? '-' }}</td>
+                                            <td class="px-3 py-2 text-right font-semibold text-slate-900">
+                                                {{ $movement->quantity }}</td>
+                                            <td class="px-3 py-2 text-right text-slate-700">
+                                                {{ $movement->balance_after ?? '-' }}</td>
                                             <td class="px-3 py-2 text-slate-700">
                                                 <div>{{ $movement->user?->name ?? __('Sistema') }}</div>
                                                 @if ($movement->notes)
-                                                    <div class="mt-1 text-xs text-slate-500">{{ $movement->notes }}</div>
+                                                    <div class="mt-1 text-xs text-slate-500">{{ $movement->notes }}
+                                                    </div>
                                                 @endif
                                             </td>
                                         </tr>
