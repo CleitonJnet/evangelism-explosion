@@ -301,6 +301,23 @@ it('shows composition management inside the edit tab for composite materials', f
         ->assertSee('Composição do produto composto');
 });
 
+it('limits composite materials to the edit tab in the stock modal', function (): void {
+    $material = Material::query()->create([
+        'name' => 'Kit missionario',
+        'type' => 'composite',
+    ]);
+
+    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+        ->call('openModal', $material->id, 'entry')
+        ->assertSet('activeTab', 'edit')
+        ->assertDontSee('Editar item composto')
+        ->assertDontSee('Entrada manual')
+        ->assertDontSee('Saída manual')
+        ->assertDontSee('Ajuste')
+        ->assertDontSee('Perda')
+        ->assertDontSee('Transferir');
+});
+
 it('blocks self reference and duplicate component registration', function (): void {
     $material = Material::query()->create([
         'name' => 'Kit liderança',

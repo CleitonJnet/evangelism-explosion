@@ -261,7 +261,7 @@ it('shows how many composite items can still be assembled from simple stock', fu
 
     $booklet = Material::query()->create(['name' => 'Apostila base', 'type' => 'simple']);
     $badge = Material::query()->create(['name' => 'Crachá base', 'type' => 'simple']);
-    $kit = Material::query()->create(['name' => 'Kit do aluno', 'type' => 'composite']);
+    $kit = Material::query()->create(['name' => 'Kit do aluno', 'type' => 'composite', 'minimum_stock' => 4]);
 
     MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
@@ -282,7 +282,9 @@ it('shows how many composite items can still be assembled from simple stock', fu
         ->test(View::class, ['inventory' => $inventory])
         ->assertSee('Pode compor')
         ->assertSee('Kit do aluno')
-        ->assertSee('Até 3');
+        ->assertSee('Até 3')
+        ->assertSee('Pode compor: 3 / Mínimo: 4')
+        ->assertSee('Abaixo do mínimo');
 });
 
 it('shows simple and composite products even before any stock entry', function (): void {

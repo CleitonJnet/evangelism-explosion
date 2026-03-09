@@ -78,7 +78,7 @@ new class extends Component
         }
 
         $this->fillForm();
-        $this->activeTab = in_array($tab, ['entry', 'exit', 'adjustment', 'loss', 'transfer', 'edit'], true) ? $tab : 'entry';
+        $this->activeTab = $this->resolveAllowedTab($tab);
         $this->showModal = true;
     }
 
@@ -92,7 +92,7 @@ new class extends Component
 
     public function selectTab(string $tab): void
     {
-        if (in_array($tab, ['entry', 'exit', 'adjustment', 'loss', 'transfer', 'edit'], true)) {
+        if (in_array($tab, $this->availableTabs(), true)) {
             $this->activeTab = $tab;
             $this->resetValidation();
         }
@@ -567,7 +567,7 @@ new class extends Component
         $this->confirmingPermanentDelete = false;
 
         if ($resetTab) {
-            $this->activeTab = 'entry';
+            $this->activeTab = $this->resolveAllowedTab();
         }
 
         $this->entry_quantity = null;
@@ -590,6 +590,29 @@ new class extends Component
             ->where('type', 'simple')
             ->where('is_active', true)
             ->exists();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function availableTabs(): array
+    {
+        if ($this->type === 'composite') {
+            return ['edit'];
+        }
+
+        return ['entry', 'exit', 'adjustment', 'loss', 'transfer', 'edit'];
+    }
+
+    private function resolveAllowedTab(?string $requestedTab = null): string
+    {
+        $availableTabs = $this->availableTabs();
+
+        if ($requestedTab !== null && in_array($requestedTab, $availableTabs, true)) {
+            return $requestedTab;
+        }
+
+        return $availableTabs[0];
     }
 };
 ?>
@@ -675,34 +698,36 @@ new class extends Component
             </header>
 
             <div class="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-6">
-                <div class="mb-6 overflow-x-auto border-b border-slate-200 pb-4">
-                    <div class="flex min-w-max gap-2 rounded-2xl bg-slate-100/80 p-2 md:min-w-0 md:w-full">
-                    <button type="button" wire:click="selectTab('entry')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'entry' ? 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-emerald-100 hover:bg-emerald-50/60 hover:text-emerald-800' }}">
-                        {{ __('Entrada manual') }}
-                    </button>
-                    <button type="button" wire:click="selectTab('exit')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'exit' ? 'rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-amber-100 hover:bg-amber-50/60 hover:text-amber-800' }}">
-                        {{ __('Saída manual') }}
-                    </button>
-                    <button type="button" wire:click="selectTab('adjustment')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'adjustment' ? 'rounded-xl border border-stone-200 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-stone-100 hover:bg-stone-50/70 hover:text-stone-700' }}">
-                        {{ __('Ajuste') }}
-                    </button>
-                    <button type="button" wire:click="selectTab('loss')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'loss' ? 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-rose-100 hover:bg-rose-50/60 hover:text-rose-800' }}">
-                        {{ __('Perda') }}
-                    </button>
-                    <button type="button" wire:click="selectTab('transfer')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'transfer' ? 'rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-sky-100 hover:bg-sky-50/60 hover:text-sky-800' }}">
-                        {{ __('Transferir') }}
-                    </button>
-                    <button type="button" wire:click="selectTab('edit')"
-                        class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'edit' ? 'rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-indigo-100 hover:bg-indigo-50/60 hover:text-indigo-800' }}">
-                        {{ __('Editar produto') }}
-                    </button>
+                @if ($type !== 'composite')
+                    <div class="mb-6 overflow-x-auto border-b border-slate-200 pb-4">
+                        <div class="flex min-w-max gap-2 rounded-2xl bg-slate-100/80 p-2 md:min-w-0 md:w-full">
+                            <button type="button" wire:click="selectTab('entry')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'entry' ? 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-emerald-100 hover:bg-emerald-50/60 hover:text-emerald-800' }}">
+                                {{ __('Entrada manual') }}
+                            </button>
+                            <button type="button" wire:click="selectTab('exit')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'exit' ? 'rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-amber-100 hover:bg-amber-50/60 hover:text-amber-800' }}">
+                                {{ __('Saída manual') }}
+                            </button>
+                            <button type="button" wire:click="selectTab('adjustment')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'adjustment' ? 'rounded-xl border border-stone-200 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-stone-100 hover:bg-stone-50/70 hover:text-stone-700' }}">
+                                {{ __('Ajuste') }}
+                            </button>
+                            <button type="button" wire:click="selectTab('loss')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'loss' ? 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-rose-100 hover:bg-rose-50/60 hover:text-rose-800' }}">
+                                {{ __('Perda') }}
+                            </button>
+                            <button type="button" wire:click="selectTab('transfer')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'transfer' ? 'rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-sky-100 hover:bg-sky-50/60 hover:text-sky-800' }}">
+                                {{ __('Transferir') }}
+                            </button>
+                            <button type="button" wire:click="selectTab('edit')"
+                                class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'edit' ? 'rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-indigo-100 hover:bg-indigo-50/60 hover:text-indigo-800' }}">
+                                {{ __('Editar produto') }}
+                            </button>
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 @if ($activeTab === 'entry')
                     <section class="space-y-5">

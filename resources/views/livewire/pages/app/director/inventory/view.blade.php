@@ -82,7 +82,11 @@
                     <div class="rounded-xl border border-amber-200 bg-white px-4 py-3 text-sm text-amber-900">
                         <span class="font-semibold">{{ $alertItem->name }}</span>
                         <span class="block text-xs opacity-80">
-                            {{ __('Saldo: :current / Mínimo: :minimum', ['current' => $alertItem->current_quantity, 'minimum' => $alertItem->minimum_stock]) }}
+                            @if ($alertItem->type === 'composite')
+                                {{ __('Pode compor: :current / Mínimo: :minimum', ['current' => $alertItem->available_alert_quantity, 'minimum' => $alertItem->minimum_stock]) }}
+                            @else
+                                {{ __('Saldo: :current / Mínimo: :minimum', ['current' => $alertItem->available_alert_quantity, 'minimum' => $alertItem->minimum_stock]) }}
+                            @endif
                         </span>
                     </div>
                 @endforeach
@@ -110,7 +114,7 @@
                     <div class="pb-3">
                         <h4 class="text-base font-semibold text-slate-900">{{ __('Produtos compostos') }}</h4>
                         <p class="text-sm text-slate-600">
-                            {{ __('Aqui aparecem os kits e produtos compostos já montados, com seu saldo atual e a quantidade de componentes vinculados.') }}
+                            {{ __('Aqui aparecem os kits e produtos compostos, com a quantidade de componentes vinculados e o total que ainda pode ser composto a partir dos itens simples disponíveis.') }}
                         </p>
                     </div>
 
@@ -119,17 +123,16 @@
                             <thead class="bg-slate-50 text-xs uppercase text-slate-600">
                                 <tr>
                                     <th class="px-4 py-3">{{ __('Produto composto') }}</th>
-                                    <th class="px-4 py-3">{{ __('Componentes') }}</th>
-                                    <th class="px-4 py-3">{{ __('Pode compor') }}</th>
-                                    <th class="px-4 py-3">{{ __('Saldo') }}</th>
-                                    <th class="px-4 py-3">{{ __('Mínimo') }}</th>
-                                    <th class="px-4 py-3">{{ __('Alerta') }}</th>
+                                    <th class="w-36 px-4 py-3 text-center">{{ __('Componentes') }}</th>
+                                    <th class="w-36 px-4 py-3 text-center">{{ __('Pode compor') }}</th>
+                                    <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
+                                    <th class="w-44 px-4 py-3 text-center">{{ __('Alerta') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white">
                                 @forelse ($compositeBalances as $balance)
                                     <tr class="cursor-pointer border-t border-slate-200 transition hover:bg-slate-50 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
-                                        onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'entry' }); return false;">
+                                        onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'edit' }); return false;">
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span>{{ $balance->name }}</span>
@@ -141,14 +144,13 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="px-4 py-3">{{ $balance->components_count }}</td>
-                                        <td class="px-4 py-3 font-semibold text-sky-800">
+                                        <td class="px-4 py-3 text-center">{{ $balance->components_count }}</td>
+                                        <td class="px-4 py-3 text-center font-semibold text-sky-800">
                                             {{ __('Até :quantity', ['quantity' => (int) $balance->composable_quantity]) }}
                                         </td>
-                                        <td class="px-4 py-3 font-semibold">{{ $balance->current_quantity }}</td>
-                                        <td class="px-4 py-3">{{ $balance->minimum_stock }}</td>
-                                        <td class="px-4 py-3">
-                                            @if ($balance->minimum_stock > 0 && $balance->current_quantity < $balance->minimum_stock)
+                                        <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            @if ($balance->minimum_stock > 0 && $balance->composable_quantity < $balance->minimum_stock)
                                                 <span
                                                     class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                                                     {{ __('Abaixo do mínimo') }}
@@ -196,9 +198,9 @@
                             <thead class="bg-slate-50 text-xs uppercase text-slate-600">
                                 <tr>
                                     <th class="px-4 py-3">{{ __('Item simples') }}</th>
-                                    <th class="px-4 py-3">{{ __('Saldo') }}</th>
-                                    <th class="px-4 py-3">{{ __('Mínimo') }}</th>
-                                    <th class="px-4 py-3">{{ __('Alerta') }}</th>
+                                    <th class="w-36 px-4 py-3 text-center">{{ __('Saldo') }}</th>
+                                    <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
+                                    <th class="w-44 px-4 py-3 text-center">{{ __('Alerta') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white">
@@ -217,9 +219,9 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="px-4 py-3 font-semibold">{{ $balance->current_quantity }}</td>
-                                        <td class="px-4 py-3">{{ $balance->minimum_stock }}</td>
-                                        <td class="px-4 py-3">
+                                        <td class="px-4 py-3 text-center font-semibold">{{ $balance->current_quantity }}</td>
+                                        <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
+                                        <td class="px-4 py-3 text-center">
                                             @if ($balance->minimum_stock > 0 && $balance->current_quantity < $balance->minimum_stock)
                                                 <span
                                                     class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">

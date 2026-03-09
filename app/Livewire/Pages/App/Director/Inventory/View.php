@@ -130,16 +130,27 @@ class View extends Component
                     ->where('inventory_material.inventory_id', '=', $inventory->id);
             })
             ->where('materials.minimum_stock', '>', 0)
-            ->whereRaw('COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock')
             ->select([
                 'materials.id',
                 'materials.name',
+                'materials.type',
                 'materials.minimum_stock',
                 DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
             ])
             ->orderBy('materials.name')
-            ->limit(5)
             ->get();
+
+        $lowStockItems = $this->appendComposableQuantityToCollection($lowStockItems, $inventory->id)
+            ->map(function (object $item): object {
+                $item->available_alert_quantity = $item->type === 'composite'
+                    ? (int) ($item->composable_quantity ?? 0)
+                    : (int) $item->current_quantity;
+
+                return $item;
+            })
+            ->filter(fn (object $item): bool => $item->available_alert_quantity < (int) $item->minimum_stock)
+            ->take(5)
+            ->values();
 
         $movements = StockMovement::query()
             ->with(['material:id,name,type', 'user:id,name'])
@@ -169,13 +180,27 @@ class View extends Component
 
     private function appendComposableQuantity(LengthAwarePaginator $compositeBalances, int $inventoryId): LengthAwarePaginator
     {
-        $compositeIds = $compositeBalances->getCollection()
+        $compositeBalances->setCollection(
+            $this->appendComposableQuantityToCollection($compositeBalances->getCollection(), $inventoryId),
+        );
+
+        return $compositeBalances;
+    }
+
+    private function appendComposableQuantityToCollection($items, int $inventoryId)
+    {
+        $compositeIds = collect($items)
+            ->where('type', 'composite')
             ->pluck('id')
             ->map(fn (mixed $id): int => (int) $id)
             ->all();
 
         if ($compositeIds === []) {
-            return $compositeBalances;
+            return collect($items)->map(function (object $item): object {
+                $item->composable_quantity = 0;
+
+                return $item;
+            });
         }
 
         $componentStocks = DB::table('material_components')
@@ -193,26 +218,28 @@ class View extends Component
             ->get()
             ->groupBy('parent_material_id');
 
-        $compositeBalances->setCollection(
-            $compositeBalances->getCollection()->map(function (object $balance) use ($componentStocks): object {
-                $components = $componentStocks->get($balance->id);
+        return collect($items)->map(function (object $item) use ($componentStocks): object {
+            if ($item->type !== 'composite') {
+                $item->composable_quantity = 0;
 
-                $balance->composable_quantity = $components === null || $components->isEmpty()
-                    ? 0
-                    : (int) $components->map(function (object $component): int {
-                        $requiredQuantity = (int) $component->quantity;
+                return $item;
+            }
 
-                        if ($requiredQuantity <= 0) {
-                            return 0;
-                        }
+            $components = $componentStocks->get($item->id);
 
-                        return intdiv((int) $component->component_current_quantity, $requiredQuantity);
-                    })->min();
+            $item->composable_quantity = $components === null || $components->isEmpty()
+                ? 0
+                : (int) $components->map(function (object $component): int {
+                    $requiredQuantity = (int) $component->quantity;
 
-                return $balance;
-            }),
-        );
+                    if ($requiredQuantity <= 0) {
+                        return 0;
+                    }
 
-        return $compositeBalances;
+                    return intdiv((int) $component->component_current_quantity, $requiredQuantity);
+                })->min();
+
+            return $item;
+        });
     }
 }
