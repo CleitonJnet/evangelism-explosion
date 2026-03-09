@@ -7,17 +7,20 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Profile extends Component
 {
     use AuthorizesRequests;
     use PasswordValidationRules;
     use ProfileValidationRules;
+    use WithFileUploads;
 
     public User $user;
 
@@ -69,11 +72,17 @@ class Profile extends Component
 
     public string $password_confirmation = '';
 
+    public mixed $profilePhotoUpload = null;
+
     public bool $showPersonalModal = false;
 
     public bool $showAddressModal = false;
 
     public bool $showPasswordModal = false;
+
+    public bool $showPhotoModal = false;
+
+    public bool $savingProfilePhoto = false;
 
     public function mount(): void
     {
@@ -163,6 +172,74 @@ class Profile extends Component
         $this->dispatch('profile-password-updated');
     }
 
+    public function openPhotoModal(): void
+    {
+        $this->resetValidation();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = true;
+    }
+
+    public function updatedProfilePhotoUpload(): void
+    {
+        $this->resetErrorBag('profilePhotoUpload');
+
+        if ($this->profilePhotoUpload === null) {
+            return;
+        }
+
+        $this->validateOnly('profilePhotoUpload', $this->profilePhotoRules(), $this->profilePhotoMessages());
+    }
+
+    public function updateProfilePhoto(): void
+    {
+        $this->authorize('update', $this->user);
+
+        $validated = $this->validate($this->profilePhotoRules(), $this->profilePhotoMessages());
+        $this->savingProfilePhoto = true;
+
+        try {
+            $previousPhotoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+            $newPhotoPath = $validated['profilePhotoUpload']->storePublicly("profile-photos/{$this->user->id}", 'public');
+
+            $this->user->forceFill([
+                'profile_photo_path' => $newPhotoPath,
+            ])->save();
+
+            if ($previousPhotoPath !== '' && Storage::disk('public')->exists($previousPhotoPath)) {
+                Storage::disk('public')->delete($previousPhotoPath);
+            }
+
+            $this->refreshUser();
+            $this->profilePhotoUpload = null;
+            $this->showPhotoModal = false;
+
+            $this->dispatch('profile-photo-updated');
+        } finally {
+            $this->savingProfilePhoto = false;
+        }
+    }
+
+    public function removeProfilePhoto(): void
+    {
+        $this->authorize('update', $this->user);
+
+        $photoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+
+        if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+            Storage::disk('public')->delete($photoPath);
+        }
+
+        $this->user->forceFill([
+            'profile_photo_path' => null,
+        ])->save();
+
+        $this->refreshUser();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = false;
+
+        $this->dispatch('profile-photo-removed');
+    }
+
     public function closePersonalModal(): void
     {
         $this->resetValidation();
@@ -182,6 +259,13 @@ class Profile extends Component
         $this->resetValidation();
         $this->resetPasswordFields();
         $this->showPasswordModal = false;
+    }
+
+    public function closePhotoModal(): void
+    {
+        $this->resetValidation();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = false;
     }
 
     public function isPastor(): bool
@@ -235,11 +319,20 @@ class Profile extends Component
         return $parts !== [] ? implode(', ', $parts) : __('Não informado');
     }
 
+    public function profilePhotoUrl(): ?string
+    {
+        if ($this->profilePhotoUpload && str_starts_with((string) $this->profilePhotoUpload->getMimeType(), 'image/')) {
+            return $this->profilePhotoUpload->temporaryUrl();
+        }
+
+        return $this->user->profile_photo_url;
+    }
+
     public function render(): View
     {
         return view('livewire.pages.app.settings.profile')
             ->layout('components.layouts.app', [
-                'title' => __('Perfil do usuário'),
+                'title' => $this->user->name ?: __('Perfil do usuário'),
             ]);
     }
 
@@ -279,6 +372,7 @@ class Profile extends Component
     {
         $this->user->refresh();
         $this->user->loadMissing(['roles', 'church', 'church_temp', 'hostChurches.church', 'churches']);
+        Auth::setUser($this->user);
     }
 
     protected function fillFromUser(): void
@@ -307,5 +401,27 @@ class Profile extends Component
     protected function resetPasswordFields(): void
     {
         $this->reset('current_password', 'password', 'password_confirmation');
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    protected function profilePhotoRules(): array
+    {
+        return [
+            'profilePhotoUpload' => ['required', 'image', 'max:5120'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function profilePhotoMessages(): array
+    {
+        return [
+            'profilePhotoUpload.required' => __('Selecione uma imagem para a foto do perfil.'),
+            'profilePhotoUpload.image' => __('O arquivo enviado precisa ser uma imagem válida.'),
+            'profilePhotoUpload.max' => __('A foto do perfil deve ter no máximo 5 MB.'),
+        ];
     }
 }

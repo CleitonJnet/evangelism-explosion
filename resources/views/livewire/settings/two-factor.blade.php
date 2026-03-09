@@ -25,6 +25,8 @@ new class extends Component {
 
     public bool $embedded = false;
 
+    public bool $modal = false;
+
     public bool $showModal = false;
 
     public bool $showVerificationStep = false;
@@ -182,6 +184,10 @@ new class extends Component {
         <x-app.settings.layout :heading="__('Two Factor Authentication')" :subheading="__('Manage your two-factor authentication settings')">
             @include('components.app.settings.two-factor-content')
         </x-app.settings.layout>
+    @elseif ($modal)
+        <div class="w-full">
+            @include('components.app.settings.two-factor-content')
+        </div>
     @else
         <div class="flex flex-col gap-6 rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6">
             <div class="flex items-center justify-between gap-4">

@@ -20,5 +20,8 @@ it('keeps the profile backend actions on the class-based livewire component', fu
     expect(method_exists(Profile::class, 'updatePersonal'))->toBeTrue();
     expect(method_exists(Profile::class, 'updateAddress'))->toBeTrue();
     expect(method_exists(Profile::class, 'updatePassword'))->toBeTrue();
+    expect(method_exists(Profile::class, 'openPhotoModal'))->toBeTrue();
+    expect(method_exists(Profile::class, 'updateProfilePhoto'))->toBeTrue();
+    expect(method_exists(Profile::class, 'removeProfilePhoto'))->toBeTrue();
     expect(method_exists(Profile::class, 'openChurchModal'))->toBeTrue();
 });

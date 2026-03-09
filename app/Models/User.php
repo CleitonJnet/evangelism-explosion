@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
@@ -35,6 +37,7 @@ class User extends Authenticatable
         'name',
         'birthdate',
         'gender',
+        'profile_photo_path',
         'phone',
         'email',
         'street',
@@ -86,6 +89,44 @@ class User extends Authenticatable
     public function initials(): string
     {
         return NameUser::initials($this->name);
+    }
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        $photoPath = $this->normalizedProfilePhotoPath();
+
+        if ($photoPath === null || ! Storage::disk('public')->exists($photoPath)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($photoPath);
+    }
+
+    public function normalizedProfilePhotoPath(): ?string
+    {
+        $photoPath = trim((string) $this->getRawOriginal('profile_photo_path'));
+
+        if ($photoPath === '') {
+            return null;
+        }
+
+        if (Str::startsWith($photoPath, ['http://', 'https://'])) {
+            $parsedPath = parse_url($photoPath, PHP_URL_PATH);
+
+            if (! is_string($parsedPath) || trim($parsedPath) === '') {
+                return null;
+            }
+
+            $photoPath = $parsedPath;
+        }
+
+        $photoPath = ltrim($photoPath, '/');
+
+        if (Str::startsWith($photoPath, 'storage/')) {
+            $photoPath = Str::after($photoPath, 'storage/');
+        }
+
+        return $photoPath !== '' ? $photoPath : null;
     }
 
     /**
