@@ -18,8 +18,6 @@ class View extends Component
 
     public string $materialSearch = '';
 
-    public string $materialTypeFilter = '';
-
     public string $movementTypeFilter = '';
 
     public function mount(Inventory $inventory): void
@@ -36,14 +34,22 @@ class View extends Component
         }
     }
 
-    public function updatingMaterialSearch(): void
+    #[On('director-material-updated')]
+    public function refreshMaterial(?int $materialId = null): void {}
+
+    #[On('director-material-deleted')]
+    public function refreshInventoryAfterMaterialDeletion(?int $materialId = null): void
     {
-        $this->resetPage('balancesPage');
+        if ($materialId !== null) {
+            $this->resetPage('simpleBalancesPage');
+            $this->resetPage('compositeBalancesPage');
+        }
     }
 
-    public function updatingMaterialTypeFilter(): void
+    public function updatingMaterialSearch(): void
     {
-        $this->resetPage('balancesPage');
+        $this->resetPage('simpleBalancesPage');
+        $this->resetPage('compositeBalancesPage');
     }
 
     public function updatingMovementTypeFilter(): void
@@ -57,39 +63,67 @@ class View extends Component
             ->with('responsibleUser:id,name')
             ->findOrFail($this->inventoryId);
 
-        $balancesBaseQuery = DB::table('inventory_material')
-            ->join('materials', 'materials.id', '=', 'inventory_material.material_id')
-            ->where('inventory_material.inventory_id', $inventory->id)
+        $balancesBaseQuery = DB::table('materials')
+            ->leftJoin('inventory_material', function ($join) use ($inventory): void {
+                $join
+                    ->on('inventory_material.material_id', '=', 'materials.id')
+                    ->where('inventory_material.inventory_id', '=', $inventory->id);
+            })
             ->when($this->materialSearch !== '', function ($query): void {
                 $query->where('materials.name', 'like', '%'.$this->materialSearch.'%');
-            })
-            ->when($this->materialTypeFilter !== '', fn ($query) => $query->where('materials.type', $this->materialTypeFilter));
+            });
 
-        $balances = (clone $balancesBaseQuery)
+        $simpleBalances = (clone $balancesBaseQuery)
             ->select([
                 'materials.id',
                 'materials.name',
                 'materials.type',
                 'materials.minimum_stock',
                 'materials.is_active',
-                'inventory_material.current_quantity',
-                'inventory_material.received_items',
-                'inventory_material.lost_items',
+                DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
+                DB::raw('COALESCE(inventory_material.received_items, 0) as received_items'),
+                DB::raw('COALESCE(inventory_material.lost_items, 0) as lost_items'),
             ])
-            ->orderByRaw('CASE WHEN inventory_material.current_quantity < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
+            ->where('materials.type', 'simple')
+            ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
             ->orderBy('materials.name')
-            ->paginate(10, pageName: 'balancesPage');
+            ->paginate(10, pageName: 'simpleBalancesPage');
 
-        $lowStockItems = DB::table('inventory_material')
-            ->join('materials', 'materials.id', '=', 'inventory_material.material_id')
-            ->where('inventory_material.inventory_id', $inventory->id)
+        $compositeBalances = (clone $balancesBaseQuery)
+            ->select([
+                'materials.id',
+                'materials.name',
+                'materials.type',
+                'materials.minimum_stock',
+                'materials.is_active',
+                DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
+                DB::raw('COALESCE(inventory_material.received_items, 0) as received_items'),
+                DB::raw('COALESCE(inventory_material.lost_items, 0) as lost_items'),
+            ])
+            ->selectSub(
+                DB::table('material_components')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('material_components.parent_material_id', 'materials.id'),
+                'components_count',
+            )
+            ->where('materials.type', 'composite')
+            ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
+            ->orderBy('materials.name')
+            ->paginate(10, pageName: 'compositeBalancesPage');
+
+        $lowStockItems = DB::table('materials')
+            ->leftJoin('inventory_material', function ($join) use ($inventory): void {
+                $join
+                    ->on('inventory_material.material_id', '=', 'materials.id')
+                    ->where('inventory_material.inventory_id', '=', $inventory->id);
+            })
             ->where('materials.minimum_stock', '>', 0)
-            ->whereColumn('inventory_material.current_quantity', '<', 'materials.minimum_stock')
+            ->whereRaw('COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock')
             ->select([
                 'materials.id',
                 'materials.name',
                 'materials.minimum_stock',
-                'inventory_material.current_quantity',
+                DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
             ])
             ->orderBy('materials.name')
             ->limit(5)
@@ -100,18 +134,14 @@ class View extends Component
             ->where('inventory_id', $inventory->id)
             ->when($this->movementTypeFilter !== '', fn ($query) => $query->where('movement_type', $this->movementTypeFilter))
             ->latest()
-            ->paginate(10, pageName: 'movementsPage');
+            ->paginate(5, pageName: 'movementsPage');
 
         return view('livewire.pages.app.director.inventory.view', [
             'inventory' => $inventory,
-            'balances' => $balances,
+            'simpleBalances' => $simpleBalances,
+            'compositeBalances' => $compositeBalances,
             'lowStockItems' => $lowStockItems,
             'movements' => $movements,
-            'materialTypeOptions' => [
-                ['value' => '', 'label' => __('Todos os tipos')],
-                ['value' => 'simple', 'label' => __('Simples')],
-                ['value' => 'composite', 'label' => __('Composto')],
-            ],
             'movementTypeOptions' => [
                 ['value' => '', 'label' => __('Todos os movimentos')],
                 ['value' => StockMovement::TYPE_ENTRY, 'label' => __('Entrada')],

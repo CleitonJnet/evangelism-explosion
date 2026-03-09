@@ -65,6 +65,33 @@ it('registers stock entry through the stock action modal', function (): void {
     expect($inventory->currentQuantityFor($material))->toBe(10);
 });
 
+it('registers stock entry from the product modal entry tab', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+    $material = Material::query()->create(['name' => 'Livro de classe']);
+
+    Livewire::actingAs($director)
+        ->test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
+        ->call('openModal', $material->id, 'entry')
+        ->set('entry_quantity', 7)
+        ->set('entry_notes', 'Entrada pela modal do produto')
+        ->call('saveEntry')
+        ->assertDispatched('director-inventory-stock-updated');
+
+    expect($inventory->currentQuantityFor($material))->toBe(7);
+});
+
+it('guides material registration when there are no materials to move', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+
+    Livewire::actingAs($director)
+        ->test('pages.app.director.inventory.stock-action-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id, 'entry')
+        ->assertSee('Nenhum material cadastrado ainda')
+        ->assertSee('item simples ou um produto composto');
+});
+
 it('registers composite stock exit and consumes its components', function (): void {
     $director = User::factory()->create();
     $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
@@ -142,6 +169,27 @@ it('transfers stock between inventories', function (): void {
     expect($destination->currentQuantityFor($material))->toBe(3);
 });
 
+it('transfers stock from the product modal transfer tab', function (): void {
+    $director = User::factory()->create();
+    $source = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+    $destination = Inventory::query()->create(['name' => 'Professor', 'kind' => 'teacher']);
+    $material = Material::query()->create(['name' => 'Caderno']);
+
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($source, $material, 6, $director);
+
+    Livewire::actingAs($director)
+        ->test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $source->id])
+        ->call('openModal', $material->id, 'transfer')
+        ->set('transfer_destination_inventory_id', $destination->id)
+        ->set('transfer_quantity', 4)
+        ->set('transfer_notes', 'Transferência pela modal do produto')
+        ->call('saveTransfer')
+        ->assertDispatched('director-inventory-stock-updated');
+
+    expect($source->currentQuantityFor($material))->toBe(2);
+    expect($destination->currentQuantityFor($material))->toBe(4);
+});
+
 it('shows coherent balances and movement history on the inventory detail page', function (): void {
     $director = User::factory()->create();
     $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
@@ -156,4 +204,52 @@ it('shows coherent balances and movement history on the inventory detail page', 
         ->assertSee('Abaixo do mínimo')
         ->assertSee('entry')
         ->assertSee('Saldo inicial');
+});
+
+it('shows simple and composite products even before any stock entry', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+
+    $simpleMaterial = Material::query()->create([
+        'name' => 'Livro sem saldo',
+        'type' => 'simple',
+        'minimum_stock' => 2,
+    ]);
+
+    $compositeMaterial = Material::query()->create([
+        'name' => 'Kit sem saldo',
+        'type' => 'composite',
+        'minimum_stock' => 1,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $compositeMaterial->id,
+        'component_material_id' => $simpleMaterial->id,
+        'quantity' => 1,
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(View::class, ['inventory' => $inventory])
+        ->assertSee('Kit sem saldo')
+        ->assertSee('Livro sem saldo')
+        ->assertSee('0');
+});
+
+it('refreshes the product tables after a material is deleted', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+    $material = Material::query()->create([
+        'name' => 'Produto removível',
+        'type' => 'simple',
+    ]);
+
+    $component = Livewire::actingAs($director)
+        ->test(View::class, ['inventory' => $inventory])
+        ->assertSee('Produto removível');
+
+    $material->delete();
+
+    $component
+        ->dispatch('director-material-deleted', materialId: $material->id)
+        ->assertDontSee('Produto removível');
 });

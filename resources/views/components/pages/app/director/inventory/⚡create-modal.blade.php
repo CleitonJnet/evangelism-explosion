@@ -1,6 +1,9 @@
 <?php
 
+use App\Helpers\MoneyHelper;
+use App\Models\Ministry;
 use App\Models\Material;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -22,9 +25,30 @@ new class extends Component
 
     public ?string $description = null;
 
+    /**
+     * @var array<int>
+     */
+    public array $selectedCourseIds = [];
+
+    /**
+     * @var array<int>
+     */
+    public array $selectedComponentIds = [];
+
+    /**
+     * @var array<int, int>
+     */
+    public array $componentQuantities = [];
+
     #[On('open-director-material-create-modal')]
-    public function openModal(): void
+    public function openModal(?string $type = null): void
     {
+        $this->resetForm();
+
+        if (in_array($type, ['simple', 'composite'], true)) {
+            $this->type = $type;
+        }
+
         $this->showModal = true;
     }
 
@@ -46,10 +70,17 @@ new class extends Component
             $validated = $this->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'type' => ['required', 'in:simple,composite'],
-                'status' => ['required', 'in:active,inactive'],
                 'price' => ['nullable', 'string', 'max:20', 'regex:/^-?\d+(?:[,.]\d{0,2})?$/'],
                 'minimum_stock' => ['required', 'integer', 'min:0'],
                 'description' => ['nullable', 'string', 'max:2000'],
+                'selectedCourseIds' => ['array'],
+                'selectedCourseIds.*' => ['integer', 'exists:courses,id'],
+                'selectedComponentIds' => ['array'],
+                'selectedComponentIds.*' => [
+                    'integer',
+                    Rule::exists('materials', 'id')->where(fn ($query) => $query->where('type', 'simple')),
+                    'distinct',
+                ],
             ], [
                 'required' => 'O campo :attribute é obrigatório.',
                 'in' => 'O valor informado para :attribute é inválido.',
@@ -57,31 +88,92 @@ new class extends Component
                 'min' => 'O campo :attribute deve ser no mínimo :min.',
                 'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
                 'price.regex' => 'O campo preço deve conter apenas números e separador decimal.',
+                'selectedComponentIds.*.exists' => 'Somente itens simples podem compor um produto composto.',
+                'selectedComponentIds.*.distinct' => 'O mesmo componente não pode ser informado mais de uma vez.',
             ], [
                 'name' => 'nome',
                 'type' => 'tipo',
-                'status' => 'status',
                 'price' => 'preço',
                 'minimum_stock' => 'estoque mínimo',
                 'description' => 'descrição',
+                'selectedCourseIds' => 'cursos',
+                'selectedComponentIds' => 'componentes',
             ]);
+
+            $componentPayload = [];
+
+            if ($validated['type'] === 'composite') {
+                foreach ($validated['selectedComponentIds'] ?? [] as $selectedComponentId) {
+                    $selectedComponentId = (int) $selectedComponentId;
+                    $quantity = (int) ($this->componentQuantities[$selectedComponentId] ?? 0);
+
+                    if ($quantity < 1) {
+                        $this->addError('componentQuantities.'.$selectedComponentId, __('A quantidade deve ser maior que zero.'));
+
+                        return;
+                    }
+
+                    $componentPayload[$selectedComponentId] = ['quantity' => $quantity];
+                }
+            }
 
             $material = Material::query()->create([
                 'name' => $validated['name'],
                 'type' => $validated['type'],
-                'status' => $validated['status'],
-                'is_active' => $validated['status'] === 'active',
+                'status' => 'active',
+                'is_active' => true,
                 'price' => $validated['price'] ?? '0',
                 'minimum_stock' => $validated['minimum_stock'],
                 'description' => $validated['description'] ?? null,
             ]);
 
+            $material->courses()->sync($validated['selectedCourseIds'] ?? []);
+
+            if ($validated['type'] === 'composite') {
+                $material->componentMaterials()->sync($componentPayload);
+            }
+
             $this->dispatch('director-material-created', materialId: $material->id);
+            $this->dispatch('toast', type: 'success', message: __('Material cadastrado com sucesso.'));
 
             $this->closeModal();
-            $this->redirectRoute('app.director.inventory.show', ['inventory' => $material->id], navigate: true);
         } finally {
             $this->busy = false;
+        }
+    }
+
+    /**
+     * @return array<int, \App\Models\Ministry>
+     */
+    public function ministries(): array
+    {
+        return Ministry::query()
+            ->with(['courses' => fn ($query) => $query->orderBy('name')])
+            ->orderBy('name')
+            ->get()
+            ->all();
+    }
+
+    /**
+     * @return array<int, \App\Models\Material>
+     */
+    public function availableSimpleMaterials(): array
+    {
+        return Material::query()
+            ->where('type', 'simple')
+            ->orderBy('name')
+            ->get()
+            ->all();
+    }
+
+    public function updatedSelectedComponentIds(): void
+    {
+        foreach ($this->selectedComponentIds as $selectedComponentId) {
+            $selectedComponentId = (int) $selectedComponentId;
+
+            if (! array_key_exists($selectedComponentId, $this->componentQuantities)) {
+                $this->componentQuantities[$selectedComponentId] = 1;
+            }
         }
     }
 
@@ -91,9 +183,12 @@ new class extends Component
         $this->name = '';
         $this->type = 'simple';
         $this->status = 'active';
-        $this->price = null;
+        $this->price = MoneyHelper::formatInput(0, '0,00');
         $this->minimum_stock = 0;
         $this->description = null;
+        $this->selectedCourseIds = [];
+        $this->selectedComponentIds = [];
+        $this->componentQuantities = [];
     }
 };
 ?>
@@ -102,9 +197,13 @@ new class extends Component
     <flux:modal name="director-material-create-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
-                <h3 class="text-lg font-semibold">{{ __('Cadastrar novo material') }}</h3>
+                <h3 class="text-lg font-semibold">
+                    {{ $type === 'composite' ? __('Cadastrar novo produto composto') : __('Cadastrar novo item simples') }}
+                </h3>
                 <p class="text-sm opacity-90">
-                    {{ __('Defina os dados principais do material e identifique se ele é simples ou composto.') }}
+                    {{ $type === 'composite'
+                        ? __('Defina os dados do composto e monte sua composição usando itens simples já cadastrados.')
+                        : __('Defina os dados principais do item simples para uso em estoque, cursos e kits compostos.') }}
                 </p>
             </header>
 
@@ -114,23 +213,13 @@ new class extends Component
                         <div>
                             <h4 class="text-base font-semibold text-sky-950">{{ __('Dados principais') }}</h4>
                             <p class="text-sm text-slate-600">
-                                {{ __('Informações base usadas em cadastro, vínculos e controle de estoque.') }}
+                                {{ __('Informações base usadas em cadastro, vínculo com cursos e controle de estoque.') }}
                             </p>
                         </div>
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
                             <x-src.form.input name="director-material-create-name" wire:model.live="name" label="Nome"
-                                type="text" width_basic="320" required />
-                            <x-src.form.select name="director-material-create-type" wire:model.live="type" label="Tipo"
-                                width_basic="180" :options="[
-                                    ['value' => 'simple', 'label' => __('Simples')],
-                                    ['value' => 'composite', 'label' => __('Composto')],
-                                ]" required />
-                            <x-src.form.select name="director-material-create-status" wire:model.live="status"
-                                label="Status" width_basic="180" :options="[
-                                    ['value' => 'active', 'label' => __('Ativo')],
-                                    ['value' => 'inactive', 'label' => __('Inativo')],
-                                ]" required />
+                                type="text" width_basic="320" autofocus required />
                             <x-src.form.input name="director-material-create-price" wire:model.live="price" label="Preço"
                                 type="text" width_basic="180" inputmode="decimal" autocomplete="off"
                                 oninput="this.value = this.value.replace(/[^0-9,.-]/g, '')" />
@@ -142,12 +231,163 @@ new class extends Component
                         </div>
                     </section>
 
-                    <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <h4 class="text-sm font-semibold text-slate-900">{{ __('Próximos passos') }}</h4>
-                        <p class="mt-2 text-sm text-slate-600">
-                            {{ __('Após salvar, você poderá vincular cursos, fornecedores e, se for composto, montar a composição do kit.') }}
-                        </p>
+                    @if ($type === 'composite')
+                        <section class="space-y-5">
+                            <div>
+                                <h4 class="text-base font-semibold text-sky-950">{{ __('Composição selecionada') }}</h4>
+                                <p class="text-sm text-slate-600">
+                                    {{ __('Confira abaixo os itens simples que já entrarão neste produto composto. Ajuste as quantidades antes de salvar.') }}
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                                        <tr>
+                                            <th class="px-4 py-3">{{ __('Item selecionado') }}</th>
+                                            <th class="px-4 py-3">{{ __('Quantidade') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php($selectedMaterials = collect($this->availableSimpleMaterials())->whereIn('id', $selectedComponentIds)->values())
+                                        @forelse ($selectedMaterials as $selectedMaterial)
+                                            <tr class="border-t border-slate-200">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium text-slate-900">{{ $selectedMaterial->name }}</div>
+                                                    @if ($selectedMaterial->description)
+                                                        <div class="mt-1 text-xs text-slate-500">
+                                                            {{ $selectedMaterial->description }}
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <div class="max-w-32">
+                                                        <input type="number" min="1"
+                                                            wire:model.live="componentQuantities.{{ $selectedMaterial->id }}"
+                                                            class="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-sky-500 focus:outline-none focus:ring-0">
+                                                    </div>
+                                                    @error('componentQuantities.'.$selectedMaterial->id)
+                                                        <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>
+                                                    @enderror
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="px-4 py-6 text-center text-sm text-slate-500">
+                                                    {{ __('Nenhum item simples selecionado ainda para a composição.') }}
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section class="space-y-5">
+                            <div>
+                                <h4 class="text-base font-semibold text-sky-950">{{ __('Itens simples disponíveis') }}</h4>
+                                <p class="text-sm text-slate-600">
+                                    {{ __('Marque os itens simples que devem compor este produto. Esta lista mostra apenas itens simples já existentes no sistema.') }}
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                                        <tr>
+                                            <th class="px-4 py-3">{{ __('Usar') }}</th>
+                                            <th class="px-4 py-3">{{ __('Item simples') }}</th>
+                                            <th class="px-4 py-3">{{ __('Estoque mínimo') }}</th>
+                                            <th class="px-4 py-3">{{ __('Status') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($this->availableSimpleMaterials() as $availableMaterial)
+                                            <tr class="border-t border-slate-200"
+                                                wire:key="director-material-create-component-{{ $availableMaterial->id }}">
+                                                <td class="px-4 py-3 align-top">
+                                                    <input type="checkbox" value="{{ $availableMaterial->id }}"
+                                                        wire:model.live="selectedComponentIds"
+                                                        class="mt-1 rounded border-slate-300">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium text-slate-900">{{ $availableMaterial->name }}</div>
+                                                    @if ($availableMaterial->description)
+                                                        <div class="mt-1 text-xs text-slate-500">
+                                                            {{ $availableMaterial->description }}
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3 text-slate-700">{{ $availableMaterial->minimum_stock }}</td>
+                                                <td class="px-4 py-3">
+                                                    <span
+                                                        class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $availableMaterial->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">
+                                                        {{ $availableMaterial->is_active ? __('Ativo') : __('Inativo') }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+                                                    {{ __('Nenhum item simples cadastrado ainda. Cadastre pelo menos um item simples antes de montar um composto.') }}
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    @endif
+
+                    <section class="space-y-5">
+                        <div>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Cursos que usam este material') }}</h4>
+                            <p class="text-sm text-slate-600">
+                                {{ __('Selecione agora os cursos vinculados. Isso evita um passo separado depois do cadastro.') }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-5">
+                            @foreach ($this->ministries() as $ministry)
+                                <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                                    wire:key="director-material-create-ministry-{{ $ministry->id }}">
+                                    <div class="mb-3">
+                                        <h5 class="text-sm font-semibold uppercase tracking-wide text-slate-700">
+                                            {{ $ministry->name }}
+                                        </h5>
+                                    </div>
+
+                                    <div class="grid gap-3 md:grid-cols-2">
+                                        @forelse ($ministry->courses as $course)
+                                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
+                                                <input type="checkbox" value="{{ $course->id }}"
+                                                    wire:model.live="selectedCourseIds" class="mt-1 rounded border-slate-300">
+                                                <div class="space-y-1">
+                                                    <div class="font-semibold text-slate-900">
+                                                        {{ $course->type ? $course->type . ': ' : '' }}{{ $course->name }}
+                                                    </div>
+                                                    <div class="text-xs text-slate-500">
+                                                        {{ $course->initials ?: __('Sem sigla') }}
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @empty
+                                            <div class="text-sm text-slate-500">{{ __('Nenhum curso neste ministério.') }}</div>
+                                        @endforelse
+                                    </div>
+                                </section>
+                            @endforeach
+                        </div>
                     </section>
+
+                    @if ($type === 'simple')
+                        <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 class="text-sm font-semibold text-slate-900">{{ __('Próximos passos') }}</h4>
+                            <p class="mt-2 text-sm text-slate-600">
+                                {{ __('Depois do cadastro, este item simples já poderá receber saldo em estoque e também ser usado na composição de produtos compostos.') }}
+                            </p>
+                        </section>
+                    @endif
                 </div>
             </div>
 

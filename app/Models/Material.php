@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Material extends Model
 {
@@ -104,5 +105,50 @@ class Material extends Model
         return $this->isComposite()
             ? 'bg-amber-100 text-amber-800'
             : 'bg-sky-100 text-sky-800';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function deletionBlockers(): array
+    {
+        $blockers = [];
+
+        $hasStock = DB::table('inventory_material')
+            ->where('material_id', $this->id)
+            ->where(function ($query): void {
+                $query
+                    ->where('current_quantity', '>', 0)
+                    ->orWhere('received_items', '>', 0)
+                    ->orWhere('lost_items', '>', 0);
+            })
+            ->exists();
+
+        if ($hasStock) {
+            $blockers[] = __('Este item possui saldo ou histórico consolidado em estoque.');
+        }
+
+        if ($this->stockMovements()->exists()) {
+            $blockers[] = __('Este item já possui movimentações registradas.');
+        }
+
+        if ($this->components()->exists() || $this->parentCompositions()->exists()) {
+            $blockers[] = __('Este item participa da composição de materiais compostos.');
+        }
+
+        if ($this->courses()->exists()) {
+            $blockers[] = __('Este item está vinculado a cursos.');
+        }
+
+        if ($this->suppliers()->exists()) {
+            $blockers[] = __('Este item está vinculado a fornecedores.');
+        }
+
+        return $blockers;
+    }
+
+    public function canBeDeletedPermanently(): bool
+    {
+        return $this->deletionBlockers() === [];
     }
 }

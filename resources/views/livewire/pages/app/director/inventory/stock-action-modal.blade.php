@@ -15,31 +15,46 @@
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-x-4 gap-y-8">
-                    <x-src.form.select name="director-inventory-stock-action-material" wire:model.live="material_id"
-                        label="Material" width_basic="320" :options="$materialOptions" required />
+                @if ($hasMaterials)
+                    <div class="flex flex-wrap gap-x-4 gap-y-8">
+                        <div style="flex: 1 0 420px">
+                            <x-src.form.select name="director-inventory-stock-action-material" wire:model.live="material_id"
+                                label="Material" width_basic="320" :options="$materialOptions" required />
+                        </div>
 
-                    @if ($mode === 'adjustment')
-                        <x-src.form.input name="director-inventory-stock-action-target"
-                            wire:model.live="target_quantity" :label="$modeMeta['quantity_label']" type="number"
-                            width_basic="180" min="0" required />
-                    @else
-                        <x-src.form.input name="director-inventory-stock-action-quantity" wire:model.live="quantity"
-                            :label="$modeMeta['quantity_label']" type="number" width_basic="180" min="1" required />
-                    @endif
+                        @if ($mode === 'adjustment')
+                            <x-src.form.input name="director-inventory-stock-action-target"
+                                wire:model.live="target_quantity" :label="$modeMeta['quantity_label']" type="number"
+                                width_basic="180" min="0" required />
+                        @else
+                            <x-src.form.input name="director-inventory-stock-action-quantity" wire:model.live="quantity"
+                                :label="$modeMeta['quantity_label']" type="number" width_basic="180" min="1" required />
+                        @endif
 
-                    <x-src.form.textarea name="director-inventory-stock-action-notes" wire:model.live="notes"
-                        label="Observação" rows="4" />
-                </div>
+                        <x-src.form.textarea name="director-inventory-stock-action-notes" wire:model.live="notes"
+                            label="Observação" rows="4" />
+                    </div>
+                @else
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                        <div class="text-base font-semibold text-amber-900">
+                            {{ __('Nenhum material cadastrado ainda') }}
+                        </div>
+                        <p class="mt-2 text-sm text-amber-900/90">
+                            {{ __('Para registrar entrada, saída, ajuste ou perda, primeiro cadastre pelo menos um item simples ou um produto composto usando os botões da barra superior desta página.') }}
+                        </p>
+                    </div>
+                @endif
             </div>
 
             <footer class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <div class="flex justify-between gap-3">
                     <x-src.btn-silver type="button" wire:click="closeModal">{{ __('Cancelar') }}</x-src.btn-silver>
-                    <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save">
-                        <span wire:loading.remove wire:target="save">{{ $modeMeta['action'] }}</span>
-                        <span wire:loading wire:target="save">{{ __('Salvando...') }}</span>
-                    </x-src.btn-gold>
+                    @if ($hasMaterials)
+                        <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save">
+                            <span wire:loading.remove wire:target="save">{{ $modeMeta['action'] }}</span>
+                            <span wire:loading wire:target="save">{{ __('Salvando...') }}</span>
+                        </x-src.btn-gold>
+                    @endif
                 </div>
             </footer>
         </div>

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Material;
-use App\Models\MaterialComponent;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -11,19 +11,20 @@ new class extends Component
 
     public bool $showModal = false;
 
-    public ?int $component_material_id = null;
-
-    public int $quantity = 1;
-
     /**
      * @var array<int, int>
      */
     public array $componentQuantities = [];
 
+    /**
+     * @var array<int>
+     */
+    public array $selectedComponentIds = [];
+
     public function mount(int $materialId): void
     {
         $this->materialId = $materialId;
-        $this->fillQuantities();
+        $this->fillSelections();
     }
 
     #[On('open-director-material-components-modal')]
@@ -33,7 +34,7 @@ new class extends Component
             return;
         }
 
-        $this->fillQuantities();
+        $this->fillSelections();
         $this->showModal = true;
     }
 
@@ -41,88 +42,65 @@ new class extends Component
     {
         $this->showModal = false;
         $this->resetValidation();
-        $this->component_material_id = null;
-        $this->quantity = 1;
-        $this->fillQuantities();
+        $this->fillSelections();
     }
 
-    public function addComponent(): void
+    public function saveComposition(): void
     {
         $material = $this->material();
 
         if (! $material->isComposite()) {
-            $this->addError('component_material_id', __('A composição só pode ser gerenciada em materiais compostos.'));
+            $this->addError('selectedComponentIds', __('A composição só pode ser gerenciada em materiais compostos.'));
 
             return;
         }
 
         $validated = $this->validate([
-            'component_material_id' => ['required', 'integer', 'exists:materials,id'],
-            'quantity' => ['required', 'integer', 'min:1'],
+            'selectedComponentIds' => ['array'],
+            'selectedComponentIds.*' => [
+                'integer',
+                Rule::exists('materials', 'id')->where(fn ($query) => $query->where('type', 'simple')),
+                'distinct',
+            ],
+            'componentQuantities' => ['array'],
         ], [
-            'required' => 'O campo :attribute é obrigatório.',
             'integer' => 'O campo :attribute deve ser um número inteiro.',
-            'min' => 'O campo :attribute deve ser no mínimo :min.',
+            'selectedComponentIds.*.exists' => 'Somente itens simples podem compor um produto composto.',
+            'distinct' => 'O mesmo componente não pode ser informado mais de uma vez.',
         ], [
-            'component_material_id' => 'componente',
-            'quantity' => 'quantidade',
+            'selectedComponentIds' => 'componentes',
+            'selectedComponentIds.*' => 'componente',
         ]);
 
-        if ((int) $validated['component_material_id'] === $material->id) {
-            $this->addError('component_material_id', __('O material não pode ser componente de si mesmo.'));
+        $selectedIds = collect($validated['selectedComponentIds'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        if ($selectedIds->contains($material->id)) {
+            $this->addError('selectedComponentIds', __('O material não pode ser componente de si mesmo.'));
 
             return;
         }
 
-        $duplicate = $material->components()
-            ->where('component_material_id', $validated['component_material_id'])
-            ->exists();
+        $payload = [];
 
-        if ($duplicate) {
-            $this->addError('component_material_id', __('Este componente já foi adicionado ao material composto.'));
+        foreach ($selectedIds as $selectedId) {
+            $quantity = (int) ($this->componentQuantities[$selectedId] ?? 0);
 
-            return;
+            if ($quantity < 1) {
+                $this->addError('componentQuantities.'.$selectedId, __('A quantidade deve ser maior que zero.'));
+
+                return;
+            }
+
+            $payload[$selectedId] = ['quantity' => $quantity];
         }
 
-        $material->components()->create([
-            'component_material_id' => $validated['component_material_id'],
-            'quantity' => $validated['quantity'],
-        ]);
+        $material->componentMaterials()->sync($payload);
 
-        $this->component_material_id = null;
-        $this->quantity = 1;
-        $this->fillQuantities();
+        $this->fillSelections();
         $this->dispatch('director-material-components-updated', materialId: $material->id);
-    }
-
-    public function updateComponentQuantity(int $componentId): void
-    {
-        $component = $this->material()
-            ->components()
-            ->whereKey($componentId)
-            ->firstOrFail();
-
-        $quantity = (int) ($this->componentQuantities[$componentId] ?? 0);
-
-        if ($quantity < 1) {
-            $this->addError('componentQuantities.'.$componentId, __('A quantidade deve ser maior que zero.'));
-
-            return;
-        }
-
-        $component->update(['quantity' => $quantity]);
-        $this->dispatch('director-material-components-updated', materialId: $this->materialId);
-    }
-
-    public function removeComponent(int $componentId): void
-    {
-        $this->material()
-            ->components()
-            ->whereKey($componentId)
-            ->delete();
-
-        unset($this->componentQuantities[$componentId]);
-        $this->dispatch('director-material-components-updated', materialId: $this->materialId);
+        $this->dispatch('toast', type: 'success', message: __('Composição do material salva com sucesso.'));
     }
 
     /**
@@ -130,23 +108,39 @@ new class extends Component
      */
     public function availableMaterials(): array
     {
-        $material = $this->material();
-        $componentIds = $material->components()->pluck('component_material_id')->all();
-
         return Material::query()
-            ->whereKeyNot($material->id)
-            ->whereNotIn('id', $componentIds)
+            ->whereKeyNot($this->materialId)
+            ->where('type', 'simple')
             ->orderBy('name')
             ->get()
             ->all();
     }
 
-    private function fillQuantities(): void
+    public function updatedSelectedComponentIds(): void
     {
-        $this->componentQuantities = $this->material()
+        foreach ($this->selectedComponentIds as $selectedComponentId) {
+            $selectedComponentId = (int) $selectedComponentId;
+
+            if (! array_key_exists($selectedComponentId, $this->componentQuantities)) {
+                $this->componentQuantities[$selectedComponentId] = 1;
+            }
+        }
+    }
+
+    private function fillSelections(): void
+    {
+        $components = $this->material()
             ->components()
-            ->pluck('quantity', 'id')
-            ->mapWithKeys(fn ($quantity, $id) => [(int) $id => (int) $quantity])
+            ->get(['component_material_id', 'quantity']);
+
+        $this->selectedComponentIds = $components
+            ->pluck('component_material_id')
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+
+        $this->componentQuantities = $components
+            ->mapWithKeys(fn ($component) => [(int) $component->component_material_id => (int) $component->quantity])
             ->all();
     }
 
@@ -161,12 +155,12 @@ new class extends Component
 
 <div>
     <flux:modal name="director-material-components-modal" wire:model="showModal"
-        class="max-w-5xl w-full bg-sky-950! p-0!">
+        class="max-w-6xl w-full bg-sky-950! p-0!">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <h3 class="text-lg font-semibold">{{ __('Gerenciar composição do material') }}</h3>
                 <p class="text-sm opacity-90">
-                    {{ __('Adicione componentes, ajuste quantidades e mantenha a composição do kit atualizada.') }}
+                    {{ __('Selecione os itens já cadastrados que fazem parte deste material composto e informe a quantidade de cada um.') }}
                 </p>
             </header>
 
@@ -178,92 +172,87 @@ new class extends Component
                         {{ __('A composição só pode ser gerenciada em materiais do tipo composto.') }}
                     </div>
                 @else
-                    <div class="space-y-6">
-                        <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                            <div class="mb-4">
-                                <h4 class="text-sm font-semibold text-slate-900">{{ __('Adicionar componente') }}</h4>
-                            </div>
+                    <section class="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div>
+                            <h4 class="text-sm font-semibold text-slate-900">{{ __('Montar composição do kit') }}</h4>
+                            <p class="mt-1 text-sm text-slate-600">
+                                {{ __('Marque os itens que entram no composto. Itens desmarcados serão removidos da composição ao salvar.') }}
+                            </p>
+                        </div>
 
-                            <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                <x-src.form.select name="director-material-component-select"
-                                    wire:model.live="component_material_id" label="Componente" width_basic="320"
-                                    :options="collect($this->availableMaterials())->map(fn ($availableMaterial) => [
-                                        'value' => $availableMaterial->id,
-                                        'label' => $availableMaterial->name,
-                                    ])->values()->all()" />
-                                <x-src.form.input name="director-material-component-quantity" wire:model.live="quantity"
-                                    label="Quantidade" type="number" width_basic="160" min="1" />
-                            </div>
+                        @error('selectedComponentIds')
+                            <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                        @enderror
 
-                            <div class="mt-4 flex justify-end">
-                                <x-src.btn-gold type="button" wire:click="addComponent">
-                                    {{ __('Adicionar componente') }}
-                                </x-src.btn-gold>
-                            </div>
-                        </section>
-
-                        <section class="rounded-2xl border border-slate-200 bg-white">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-50 text-xs uppercase text-slate-600">
-                                        <tr>
-                                            <th class="px-4 py-3">{{ __('Componente') }}</th>
-                                            <th class="px-4 py-3">{{ __('Quantidade') }}</th>
-                                            <th class="px-4 py-3 text-right">{{ __('Ações') }}</th>
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                                    <tr>
+                                        <th class="px-4 py-3">{{ __('Usar') }}</th>
+                                        <th class="px-4 py-3">{{ __('Item') }}</th>
+                                        <th class="px-4 py-3">{{ __('Tipo') }}</th>
+                                        <th class="px-4 py-3">{{ __('Quantidade no kit') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($this->availableMaterials() as $availableMaterial)
+                                        @php($isSelected = in_array($availableMaterial->id, $selectedComponentIds, true))
+                                        <tr class="border-t border-slate-200"
+                                            wire:key="director-material-component-row-{{ $availableMaterial->id }}">
+                                            <td class="px-4 py-4 align-top">
+                                                <input type="checkbox" value="{{ $availableMaterial->id }}"
+                                                    wire:model.live="selectedComponentIds"
+                                                    class="mt-1 rounded border-slate-300">
+                                            </td>
+                                            <td class="px-4 py-4 align-top">
+                                                <div class="font-medium text-slate-900">{{ $availableMaterial->name }}</div>
+                                                @if ($availableMaterial->description)
+                                                    <div class="mt-1 text-xs text-slate-500">
+                                                        {{ $availableMaterial->description }}
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 align-top">
+                                                <span
+                                                    class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $availableMaterial->typeBadgeClasses() }}">
+                                                    {{ $availableMaterial->typeLabel() }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 align-top">
+                                                <div class="max-w-32">
+                                                    <input type="number" min="1"
+                                                        wire:model.live="componentQuantities.{{ $availableMaterial->id }}"
+                                                        @disabled(! $isSelected)
+                                                        class="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-sky-500 focus:outline-none focus:ring-0 disabled:bg-slate-100 disabled:text-slate-400">
+                                                </div>
+                                                @error('componentQuantities.'.$availableMaterial->id)
+                                                    <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($material->components as $component)
-                                            <tr class="border-t border-slate-200"
-                                                wire:key="director-material-component-row-{{ $component->id }}">
-                                                <td class="px-4 py-4 font-medium text-slate-900">
-                                                    {{ $component->componentMaterial?->name ?: __('Material removido') }}
-                                                </td>
-                                                <td class="px-4 py-4">
-                                                    <div class="max-w-32">
-                                                        <input
-                                                            id="director-material-component-quantity-{{ $component->id }}"
-                                                            type="number" min="1"
-                                                            wire:model.live="componentQuantities.{{ $component->id }}"
-                                                            class="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-sky-500 focus:outline-none focus:ring-0">
-                                                    </div>
-                                                    @error('componentQuantities.'.$component->id)
-                                                        <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>
-                                                    @enderror
-                                                </td>
-                                                <td class="px-4 py-4">
-                                                    <div class="flex justify-end gap-2">
-                                                        <button type="button"
-                                                            wire:click="updateComponentQuantity({{ $component->id }})"
-                                                            class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-900">
-                                                            {{ __('Salvar') }}
-                                                        </button>
-                                                        <button type="button"
-                                                            wire:click="removeComponent({{ $component->id }})"
-                                                            class="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 transition hover:border-rose-300 hover:text-rose-900">
-                                                            {{ __('Remover') }}
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="px-4 py-6 text-center text-sm text-slate-500">
-                                                    {{ __('Nenhum componente cadastrado neste material composto.') }}
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+                                                {{ __('Nenhum item disponível para montar este material composto.') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
                 @endif
             </div>
 
             <footer class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <div class="flex justify-between gap-3">
                     <x-src.btn-silver type="button" wire:click="closeModal">{{ __('Fechar') }}</x-src.btn-silver>
+                    @if ($material->isComposite())
+                        <x-src.btn-gold type="button" wire:click="saveComposition" wire:loading.attr="disabled"
+                            wire:target="saveComposition">
+                            {{ __('Salvar composição') }}
+                        </x-src.btn-gold>
+                    @endif
                 </div>
             </footer>
         </div>

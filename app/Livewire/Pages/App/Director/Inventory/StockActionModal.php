@@ -37,6 +37,14 @@ class StockActionModal extends Component
         $this->inventoryId = $inventoryId;
     }
 
+    #[On('director-material-created')]
+    public function handleMaterialCreated(?int $materialId = null): void
+    {
+        if ($materialId !== null) {
+            $this->material_id = $materialId;
+        }
+    }
+
     #[On('open-director-inventory-stock-action-modal')]
     public function openModal(?int $inventoryId = null, ?string $mode = null): void
     {
@@ -100,6 +108,7 @@ class StockActionModal extends Component
         return view('livewire.pages.app.director.inventory.stock-action-modal', [
             'inventory' => Inventory::query()->findOrFail($this->inventoryId),
             'materialOptions' => $this->materialOptions(),
+            'hasMaterials' => Material::query()->exists(),
             'modeMeta' => $this->modeMeta(),
         ]);
     }
