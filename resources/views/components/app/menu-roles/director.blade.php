@@ -1,10 +1,10 @@
 @php
-    $sidebarGroupClass = 'grid [&>div>div]:text-slate-300/80';
+    $sidebarGroupClass = 'grid [&>div>div]:truncate [&>div>div]:text-slate-300/80';
     $sidebarItemClass =
         'text-slate-100/95 hover:text-amber-100 hover:bg-white/15 data-current:text-amber-200 data-current:bg-white/12 data-current:border-amber-200/30 border border-transparent';
 @endphp
 
-<flux:sidebar.group :heading="__('Plataforma')" :class="$sidebarGroupClass">
+<flux:sidebar.group :heading="__('Plataforma do Diretor')" :class="$sidebarGroupClass">
 
 
     @can('access-director')

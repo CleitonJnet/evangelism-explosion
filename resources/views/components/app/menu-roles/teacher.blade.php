@@ -1,4 +1,4 @@
-<flux:sidebar.group :heading="__('Platform')">
+<flux:sidebar.group :heading="__('Plataforma do Professor')" class="[&>div>div]:truncate">
 
 
     @can('access-teacher')

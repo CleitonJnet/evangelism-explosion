@@ -15,6 +15,9 @@
                 <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
             </div>
         </a>
+
+        <x-app.user-role-menu-items />
+
         <flux:menu.separator />
         <flux:menu.radio.group>
             @can('access-director')

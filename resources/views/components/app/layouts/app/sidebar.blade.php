@@ -15,8 +15,6 @@
         <x-src.line-theme />
 
         <flux:sidebar.nav>
-            <x-app.desktop-roles-menu class="hidden lg:block" />
-
             @php
                 $currentRoleKey = match (true) {
                     request()->routeIs('app.board.*') => 'board',
@@ -38,79 +36,10 @@
                     'mentor' => 'app.menu-roles.mentor',
                     'student' => 'app.menu-roles.student',
                 ];
-
-                $hasRoleLinks =
-                    auth()->user()->can('access-board') ||
-                    auth()->user()->can('access-director') ||
-                    auth()->user()->can('access-teacher') ||
-                    auth()->user()->can('access-facilitator') ||
-                    auth()->user()->can('access-fieldworker') ||
-                    auth()->user()->can('access-mentor') ||
-                    auth()->user()->can('access-student');
             @endphp
 
             @if ($currentRoleKey && isset($roleMenus[$currentRoleKey]))
                 <x-dynamic-component :component="$roleMenus[$currentRoleKey]" />
-            @endif
-
-            @if (!$currentRoleKey && $hasRoleLinks)
-                <flux:sidebar.group :heading="__('Funções')" class="grid [&>div>div]:text-slate-300/80">
-                    @can('access-board')
-                        <flux:sidebar.item :href="route('app.board.dashboard')" :current="request()->routeIs('app.board.*')"
-                            wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Board Member') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-director')
-                        <flux:sidebar.item :href="route('app.director.dashboard')"
-                            :current="request()->routeIs('app.director.*')" wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Diretor Nacional') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-teacher')
-                        <flux:sidebar.item :href="route('app.teacher.dashboard')"
-                            :current="request()->routeIs('app.teacher.*')" wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Teacher') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-facilitator')
-                        <flux:sidebar.item :href="route('app.facilitator.dashboard')"
-                            :current="request()->routeIs('app.facilitator.*')" wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Facilitator') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-fieldworker')
-                        <flux:sidebar.item :href="route('app.fieldworker.dashboard')"
-                            :current="request()->routeIs('app.fieldworker.*')" wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Field Worker') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-mentor')
-                        <flux:sidebar.item :href="route('app.mentor.dashboard')"
-                            :current="request()->routeIs('app.mentor.*')" wire:navigate
-                            class="text-slate-100/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Mentor') }}
-                        </flux:sidebar.item>
-                    @endcan
-
-                    @can('access-student')
-                        <flux:sidebar.item :href="route('app.student.dashboard')"
-                            :current="request()->routeIs('app.student.*')" wire:navigate
-                            class="text-slate-200/90 hover:text-white hover:bg-white/10 data-current:text-amber-200 data-current:bg-white/10 data-current:border-amber-200/30 border border-transparent">
-                            {{ __('Student') }}
-                        </flux:sidebar.item>
-                    @endcan
-                </flux:sidebar.group>
             @endif
 
         </flux:sidebar.nav>
@@ -147,7 +76,7 @@
                     </div>
                 </flux:menu.radio.group>
 
-                <flux:menu.separator />
+                <x-app.user-role-menu-items />
 
                 <flux:menu.radio.group>
                     @can('access-director')
