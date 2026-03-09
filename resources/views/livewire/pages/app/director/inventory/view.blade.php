@@ -118,9 +118,9 @@
                         </p>
                     </div>
 
-                    <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+                    <div class="mt-3 overflow-x-auto rounded-xl border border-emerald-200 bg-emerald-50/40">
                         <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                            <thead class="bg-emerald-100 text-xs uppercase text-emerald-900">
                                 <tr>
                                     <th class="px-4 py-3">{{ __('Produto composto') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Componentes') }}</th>
@@ -131,11 +131,11 @@
                             </thead>
                             <tbody class="bg-white">
                                 @forelse ($compositeBalances as $balance)
-                                    <tr class="cursor-pointer border-t border-slate-200 transition hover:bg-slate-50 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
+                                    <tr class="cursor-pointer border-t border-emerald-200 transition odd:bg-white even:bg-emerald-50/45 hover:bg-emerald-100/60 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
                                         onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'edit' }); return false;">
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
-                                                <span>{{ $balance->name }}</span>
+                                                <span class="truncate">{{ $balance->name }}</span>
                                                 @if (!$balance->is_active)
                                                     <span
                                                         class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
@@ -152,11 +152,11 @@
                                         <td class="px-4 py-3 text-center">
                                             @if ($balance->minimum_stock > 0 && $balance->composable_quantity < $balance->minimum_stock)
                                                 <span
-                                                    class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                    class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                                                     {{ __('Abaixo do mínimo') }}
                                                 </span>
                                             @else
-                                                <span class="text-slate-400">-</span>
+                                                <span class="inline-block max-w-full truncate text-slate-400">-</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -193,9 +193,9 @@
                         </p>
                     </div>
 
-                    <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+                    <div class="mt-3 overflow-x-auto rounded-xl border border-sky-200 bg-sky-50/35">
                         <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs uppercase text-slate-600">
+                            <thead class="bg-sky-100 text-xs uppercase text-sky-900">
                                 <tr>
                                     <th class="px-4 py-3">{{ __('Item simples') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Saldo') }}</th>
@@ -206,11 +206,11 @@
                             <tbody class="bg-white">
                                 @forelse ($simpleBalances as $balance)
                                     <tr @if ($balance->is_active) data-simple-material-row-active @endif
-                                        class="cursor-pointer border-t border-slate-200 transition hover:bg-slate-50 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
+                                        class="cursor-pointer border-t border-sky-200 transition odd:bg-white even:bg-sky-50/40 hover:bg-sky-100/65 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
                                         onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'entry' }); return false;">
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
-                                                <span>{{ $balance->name }}</span>
+                                                <span class="truncate">{{ $balance->name }}</span>
                                                 @if (!$balance->is_active)
                                                     <span
                                                         class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
@@ -224,11 +224,11 @@
                                         <td class="px-4 py-3 text-center">
                                             @if ($balance->minimum_stock > 0 && $balance->current_quantity < $balance->minimum_stock)
                                                 <span
-                                                    class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                    class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                                                     {{ __('Abaixo do mínimo') }}
                                                 </span>
                                             @else
-                                                <span class="text-slate-400">-</span>
+                                                <span class="inline-block max-w-full truncate text-slate-400">-</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -288,7 +288,35 @@
                     <tbody>
                         @forelse ($movements as $movement)
                             <tr class="border-t border-slate-200">
-                                <td class="px-4 py-3 text-slate-700">{{ $movement->created_at?->format('d/m/Y H:i') }}
+                                <td class="px-4 py-3 text-slate-700">
+                                    @php($movementTimestamp = $movement->created_at?->toIso8601String())
+                                    <time datetime="{{ $movementTimestamp }}"
+                                        title="{{ $movementTimestamp }}"
+                                        x-data="{
+                                            iso: @js($movementTimestamp),
+                                            localDateTime() {
+                                                if (!this.iso) {
+                                                    return '-';
+                                                }
+
+                                                const date = new Date(this.iso);
+
+                                                if (Number.isNaN(date.getTime())) {
+                                                    return this.iso;
+                                                }
+
+                                                return new Intl.DateTimeFormat('pt-BR', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                }).format(date);
+                                            },
+                                        }"
+                                        x-text="localDateTime()">
+                                        {{ $movement->created_at?->format('d/m/Y H:i') ?? '-' }}
+                                    </time>
                                 </td>
                                 <td class="px-4 py-3 font-medium text-slate-900">
                                     {{ $movement->material?->name ?: __('Material removido') }}
