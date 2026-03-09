@@ -20,12 +20,12 @@ it('removes dark mode hooks from app layouts and profile settings views', functi
 
     $appLinksHead = file_get_contents($projectRoot.'/resources/views/components/layouts/head/app/links.blade.php');
     $settingsLayout = file_get_contents($projectRoot.'/resources/views/components/app/settings/layout.blade.php');
-    $profileSettingsCard = file_get_contents($projectRoot.'/resources/views/components/app/settings/⚡profile.blade.php');
+    $profileSettingsPage = file_get_contents($projectRoot.'/resources/views/livewire/pages/app/settings/profile.blade.php');
     $twoFactorSettings = file_get_contents($projectRoot.'/resources/views/livewire/settings/two-factor.blade.php');
 
     expect($appLinksHead)->not->toContain('@fluxAppearance');
     expect($settingsLayout)->not->toContain("route('app.appearance.edit')");
-    expect($profileSettingsCard)->not->toContain('livewire:settings.appearance');
+    expect($profileSettingsPage)->not->toContain('livewire:settings.appearance');
     expect($twoFactorSettings)->not->toContain('$flux.appearance');
     expect($twoFactorSettings)->not->toContain('$flux.dark');
 });

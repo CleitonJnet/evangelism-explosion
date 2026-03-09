@@ -2,22 +2,22 @@
 
 it('removes profile training and teaching sections and related backend references', function (): void {
     $projectRoot = dirname(__DIR__, 2);
-    $profileComponentView = file_get_contents($projectRoot.'/resources/views/components/app/settings/⚡profile.blade.php');
-    $profileVoltComponent = file_get_contents($projectRoot.'/resources/views/livewire/pages/app/settings/profile.blade.php');
+    $profilePageView = file_get_contents($projectRoot.'/resources/views/livewire/pages/app/settings/profile.blade.php');
+    $profileComponentClass = file_get_contents($projectRoot.'/app/Livewire/Pages/App/Settings/Profile.php');
     $userModel = file_get_contents($projectRoot.'/app/Models/User.php');
 
-    expect($profileComponentView)->not->toContain('Treinamentos como professor titular');
-    expect($profileComponentView)->not->toContain('$user->trainingsAsTeacher');
-    expect($profileComponentView)->not->toContain('Funções e ensino');
-    expect($profileComponentView)->not->toContain('Cursos em que atua como professor');
-    expect($profileComponentView)->not->toContain('$user->courseAsTeacher');
-    expect($profileComponentView)->not->toContain('Treinamentos como aluno');
-    expect($profileComponentView)->not->toContain('$user->trainingsAsStudent');
-    expect($profileVoltComponent)->not->toContain('trainingsAsTeacher.course');
-    expect($profileVoltComponent)->not->toContain('trainingsAsTeacher.church');
-    expect($profileVoltComponent)->not->toContain('courseAsTeacher');
-    expect($profileVoltComponent)->not->toContain('trainingsAsStudent.course');
-    expect($profileVoltComponent)->not->toContain('trainingsAsStudent.church');
+    expect($profilePageView)->not->toContain('Treinamentos como professor titular');
+    expect($profilePageView)->not->toContain('$user->trainingsAsTeacher');
+    expect($profilePageView)->not->toContain('Funções e ensino');
+    expect($profilePageView)->not->toContain('Cursos em que atua como professor');
+    expect($profilePageView)->not->toContain('$user->courseAsTeacher');
+    expect($profilePageView)->not->toContain('Treinamentos como aluno');
+    expect($profilePageView)->not->toContain('$user->trainingsAsStudent');
+    expect($profileComponentClass)->not->toContain('trainingsAsTeacher.course');
+    expect($profileComponentClass)->not->toContain('trainingsAsTeacher.church');
+    expect($profileComponentClass)->not->toContain('courseAsTeacher');
+    expect($profileComponentClass)->not->toContain('trainingsAsStudent.course');
+    expect($profileComponentClass)->not->toContain('trainingsAsStudent.church');
     expect($userModel)->not->toContain('function trainingsAsTeacher');
     expect($userModel)->not->toContain('function courseAsTeacher');
     expect($userModel)->not->toContain('function trainingsAsStudent');

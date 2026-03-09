@@ -1,268 +1,275 @@
-<?php
+<section class="flex w-full flex-col gap-8">
+    @include('components.app.partials.settings-heading')
 
-use App\Concerns\PasswordValidationRules;
-use App\Concerns\ProfileValidationRules;
-use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
-use Livewire\Volt\Component;
+    <div class="flex w-full flex-col gap-8">
+        <div class="flex flex-col gap-6 rounded-3xl border border-(--ee-app-border) bg-(--ee-app-surface) p-6 shadow-sm">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <flux:avatar :name="$user->name" :src="null" :initials="$user->initials()" size="xl" />
 
-new class extends Component {
-    use AuthorizesRequests;
-    use PasswordValidationRules;
-    use ProfileValidationRules;
+                    <div class="flex flex-col gap-2">
+                        <flux:heading size="xl" level="1">
+                            <div class="flex items-center gap-1">
+                                @if ($this->isPastor())
+                                    <flux:badge color="slate">Pastor</flux:badge>
+                                @endif
+                                {{ $user->name }}
+                            </div>
+                        </flux:heading>
+                        <flux:text class="text-sm text-(--ee-app-muted)">{{ $user->email }}</flux:text>
+                    </div>
+                </div>
 
-    public User $user;
+                <div class="flex flex-wrap items-center gap-3">
+                    <flux:button variant="outline" wire:click="$set('showPasswordModal', true)"
+                        data-test="profile-change-password">
+                        {{ __('Trocar senha') }}
+                    </flux:button>
+                </div>
+            </div>
 
-    public array $personal = [
-        'name' => '',
-        'email' => '',
-        'birthdate' => '',
-        'gender' => '',
-        'phone' => '',
-        'is_pastor' => '',
-        'notes' => '',
-    ];
+            <div class="flex flex-wrap items-center gap-2">
+                @foreach ($user->roles as $role)
+                    <flux:badge color="blue" wire:key="role-pill-{{ $role->id }}">
+                        {{ $role->name }}
+                    </flux:badge>
+                @endforeach
+            </div>
+        </div>
 
-    public array $address = [
-        'postal_code' => '',
-        'street' => '',
-        'number' => '',
-        'complement' => '',
-        'district' => '',
-        'city' => '',
-        'state' => '',
-    ];
+        <div class="flex flex-wrap gap-6">
+            <div
+                class="basis-120 flex flex-auto flex-col gap-6 rounded-2xl border border-(--ee-app-border) bg-(--ee-app-surface) p-6">
+                <div class="flex items-center justify-between gap-4">
+                    <flux:heading size="sm" level="2">
+                        <flux:badge color="zinc">#{{ $user->id }}</flux:badge>
+                        {{ __('Dados pessoais') }}
+                    </flux:heading>
 
-    public string $current_password = '';
-    public string $password = '';
-    public string $password_confirmation = '';
+                    <flux:button variant="primary" wire:click="$set('showPersonalModal', true)"
+                        data-test="profile-edit-personal">
+                        {{ __('Editar dados pessoais') }}
+                    </flux:button>
+                </div>
 
-    protected $listeners = [
-        'church-linked' => 'refreshFromChurchLink',
-    ];
+                <dl class="grid gap-4 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Email') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->email) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Telefone') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->phone) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Nascimento') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatDate($user->birthdate) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Gênero') }}</dt>
+                        <dd class="text-sm font-medium">{{ $user->gender_label ?? __('Não informado') }}</dd>
+                    </div>
+                </dl>
 
-    public bool $showPersonalModal = false;
-    public bool $showAddressModal = false;
-    public bool $showPasswordModal = false;
+                <div class="rounded-2xl border border-dashed border-(--ee-app-border) p-4">
+                    <flux:text class="text-xs uppercase text-(--ee-app-muted)">{{ __('Observações') }}</flux:text>
+                    <flux:text class="mt-2 whitespace-pre-line text-sm text-(--ee-app-text)">
+                        {{ $this->formatValue($user->notes) }}
+                    </flux:text>
+                </div>
+            </div>
 
-    public function openChurchModal(): void
-    {
-        $this->dispatch('open-church-modal');
-    }
+            <div
+                class="basis-120 flex flex-auto flex-col gap-6 rounded-2xl border border-(--ee-app-border) bg-(--ee-app-surface) p-6">
+                <div class="flex items-center justify-between gap-4">
+                    <flux:heading size="sm" level="2">{{ __('Endereço do usuário') }}</flux:heading>
+                    <flux:button variant="outline" wire:click="$set('showAddressModal', true)"
+                        data-test="profile-edit-address">
+                        {{ __('Editar endereço') }}
+                    </flux:button>
+                </div>
 
-    public function refreshFromChurchLink(): void
-    {
-        $this->refreshUser();
-        $this->fillFromUser();
-    }
+                <dl class="grid gap-4 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Logradouro') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->street) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Número') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->number) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Complemento') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->complement) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Bairro') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->district) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('Cidade') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->city) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('UF') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->state) }}</dd>
+                    </div>
+                    <div class="space-y-1">
+                        <dt class="text-xs uppercase text-(--ee-app-muted)">{{ __('CEP') }}</dt>
+                        <dd class="text-sm font-medium">{{ $this->formatValue($user->postal_code) }}</dd>
+                    </div>
+                </dl>
+            </div>
 
-    public function mount(): void
-    {
-        $this->user = Auth::user();
-        $this->authorize('view', $this->user);
+            <div
+                class="basis-120 flex flex-auto flex-col gap-6 rounded-2xl border border-(--ee-app-border) bg-(--ee-app-surface) p-6 lg:col-span-2">
+                <flux:heading size="sm" level="2">{{ __('Sua Igreja') }}</flux:heading>
 
-        $this->refreshUser();
-        $this->fillFromUser();
-    }
+                <div class="flex flex-col gap-3">
+                    <flux:heading size="sm" level="3">
+                        {{ $user->church?->name ?? __('Sem igreja vinculada') }}
+                    </flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ $user->church?->pastor ? __('Pastor:').' '.$user->church?->pastor : __('Pastor não informado') }}
+                    </flux:text>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ $this->formatAddress([
+                            'street' => $user->church?->street,
+                            'number' => $user->church?->number,
+                            'complement' => $user->church?->complement,
+                            'district' => $user->church?->district,
+                            'city' => $user->church?->city,
+                            'state' => $user->church?->state,
+                            'postal_code' => $user->church?->postal_code,
+                        ]) }}
+                    </flux:text>
+                </div>
 
-    public function updatePersonal(): void
-    {
-        $this->authorize('update', $this->user);
+                <div class="flex justify-end">
+                    <flux:button variant="outline" wire:click="openChurchModal" data-test="change-church">
+                        {{ __('Trocar igreja') }}
+                    </flux:button>
+                </div>
+            </div>
 
-        $validated = $this->validate($this->personalRules());
+            <div class="basis-120 flex-auto">
+                @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::twoFactorAuthentication()))
+                    <livewire:settings.two-factor :embedded="true" />
+                @endif
+            </div>
 
-        $this->user->fill($validated['personal']);
+            <div class="basis-120 flex-auto">
+                <livewire:settings.delete-user-form :embedded="true" />
+            </div>
+        </div>
 
-        if ($this->user->isDirty('email')) {
-            $this->user->email_verified_at = null;
-        }
+        <flux:modal name="profile-personal-modal" class="max-w-2xl" @close="closePersonalModal"
+            wire:model="showPersonalModal">
+            <form class="space-y-6" wire:submit="updatePersonal">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Editar dados pessoais') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Atualize suas informações pessoais e contato principal.') }}
+                    </flux:text>
+                </div>
 
-        $this->user->save();
+                <div class="grid gap-4 md:grid-cols-2">
+                    <flux:input wire:model="personal.name" :label="__('Nome')" required />
+                    <flux:input wire:model="personal.email" :label="__('Email')" type="email" required />
+                    <flux:input wire:model="personal.phone" :label="__('Telefone')" type="tel" />
+                    <flux:input wire:model="personal.birthdate" :label="__('Nascimento')" type="date" />
+                    <flux:select wire:model="personal.gender" :label="__('Gênero')" :placeholder="__('Selecione')">
+                        <option value="1">{{ __('Masculino') }}</option>
+                        <option value="2">{{ __('Feminino') }}</option>
+                    </flux:select>
+                    <flux:select wire:model="personal.is_pastor" :label="__('É um pastor')" :placeholder="__('Selecione')">
+                        <option value="0">{{ __('Não') }}</option>
+                        <option value="1">{{ __('Sim') }}</option>
+                    </flux:select>
+                </div>
 
-        $this->refreshUser();
-        $this->fillFromUser();
+                <flux:textarea wire:model="personal.notes" :label="__('Observações')" rows="4" />
 
-        $this->showPersonalModal = false;
-        $this->dispatch('profile-personal-updated');
-    }
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <flux:button variant="outline" type="button" wire:click="closePersonalModal">
+                            {{ __('Cancelar') }}
+                        </flux:button>
+                        <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                            {{ __('Salvar') }}
+                        </flux:button>
+                    </div>
 
-    public function updateAddress(): void
-    {
-        $this->authorize('update', $this->user);
+                    <x-app.action-message on="profile-personal-updated">
+                        {{ __('Dados pessoais atualizados.') }}
+                    </x-app.action-message>
+                </div>
+            </form>
+        </flux:modal>
 
-        $validated = $this->validate($this->addressRules());
+        <flux:modal name="profile-address-modal" class="max-w-3xl" @close="closeAddressModal"
+            wire:model="showAddressModal">
+            <form class="space-y-6" wire:submit="updateAddress">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Editar endereço') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Atualize o endereço de contato do usuário.') }}
+                    </flux:text>
+                </div>
 
-        $this->user->fill($validated['address']);
-        $this->user->save();
+                <livewire:address-fields wire:model="address" title="Endereço do usuário" wire:key="profile-address" />
 
-        $this->refreshUser();
-        $this->fillFromUser();
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <flux:button variant="outline" type="button" wire:click="closeAddressModal">
+                            {{ __('Cancelar') }}
+                        </flux:button>
+                        <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                            {{ __('Salvar') }}
+                        </flux:button>
+                    </div>
 
-        $this->showAddressModal = false;
-        $this->dispatch('profile-address-updated');
-    }
+                    <x-app.action-message on="profile-address-updated">
+                        {{ __('Endereço atualizado.') }}
+                    </x-app.action-message>
+                </div>
+            </form>
+        </flux:modal>
 
-    public function updatePassword(): void
-    {
-        $this->authorize('update', $this->user);
+        <flux:modal name="profile-password-modal" class="max-w-lg" @close="closePasswordModal"
+            wire:model="showPasswordModal">
+            <form class="space-y-6" wire:submit="updatePassword">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Trocar senha') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Use uma senha forte e exclusiva para manter a conta segura.') }}
+                    </flux:text>
+                </div>
 
-        try {
-            $validated = $this->validate([
-                'current_password' => $this->currentPasswordRules(),
-                'password' => $this->passwordRules(),
-            ]);
-        } catch (ValidationException $e) {
-            $this->reset('current_password', 'password', 'password_confirmation');
+                <div class="grid gap-4">
+                    <flux:input wire:model="current_password" :label="__('Senha atual')" type="password" required
+                        autocomplete="current-password" />
+                    <flux:input wire:model="password" :label="__('Nova senha')" type="password" required
+                        autocomplete="new-password" />
+                    <flux:input wire:model="password_confirmation" :label="__('Confirmar senha')" type="password"
+                        required autocomplete="new-password" />
+                </div>
 
-            throw $e;
-        }
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <x-app.action-message on="profile-password-updated">
+                        {{ __('Senha atualizada.') }}
+                    </x-app.action-message>
 
-        $this->user->update(['password' => $validated['password']]);
-
-        $this->reset('current_password', 'password', 'password_confirmation');
-        $this->showPasswordModal = false;
-        $this->dispatch('profile-password-updated');
-    }
-
-    public function closePersonalModal(): void
-    {
-        $this->resetValidation();
-        $this->showPersonalModal = false;
-        $this->fillFromUser();
-    }
-
-    public function closeAddressModal(): void
-    {
-        $this->resetValidation();
-        $this->showAddressModal = false;
-        $this->fillFromUser();
-    }
-
-    public function closePasswordModal(): void
-    {
-        $this->resetValidation();
-        $this->reset('current_password', 'password', 'password_confirmation');
-        $this->showPasswordModal = false;
-    }
-
-    public function getIsPastorProperty(): bool
-    {
-        return (bool) ($this->user->is_pastor ?? false);
-    }
-
-    public function formatValue(mixed $value): string
-    {
-        $value = is_string($value) ? trim($value) : $value;
-
-        if ($value === null || $value === '') {
-            return 'Não informado';
-        }
-
-        if (is_bool($value)) {
-            return $value ? 'Sim' : 'Não';
-        }
-
-        return (string) $value;
-    }
-
-    public function formatDateTime(mixed $value): string
-    {
-        if (!$value) {
-            return 'Não informado';
-        }
-
-        if (is_string($value)) {
-            return $value;
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return $value->format('d/m/Y H:i');
-        }
-
-        return $value->format('d/m/Y H:i');
-    }
-
-    public function formatDate(mixed $value): string
-    {
-        if (!$value) {
-            return 'Não informado';
-        }
-
-        if (is_string($value)) {
-            return $value;
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return $value->format('d/m/Y');
-        }
-
-        return (string) $value;
-    }
-
-    public function formatAddress(array $address): string
-    {
-        $parts = array_filter([$address['street'] ?? null, $address['number'] ?? null, $address['complement'] ?? null, $address['district'] ?? null, $address['city'] ?? null, $address['state'] ?? null, $address['postal_code'] ?? null]);
-
-        return $parts ? implode(', ', $parts) : 'Não informado';
-    }
-
-    protected function personalRules(): array
-    {
-        return [
-            'personal.name' => $this->nameRules(),
-            'personal.email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class, 'email')->ignore($this->user->id)],
-            'personal.birthdate' => ['nullable', 'date'],
-            'personal.gender' => ['nullable', 'in:1,2'],
-            'personal.phone' => ['nullable', 'string', 'max:30'],
-            'personal.is_pastor' => ['nullable', 'in:1,0'],
-            'personal.notes' => ['nullable', 'string', 'max:1000'],
-        ];
-    }
-
-    protected function addressRules(): array
-    {
-        return [
-            'address.postal_code' => ['nullable', 'string', 'max:12'],
-            'address.street' => ['nullable', 'string', 'max:255'],
-            'address.number' => ['nullable', 'string', 'max:30'],
-            'address.complement' => ['nullable', 'string', 'max:255'],
-            'address.district' => ['nullable', 'string', 'max:255'],
-            'address.city' => ['nullable', 'string', 'max:255'],
-            'address.state' => ['nullable', 'string', 'max:2'],
-        ];
-    }
-
-    protected function refreshUser(): void
-    {
-        $this->user->refresh();
-        $this->user->loadMissing(['roles', 'church', 'church_temp', 'hostChurches.church', 'churches']);
-    }
-
-    protected function fillFromUser(): void
-    {
-        $this->personal = [
-            'name' => $this->user->name ?? '',
-            'email' => $this->user->email ?? '',
-            'birthdate' => $this->user->birthdate?->format('Y-m-d') ?? '',
-            'gender' => $this->user->gender !== null ? (string) $this->user->gender : '',
-            'phone' => $this->user->phone ?? '',
-            'is_pastor' => $this->user->is_pastor === null ? '' : ($this->user->is_pastor ? '1' : '0'),
-            'notes' => $this->user->notes ?? '',
-        ];
-
-        $this->address = [
-            'postal_code' => $this->user->postal_code ?? '',
-            'street' => $this->user->street ?? '',
-            'number' => $this->user->number ?? '',
-            'complement' => $this->user->complement ?? '',
-            'district' => $this->user->district ?? '',
-            'city' => $this->user->city ?? '',
-            'state' => $this->user->state ?? '',
-        ];
-    }
-}; ?>
-
-@include('components.app.settings.⚡profile')
+                    <div class="flex items-center gap-3">
+                        <flux:button variant="outline" type="button" wire:click="closePasswordModal">
+                            {{ __('Cancelar') }}
+                        </flux:button>
+                        <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                            {{ __('Salvar') }}
+                        </flux:button>
+                    </div>
+                </div>
+            </form>
+        </flux:modal>
+    </div>
+</section>

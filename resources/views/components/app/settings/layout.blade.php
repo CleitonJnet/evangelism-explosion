@@ -1,7 +1,7 @@
 <div class="flex items-start max-md:flex-col">
     <div class="me-10 w-full pb-4 md:w-[220px]">
         <flux:navlist aria-label="{{ __('Configurações do usuário') }}">
-            <flux:navlist.item :href="route('app.profile.edit')" wire:navigate>{{ __('Profile') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('app.profile')" wire:navigate>{{ __('Profile') }}</flux:navlist.item>
             <flux:navlist.item :href="route('app.user-password.edit')" wire:navigate>{{ __('Password') }}
             </flux:navlist.item>
             @if (Laravel\Fortify\Features::canManageTwoFactorAuthentication())
