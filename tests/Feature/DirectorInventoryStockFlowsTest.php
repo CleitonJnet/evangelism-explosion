@@ -255,6 +255,36 @@ it('shows coherent balances and movement history on the inventory detail page', 
         ->assertSee('Saldo inicial');
 });
 
+it('shows how many composite items can still be assembled from simple stock', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+
+    $booklet = Material::query()->create(['name' => 'Apostila base', 'type' => 'simple']);
+    $badge = Material::query()->create(['name' => 'Crachá base', 'type' => 'simple']);
+    $kit = Material::query()->create(['name' => 'Kit do aluno', 'type' => 'composite']);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $kit->id,
+        'component_material_id' => $booklet->id,
+        'quantity' => 2,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $kit->id,
+        'component_material_id' => $badge->id,
+        'quantity' => 1,
+    ]);
+
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $booklet, 7, $director);
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $badge, 5, $director);
+
+    Livewire::actingAs($director)
+        ->test(View::class, ['inventory' => $inventory])
+        ->assertSee('Pode compor')
+        ->assertSee('Kit do aluno')
+        ->assertSee('Até 3');
+});
+
 it('shows simple and composite products even before any stock entry', function (): void {
     $director = User::factory()->create();
     $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
@@ -281,6 +311,7 @@ it('shows simple and composite products even before any stock entry', function (
         ->test(View::class, ['inventory' => $inventory])
         ->assertSee('Kit sem saldo')
         ->assertSee('Livro sem saldo')
+        ->assertSee('Até 0')
         ->assertSee('0');
 });
 

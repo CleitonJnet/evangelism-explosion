@@ -120,6 +120,7 @@
                                 <tr>
                                     <th class="px-4 py-3">{{ __('Produto composto') }}</th>
                                     <th class="px-4 py-3">{{ __('Componentes') }}</th>
+                                    <th class="px-4 py-3">{{ __('Pode compor') }}</th>
                                     <th class="px-4 py-3">{{ __('Saldo') }}</th>
                                     <th class="px-4 py-3">{{ __('Mínimo') }}</th>
                                     <th class="px-4 py-3">{{ __('Alerta') }}</th>
@@ -141,6 +142,9 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-3">{{ $balance->components_count }}</td>
+                                        <td class="px-4 py-3 font-semibold text-sky-800">
+                                            {{ __('Até :quantity', ['quantity' => (int) $balance->composable_quantity]) }}
+                                        </td>
                                         <td class="px-4 py-3 font-semibold">{{ $balance->current_quantity }}</td>
                                         <td class="px-4 py-3">{{ $balance->minimum_stock }}</td>
                                         <td class="px-4 py-3">
@@ -156,7 +160,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum produto composto encontrado') }}

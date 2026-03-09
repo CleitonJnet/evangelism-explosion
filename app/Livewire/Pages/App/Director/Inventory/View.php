@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Director\Inventory;
 
 use App\Models\Inventory;
 use App\Models\StockMovement;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View as ViewView;
 use Livewire\Attributes\On;
@@ -120,6 +121,8 @@ class View extends Component
             ->orderBy('materials.name')
             ->paginate(10, pageName: 'compositeBalancesPage');
 
+        $compositeBalances = $this->appendComposableQuantity($compositeBalances, $inventory->id);
+
         $lowStockItems = DB::table('materials')
             ->leftJoin('inventory_material', function ($join) use ($inventory): void {
                 $join
@@ -162,5 +165,54 @@ class View extends Component
                 ['value' => StockMovement::TYPE_KIT_COMPONENT_EXIT, 'label' => __('Baixa de componente')],
             ],
         ]);
+    }
+
+    private function appendComposableQuantity(LengthAwarePaginator $compositeBalances, int $inventoryId): LengthAwarePaginator
+    {
+        $compositeIds = $compositeBalances->getCollection()
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if ($compositeIds === []) {
+            return $compositeBalances;
+        }
+
+        $componentStocks = DB::table('material_components')
+            ->leftJoin('inventory_material', function ($join) use ($inventoryId): void {
+                $join
+                    ->on('inventory_material.material_id', '=', 'material_components.component_material_id')
+                    ->where('inventory_material.inventory_id', '=', $inventoryId);
+            })
+            ->whereIn('material_components.parent_material_id', $compositeIds)
+            ->select([
+                'material_components.parent_material_id',
+                'material_components.quantity',
+                DB::raw('COALESCE(inventory_material.current_quantity, 0) as component_current_quantity'),
+            ])
+            ->get()
+            ->groupBy('parent_material_id');
+
+        $compositeBalances->setCollection(
+            $compositeBalances->getCollection()->map(function (object $balance) use ($componentStocks): object {
+                $components = $componentStocks->get($balance->id);
+
+                $balance->composable_quantity = $components === null || $components->isEmpty()
+                    ? 0
+                    : (int) $components->map(function (object $component): int {
+                        $requiredQuantity = (int) $component->quantity;
+
+                        if ($requiredQuantity <= 0) {
+                            return 0;
+                        }
+
+                        return intdiv((int) $component->component_current_quantity, $requiredQuantity);
+                    })->min();
+
+                return $balance;
+            }),
+        );
+
+        return $compositeBalances;
     }
 }
