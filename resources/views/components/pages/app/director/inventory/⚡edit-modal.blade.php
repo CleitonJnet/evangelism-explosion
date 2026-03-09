@@ -402,7 +402,13 @@ new class extends Component
             ])->save();
             $material->courses()->sync($validated['selectedCourseIds'] ?? []);
 
-            $this->dispatch('director-material-updated', materialId: $material->id);
+            $this->dispatch(
+                'director-material-updated',
+                materialId: $material->id,
+                type: $material->type,
+                isActive: $material->is_active,
+                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
+            );
             $this->dispatch('toast', type: 'success', message: __('Material atualizado com sucesso.'));
             $this->closeModal();
         } finally {
@@ -425,7 +431,13 @@ new class extends Component
                 'status' => $material->is_active ? 'inactive' : 'active',
             ])->save();
 
-            $this->dispatch('director-material-updated', materialId: $material->id);
+            $this->dispatch(
+                'director-material-updated',
+                materialId: $material->id,
+                type: $material->type,
+                isActive: $material->is_active,
+                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
+            );
             $this->dispatch(
                 'toast',
                 type: 'success',
@@ -480,7 +492,12 @@ new class extends Component
 
             $material->delete();
 
-            $this->dispatch('director-material-deleted', materialId: $this->materialId);
+            $this->dispatch(
+                'director-material-deleted',
+                materialId: $this->materialId,
+                type: $material->type,
+                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
+            );
             $this->dispatch('toast', type: 'success', message: __('Material excluído permanentemente.'));
             $this->showModal = false;
             $this->confirmingPermanentDelete = false;
@@ -565,6 +582,14 @@ new class extends Component
         $this->transfer_quantity = null;
         $this->transfer_notes = null;
         $this->resetErrorBag();
+    }
+
+    private function hasActiveSimpleMaterials(): bool
+    {
+        return Material::query()
+            ->where('type', 'simple')
+            ->where('is_active', true)
+            ->exists();
     }
 };
 ?>

@@ -56,6 +56,71 @@ it('reopens creation modals with active status by default', function (): void {
         ->assertSet('type', 'composite');
 });
 
+it('lists courses by their order in the item creation modal', function (): void {
+    $ministry = Ministry::query()->create([
+        'name' => 'Evangelismo',
+        'initials' => 'EV',
+    ]);
+
+    Course::factory()->create([
+        'name' => 'Curso exibido por ultimo',
+        'ministry_id' => $ministry->id,
+        'order' => 2,
+    ]);
+
+    Course::factory()->create([
+        'name' => 'Curso exibido primeiro',
+        'ministry_id' => $ministry->id,
+        'order' => 1,
+    ]);
+
+    Livewire::test('pages.app.director.inventory.create-modal')
+        ->call('openModal', 'simple')
+        ->assertSeeInOrder([
+            'Curso exibido primeiro',
+            'Curso exibido por ultimo',
+        ]);
+});
+
+it('separates courses by execution inside the ministry when there are more than two', function (): void {
+    $ministry = Ministry::query()->create([
+        'name' => 'Treinamento',
+        'initials' => 'TR',
+    ]);
+
+    Course::factory()->create([
+        'name' => 'Curso liderança 1',
+        'ministry_id' => $ministry->id,
+        'execution' => 0,
+        'order' => 1,
+    ]);
+
+    Course::factory()->create([
+        'name' => 'Curso implementação 1',
+        'ministry_id' => $ministry->id,
+        'execution' => 1,
+        'order' => 2,
+    ]);
+
+    Course::factory()->create([
+        'name' => 'Curso liderança 2',
+        'ministry_id' => $ministry->id,
+        'execution' => 0,
+        'order' => 3,
+    ]);
+
+    Livewire::test('pages.app.director.inventory.create-modal')
+        ->call('openModal', 'simple')
+        ->assertSeeInOrder([
+            'Treinamento',
+            'Liderança',
+            'Curso liderança 1',
+            'Curso liderança 2',
+            'Implementação',
+            'Curso implementação 1',
+        ]);
+});
+
 it('creates a composite material with selected simple items', function (): void {
     $firstComponent = Material::query()->create([
         'name' => 'Livro base',

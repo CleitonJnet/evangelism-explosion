@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Pages\App\Director\Inventory\Index as InventoryIndex;
 use App\Livewire\Pages\App\Director\Inventory\View;
 use App\Models\Inventory;
 use App\Models\Material;
@@ -17,6 +18,15 @@ function createTeacherUserForInventoryTests(): User
     return $teacher;
 }
 
+function createDirectorUserForInventoryTests(): User
+{
+    $director = User::factory()->create();
+    $directorRole = Role::query()->firstOrCreate(['name' => 'Director']);
+    $director->roles()->syncWithoutDetaching([$directorRole->id]);
+
+    return $director;
+}
+
 it('creates and edits an inventory', function (): void {
     $teacher = createTeacherUserForInventoryTests();
 
@@ -25,7 +35,6 @@ it('creates and edits an inventory', function (): void {
         ->set('name', 'Estoque do Professor João')
         ->set('kind', 'teacher')
         ->set('user_id', $teacher->id)
-        ->set('status', 'active')
         ->set('address.city', 'Campinas')
         ->set('address.state', 'SP')
         ->call('save')
@@ -36,16 +45,56 @@ it('creates and edits an inventory', function (): void {
     expect($inventory)->not->toBeNull();
     expect($inventory?->kind)->toBe('teacher');
     expect($inventory?->user_id)->toBe($teacher->id);
+    expect($inventory?->is_active)->toBeTrue();
 
     Livewire::test('pages.app.director.inventory.edit-inventory-modal', ['inventoryId' => $inventory->id])
         ->call('openModal', $inventory->id)
         ->set('name', 'Estoque Local Atualizado')
-        ->set('status', 'inactive')
+        ->call('promptStatusToggle')
+        ->assertSet('showStatusConfirmationModal', true)
+        ->call('confirmStatusToggle')
+        ->assertSet('status', 'inactive')
         ->call('save')
         ->assertDispatched('director-inventory-updated');
 
     expect($inventory->fresh()?->name)->toBe('Estoque Local Atualizado');
     expect($inventory->fresh()?->is_active)->toBeFalse();
+});
+
+it('deletes an inventory from the listing after confirmation', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $inventory = Inventory::query()->create(['name' => 'Estoque temporário', 'kind' => 'central']);
+
+    Livewire::actingAs($director)
+        ->test(InventoryIndex::class)
+        ->call('openDeleteModal', $inventory->id)
+        ->assertSet('showDeleteModal', true)
+        ->assertSet('selectedInventoryName', 'Estoque temporário')
+        ->call('deleteSelectedInventory')
+        ->assertSet('showDeleteModal', false);
+
+    expect(Inventory::query()->find($inventory->id))->toBeNull();
+});
+
+it('blocks inventory deletion when it already has stock movements', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $inventory = Inventory::query()->create(['name' => 'Estoque auditado', 'kind' => 'central']);
+    $material = Material::query()->create(['name' => 'Manual auditado']);
+
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 3, $director);
+
+    Livewire::actingAs($director)
+        ->test(InventoryIndex::class)
+        ->call('openDeleteModal', $inventory->id)
+        ->assertSet('showDeleteModal', true)
+        ->assertSet(
+            'selectedInventoryDeletionBlockedReason',
+            'Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.',
+        )
+        ->call('deleteSelectedInventory')
+        ->assertSet('showDeleteModal', true);
+
+    expect(Inventory::query()->find($inventory->id))->not->toBeNull();
 });
 
 it('registers stock entry through the stock action modal', function (): void {
@@ -252,4 +301,22 @@ it('refreshes the product tables after a material is deleted', function (): void
     $component
         ->dispatch('director-material-deleted', materialId: $material->id)
         ->assertDontSee('Produto removível');
+});
+
+it('refreshes the product tables after a material is created', function (): void {
+    $director = User::factory()->create();
+    $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
+
+    $component = Livewire::actingAs($director)
+        ->test(View::class, ['inventory' => $inventory])
+        ->assertDontSee('Produto recém-cadastrado');
+
+    $material = Material::query()->create([
+        'name' => 'Produto recém-cadastrado',
+        'type' => 'simple',
+    ]);
+
+    $component
+        ->dispatch('director-material-created', materialId: $material->id)
+        ->assertSee('Produto recém-cadastrado');
 });

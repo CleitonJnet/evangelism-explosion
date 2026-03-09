@@ -37,6 +37,15 @@ class View extends Component
     #[On('director-material-updated')]
     public function refreshMaterial(?int $materialId = null): void {}
 
+    #[On('director-material-created')]
+    public function refreshInventoryAfterMaterialCreation(?int $materialId = null): void
+    {
+        if ($materialId !== null) {
+            $this->resetPage('simpleBalancesPage');
+            $this->resetPage('compositeBalancesPage');
+        }
+    }
+
     #[On('director-material-deleted')]
     public function refreshInventoryAfterMaterialDeletion(?int $materialId = null): void
     {

@@ -17,6 +17,8 @@ class EditInventoryModal extends Component
 
     public bool $busy = false;
 
+    public bool $showStatusConfirmationModal = false;
+
     public string $name = '';
 
     public string $kind = 'teacher';
@@ -24,6 +26,8 @@ class EditInventoryModal extends Component
     public ?int $user_id = null;
 
     public string $status = 'active';
+
+    public string $pendingStatus = 'active';
 
     public ?string $phone = null;
 
@@ -72,8 +76,27 @@ class EditInventoryModal extends Component
     public function closeModal(): void
     {
         $this->showModal = false;
+        $this->showStatusConfirmationModal = false;
         $this->resetValidation();
         $this->fillForm();
+    }
+
+    public function promptStatusToggle(): void
+    {
+        $this->pendingStatus = $this->status === 'active' ? 'inactive' : 'active';
+        $this->showStatusConfirmationModal = true;
+    }
+
+    public function cancelStatusToggle(): void
+    {
+        $this->showStatusConfirmationModal = false;
+        $this->pendingStatus = $this->status;
+    }
+
+    public function confirmStatusToggle(): void
+    {
+        $this->status = $this->pendingStatus;
+        $this->showStatusConfirmationModal = false;
     }
 
     public function save(): void
@@ -120,10 +143,6 @@ class EditInventoryModal extends Component
             'kindOptions' => [
                 ['value' => 'central', 'label' => __('Central')],
                 ['value' => 'teacher', 'label' => __('Professor')],
-            ],
-            'statusOptions' => [
-                ['value' => 'active', 'label' => __('Ativo')],
-                ['value' => 'inactive', 'label' => __('Inativo')],
             ],
         ]);
     }
@@ -232,6 +251,7 @@ class EditInventoryModal extends Component
         $this->kind = (string) ($inventory->kind ?: 'teacher');
         $this->user_id = $inventory->user_id ? (int) $inventory->user_id : null;
         $this->status = $inventory->is_active ? 'active' : 'inactive';
+        $this->pendingStatus = $this->status;
         $this->phone = $inventory->phone;
         $this->email = $inventory->email;
         $this->address = [

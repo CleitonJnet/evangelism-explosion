@@ -133,7 +133,13 @@ new class extends Component
                 $material->componentMaterials()->sync($componentPayload);
             }
 
-            $this->dispatch('director-material-created', materialId: $material->id);
+            $this->dispatch(
+                'director-material-created',
+                materialId: $material->id,
+                type: $material->type,
+                isActive: $material->is_active,
+                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
+            );
             $this->dispatch('toast', type: 'success', message: __('Material cadastrado com sucesso.'));
 
             $this->closeModal();
@@ -148,9 +154,58 @@ new class extends Component
     public function ministries(): array
     {
         return Ministry::query()
-            ->with(['courses' => fn ($query) => $query->orderBy('name')])
+            ->with(['courses' => fn ($query) => $query->orderBy('order')->orderBy('id')])
             ->orderBy('name')
             ->get()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: int,
+     *     name: string,
+     *     groups: array<int, array{
+     *         label: string|null,
+     *         courses: \Illuminate\Support\Collection<int, \App\Models\Course>
+     *     }>
+     * }>
+     */
+    public function ministryCourseGroups(): array
+    {
+        return collect($this->ministries())
+            ->map(function (Ministry $ministry): array {
+                $courses = collect($ministry->courses);
+
+                if ($courses->count() <= 2) {
+                    return [
+                        'id' => (int) $ministry->id,
+                        'name' => (string) $ministry->name,
+                        'groups' => [
+                            [
+                                'label' => null,
+                                'courses' => $courses->values(),
+                            ],
+                        ],
+                    ];
+                }
+
+                $groups = collect([
+                    [
+                        'label' => __('Liderança'),
+                        'courses' => $courses->where('execution', 0)->values(),
+                    ],
+                    [
+                        'label' => __('Implementação'),
+                        'courses' => $courses->where('execution', 1)->values(),
+                    ],
+                ])->filter(fn (array $group): bool => $group['courses']->isNotEmpty())->values()->all();
+
+                return [
+                    'id' => (int) $ministry->id,
+                    'name' => (string) $ministry->name,
+                    'groups' => $groups,
+                ];
+            })
             ->all();
     }
 
@@ -175,6 +230,14 @@ new class extends Component
                 $this->componentQuantities[$selectedComponentId] = 1;
             }
         }
+    }
+
+    private function hasActiveSimpleMaterials(): bool
+    {
+        return Material::query()
+            ->where('type', 'simple')
+            ->where('is_active', true)
+            ->exists();
     }
 
     private function resetForm(): void
@@ -348,32 +411,48 @@ new class extends Component
                         </div>
 
                         <div class="space-y-5">
-                            @foreach ($this->ministries() as $ministry)
+                            @foreach ($this->ministryCourseGroups() as $ministry)
                                 <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                                    wire:key="director-material-create-ministry-{{ $ministry->id }}">
+                                    wire:key="director-material-create-ministry-{{ $ministry['id'] }}">
                                     <div class="mb-3">
                                         <h5 class="text-sm font-semibold uppercase tracking-wide text-slate-700">
-                                            {{ $ministry->name }}
+                                            {{ $ministry['name'] }}
                                         </h5>
                                     </div>
 
-                                    <div class="grid gap-3 md:grid-cols-2">
-                                        @forelse ($ministry->courses as $course)
-                                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
-                                                <input type="checkbox" value="{{ $course->id }}"
-                                                    wire:model.live="selectedCourseIds" class="mt-1 rounded border-slate-300">
-                                                <div class="space-y-1">
-                                                    <div class="font-semibold text-slate-900">
-                                                        {{ $course->type ? $course->type . ': ' : '' }}{{ $course->name }}
+                                    <div class="space-y-4">
+                                        @foreach ($ministry['groups'] as $group)
+                                            <div class="space-y-3">
+                                                @if ($group['label'] !== null)
+                                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        {{ $group['label'] }}
                                                     </div>
-                                                    <div class="text-xs text-slate-500">
-                                                        {{ $course->initials ?: __('Sem sigla') }}
-                                                    </div>
+                                                @endif
+
+                                                <div class="grid gap-3 md:grid-cols-2">
+                                                    @forelse ($group['courses'] as $course)
+                                                        <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
+                                                            <input type="checkbox" value="{{ $course->id }}"
+                                                                wire:model.live="selectedCourseIds" class="mt-1 rounded border-slate-300">
+                                                            <div class="space-y-1">
+                                                                <div class="font-semibold text-slate-900">
+                                                                    {{ $course->type ? $course->type . ': ' : '' }}{{ $course->name }}
+                                                                </div>
+                                                                <div class="text-xs text-slate-500">
+                                                                    {{ $course->initials ?: __('Sem sigla') }}
+                                                                </div>
+                                                            </div>
+                                                        </label>
+                                                    @empty
+                                                        <div class="text-sm text-slate-500">{{ __('Nenhum curso neste ministério.') }}</div>
+                                                    @endforelse
                                                 </div>
-                                            </label>
-                                        @empty
-                                            <div class="text-sm text-slate-500">{{ __('Nenhum curso neste ministério.') }}</div>
-                                        @endforelse
+                                            </div>
+
+                                            @if (! $loop->last)
+                                                <div class="border-t border-slate-200"></div>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </section>
                             @endforeach

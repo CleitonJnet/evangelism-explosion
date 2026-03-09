@@ -38,7 +38,8 @@
                 <tbody>
                     @forelse ($inventories as $inventory)
                         <tr wire:key="director-inventory-row-{{ $inventory->id }}"
-                            class="border-t border-slate-200 odd:bg-white even:bg-slate-50">
+                            class="cursor-pointer border-t border-slate-200 transition odd:bg-white even:bg-slate-50 hover:bg-slate-100/80"
+                            onclick="window.location='{{ route('app.director.inventory.show', $inventory) }}'">
                             <td class="px-4 py-4">
                                 <div class="font-semibold text-slate-900">{{ $inventory->name }}</div>
                                 <div class="text-xs text-slate-500">
@@ -65,16 +66,11 @@
                             </td>
                             <td class="px-4 py-4 text-slate-700">{{ (int) $inventory->active_skus_count }}</td>
                             <td class="px-4 py-4">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('app.director.inventory.show', $inventory) }}"
-                                        class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-900">
-                                        {{ __('Detalhes') }}
-                                    </a>
-                                    <button type="button"
-                                        onclick="window.Livewire.dispatch('open-director-inventory-edit-modal', { inventoryId: {{ $inventory->id }} }); return false;"
-                                        class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-amber-300 hover:text-amber-900">
-                                        {{ __('Editar') }}
-                                    </button>
+                                <div class="flex justify-end" x-on:click.stop>
+                                    <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
+                                        wire:click.stop="openDeleteModal({{ $inventory->id }})"
+                                        aria-label="{{ __('Excluir estoque') }}">
+                                    </flux:button>
                                 </div>
                             </td>
                         </tr>
@@ -108,4 +104,35 @@
         <livewire:pages.app.director.inventory.edit-inventory-modal :inventory-id="$inventory->id"
             wire:key="director-inventory-index-edit-modal-{{ $inventory->id }}" />
     @endforeach
+
+    <flux:modal name="director-inventory-delete-modal" wire:model="showDeleteModal" class="max-w-md">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">{{ __('Excluir estoque') }}</flux:heading>
+                <flux:text class="mt-2 text-sm text-slate-600">
+                    @if ($selectedInventoryDeletionBlockedReason !== '')
+                        {{ $selectedInventoryDeletionBlockedReason }}
+                    @else
+                        {{ __('Tem certeza que deseja excluir este estoque? Esta ação não pode ser desfeita.') }}
+                    @endif
+                </flux:text>
+                <flux:text class="mt-1 text-sm font-semibold text-slate-900">
+                    {{ $selectedInventoryName }}
+                </flux:text>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <flux:button type="button" variant="ghost" wire:click="closeDeleteModal">
+                    {{ $selectedInventoryDeletionBlockedReason !== '' ? __('Fechar') : __('Cancelar') }}
+                </flux:button>
+
+                @if ($selectedInventoryDeletionBlockedReason === '')
+                    <flux:button type="button" variant="danger" wire:click="deleteSelectedInventory"
+                        wire:loading.attr="disabled" wire:target="deleteSelectedInventory">
+                        {{ __('Confirmar exclusão') }}
+                    </flux:button>
+                @endif
+            </div>
+        </div>
+    </flux:modal>
 </div>

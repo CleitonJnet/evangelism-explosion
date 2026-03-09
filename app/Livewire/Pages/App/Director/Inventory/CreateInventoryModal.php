@@ -21,8 +21,6 @@ class CreateInventoryModal extends Component
 
     public ?int $user_id = null;
 
-    public string $status = 'active';
-
     public ?string $phone = null;
 
     public ?string $email = null;
@@ -77,7 +75,7 @@ class CreateInventoryModal extends Component
                 'name' => $validated['name'],
                 'kind' => $validated['kind'],
                 'user_id' => $validated['kind'] === 'teacher' ? $validated['user_id'] : null,
-                'is_active' => $validated['status'] === 'active',
+                'is_active' => true,
                 'phone' => $validated['phone'] ?? null,
                 'email' => $validated['email'] ?? null,
                 'street' => $this->nullableAddressValue('street'),
@@ -108,10 +106,6 @@ class CreateInventoryModal extends Component
                 ['value' => 'central', 'label' => __('Central')],
                 ['value' => 'teacher', 'label' => __('Professor')],
             ],
-            'statusOptions' => [
-                ['value' => 'active', 'label' => __('Ativo')],
-                ['value' => 'inactive', 'label' => __('Inativo')],
-            ],
         ]);
     }
 
@@ -129,7 +123,6 @@ class CreateInventoryModal extends Component
                 'integer',
                 Rule::in($this->teacherIds()),
             ],
-            'status' => ['required', 'in:active,inactive'],
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'address.street' => ['nullable', 'string', 'max:255'],
@@ -165,7 +158,6 @@ class CreateInventoryModal extends Component
             'name' => 'nome',
             'kind' => 'tipo',
             'user_id' => 'professor responsável',
-            'status' => 'status',
             'phone' => 'telefone',
             'email' => 'email',
             'address.street' => 'logradouro',
@@ -217,7 +209,6 @@ class CreateInventoryModal extends Component
         $this->name = '';
         $this->kind = 'teacher';
         $this->user_id = null;
-        $this->status = 'active';
         $this->phone = null;
         $this->email = null;
         $this->address = [
