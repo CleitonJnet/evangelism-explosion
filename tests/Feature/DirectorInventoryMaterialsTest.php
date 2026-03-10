@@ -152,6 +152,26 @@ it('creates a composite material with selected simple items', function (): void 
     expect($material?->components()->where('component_material_id', $secondComponent->id)->value('quantity'))->toBe(1);
 });
 
+it('renders stable keys and unique quantity inputs for selected composite components in the creation modal', function (): void {
+    $firstComponent = Material::query()->create([
+        'name' => 'Livro base',
+        'type' => 'simple',
+    ]);
+
+    $secondComponent = Material::query()->create([
+        'name' => 'Crachá',
+        'type' => 'simple',
+    ]);
+
+    Livewire::test('pages.app.director.inventory.create-modal')
+        ->call('openModal', 'composite')
+        ->set('selectedComponentIds', [$firstComponent->id, $secondComponent->id])
+        ->assertSee('director-material-create-selected-component-'.$firstComponent->id)
+        ->assertSee('director-material-create-selected-component-'.$secondComponent->id)
+        ->assertSee('director-material-create-component-quantity-'.$firstComponent->id)
+        ->assertSee('director-material-create-component-quantity-'.$secondComponent->id);
+});
+
 it('blocks composite items from being selected as components when creating a composite product', function (): void {
     $nestedComposite = Material::query()->create([
         'name' => 'Kit intermediario',
@@ -301,18 +321,23 @@ it('shows composition management inside the edit tab for composite materials', f
         ->assertSee('Composição do produto composto');
 });
 
-it('limits composite materials to the edit tab in the stock modal', function (): void {
+it('shows exit and edit tabs for composite materials in the stock modal', function (): void {
     $material = Material::query()->create([
         'name' => 'Kit missionario',
         'type' => 'composite',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Central',
+        'kind' => 'central',
+    ]);
+
+    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
         ->call('openModal', $material->id, 'entry')
-        ->assertSet('activeTab', 'edit')
-        ->assertDontSee('Editar item composto')
+        ->assertSet('activeTab', 'exit')
+        ->assertSee('Saída manual')
+        ->assertSee('Editar produto')
         ->assertDontSee('Entrada manual')
-        ->assertDontSee('Saída manual')
         ->assertDontSee('Ajuste')
         ->assertDontSee('Perda')
         ->assertDontSee('Transferir');

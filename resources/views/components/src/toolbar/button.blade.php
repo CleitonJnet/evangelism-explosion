@@ -168,6 +168,45 @@
                 </svg>
             @break
 
+            @case('minus')
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+            @break
+
+            @case('archive-box')
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.25 7.5H3.75m15 0-.621 10.558A2.25 2.25 0 0115.883 20.25H8.117a2.25 2.25 0 01-2.246-2.192L5.25 7.5m13.5 0V5.625A1.875 1.875 0 0016.875 3.75H7.125A1.875 1.875 0 005.25 5.625V7.5m4.5 4.5h4.5" />
+                </svg>
+            @break
+
+            @case('squares-2x2')
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 3.75H5.25A1.5 1.5 0 003.75 5.25V9A1.5 1.5 0 005.25 10.5H9A1.5 1.5 0 0010.5 9V5.25A1.5 1.5 0 009 3.75zm9.75 0H15A1.5 1.5 0 0013.5 5.25V9A1.5 1.5 0 0015 10.5h3.75A1.5 1.5 0 0020.25 9V5.25a1.5 1.5 0 00-1.5-1.5zM9 13.5H5.25a1.5 1.5 0 00-1.5 1.5v3.75a1.5 1.5 0 001.5 1.5H9a1.5 1.5 0 001.5-1.5V15A1.5 1.5 0 009 13.5zm9.75 0H15a1.5 1.5 0 00-1.5 1.5v3.75a1.5 1.5 0 001.5 1.5h3.75a1.5 1.5 0 001.5-1.5V15a1.5 1.5 0 00-1.5-1.5z" />
+                </svg>
+            @break
+
+            @case('arrow-path')
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992m-4.227-4.29A9 9 0 0117.7 7.757l3.315 3.591m-18.03 1.301l3.315-3.59A9 9 0 0116.25 19.5" />
+                </svg>
+            @break
+
+            @case('exclamation-triangle')
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v3.75m0 3.75h.008v.008H12v-.008zm8.25-.75c0 1.242-1.008 2.25-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25c0-.398.105-.789.304-1.133l6-10.5a2.25 2.25 0 013.892 0l6 10.5c.199.344.304.735.304 1.133z" />
+                </svg>
+            @break
+
             @case('pencil')
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-auto" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">

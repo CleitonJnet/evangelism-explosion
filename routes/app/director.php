@@ -23,6 +23,7 @@ Route::middleware('can:access-director')->prefix('director')->name('director.')-
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
         Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
+        Route::get('profiles/{user}', [ChurchController::class, 'profile'])->name('profiles.show');
     });
     Route::middleware('can:manageChurches')->resource('church', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
 

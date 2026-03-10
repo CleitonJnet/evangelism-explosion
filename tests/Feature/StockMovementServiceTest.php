@@ -102,6 +102,38 @@ it('removes a composite material and decrements its components with the same bat
     expect($inventory->currentQuantityFor($badge))->toBe(7);
 });
 
+it('removes a composite dynamically from components when allowed without parent stock', function (): void {
+    $service = new StockMovementService;
+    $inventory = Inventory::query()->create(['name' => 'Professor', 'kind' => 'teacher']);
+    $composite = Material::query()->create(['name' => 'Kit Aluno', 'type' => 'composite']);
+    $booklet = Material::query()->create(['name' => 'Apostila']);
+    $badge = Material::query()->create(['name' => 'Cracha']);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $composite->id,
+        'component_material_id' => $booklet->id,
+        'quantity' => 2,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $composite->id,
+        'component_material_id' => $badge->id,
+        'quantity' => 1,
+    ]);
+
+    $service->addStock($inventory, $booklet, 6);
+    $service->addStock($inventory, $badge, 3);
+
+    $movements = $service->removeCompositeMaterial($inventory, $composite, 3, notes: 'Montagem e entrega', allowDynamicComposition: true);
+
+    expect($movements)->toHaveCount(3);
+    expect($movements->first()->movement_type)->toBe(StockMovement::TYPE_EXIT);
+    expect($movements->first()->balance_after)->toBe(0);
+    expect($inventory->currentQuantityFor($composite))->toBe(0);
+    expect($inventory->currentQuantityFor($booklet))->toBe(0);
+    expect($inventory->currentQuantityFor($badge))->toBe(0);
+});
+
 it('reuses the provided batch uuid in related movements', function (): void {
     $service = new StockMovementService;
     $sourceInventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);

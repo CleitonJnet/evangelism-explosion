@@ -3,26 +3,29 @@
 namespace App\Http\Controllers\System\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
+use Illuminate\View\View;
 
 class InventoryController extends Controller
 {
-    public function index()
+    public function index(): View
     {
+        $this->authorize('viewAny', Inventory::class);
+
         return view('pages.app.roles.teacher.inventory.index');
     }
 
-    public function create()
+    public function show(Inventory $inventory): View
     {
-        return view('pages.app.roles.teacher.inventory.create');
-    }
+        $this->authorize('view', $inventory);
 
-    public function show(string $inventory)
-    {
         return view('pages.app.roles.teacher.inventory.show', ['inventory' => $inventory]);
     }
 
-    public function edit(string $inventory)
+    public function edit(Inventory $inventory): View
     {
+        $this->authorize('update', $inventory);
+
         return view('pages.app.roles.teacher.inventory.edit', ['inventory' => $inventory]);
     }
 }

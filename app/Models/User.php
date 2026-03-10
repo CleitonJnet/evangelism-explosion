@@ -388,4 +388,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Training::class, 'training_assistant_teacher')
             ->withTimestamps();
     }
+
+    public function trainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'training_user')
+            ->withPivot('accredited', 'kit', 'payment', 'payment_receipt');
+    }
 }

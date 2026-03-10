@@ -1,20 +1,15 @@
 <x-layouts.app :title="__('Detalhes do estoque')">
     <x-src.toolbar.header :title="__('Detalhes do estoque')" :description="__('Visualize saldos atuais, alertas e histórico auditável do estoque selecionado.')" />
 
-    <x-src.toolbar.nav x-data="{ hasActiveSimpleMaterials: @js($hasActiveSimpleMaterials) }"
-        x-on:director-material-created.window="
-            if (($event.detail?.type ?? null) === 'simple') {
-                hasActiveSimpleMaterials = ($event.detail?.hasActiveSimpleMaterials ?? false)
-            }
-        "
+    <x-src.toolbar.nav x-data='{ hasActiveSimpleMaterials: {{ \Illuminate\Support\Js::from($hasActiveSimpleMaterials) }} }'
         x-on:director-material-updated.window="
-            if (($event.detail?.type ?? null) === 'simple') {
-                hasActiveSimpleMaterials = ($event.detail?.hasActiveSimpleMaterials ?? false)
+            if (($event.detail?.inventoryId ?? null) === {{ $inventory->id }} && typeof $event.detail?.hasActiveSimpleMaterialsInInventory === 'boolean') {
+                hasActiveSimpleMaterials = $event.detail.hasActiveSimpleMaterialsInInventory
             }
         "
         x-on:director-material-deleted.window="
-            if (($event.detail?.type ?? null) === 'simple') {
-                hasActiveSimpleMaterials = ($event.detail?.hasActiveSimpleMaterials ?? false)
+            if (($event.detail?.inventoryId ?? null) === {{ $inventory->id }} && typeof $event.detail?.hasActiveSimpleMaterialsInInventory === 'boolean') {
+                hasActiveSimpleMaterials = $event.detail.hasActiveSimpleMaterialsInInventory
             }
         ">
         <x-src.toolbar.button :href="route('app.director.inventory.index')" :label="__('Listar estoques')" icon="list" :tooltip="__('Voltar para listagem')" />
@@ -31,7 +26,6 @@
                 class="!border-violet-200 !bg-violet-50 !text-violet-800 hover:!bg-violet-100"
                 onclick="window.Livewire.dispatch('open-director-material-create-modal', { type: 'composite' }); return false;" />
         </div>
-
         <div x-show="!hasActiveSimpleMaterials" x-cloak>
             <x-src.toolbar.button href="#" :label="__('Novo composto')" icon="squares-2x2" :tooltip="__('Cadastre ou mantenha pelo menos um item simples ativo para liberar produtos compostos')"
                 class="pointer-events-none !border-slate-300 !bg-slate-100 !text-slate-400 hover:!bg-slate-100 opacity-70" />

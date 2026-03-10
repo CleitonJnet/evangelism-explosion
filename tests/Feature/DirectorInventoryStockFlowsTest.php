@@ -314,6 +314,7 @@ it('shows simple and composite products even before any stock entry', function (
         ->assertSee('Kit sem saldo')
         ->assertSee('Livro sem saldo')
         ->assertSee('Até 0')
+        ->assertSee('Saldo zerado')
         ->assertSee('0');
 });
 

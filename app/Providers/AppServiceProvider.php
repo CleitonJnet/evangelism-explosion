@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Church;
+use App\Models\Inventory;
 use App\Models\StpApproach;
 use App\Models\Training;
 use App\Models\User;
 use App\Policies\ChurchPolicy;
+use App\Policies\InventoryPolicy;
 use App\Policies\RoleAccessPolicy;
 use App\Policies\StpApproachPolicy;
 use App\Policies\TrainingPolicy;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Training::class, TrainingPolicy::class);
         Gate::policy(StpApproach::class, StpApproachPolicy::class);
         Gate::policy(Church::class, ChurchPolicy::class);
+        Gate::policy(Inventory::class, InventoryPolicy::class);
         Gate::define('access-board', [RoleAccessPolicy::class, 'accessBoard']);
         Gate::define('access-director', [RoleAccessPolicy::class, 'accessDirector']);
         Gate::define('access-teacher', [RoleAccessPolicy::class, 'accessTeacher']);

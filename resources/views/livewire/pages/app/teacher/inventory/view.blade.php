@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.15s>
     <section
         class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-6">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-200/80 pb-4">
@@ -19,7 +19,6 @@
                 );
 
                 $headerMeta = array_values(array_filter([$inventory->responsibleUser?->name]));
-
                 $hasContact = filled($inventory->phone) || filled($inventory->email);
             @endphp
 
@@ -54,20 +53,17 @@
                     </div>
                 </div>
             @endif
-
         </div>
 
         <div class="mt-4 flex flex-wrap items-center gap-2">
-            <span
-                class="rounded-full px-3 py-1 text-xs font-semibold {{ $inventory->kind === 'central' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800' }}">
-                {{ $inventory->kind === 'central' ? __('Estoque central') : __('Estoque local de professor') }}
+            <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
+                {{ __('Estoque local de professor') }}
             </span>
             <span
                 class="rounded-full px-3 py-1 text-xs font-semibold {{ $inventory->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">
                 {{ $inventory->is_active ? __('Ativo') : __('Inativo') }}
             </span>
         </div>
-
     </section>
 
     @if ($lowStockItems->isNotEmpty())
@@ -109,7 +105,7 @@
             </div>
 
             <div class="mt-5 flex flex-wrap gap-x-4 gap-y-8">
-                <x-src.form.input name="director-inventory-material-search"
+                <x-src.form.input name="teacher-inventory-material-search"
                     wire:model.live.debounce.300ms="materialSearch" label="Buscar produto" type="text"
                     width_basic="320" autofocus />
             </div>
@@ -137,13 +133,12 @@
                             <tbody class="bg-white">
                                 @forelse ($compositeBalances as $balance)
                                     <tr class="cursor-pointer border-t border-emerald-200 transition odd:bg-white even:bg-emerald-50/45 hover:bg-emerald-100/60 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
-                                        onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'exit' }); return false;">
+                                        onclick="window.Livewire.dispatch('open-teacher-material-action-modal', { materialId: {{ $balance->id }}, tab: 'exit' }); return false;">
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="truncate">{{ $balance->name }}</span>
-                                                @if (!$balance->is_active)
-                                                    <span
-                                                        class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                @if (! $balance->is_active)
+                                                    <span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
                                                         {{ __('Inativo') }}
                                                     </span>
                                                 @endif
@@ -156,13 +151,11 @@
                                         <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
                                         <td class="px-4 py-3 text-center">
                                             @if ((int) $balance->composable_quantity === 0)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
+                                                <span class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
                                                     {{ __('Saldo zerado') }}
                                                 </span>
                                             @elseif ($balance->minimum_stock > 0 && $balance->composable_quantity < $balance->minimum_stock)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                <span class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                                                     {{ __('Abaixo do mínimo') }}
                                                 </span>
                                             @else
@@ -172,7 +165,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum produto composto encontrado') }}
@@ -215,15 +208,13 @@
                             </thead>
                             <tbody class="bg-white">
                                 @forelse ($simpleBalances as $balance)
-                                    <tr @if ($balance->is_active) data-simple-material-row-active @endif
-                                        class="cursor-pointer border-t border-sky-200 transition odd:bg-white even:bg-sky-50/40 hover:bg-sky-100/65 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
-                                        onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'entry' }); return false;">
+                                    <tr class="cursor-pointer border-t border-sky-200 transition odd:bg-white even:bg-sky-50/40 hover:bg-sky-100/65 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
+                                        onclick="window.Livewire.dispatch('open-teacher-material-action-modal', { materialId: {{ $balance->id }}, tab: 'exit' }); return false;">
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="truncate">{{ $balance->name }}</span>
-                                                @if (!$balance->is_active)
-                                                    <span
-                                                        class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                @if (! $balance->is_active)
+                                                    <span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
                                                         {{ __('Inativo') }}
                                                     </span>
                                                 @endif
@@ -233,13 +224,11 @@
                                         <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
                                         <td class="px-4 py-3 text-center">
                                             @if ((int) $balance->current_quantity === 0)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
+                                                <span class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
                                                     {{ __('Saldo zerado') }}
                                                 </span>
                                             @elseif ($balance->minimum_stock > 0 && $balance->current_quantity < $balance->minimum_stock)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                <span class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                                                     {{ __('Abaixo do mínimo') }}
                                                 </span>
                                             @else
@@ -278,12 +267,12 @@
             <div class="border-b border-slate-200 pb-3">
                 <h3 class="text-lg font-semibold text-slate-900">{{ __('Histórico auditável') }}</h3>
                 <p class="text-sm text-slate-600">
-                    {{ __('Todas as movimentações manuais e transferências registradas neste estoque.') }}
+                    {{ __('Todas as movimentações manuais registradas neste estoque delegado.') }}
                 </p>
             </div>
 
             <div class="mt-5 flex flex-wrap gap-x-4 gap-y-8">
-                <x-src.form.select name="director-inventory-movement-type-filter" wire:model.live="movementTypeFilter"
+                <x-src.form.select name="teacher-inventory-movement-type-filter" wire:model.live="movementTypeFilter"
                     label="Tipo de movimento" width_basic="240" :value="$movementTypeFilter" :options="$movementTypeOptions" />
             </div>
 
@@ -305,8 +294,7 @@
                             <tr class="border-t border-slate-200">
                                 <td class="px-4 py-3 text-slate-700">
                                     @php($movementTimestamp = $movement->created_at?->toIso8601String())
-                                    <time datetime="{{ $movementTimestamp }}"
-                                        title="{{ $movementTimestamp }}"
+                                    <time datetime="{{ $movementTimestamp }}" title="{{ $movementTimestamp }}"
                                         x-data="{
                                             iso: @js($movementTimestamp),
                                             localDateTime() {
@@ -337,15 +325,13 @@
                                     {{ $movement->material?->name ?: __('Material removido') }}
                                 </td>
                                 <td class="px-4 py-3 text-slate-700">
-                                    <span
-                                        class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $movement->typeBadgeClasses() }}">
+                                    <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $movement->typeBadgeClasses() }}">
                                         {{ $movement->typeLabel() }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-700">{{ $movement->quantity }}</td>
                                 <td class="px-4 py-3 text-slate-700">{{ $movement->balance_after ?? __('-') }}</td>
-                                <td class="px-4 py-3 text-slate-700">{{ $movement->user?->name ?: __('Sistema') }}
-                                </td>
+                                <td class="px-4 py-3 text-slate-700">{{ $movement->user?->name ?: __('Sistema') }}</td>
                                 <td class="px-4 py-3 text-slate-700">{{ $movement->notes ?: __('-') }}</td>
                             </tr>
                         @empty
@@ -356,7 +342,7 @@
                                             {{ __('Nenhuma movimentação encontrada') }}
                                         </div>
                                         <div>
-                                            {{ __('Registre uma entrada, saída, ajuste, perda ou transferência para iniciar o histórico auditável deste estoque.') }}
+                                            {{ __('Registre uma entrada, saída, ajuste ou perda para iniciar o histórico auditável deste estoque.') }}
                                         </div>
                                     </div>
                                 </td>
@@ -374,19 +360,17 @@
         </section>
     </div>
 
-    <livewire:pages.app.director.inventory.edit-inventory-modal :inventory-id="$inventory->id"
-        wire:key="director-inventory-edit-modal-{{ $inventory->id }}" />
-    <livewire:pages.app.director.inventory.stock-action-modal :inventory-id="$inventory->id"
-        wire:key="director-inventory-stock-action-modal-{{ $inventory->id }}" />
-    <livewire:pages.app.director.inventory.create-modal
-        wire:key="director-material-create-modal-from-stock-{{ $inventory->id }}" />
+    <livewire:pages.app.teacher.inventory.edit-inventory-modal :inventory-id="$inventory->id"
+        wire:key="teacher-inventory-edit-modal-{{ $inventory->id }}" />
+    <livewire:pages.app.teacher.inventory.stock-action-modal :inventory-id="$inventory->id"
+        wire:key="teacher-inventory-stock-action-modal-{{ $inventory->id }}" />
     @foreach ($compositeBalances->getCollection() as $balance)
-        <livewire:pages.app.director.inventory.edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
-            wire:key="director-material-edit-modal-composite-{{ $balance->id }}" />
+        <livewire:pages.app.teacher.inventory.material-action-modal :material-id="$balance->id" :inventory-id="$inventory->id"
+            wire:key="teacher-material-action-modal-composite-{{ $balance->id }}" />
     @endforeach
     @foreach ($simpleBalances->getCollection() as $balance)
-        <livewire:pages.app.director.inventory.edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
-            wire:key="director-material-edit-modal-simple-{{ $balance->id }}" />
+        <livewire:pages.app.teacher.inventory.material-action-modal :material-id="$balance->id" :inventory-id="$inventory->id"
+            wire:key="teacher-material-action-modal-simple-{{ $balance->id }}" />
     @endforeach
 
     @if ($inventory->notes)

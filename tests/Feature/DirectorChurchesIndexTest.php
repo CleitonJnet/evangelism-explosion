@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Church;
+use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -93,6 +94,97 @@ it('allows director to associate church and lists user trainings in modal', func
     expect($unlinkedUser->church_temp_id)->toBeNull();
 });
 
+it('lists all system users in the directory modal and filters by church city state and email for directors', function (): void {
+    $director = User::factory()->create();
+    $directorRole = Role::query()->firstOrCreate(['name' => 'Director']);
+    $director->roles()->syncWithoutDetaching([$directorRole->id]);
+
+    $church = Church::factory()->create([
+        'name' => 'Igreja Diretório Diretor',
+    ]);
+
+    $listedRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+
+    $listedUser = User::factory()->create([
+        'name' => 'Helena Diretório',
+        'email' => 'helena.diretorio@example.com',
+        'city' => 'Curitiba',
+        'state' => 'PR',
+        'church_id' => $church->id,
+    ]);
+    $listedUser->roles()->syncWithoutDetaching([$listedRole->id]);
+
+    $course = Course::factory()->create([
+        'initials' => 'TD',
+        'name' => 'Treinamento Diretor',
+    ]);
+    $training = Training::factory()->create(['course_id' => $course->id]);
+    $training->students()->attach($listedUser->id);
+
+    $hiddenUser = User::factory()->create([
+        'name' => 'Pessoa Fora do Filtro',
+        'email' => 'fora.filtro@example.com',
+        'city' => 'Goiania',
+        'state' => 'GO',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $component = Livewire::actingAs($director)
+        ->test(\App\Livewire\Pages\App\Director\Church\Index::class)
+        ->call('openAllUsersModal')
+        ->assertSet('showAllUsersModal', true)
+        ->assertViewHas('allUsers', function ($paginator) use ($listedUser, $hiddenUser) {
+            $listedUserIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($listedUserIds)->toContain($listedUser->id);
+            expect($listedUserIds)->toContain($hiddenUser->id);
+
+            return true;
+        });
+
+    $filteredByChurch = $component
+        ->set('userDirectorySearch', 'Igreja Diretório Diretor')
+        ->viewData('allUsers');
+
+    expect(collect($filteredByChurch->items())->pluck('id')->all())
+        ->toContain($listedUser->id)
+        ->not->toContain($hiddenUser->id);
+
+    $component
+        ->set('userDirectorySearch', 'Curitiba')
+        ->assertSeeText('Helena Diretório')
+        ->set('userDirectorySearch', 'PR')
+        ->assertSeeText('Helena Diretório')
+        ->set('userDirectorySearch', 'helena.diretorio@example.com')
+        ->assertSeeText('Helena Diretório')
+        ->assertSeeText('TD');
+});
+
+it('renders the church-context profile route for users listed in the directory modal for directors', function (): void {
+    $director = User::factory()->create();
+    $directorRole = Role::query()->firstOrCreate(['name' => 'Director']);
+    $director->roles()->syncWithoutDetaching([$directorRole->id]);
+
+    $listedUser = User::factory()->create([
+        'name' => 'Perfil Igrejas Diretor',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(\App\Livewire\Pages\App\Director\Church\Index::class)
+        ->call('openAllUsersModal')
+        ->assertSee(route('app.director.church.profiles.show', $listedUser));
+
+    $response = $this->actingAs($director)->get(route('app.director.church.profiles.show', $listedUser));
+
+    $response->assertOk();
+    $response->assertSeeText('Perfil Igrejas Diretor');
+    $response->assertSeeText('Voltar para igrejas');
+    $response->assertDontSeeText('Excluir conta');
+});
+
 it('searches church and user dropdown by pastor city state and email for directors', function (): void {
     $director = User::factory()->create();
     $directorRole = Role::query()->firstOrCreate(['name' => 'Director']);
@@ -121,6 +213,7 @@ it('searches church and user dropdown by pastor city state and email for directo
         ->set('churchSearch', 'Campinas')
         ->assertSeeText($church->name)
         ->assertSeeText($user->name)
+        ->assertSee(route('app.director.church.profiles.show', $user))
         ->set('churchSearch', 'SP')
         ->assertSeeText($church->name)
         ->assertSeeText($user->name)

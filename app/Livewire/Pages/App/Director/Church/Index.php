@@ -30,6 +30,10 @@ class Index extends Component
 
     public bool $showUnlinkedUserModal = false;
 
+    public bool $showAllUsersModal = false;
+
+    public string $userDirectorySearch = '';
+
     public ?int $selectedUnlinkedUserId = null;
 
     public string $selectedUnlinkedUserName = '';
@@ -57,6 +61,7 @@ class Index extends Component
             'churches' => $churches,
             'churchSearchResults' => $this->churchSearchResults($churchSearch),
             'userSearchResults' => $this->userSearchResults($churchSearch),
+            'allUsers' => $this->allUsersForDirectory(),
             'unlinkedUsers' => $this->unlinkedUsersForDirector(),
             'linkableChurches' => $this->linkableChurchesForModal(),
             'selectedUserTrainings' => $this->selectedUserTrainingsForModal(),
@@ -67,6 +72,23 @@ class Index extends Component
     public function handleChurchCreated(?int $churchId = null, ?string $churchName = null): void
     {
         $this->churchSearch = trim((string) $churchName);
+    }
+
+    public function openAllUsersModal(): void
+    {
+        $this->authorize('manageChurches');
+
+        $this->showAllUsersModal = true;
+    }
+
+    public function closeAllUsersModal(): void
+    {
+        $this->showAllUsersModal = false;
+    }
+
+    public function updatedUserDirectorySearch(): void
+    {
+        $this->resetPage('allUsersPage');
     }
 
     public function removeChurch(int $churchId): void
@@ -294,6 +316,38 @@ class Index extends Component
         return User::query()
             ->whereNull('church_id')
             ->whereNull('church_temp_id');
+    }
+
+    private function allUsersForDirectory(): LengthAwarePaginator
+    {
+        $this->authorize('manageChurches');
+
+        $userDirectorySearch = trim($this->userDirectorySearch);
+
+        return User::query()
+            ->with([
+                'church:id,name',
+                'church_temp:id,name',
+                'roles:id,name',
+                'trainings.course:id,initials,name',
+            ])
+            ->when($userDirectorySearch !== '', function (Builder $query) use ($userDirectorySearch): void {
+                $query->where(function (Builder $query) use ($userDirectorySearch): void {
+                    $query->where('name', 'like', '%'.$userDirectorySearch.'%')
+                        ->orWhere('email', 'like', '%'.$userDirectorySearch.'%')
+                        ->orWhere('city', 'like', '%'.$userDirectorySearch.'%')
+                        ->orWhere('state', 'like', '%'.$userDirectorySearch.'%')
+                        ->orWhereHas('church', function (Builder $query) use ($userDirectorySearch): void {
+                            $query->where('name', 'like', '%'.$userDirectorySearch.'%');
+                        })
+                        ->orWhereHas('church_temp', function (Builder $query) use ($userDirectorySearch): void {
+                            $query->where('name', 'like', '%'.$userDirectorySearch.'%');
+                        });
+                });
+            })
+            ->orderByRaw('LOWER(name) asc')
+            ->orderBy('id')
+            ->paginate(10, ['*'], 'allUsersPage');
     }
 
     /**

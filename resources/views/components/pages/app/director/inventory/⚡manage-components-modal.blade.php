@@ -200,7 +200,9 @@ new class extends Component
                                         <tr class="border-t border-slate-200"
                                             wire:key="director-material-component-row-{{ $availableMaterial->id }}">
                                             <td class="px-4 py-4 align-top">
-                                                <input type="checkbox" value="{{ $availableMaterial->id }}"
+                                                <input id="director-material-component-checkbox-{{ $availableMaterial->id }}"
+                                                    name="selected_component_ids[]"
+                                                    type="checkbox" value="{{ $availableMaterial->id }}"
                                                     wire:model.live="selectedComponentIds"
                                                     class="mt-1 rounded border-slate-300">
                                             </td>
@@ -220,7 +222,9 @@ new class extends Component
                                             </td>
                                             <td class="px-4 py-4 align-top">
                                                 <div class="max-w-32">
-                                                    <input type="number" min="1"
+                                                    <input id="director-material-component-quantity-{{ $availableMaterial->id }}"
+                                                        name="component_quantities[{{ $availableMaterial->id }}]"
+                                                        type="number" min="1"
                                                         wire:model.live="componentQuantities.{{ $availableMaterial->id }}"
                                                         @disabled(! $isSelected)
                                                         class="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-sky-500 focus:outline-none focus:ring-0 disabled:bg-slate-100 disabled:text-slate-400">

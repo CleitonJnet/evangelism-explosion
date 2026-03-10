@@ -4,6 +4,7 @@ namespace App\Http\Controllers\System\Director;
 
 use App\Http\Controllers\Controller;
 use App\Models\Church;
+use App\Models\User;
 use Illuminate\View\View;
 
 class ChurchController extends Controller
@@ -53,5 +54,12 @@ class ChurchController extends Controller
         $this->authorize('update', $church);
 
         return view('pages.app.roles.director.churches.edit_host', ['church' => $church]);
+    }
+
+    public function profile(User $user): View
+    {
+        $this->authorize('manageChurches');
+
+        return view('pages.app.roles.director.churches.profile', ['profile' => $user]);
     }
 }

@@ -4,6 +4,8 @@
         <x-src.toolbar.nav>
             <x-src.toolbar.button :label="__('Nova igreja')" icon="plus" :tooltip="__('Cadastrar nova igreja')"
                 x-on:click.prevent="$dispatch('open-teacher-church-create-modal')" />
+            <x-src.toolbar.button :label="__('Listar usuários')" icon="users" :tooltip="__('Listar todos os usuários cadastrados')"
+                x-on:click.prevent="$wire.openAllUsersModal()" />
 
             <div class="relative ml-auto w-full min-w-64 max-w-md">
                 <input type="text" wire:model.live.debounce.300ms="churchSearch"
@@ -70,12 +72,18 @@
                             </div>
 
                             @forelse ($userSearchResults as $userResult)
-                                <a href="{{ route('app.teacher.churches.show', $userResult->church) }}"
+                                <a href="{{ route('app.teacher.church.profiles.show', $userResult) }}"
                                     class="mb-1 flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-slate-100">
-                                    <div
-                                        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-xs font-bold uppercase text-slate-700">
-                                        {{ $userResult->initials() }}
-                                    </div>
+                                    @if ($userResult->profile_photo_url)
+                                        <img src="{{ $userResult->profile_photo_url }}"
+                                            alt="{{ __('Foto de :name', ['name' => $userResult->name]) }}"
+                                            class="h-10 w-10 rounded-full border border-slate-200 bg-white object-cover">
+                                    @else
+                                        <div
+                                            class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-xs font-bold uppercase text-slate-700">
+                                            {{ $userResult->initials() }}
+                                        </div>
+                                    @endif
                                     <div class="min-w-0">
                                         <div class="truncate text-sm font-semibold text-slate-900">
                                             {{ $userResult->name }}
@@ -262,6 +270,145 @@
             {{ $churches->links(data: ['scrollTo' => false]) }}
         </div>
     </section>
+
+    <flux:modal name="teacher-all-users-modal" wire:model="showAllUsersModal" class="max-w-[92vw] w-full bg-sky-950! p-0!">
+        <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
+            <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
+                <flux:heading size="lg"><span class="text-white!">{{ __('Perfis cadastrados no sistema') }}</span></flux:heading>
+                <flux:subheading>
+                    <span class="text-white! opacity-80">{{ __('Lista completa de usuários com busca por nome, e-mail, cidade, estado e igreja.') }}</span>
+                </flux:subheading>
+            </div>
+
+            <div class="min-h-0 flex-1 overflow-y-auto bg-white/95 px-6 py-5">
+                <div class="space-y-5">
+                    <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                        <div class="relative">
+                            <input type="text" wire:model.live.debounce.300ms="userDirectorySearch"
+                                x-on:keydown.escape="$wire.set('userDirectorySearch', '')"
+                                placeholder="{{ __('Buscar por nome, e-mail, cidade, UF ou igreja') }}"
+                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-10 text-sm text-slate-900 shadow-xs outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+                            @if (trim($userDirectorySearch) !== '')
+                                <button type="button" wire:click="$set('userDirectorySearch', '')"
+                                    class="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                                    aria-label="{{ __('Limpar busca') }}">
+                                    <span class="text-base leading-none">&times;</span>
+                                </button>
+                            @endif
+                        </div>
+
+                        <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                            {{ __('Total listado: :count', ['count' => $allUsers->total()]) }}
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                        <table class="w-full min-w-5xl text-left text-sm">
+                            <thead class="sticky top-0 z-10 bg-slate-100 text-xs uppercase text-slate-500">
+                                <tr class="border-b border-slate-200">
+                                    <th class="px-3 py-3 text-center">{{ __('Foto') }}</th>
+                                    <th class="px-3 py-3">{{ __('Usuário') }}</th>
+                                    <th class="px-3 py-3">{{ __('Cidade / UF') }}</th>
+                                    <th class="px-3 py-3">{{ __('Igreja') }}</th>
+                                    <th class="px-3 py-3">{{ __('Cursos') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                @forelse ($allUsers as $listedUser)
+                                    @php
+                                        $completedCourses = $listedUser->trainings
+                                            ->pluck('course')
+                                            ->filter()
+                                            ->unique('id')
+                                            ->values();
+                                    @endphp
+                                    <tr wire:key="teacher-all-user-{{ $listedUser->id }}"
+                                        class="cursor-pointer odd:bg-white even:bg-slate-50/80 hover:bg-sky-50/70 transition"
+                                        data-row-link="{{ route('app.teacher.church.profiles.show', $listedUser) }}"
+                                        x-on:click="window.location = $el.dataset.rowLink">
+                                        <td class="px-3 py-3 align-middle">
+                                            <div class="flex justify-center">
+                                                @if ($listedUser->profile_photo_url)
+                                                    <img src="{{ $listedUser->profile_photo_url }}"
+                                                        alt="{{ __('Foto de :name', ['name' => $listedUser->name]) }}"
+                                                        class="h-11 w-11 rounded-full border border-slate-200 object-cover shadow-xs">
+                                                @else
+                                                    <div
+                                                        class="flex h-11 w-11 items-center justify-center rounded-full bg-slate-200 text-xs font-bold uppercase text-slate-700">
+                                                        {{ $listedUser->initials() }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-3 align-middle">
+                                            <div class="font-semibold text-slate-900">{{ $listedUser->name }}</div>
+                                            <div class="text-xs text-slate-500">{{ $listedUser->email }}</div>
+                                        </td>
+                                        <td class="px-3 py-3 align-middle text-slate-800">
+                                            {{ $listedUser->city ?: __('Cidade não informada') }}
+                                            <div class="text-xs text-slate-500">{{ $listedUser->state ?: __('UF não informada') }}</div>
+                                        </td>
+                                        <td class="px-3 py-3 align-middle">
+                                            <div class="font-medium text-slate-800">
+                                                {{ $listedUser->church?->name ?? $listedUser->church_temp?->name ?? __('Sem igreja vinculada') }}
+                                            </div>
+                                            <div class="text-xs text-slate-500">
+                                                @if ($listedUser->church)
+                                                    {{ __('Igreja oficial') }}
+                                                @elseif ($listedUser->church_temp)
+                                                    {{ __('Igreja temporária') }}
+                                                @else
+                                                    {{ __('Sem vínculo') }}
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-3 align-middle">
+                                            <div class="flex items-center">
+                                                @forelse ($completedCourses->take(5) as $index => $course)
+                                                    <span
+                                                        class="{{ $index > 0 ? '-ml-2' : '' }} inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-white bg-sky-100 px-2 text-[11px] font-bold uppercase text-sky-800 shadow-sm"
+                                                        title="{{ $course->name }}">
+                                                        {{ $course->initials ?: \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($course->name, 0, 2)) }}
+                                                    </span>
+                                                @empty
+                                                    <span class="text-sm text-slate-500">{{ __('Sem cursos') }}</span>
+                                                @endforelse
+
+                                                @if ($completedCourses->count() > 5)
+                                                    <span
+                                                        class="-ml-2 inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-white bg-slate-200 px-2 text-[11px] font-bold text-slate-700 shadow-sm">
+                                                        +{{ $completedCourses->count() - 5 }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-3 py-8 text-center text-sm text-slate-600">
+                                            {{ __('Nenhum usuário encontrado para este filtro.') }}
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div>
+                        {{ $allUsers->links(data: ['scrollTo' => false]) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4">
+                <div class="flex justify-end">
+                    <x-src.btn-silver type="button" wire:click="closeAllUsersModal">
+                        {{ __('Fechar') }}
+                    </x-src.btn-silver>
+                </div>
+            </div>
+        </div>
+    </flux:modal>
 
     <section
         class="mt-6 rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-6">

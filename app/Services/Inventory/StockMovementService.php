@@ -222,6 +222,7 @@ class StockMovementService
         ?string $notes = null,
         ?string $batchUuid = null,
         ?Model $reference = null,
+        bool $allowDynamicComposition = false,
     ): Collection {
         if (! $material->isComposite()) {
             throw InvalidCompositeMaterialException::notComposite($material);
@@ -229,7 +230,7 @@ class StockMovementService
 
         $this->ensurePositiveQuantity($quantity);
 
-        return DB::transaction(function () use ($inventory, $material, $quantity, $actor, $training, $notes, $batchUuid, $reference): Collection {
+        return DB::transaction(function () use ($inventory, $material, $quantity, $actor, $training, $notes, $batchUuid, $reference, $allowDynamicComposition): Collection {
             $components = $material->components()->with('componentMaterial')->lockForUpdate()->get();
 
             if ($components->isEmpty()) {
@@ -238,8 +239,11 @@ class StockMovementService
 
             $batchUuid ??= (string) Str::uuid();
             $movements = new Collection;
+            $parentBalance = 0;
 
-            $parentBalance = $this->decrementInventoryBalance($inventory, $material, $quantity);
+            if (! $allowDynamicComposition || $this->currentQuantity($inventory, $material) > 0) {
+                $parentBalance = $this->decrementInventoryBalance($inventory, $material, $quantity);
+            }
 
             $movements->push($this->createMovement(
                 inventory: $inventory,

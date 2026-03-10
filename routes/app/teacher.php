@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\System\Teacher\ChurchController;
 use App\Http\Controllers\System\Teacher\DashboardController;
+use App\Http\Controllers\System\Teacher\InventoryController;
 use App\Http\Controllers\System\Teacher\OjtController;
 use App\Http\Controllers\System\Teacher\StpApproachController;
 use App\Http\Controllers\System\Teacher\TrainingController;
@@ -15,11 +16,14 @@ Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->gr
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');
         Route::get('view-host/{church}', [ChurchController::class, 'view_host'])->name('view_host');
         Route::get('edit-host/{church}', [ChurchController::class, 'edit_host'])->name('edit_host');
+        Route::get('profiles/{user}', [ChurchController::class, 'profile'])->name('profiles.show');
     });
     Route::middleware('can:manageChurches')->resource('churches', ChurchController::class)->only(['index', 'show', 'create', 'edit']);
     Route::delete('churches/{church}', [ChurchController::class, 'destroy'])
         ->middleware('can:manageChurches')
         ->name('churches.destroy');
+
+    Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'edit']);
 
     Route::get('trainings/planning', [TrainingController::class, 'indexByStatus'])->name('trainings.planning')->defaults('status', 'planning');
     Route::get('trainings/scheduled', [TrainingController::class, 'indexByStatus'])->name('trainings.scheduled')->defaults('status', 'scheduled');

@@ -3,6 +3,7 @@
 use App\Livewire\Pages\App\Teacher\Church\CreateModal;
 use App\Livewire\Pages\App\Teacher\Church\Index as ChurchIndex;
 use App\Models\Church;
+use App\Models\Course;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -244,8 +245,115 @@ it('shows church and user results in search dropdown without filtering table row
         ->assertSeeText('Igreja Esperança')
         ->assertSeeText('Usuários encontrados')
         ->assertSeeText($matchingUser->name)
-        ->assertSee(route('app.teacher.churches.show', $churchOne))
+        ->assertSee(route('app.teacher.church.profiles.show', $matchingUser))
         ->assertSeeText('Igreja Vitória');
+});
+
+it('lists all system users in the directory modal and filters by church city state and email', function (): void {
+    $teacher = createTeacherUser();
+
+    $church = Church::factory()->create([
+        'name' => 'Igreja Diretório Professor',
+    ]);
+
+    $role = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+    $listedUser = User::factory()->create([
+        'name' => 'Marina Diretório',
+        'email' => 'marina.diretorio@example.com',
+        'city' => 'Recife',
+        'state' => 'PE',
+        'church_id' => $church->id,
+    ]);
+    $listedUser->roles()->syncWithoutDetaching([$role->id]);
+
+    $course = Course::factory()->create([
+        'initials' => 'CL',
+        'name' => 'Curso de Lideranca',
+    ]);
+    $training = createTeacherTraining($teacher, $church->id);
+    $training->course()->associate($course);
+    $training->save();
+    $training->students()->attach($listedUser->id);
+
+    $assistantTraining = Training::factory()->create(['course_id' => $course->id]);
+    $assistantTraining->assistantTeachers()->attach($teacher->id);
+
+    $assistantStudent = User::factory()->create([
+        'name' => 'Carlos Auxiliar',
+        'email' => 'carlos.auxiliar@example.com',
+        'city' => 'Manaus',
+        'state' => 'AM',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+    $assistantTraining->students()->attach($assistantStudent->id);
+
+    $hiddenUser = User::factory()->create([
+        'name' => 'Pedro Oculto',
+        'email' => 'pedro.oculto@example.com',
+        'city' => 'Manaus',
+        'state' => 'AM',
+        'church_id' => null,
+        'church_temp_id' => null,
+    ]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->call('openAllUsersModal')
+        ->assertSet('showAllUsersModal', true)
+        ->assertViewHas('allUsers', function ($paginator) use ($listedUser, $assistantStudent, $hiddenUser) {
+            $listedUserIds = collect($paginator->items())->pluck('id')->all();
+
+            expect($listedUserIds)->toContain($listedUser->id);
+            expect($listedUserIds)->toContain($assistantStudent->id);
+            expect($listedUserIds)->not->toContain($hiddenUser->id);
+
+            return true;
+        });
+
+    $filteredByChurch = $component
+        ->set('userDirectorySearch', 'Igreja Diretório Professor')
+        ->viewData('allUsers');
+
+    expect(collect($filteredByChurch->items())->pluck('id')->all())
+        ->toContain($listedUser->id)
+        ->not->toContain($assistantStudent->id)
+        ->not->toContain($hiddenUser->id);
+
+    $component
+        ->set('userDirectorySearch', 'Recife')
+        ->assertSeeText('Marina Diretório')
+        ->set('userDirectorySearch', 'Carlos Auxiliar')
+        ->assertSeeText('Carlos Auxiliar')
+        ->set('userDirectorySearch', 'PE')
+        ->assertSeeText('Marina Diretório')
+        ->set('userDirectorySearch', 'marina.diretorio@example.com')
+        ->assertSeeText('Marina Diretório')
+        ->assertSeeText('CL');
+});
+
+it('renders the church-context profile route for users listed in the directory modal', function (): void {
+    $teacher = createTeacherUser();
+    $church = Church::factory()->create(['name' => 'Igreja Perfil Professor']);
+    createTeacherTraining($teacher, $church->id);
+    $listedUser = User::factory()->create([
+        'name' => 'Perfil Igrejas Professor',
+        'church_id' => $church->id,
+        'church_temp_id' => null,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->call('openAllUsersModal')
+        ->assertSee(route('app.teacher.church.profiles.show', $listedUser));
+
+    $response = $this->actingAs($teacher)->get(route('app.teacher.church.profiles.show', $listedUser));
+
+    $response->assertOk();
+    $response->assertSeeText('Perfil Igrejas Professor');
+    $response->assertSeeText('Voltar para igrejas');
+    $response->assertDontSeeText('Excluir conta');
 });
 
 it('searches church and user dropdown by pastor city state and email', function (): void {
