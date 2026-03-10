@@ -56,8 +56,8 @@
     </x-src.toolbar.nav>
 
     <section
-        class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
-        <div class="flex items-center justify-between gap-4 border-b-2 border-slate-200/80 pb-1 mb-10">
+        class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-5 md:p-6">
+        <div class="mb-8 flex items-center justify-between gap-4 border-b-2 border-slate-200/80 pb-1">
             <div>
                 <h2 class="text-xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
                     {{ collect(value: $statuses)->firstWhere('key', $statusKey)['label'] ?? __('Treinamentos') }}
@@ -76,15 +76,15 @@
                 {{ __('Sem eventos para este status.') }}
             </div>
         @else
-            <div class="flex flex-col gap-12">
+            <div class="flex flex-col gap-8">
                 @foreach ($groups as $group)
                     @php
                         $ministry = $group['ministry'];
                         $ministryName = $ministry?->name ?? __('Sem ministério');
                     @endphp
 
-                    <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-sm">
-                        <div class="mb-6 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
+                    <div class="rounded-2xl border border-slate-200/80 bg-white/60 p-3 shadow-sm sm:p-4">
+                        <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
                             <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
                                 {{ $ministryName }}
                             </h3>
@@ -93,7 +93,7 @@
                             </span>
                         </div>
 
-                        <div class="flex flex-col gap-8">
+                        <div class="flex flex-col gap-6">
                             @foreach ($group['courses'] as $courseGroup)
                                 @php
                                     $course = $courseGroup['course'];
@@ -102,8 +102,8 @@
                                     $courseId = $course?->id ?? 'curso';
                                 @endphp
 
-                                <div id="course-{{ $courseId }}">
-                                    <h4 class="mb-4 flex items-center justify-between gap-1.5 rounded-lg border-b border-slate-200/80 bg-slate-50 px-2 py-1 text-lg text-slate-900"
+                                <div id="course-{{ $courseId }}" class="rounded-xl border border-slate-200/70 bg-white/70 p-3 sm:p-4">
+                                    <h4 class="mb-3 flex items-center justify-between gap-1.5 border-b border-slate-200/80 pb-2 text-lg text-slate-900"
                                         style="font-family: 'Cinzel', serif;">
                                         <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
                                         <span class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">

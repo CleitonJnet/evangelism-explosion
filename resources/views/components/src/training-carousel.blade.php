@@ -63,7 +63,7 @@
 @endonce
 
 <div class="relative">
-    <div class="px-3! swiper js-swiper-trainings SwiperCarouselTraining">
+    <div class="px-1 sm:px-2 md:px-3 swiper js-swiper-trainings SwiperCarouselTraining">
         <div class="swiper-wrapper">
             @foreach ($items as $item)
                 @php
@@ -138,8 +138,8 @@
                     :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" />
             @endforeach
         </div>
-        <div class="swiper-button-prev -left-2!"></div>
-        <div class="swiper-button-next -right-2!"></div>
+        <div class="swiper-button-prev left-0 sm:-left-1 md:-left-2"></div>
+        <div class="swiper-button-next right-0 sm:-right-1 md:-right-2"></div>
         <div class="swiper-pagination relative! mt-6!"></div>
     </div>
 </div>

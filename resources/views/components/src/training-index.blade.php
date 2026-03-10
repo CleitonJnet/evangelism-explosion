@@ -8,7 +8,26 @@
 ])
 
 <div>
-    <x-src.toolbar.header :title="__('Gerenciamento de Treinamentos e Eventos')" :description="__('Controle os treinamentos do Evangelismo Explosivo, organizando status e cursos em um só lugar.')" />
+    @php
+        $currentStatus = collect($statuses)->firstWhere('key', $statusKey);
+        $currentStatusTitle = $currentStatus['label'] ?? __('Treinamentos');
+        $currentStatusDescription = match ($statusKey) {
+            'planning' => __('Eventos em preparação, com estrutura e agenda ainda em montagem.'),
+            'scheduled' => __('Eventos confirmados e prontos para acompanhamento da execução.'),
+            'canceled' => __('Eventos cancelados, mantidos aqui para consulta e histórico.'),
+            'completed' => __('Eventos concluídos, com foco em acompanhamento e histórico.'),
+            default => __('Treinamentos organizados neste status.'),
+        };
+        $totalEvents = $groups->sum(fn ($group) => $group['courses']->sum(fn ($courseGroup) => $courseGroup['items']->count()));
+    @endphp
+
+    <x-src.toolbar.header :title="$currentStatusTitle" :description="$currentStatusDescription">
+        <x-slot:right>
+            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                {{ __('Total de eventos:') . ' ' . $totalEvents }}
+            </div>
+        </x-slot:right>
+    </x-src.toolbar.header>
 
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="$createRoute" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
@@ -71,72 +90,56 @@
         </div>
     </x-src.toolbar.nav>
 
-    <section class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-6 shadow-lg">
-        <div class="mb-10 flex items-center justify-between gap-4 border-b-2 border-slate-200/80 pb-1">
-            <div>
-                <h2 class="text-xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
-                    {{ collect($statuses)->firstWhere('key', $statusKey)['label'] ?? __('Treinamentos') }}
-                </h2>
-                <p class="text-sm text-slate-600">
-                    {{ __('Treinamentos registrados neste status.') }}
-                </p>
-            </div>
-            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
-                {{ __('Total de eventos:') . ' ' . $groups->sum(fn ($group) => $group['courses']->sum(fn ($courseGroup) => $courseGroup['items']->count())) }}
-            </div>
+    @if ($groups->isEmpty())
+        <div class="rounded-2xl border border-amber-200/60 bg-white p-6 text-sm text-slate-600">
+            @if (filled($filterValue))
+                {{ __('Nenhum treinamento encontrado para o filtro informado.') }}
+            @else
+                {{ __('Sem eventos para este status.') }}
+            @endif
         </div>
+    @else
+        <div class="flex flex-col gap-8">
+            @foreach ($groups as $group)
+                @php
+                    $ministry = $group['ministry'];
+                    $ministryName = $ministry?->name ?? __('Sem ministério');
+                @endphp
 
-        @if ($groups->isEmpty())
-            <div class="rounded-2xl border border-amber-200/60 bg-white p-6 text-sm text-slate-600">
-                @if (filled($filterValue))
-                    {{ __('Nenhum treinamento encontrado para o filtro informado.') }}
-                @else
-                    {{ __('Sem eventos para este status.') }}
-                @endif
-            </div>
-        @else
-            <div class="flex flex-col gap-12">
-                @foreach ($groups as $group)
-                    @php
-                        $ministry = $group['ministry'];
-                        $ministryName = $ministry?->name ?? __('Sem ministério');
-                    @endphp
-
-                    <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-sm">
-                        <div class="mb-6 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
-                            <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
-                                {{ $ministryName }}
-                            </h3>
-                            <span class="inline-flex items-center rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
-                                {{ __('Cursos:') }} {{ $group['courses']->count() }}
-                            </span>
-                        </div>
-
-                        <div class="flex flex-col gap-8">
-                            @foreach ($group['courses'] as $courseGroup)
-                                @php
-                                    $course = $courseGroup['course'];
-                                    $courseType = $course?->type ?? __('Treinamento');
-                                    $courseName = $course?->name ?? __('Curso não informado');
-                                    $courseId = $course?->id ?? 'curso';
-                                @endphp
-
-                                <div id="course-{{ $courseId }}">
-                                    <h4 class="mb-4 flex items-center justify-between gap-1.5 rounded-lg border-b border-slate-200/80 bg-slate-50 px-2 py-1 text-lg text-slate-900"
-                                        style="font-family: 'Cinzel', serif;">
-                                        <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
-                                        <span class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
-                                            {{ __('Eventos:') }} {{ $courseGroup['items']->count() }}
-                                        </span>
-                                    </h4>
-
-                                    <x-src.training-carousel :items="$courseGroup['items']" :role="$role" />
-                                </div>
-                            @endforeach
-                        </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white/60 p-3 shadow-sm sm:p-4">
+                    <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
+                        <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
+                            {{ $ministryName }}
+                        </h3>
+                        <span class="inline-flex items-center rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
+                            {{ __('Cursos:') }} {{ $group['courses']->count() }}
+                        </span>
                     </div>
-                @endforeach
-            </div>
-        @endif
-    </section>
+
+                    <div class="flex flex-col gap-6">
+                        @foreach ($group['courses'] as $courseGroup)
+                            @php
+                                $course = $courseGroup['course'];
+                                $courseType = $course?->type ?? __('Treinamento');
+                                $courseName = $course?->name ?? __('Curso não informado');
+                                $courseId = $course?->id ?? 'curso';
+                            @endphp
+
+                            <div id="course-{{ $courseId }}" class="rounded-xl border border-slate-200/70 bg-white/70 p-3 sm:p-4">
+                                <h4 class="mb-3 flex items-center justify-between gap-1.5 border-b border-slate-200/80 pb-2 text-lg text-slate-900"
+                                    style="font-family: 'Cinzel', serif;">
+                                    <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
+                                    <span class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
+                                        {{ __('Eventos:') }} {{ $courseGroup['items']->count() }}
+                                    </span>
+                                </h4>
+
+                                <x-src.training-carousel :items="$courseGroup['items']" :role="$role" />
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 </div>
