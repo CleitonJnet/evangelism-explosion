@@ -53,6 +53,12 @@ class View extends Component
         $this->resetPage('membersPage');
     }
 
+    public function clearMemberSearch(): void
+    {
+        $this->memberSearch = '';
+        $this->resetPage('membersPage');
+    }
+
     public function render(): ViewContract
     {
         $church = Church::query()

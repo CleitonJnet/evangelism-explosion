@@ -213,6 +213,12 @@ class ChurchUserProfile extends Component
         $this->selectedChurchId = $this->churchOptions()->first()?->id;
     }
 
+    public function clearChurchSearch(): void
+    {
+        $this->churchSearch = '';
+        $this->selectedChurchId = $this->churchOptions()->first()?->id;
+    }
+
     public function updateChurch(): void
     {
         Gate::authorize('manageChurches');

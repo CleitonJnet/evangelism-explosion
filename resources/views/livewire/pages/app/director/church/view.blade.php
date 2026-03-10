@@ -136,8 +136,27 @@
                 </h3>
 
                 <div class="mt-3">
-                    <flux:input wire:model.live.debounce.300ms="memberSearch"
-                        :placeholder="__('Buscar membro por nome ou e-mail')" />
+                    <div class="flex items-stretch overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+                        <input
+                            type="text"
+                            wire:model.live.debounce.300ms="memberSearch"
+                            placeholder="{{ __('Buscar membro por nome ou e-mail') }}"
+                            class="min-w-0 flex-1 border-0 bg-transparent px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                        />
+
+                        @if (filled($memberSearch))
+                            <button
+                                type="button"
+                                wire:click="clearMemberSearch"
+                                class="inline-flex items-center justify-center px-3 text-slate-400 transition hover:text-slate-700"
+                                aria-label="{{ __('Limpar filtro') }}"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="mt-3 overflow-x-auto">
