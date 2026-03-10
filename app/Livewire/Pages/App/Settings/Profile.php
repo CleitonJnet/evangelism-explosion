@@ -313,7 +313,6 @@ class Profile extends Component
             $address['district'] ?? null,
             $address['city'] ?? null,
             $address['state'] ?? null,
-            $address['postal_code'] ?? null,
         ]);
 
         return $parts !== [] ? implode(', ', $parts) : __('Não informado');

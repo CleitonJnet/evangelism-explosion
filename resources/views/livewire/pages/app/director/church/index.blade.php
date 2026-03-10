@@ -1,26 +1,26 @@
 <div>
     <x-src.toolbar.header :title="__('Gerenciamento de Igrejas')" :description="__('Gestão centralizada de todas as igrejas cadastradas no sistema.')" fixed-route-name="app.director.church.index" />
-    <div class="relative">
-        <x-src.toolbar.nav>
-            <x-src.toolbar.button :label="__('Nova igreja')" icon="plus" :tooltip="__('Cadastrar nova igreja')"
-                x-on:click.prevent="$dispatch('open-director-church-create-modal')" />
-            <x-src.toolbar.button :href="route('app.director.church.make_host')" :label="__('Nova base')" icon="church"
-                :tooltip="__('Cadastrar base de treinamentos')" />
+    <x-src.toolbar.nav>
+        <x-src.toolbar.button :label="__('Nova igreja')" icon="plus" :tooltip="__('Cadastrar nova igreja')"
+            x-on:click.prevent="$dispatch('open-director-church-create-modal')" />
+        <x-src.toolbar.button :href="route('app.director.church.make_host')" :label="__('Nova base')" icon="church" :tooltip="__('Cadastrar base de treinamentos')" />
 
-            <div class="relative ml-auto w-full min-w-64 max-w-md">
-                <input type="text" wire:model.live.debounce.300ms="churchSearch"
-                    x-on:keydown.escape="$wire.set('churchSearch', '')"
-                    placeholder="{{ __('Buscar igreja ou usuário por nome') }}"
-                    class="w-full rounded-xl border border-slate-300 bg-white/95 px-3 py-2 pr-10 text-sm text-slate-900 shadow-xs outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
-                @if (trim($churchSearch) !== '')
-                    <button type="button" wire:click="$set('churchSearch', '')"
-                        class="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-                        aria-label="{{ __('Limpar busca') }}">
-                        <span class="text-base leading-none">&times;</span>
-                    </button>
-                @endif
-            </div>
-        </x-src.toolbar.nav>
+        <div class="relative ml-auto w-full min-w-64 max-w-md">
+            <input type="text" wire:model.live.debounce.300ms="churchSearch"
+                x-on:keydown.escape="$wire.set('churchSearch', '')"
+                placeholder="{{ __('Buscar igreja ou usuário por nome') }}"
+                class="w-full rounded-xl border border-slate-300 bg-white/95 px-3 py-2 pr-10 text-sm text-slate-900 shadow-xs outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+            @if (trim($churchSearch) !== '')
+                <button type="button" wire:click="$set('churchSearch', '')"
+                    class="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                    aria-label="{{ __('Limpar busca') }}">
+                    <span class="text-base leading-none">&times;</span>
+                </button>
+            @endif
+        </div>
+    </x-src.toolbar.nav>
+
+    <div class="relative">
 
         @if (trim($churchSearch) !== '')
             <div class="pointer-events-none absolute inset-x-0 top-full z-50 -mt-2">
@@ -240,8 +240,8 @@
                             </td>
                             <td class="px-3 py-3 align-middle">
                                 <div class="flex justify-end" x-on:click.stop>
-                                    <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
-                                        wire:click="removeChurch({{ $church->id }})"
+                                    <flux:button variant="danger" size="sm" icon="trash"
+                                        icon:variant="outline" wire:click="removeChurch({{ $church->id }})"
                                         wire:confirm="{{ __('Deseja remover esta igreja? Esta ação é permanente.') }}"
                                         aria-label="{{ __('Remover igreja') }}">
                                     </flux:button>
@@ -271,7 +271,8 @@
                 <h2 class="text-xl font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
                     {{ __('Pessoas sem igreja vinculada') }}
                 </h2>
-                <p class="text-sm text-slate-600">{{ __('Usuários sem vínculo com igreja oficial ou temporária.') }}</p>
+                <p class="text-sm text-slate-600">{{ __('Usuários sem vínculo com igreja oficial ou temporária.') }}
+                </p>
             </div>
             <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
                 {{ __('Total listado: :count', ['count' => $unlinkedUsers->total()]) }}
@@ -309,11 +310,13 @@
                             </td>
                             <td class="px-3 py-3 align-middle text-slate-800">
                                 {{ $user->city ?: __('Cidade não informada') }}
-                                <span class="text-xs text-slate-600">/ {{ $user->state ?: __('UF não informada') }}</span>
+                                <span class="text-xs text-slate-600">/
+                                    {{ $user->state ?: __('UF não informada') }}</span>
                             </td>
                             <td class="px-3 py-3 align-middle">
                                 <div class="flex justify-end gap-2" x-on:click.stop>
-                                    <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
+                                    <flux:button variant="danger" size="sm" icon="trash"
+                                        icon:variant="outline"
                                         wire:click.stop="removeUnlinkedUser({{ $user->id }})"
                                         wire:confirm="{{ __('Deseja remover este usuário sem igreja vinculada? Esta ação é permanente.') }}"
                                         aria-label="{{ __('Remover usuário') }}">
@@ -337,11 +340,14 @@
         </div>
     </section>
 
-    <flux:modal name="director-unlinked-user-modal" wire:model="showUnlinkedUserModal" class="max-w-5xl w-full bg-sky-950! p-0!">
+    <flux:modal name="director-unlinked-user-modal" wire:model="showUnlinkedUserModal"
+        class="max-w-5xl w-full bg-sky-950! p-0!">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
-                <flux:heading size="lg"><span class="text-white!">{{ __('Detalhes do participante sem igreja') }}</span></flux:heading>
-                <flux:subheading><span class="text-white! opacity-80">{{ $selectedUnlinkedUserName }}</span></flux:subheading>
+                <flux:heading size="lg"><span
+                        class="text-white!">{{ __('Detalhes do participante sem igreja') }}</span></flux:heading>
+                <flux:subheading><span class="text-white! opacity-80">{{ $selectedUnlinkedUserName }}</span>
+                </flux:subheading>
             </div>
 
             <div class="min-h-0 flex-1 space-y-5 overflow-y-auto bg-white/95 px-6 py-4">
@@ -378,19 +384,22 @@
                                 @forelse ($linkableChurches as $church)
                                     <label wire:key="director-link-church-{{ $church->id }}"
                                         class="mb-1 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-slate-50">
-                                        <input type="radio" wire:model.live="linkChurchId" value="{{ $church->id }}"
+                                        <input type="radio" wire:model.live="linkChurchId"
+                                            value="{{ $church->id }}"
                                             class="h-4 w-4 border-slate-300 text-sky-700 focus:ring-sky-300">
                                         <span class="min-w-0">
                                             <span class="block truncate text-sm font-semibold text-slate-900">
                                                 {{ $church->name }}
                                             </span>
                                             <span class="block truncate text-xs text-slate-500">
-                                                {{ $church->city ?: __('Cidade não informada') }} / {{ $church->state ?: __('UF não informada') }}
+                                                {{ $church->city ?: __('Cidade não informada') }} /
+                                                {{ $church->state ?: __('UF não informada') }}
                                             </span>
                                         </span>
                                     </label>
                                 @empty
-                                    <p class="px-2 py-3 text-sm text-slate-600">{{ __('Nenhuma igreja encontrada para este filtro.') }}</p>
+                                    <p class="px-2 py-3 text-sm text-slate-600">
+                                        {{ __('Nenhuma igreja encontrada para este filtro.') }}</p>
                                 @endforelse
                             </div>
 
@@ -423,12 +432,14 @@
                             </thead>
                             <tbody class="divide-y divide-slate-200">
                                 @forelse ($selectedUserTrainings as $training)
-                                    <tr wire:key="director-modal-training-{{ $training->id }}" class="odd:bg-white even:bg-slate-50">
+                                    <tr wire:key="director-modal-training-{{ $training->id }}"
+                                        class="odd:bg-white even:bg-slate-50">
                                         <td class="px-3 py-2 font-semibold text-slate-900">#{{ $training->id }}</td>
                                         <td class="px-3 py-2 text-slate-700">
                                             {{ trim((string) $training->course?->type . ' ' . (string) $training->course?->name) ?: __('Não informado') }}
                                         </td>
-                                        <td class="px-3 py-2 text-slate-700">{{ $training->church?->name ?: __('Não informada') }}</td>
+                                        <td class="px-3 py-2 text-slate-700">
+                                            {{ $training->church?->name ?: __('Não informada') }}</td>
                                         <td class="px-3 py-2 text-right">
                                             <a href="{{ route('app.director.trainings.show', $training) }}"
                                                 class="text-sm font-semibold text-sky-700 hover:underline">

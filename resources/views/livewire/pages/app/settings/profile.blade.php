@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <x-src.toolbar.header :title="$user->name" :description="__('Dados pessoais, seguranca da conta e vinculo ministerial em um unico lugar.')" :breadcrumb="false" />
+    <x-src.toolbar.header :title="__('Perfil do Usuário')" :description="__('Dados pessoais, seguranca da conta e vinculo ministerial em um unico lugar.')" :breadcrumb="false" />
 
     <x-src.toolbar.nav>
         <x-src.toolbar.button :label="__('Foto do perfil')" icon="pencil" :tooltip="__('Atualizar foto do perfil')"
@@ -41,113 +41,152 @@
     <section
         class="overflow-hidden rounded-2xl border border-slate-200/80 bg-linear-to-br from-sky-950 via-sky-900 to-slate-900 text-slate-100 shadow-sm">
         <div class="grid gap-6 p-6 sm:p-8">
-                <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="relative shrink-0">
-                            @if ($profilePhotoUrl)
-                                <img src="{{ $profilePhotoUrl }}"
-                                    alt="{{ __('Foto de perfil de :name', ['name' => $user->name]) }}"
-                                    class="h-28 w-28 rounded-3xl border border-white/20 object-cover shadow-lg">
-                            @else
-                                <div
-                                    class="flex h-28 w-28 items-center justify-center rounded-3xl border border-white/15 bg-amber-300 text-3xl font-semibold tracking-[0.2em] text-sky-950 shadow-lg">
-                                    {{ $user->initials() }}
-                                </div>
+            <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="relative shrink-0">
+                        @if ($profilePhotoUrl)
+                            <img src="{{ $profilePhotoUrl }}"
+                                alt="{{ __('Foto de perfil de :name', ['name' => $user->name]) }}"
+                                class="h-36 w-36 rounded-2xl border border-white/20 object-cover shadow-lg">
+                        @else
+                            <div
+                                class="flex h-36 w-36 items-center justify-center rounded-2xl border border-white/15 bg-amber-300 text-3xl font-semibold tracking-[0.2em] text-sky-950 shadow-lg">
+                                {{ $user->initials() }}
+                            </div>
+                        @endif
+
+                        <div wire:loading.flex wire:target="profilePhotoUpload,updateProfilePhoto"
+                            class="absolute inset-0 items-center justify-center rounded-2xl bg-sky-950/75 px-3 text-center text-xs font-semibold text-white">
+                            {{ __('Atualizando foto...') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="space-y-1">
+                            <p class="text-xs uppercase tracking-[0.24em] text-sky-100/60">{{ __('Perfil do usuario') }}
+                            </p>
+                            <h2 class="text-3xl font-semibold tracking-tight">{{ $user->name }}</h2>
+                            <p class="text-sm text-sky-100/75">{{ $user->phone }} - {{ $user->email }}</p>
+                            <p class="text-sm text-sky-100/75">{{ $user->gender ? __('Masculino') : __('Feminino') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            @if ($this->isPastor())
+                                <span
+                                    class="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-300/15 px-3 py-1 text-xs font-semibold text-amber-100">
+                                    {{ __('Pastor') }}
+                                </span>
                             @endif
 
-                            <div wire:loading.flex wire:target="profilePhotoUpload,updateProfilePhoto"
-                                class="absolute inset-0 items-center justify-center rounded-3xl bg-sky-950/75 px-3 text-center text-xs font-semibold text-white">
-                                {{ __('Atualizando foto...') }}
-                            </div>
+                            @foreach ($user->roles as $role)
+                                <span
+                                    class="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100"
+                                    wire:key="role-pill-{{ $role->id }}">
+                                    {{ $role->name }}
+                                </span>
+                            @endforeach
                         </div>
-
-                        <div class="space-y-3">
-                            <div class="space-y-1">
-                                <p class="text-xs uppercase tracking-[0.24em] text-sky-100/60">{{ __('Perfil do usuario') }}</p>
-                                <h2 class="text-3xl font-semibold tracking-tight">{{ $user->name }}</h2>
-                                <p class="text-sm text-sky-100/75">{{ $user->email }}</p>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2">
-                                @if ($this->isPastor())
-                                    <span
-                                        class="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-300/15 px-3 py-1 text-xs font-semibold text-amber-100">
-                                        {{ __('Pastor') }}
-                                    </span>
-                                @endif
-
-                                @foreach ($user->roles as $role)
-                                    <span
-                                        class="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100"
-                                        wire:key="role-pill-{{ $role->id }}">
-                                        {{ $role->name }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        class="grid gap-2 rounded-2xl border border-amber-300/20 bg-linear-to-br from-amber-300/12 to-white/8 px-5 py-4 text-left shadow-lg shadow-sky-950/20 sm:min-w-72">
-                        <span class="text-xs uppercase tracking-[0.2em] text-amber-100/70">{{ __('Igreja vinculada') }}</span>
-                        <span class="text-base font-semibold text-white">
-                            {{ $user->church?->name ?? __('Sem igreja vinculada') }}
-                        </span>
-                        <span class="text-sm text-sky-100/70">
-                            {{ $user->church?->city ? $user->church->city . ($user->church->state ? ' / ' . $user->church->state : '') : __('Sem local definido') }}
-                        </span>
-                        <span class="text-xs text-sky-100/55">
-                            {{ $user->church?->pastor ? __('Pastor: :name', ['name' => $user->church->pastor]) : __('Pastor nao informado') }}
-                        </span>
                     </div>
                 </div>
 
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Telefone') }}</p>
-                        <p class="mt-2 text-sm font-semibold text-white">{{ $this->formatValue($user->phone) }}</p>
-                    </article>
-
-                    <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Nascimento') }}</p>
-                        <p class="mt-2 text-sm font-semibold text-white">{{ $this->formatDate($user->birthdate) }}</p>
-                    </article>
-
-                    <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Genero') }}</p>
-                        <p class="mt-2 text-sm font-semibold text-white">{{ $user->gender_label ?? __('Nao informado') }}</p>
-                    </article>
-
-                    <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Identificacao') }}</p>
-                        <p class="mt-2 text-sm font-semibold text-white">#{{ $user->id }}</p>
-                    </article>
-                </div>
-
-                <div class="grid gap-3 rounded-2xl border border-white/10 bg-white/6 p-5">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Observacoes') }}</p>
-                            <p class="mt-1 text-sm text-sky-100/65">{{ __('Anotacoes e contexto adicional do cadastro.') }}</p>
-                        </div>
-                    </div>
-                    <p class="whitespace-pre-line text-sm leading-6 text-slate-100/90">{{ $this->formatValue($user->notes) }}</p>
-                </div>
+                {{-- <div
+                    class="grid gap-2 rounded-2xl border border-amber-300/20 bg-linear-to-br from-amber-300/12 to-white/8 px-5 py-4 text-left shadow-lg shadow-sky-950/20 sm:min-w-72">
+                    <span
+                        class="text-xs uppercase tracking-[0.2em] text-amber-100/70">{{ __('Igreja vinculada') }}</span>
+                    <span class="text-base font-semibold text-white">
+                        {{ $user->church?->name ?? __('Sem igreja vinculada') }}
+                    </span>
+                    <span class="text-sm text-sky-100/70">
+                        {{ $user->church?->city ? $user->church->city . ($user->church->state ? ' / ' . $user->church->state : '') : __('Sem local definido') }}
+                    </span>
+                    <span class="text-xs text-sky-100/55">
+                        {{ $user->church?->pastor ? __('Pastor: :name', ['name' => $user->church->pastor]) : __('Pastor nao informado') }}
+                    </span>
+                </div> --}}
 
                 <div class="rounded-2xl border border-white/10 bg-white/6 p-4">
                     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div class="space-y-1">
-                            <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Endereco residencial') }}</p>
+                            <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Endereco residencial') }}
+                            </p>
                             <p class="text-sm leading-6 text-slate-100/88">{{ $this->formatAddress($address) }}</p>
                         </div>
 
-                        @if (($user->postal_code ?? null) || ($user->city ?? null) || ($user->state ?? null))
+                        @if ($user->postal_code ?? null)
                             <div class="text-xs text-sky-100/60 sm:text-right">
-                                {{ collect([$user->postal_code, $user->city, $user->state])->filter()->implode(' • ') }}
+                                {{ $user->postal_code }}
                             </div>
                         @endif
                     </div>
                 </div>
+
+            </div>
+
+            {{-- <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
+                    <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Telefone') }}</p>
+                    <p class="mt-2 text-sm font-semibold text-white">{{ $this->formatValue($user->phone) }}</p>
+                </article>
+
+                <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
+                    <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Nascimento') }}</p>
+                    <p class="mt-2 text-sm font-semibold text-white">{{ $this->formatDate($user->birthdate) }}</p>
+                </article>
+
+                <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
+                    <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Genero') }}</p>
+                    <p class="mt-2 text-sm font-semibold text-white">{{ $user->gender_label ?? __('Nao informado') }}
+                    </p>
+                </article>
+
+                <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
+                    <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Identificacao') }}</p>
+                    <p class="mt-2 text-sm font-semibold text-white">#{{ $user->id }}</p>
+                </article>
+            </div> --}}
+
+            <div
+                class="grid gap-2 rounded-2xl border border-amber-300/20 bg-linear-to-br from-amber-300/12 to-white/8 px-5 py-4 text-left shadow-lg shadow-sky-950/20 sm:min-w-72">
+                <span class="text-xs uppercase tracking-[0.2em] text-amber-100/70">{{ __('Igreja vinculada') }}</span>
+                <span class="text-base font-semibold text-white">
+                    {{ $user->church?->name ?? __('Sem igreja vinculada') }}
+                </span>
+                <span class="text-sm text-sky-100/70">
+                    {{ $user->church?->city ? $user->church->city . ($user->church->state ? ' / ' . $user->church->state : '') : __('Sem local definido') }}
+                </span>
+                <span class="text-xs text-sky-100/55">
+                    {{ $user->church?->pastor ? __('Pastor: :name', ['name' => $user->church->pastor]) : __('Pastor nao informado') }}
+                </span>
+            </div>
+
+            {{-- <div class="rounded-2xl border border-white/10 bg-white/6 p-4">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="space-y-1">
+                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Endereco residencial') }}</p>
+                        <p class="text-sm leading-6 text-slate-100/88">{{ $this->formatAddress($address) }}</p>
+                    </div>
+
+                    @if (($user->postal_code ?? null) || ($user->city ?? null) || ($user->state ?? null))
+                        <div class="text-xs text-sky-100/60 sm:text-right">
+                            {{ collect([$user->postal_code, $user->city, $user->state])->filter()->implode(' • ') }}
+                        </div>
+                    @endif
+                </div>
+            </div> --}}
+
+            <div class="grid gap-3 rounded-2xl border border-white/10 bg-white/6 p-5">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Observacoes') }}</p>
+                        <p class="mt-1 text-sm text-sky-100/65">{{ __('Anotacoes e contexto adicional do cadastro.') }}
+                        </p>
+                    </div>
+                </div>
+                <p class="whitespace-pre-line text-sm leading-6 text-slate-100/90">
+                    {{ $this->formatValue($user->notes) }}</p>
+            </div>
+
         </div>
     </section>
 
