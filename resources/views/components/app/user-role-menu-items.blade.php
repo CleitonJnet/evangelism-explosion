@@ -20,14 +20,14 @@
         @can('access-board')
             <flux:menu.item :href="route('app.board.dashboard')" icon="home" wire:navigate
                 :class="$roleItemClass(request()->routeIs('app.board.*'))">
-                {{ __('Board Member') }}
+                {{ __('Board') }}
             </flux:menu.item>
         @endcan
 
         @can('access-director')
             <flux:menu.item :href="route('app.director.dashboard')" icon="home" wire:navigate
                 :class="$roleItemClass(request()->routeIs('app.director.*'))">
-                {{ __('Diretor Nacional') }}
+                {{ __('Director') }}
             </flux:menu.item>
         @endcan
 
@@ -48,7 +48,7 @@
         @can('access-fieldworker')
             <flux:menu.item :href="route('app.fieldworker.dashboard')" icon="home" wire:navigate
                 :class="$roleItemClass(request()->routeIs('app.fieldworker.*'))">
-                {{ __('Field Worker') }}
+                {{ __('FieldWorker') }}
             </flux:menu.item>
         @endcan
 

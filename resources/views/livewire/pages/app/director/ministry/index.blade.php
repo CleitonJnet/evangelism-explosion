@@ -26,6 +26,24 @@
                     $logoUrl = $logoValue;
                     $leadershipCourses = $ministry->courses->where('execution', 0)->values();
                     $localImplementationCourses = $ministry->courses->where('execution', 1)->values();
+                    $themeColor = trim((string) $ministry->color);
+                    $normalizedThemeColor = preg_match('/^#?[0-9a-fA-F]{6}$/', $themeColor) === 1
+                        ? '#'.ltrim($themeColor, '#')
+                        : null;
+                    $rgb = $normalizedThemeColor
+                        ? sscanf($normalizedThemeColor, '#%02x%02x%02x')
+                        : null;
+                    $rgbString = $rgb
+                        ? implode(', ', [(int) $rgb[0], (int) $rgb[1], (int) $rgb[2]])
+                        : null;
+                    $cardBackground = $rgb
+                        ? 'linear-gradient(135deg, rgba('.$rgbString.', 0.12), rgba(255, 255, 255, 0.96) 42%, rgba('.$rgbString.', 0.18))'
+                        : null;
+                    $cardHoverBackground = $rgb
+                        ? 'linear-gradient(135deg, rgba('.$rgbString.', 0.18), rgba(255, 255, 255, 0.98) 42%, rgba('.$rgbString.', 0.24))'
+                        : null;
+                    $cardBorderColor = $normalizedThemeColor ?: '#cbd5e1';
+                    $initialsBackgroundColor = $normalizedThemeColor ?: '#e2e8f0';
 
                     if ($logoValue !== '' && !str_starts_with($logoValue, 'http')) {
                         $normalizedLogo = ltrim($logoValue, '/');
@@ -41,7 +59,10 @@
 
                 <a href="{{ route('app.director.ministry.show', $ministry) }}"
                     wire:key="ministry-card-{{ $ministry->id }}"
-                    class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/95 p-4 text-left shadow-xs transition hover:border-sky-300 hover:bg-sky-50/40">
+                    class="flex flex-col gap-4 rounded-2xl border-2 p-4 text-left shadow-xs transition"
+                    style="border-color: {{ $cardBorderColor }}; background: {{ $cardBackground ?: 'rgba(255, 255, 255, 0.95)' }};"
+                    onmouseover="this.style.background='{{ $cardHoverBackground ?: 'rgba(241, 245, 249, 0.95)' }}'"
+                    onmouseout="this.style.background='{{ $cardBackground ?: 'rgba(255, 255, 255, 0.95)' }}'">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center gap-3">
                             @if ($logoUrl)
@@ -49,12 +70,13 @@
                                     class="h-12 w-12 rounded-xl border border-slate-200 bg-white object-cover">
                             @else
                                 <div
-                                    class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-200 text-xs font-bold uppercase text-slate-700">
+                                    class="inline-flex h-12 w-12 items-center justify-center rounded-xl text-xs font-bold uppercase text-white"
+                                    style="background-color: {{ $initialsBackgroundColor }};">
                                     {{ str($ministry->initials)->limit(3, '') ?: 'MIN' }}
                                 </div>
                             @endif
                             <div>
-                                <div class="text-base font-semibold text-slate-900">{{ $ministry->name }}</div>
+                                <div class="text-lg font-bold tracking-tight text-slate-950 sm:text-xl">{{ $ministry->name }}</div>
                                 <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                     {{ $ministry->initials ?: __('Sem sigla') }}
                                 </div>

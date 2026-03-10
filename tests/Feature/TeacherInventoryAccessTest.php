@@ -27,6 +27,8 @@ it('lists only inventories delegated to the authenticated teacher', function ():
         'kind' => 'teacher',
         'user_id' => $teacher->id,
         'is_active' => true,
+        'city' => 'Campinas',
+        'state' => 'SP',
     ]);
 
     Inventory::query()->create([
@@ -40,7 +42,48 @@ it('lists only inventories delegated to the authenticated teacher', function ():
 
     $response->assertOk();
     $response->assertSeeText($ownInventory->name);
+    $response->assertSeeText('Meu estoque');
+    $response->assertSeeText('Rotina operacional delegada');
+    $response->assertSeeText('Campinas / SP');
     $response->assertDontSeeText('Estoque de Outro Professor');
+});
+
+it('filters teacher inventories by responsible name, city, uf and full state name', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+    $teacher->update(['name' => 'Professor Elias']);
+
+    Inventory::query()->create([
+        'name' => 'Estoque Interior',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+
+    Inventory::query()->create([
+        'name' => 'Estoque Litoral',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+        'city' => 'Santos',
+        'state' => 'SP',
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(\App\Livewire\Pages\App\Teacher\Inventory\Index::class)
+        ->set('search', 'Elias')
+        ->assertSee('Estoque Interior')
+        ->assertSee('Estoque Litoral')
+        ->set('search', 'Campinas')
+        ->assertSee('Estoque Interior')
+        ->assertDontSee('Estoque Litoral')
+        ->set('search', 'SP')
+        ->assertSee('Estoque Interior')
+        ->assertSee('Estoque Litoral')
+        ->set('search', 'Sao Paulo')
+        ->assertSee('Estoque Interior')
+        ->assertSee('Estoque Litoral');
 });
 
 it('forbids a teacher from opening another teachers inventory pages', function (): void {

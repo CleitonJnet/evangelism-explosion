@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -17,6 +18,36 @@ class Index extends Component
 {
     use AuthorizesRequests;
     use WithPagination;
+
+    private const STATE_NAMES_BY_UF = [
+        'AC' => 'Acre',
+        'AL' => 'Alagoas',
+        'AP' => 'Amapa',
+        'AM' => 'Amazonas',
+        'BA' => 'Bahia',
+        'CE' => 'Ceara',
+        'DF' => 'Distrito Federal',
+        'ES' => 'Espirito Santo',
+        'GO' => 'Goias',
+        'MA' => 'Maranhao',
+        'MT' => 'Mato Grosso',
+        'MS' => 'Mato Grosso do Sul',
+        'MG' => 'Minas Gerais',
+        'PA' => 'Para',
+        'PB' => 'Paraiba',
+        'PR' => 'Parana',
+        'PE' => 'Pernambuco',
+        'PI' => 'Piaui',
+        'RJ' => 'Rio de Janeiro',
+        'RN' => 'Rio Grande do Norte',
+        'RS' => 'Rio Grande do Sul',
+        'RO' => 'Rondonia',
+        'RR' => 'Roraima',
+        'SC' => 'Santa Catarina',
+        'SP' => 'Sao Paulo',
+        'SE' => 'Sergipe',
+        'TO' => 'Tocantins',
+    ];
 
     public string $search = '';
 
@@ -60,6 +91,9 @@ class Index extends Component
 
     private function inventoriesQuery(User $user): Builder
     {
+        $search = trim($this->search);
+        $matchingStateUfs = $this->matchingStateUfs($search);
+
         return Inventory::query()
             ->with('responsibleUser:id,name')
             ->where('user_id', $user->id)
@@ -71,15 +105,39 @@ class Index extends Component
                     ->where('current_quantity', '>', 0),
                 'active_skus_count',
             )
-            ->when($this->search !== '', function ($query): void {
-                $query->where(function ($innerQuery): void {
+            ->when($search !== '', function ($query) use ($search, $matchingStateUfs): void {
+                $query->where(function ($innerQuery) use ($search, $matchingStateUfs): void {
                     $innerQuery
-                        ->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('city', 'like', '%'.$this->search.'%')
-                        ->orWhere('state', 'like', '%'.$this->search.'%');
+                        ->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('city', 'like', '%'.$search.'%')
+                        ->orWhere('state', 'like', '%'.$search.'%')
+                        ->orWhereHas('responsibleUser', fn ($userQuery) => $userQuery->where('name', 'like', '%'.$search.'%'));
+
+                    if ($matchingStateUfs !== []) {
+                        $innerQuery->orWhereIn('state', $matchingStateUfs);
+                    }
                 });
             })
             ->when($this->statusFilter !== '', fn ($query) => $query->where('is_active', $this->statusFilter === 'active'))
             ->orderBy('name');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function matchingStateUfs(string $search): array
+    {
+        if ($search === '') {
+            return [];
+        }
+
+        $normalizedSearch = Str::lower(Str::ascii($search));
+
+        return array_keys(array_filter(
+            self::STATE_NAMES_BY_UF,
+            fn (string $stateName, string $uf): bool => str_contains(Str::lower(Str::ascii($stateName)), $normalizedSearch)
+                || str_contains(Str::lower($uf), $normalizedSearch),
+            ARRAY_FILTER_USE_BOTH,
+        ));
     }
 }

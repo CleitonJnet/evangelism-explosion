@@ -2,11 +2,11 @@
     <flux:dropdown position="bottom" align="start" class="bg-white/5 rounded-lg">
         @php
             $currentRoleLabel = match (true) {
-                request()->routeIs('app.board.*') => __('Board Member'),
-                request()->routeIs('app.director.*') => __('National Director'),
+                request()->routeIs('app.board.*') => __('Board'),
+                request()->routeIs('app.director.*') => __('Director'),
                 request()->routeIs('app.teacher.*') => __('Teacher'),
                 request()->routeIs('app.facilitator.*') => __('Facilitator'),
-                request()->routeIs('app.fieldworker.*') => __('Field Worker'),
+                request()->routeIs('app.fieldworker.*') => __('FieldWorker'),
                 request()->routeIs('app.mentor.*') => __('Mentor'),
                 request()->routeIs('app.student.*') => __('Student'),
                 default => __('Triagem'),
@@ -32,14 +32,14 @@
                 @can('access-board')
                     <flux:menu.item :href="route('app.board.dashboard')" wire:navigate
                         class="hover:bg-sky-950! hover:text-white!">
-                        &#10023; {{ __('Board Member') }}
+                        &#10023; {{ __('Board') }}
                     </flux:menu.item>
                 @endcan
 
                 @can('access-director')
                     <flux:menu.item :href="route('app.director.dashboard')" wire:navigate
                         class="hover:bg-sky-950! hover:text-white!">
-                        &#10023; {{ __('National Director') }}
+                        &#10023; {{ __('Director') }}
                     </flux:menu.item>
                 @endcan
 
@@ -60,7 +60,7 @@
                 @can('access-fieldworker')
                     <flux:menu.item :href="route('app.fieldworker.dashboard')" wire:navigate
                         class="hover:bg-sky-950! hover:text-white!">
-                        &#10023; {{ __('Field Worker') }}
+                        &#10023; {{ __('FieldWorker') }}
                     </flux:menu.item>
                 @endcan
 

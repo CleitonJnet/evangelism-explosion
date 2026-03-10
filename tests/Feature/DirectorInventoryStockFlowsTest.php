@@ -76,6 +76,73 @@ it('deletes an inventory from the listing after confirmation', function (): void
     expect(Inventory::query()->find($inventory->id))->toBeNull();
 });
 
+it('shows the inventory listing as cards with distinct central and teacher highlights', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $teacher = createTeacherUserForInventoryTests();
+
+    Inventory::query()->create([
+        'name' => 'Estoque Central Alpha',
+        'kind' => 'central',
+        'is_active' => true,
+        'city' => 'Sao Paulo',
+        'state' => 'SP',
+    ]);
+
+    Inventory::query()->create([
+        'name' => 'Estoque Professor Beta',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+
+    $response = $this->actingAs($director)->get(route('app.director.inventory.index'));
+
+    $response->assertOk();
+    $response->assertSeeText('Total listado: 2');
+    $response->assertSeeText('Distribuição central');
+    $response->assertSeeText('Operação do professor');
+    $response->assertSeeText('Sao Paulo / SP');
+    $response->assertSeeText('Campinas / SP');
+    $response->assertSee('director-inventory-card-', false);
+});
+
+it('filters director inventories by responsible name, city and full state name', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $teacher = createTeacherUserForInventoryTests();
+    $teacher->update(['name' => 'Professora Helena']);
+
+    $matchingInventory = Inventory::query()->create([
+        'name' => 'Estoque Campinas',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+
+    Inventory::query()->create([
+        'name' => 'Estoque Curitiba',
+        'kind' => 'teacher',
+        'is_active' => true,
+        'city' => 'Curitiba',
+        'state' => 'PR',
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(InventoryIndex::class)
+        ->set('search', 'Helena')
+        ->assertSee($matchingInventory->name)
+        ->assertDontSee('Estoque Curitiba')
+        ->set('search', 'Campinas')
+        ->assertSee($matchingInventory->name)
+        ->assertDontSee('Estoque Curitiba')
+        ->set('search', 'Sao Paulo')
+        ->assertSee($matchingInventory->name)
+        ->assertDontSee('Estoque Curitiba');
+});
+
 it('blocks inventory deletion when it already has stock movements', function (): void {
     $director = createDirectorUserForInventoryTests();
     $inventory = Inventory::query()->create(['name' => 'Estoque auditado', 'kind' => 'central']);

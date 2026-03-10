@@ -10,7 +10,9 @@
                     {{ __('Gerencie o estoque central e os estoques locais vinculados aos professores.') }}
                 </p>
             </div>
-
+            <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+                {{ __('Total listado: :count', ['count' => $inventories->total()]) }}
+            </div>
         </div>
 
         <div class="flex flex-wrap gap-x-4 gap-y-8">
@@ -22,74 +24,94 @@
                 width_basic="180" :options="$statusOptions" />
         </div>
 
-        <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
-            <table class="w-full min-w-5xl text-left text-sm">
-                <thead class="bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-                    <tr>
-                        <th class="px-4 py-3">{{ __('Nome') }}</th>
-                        <th class="px-4 py-3">{{ __('Tipo') }}</th>
-                        <th class="px-4 py-3">{{ __('Professor responsável') }}</th>
-                        <th class="px-4 py-3">{{ __('Cidade / Estado') }}</th>
-                        <th class="px-4 py-3">{{ __('Status') }}</th>
-                        <th class="px-4 py-3">{{ __('SKUs com saldo') }}</th>
-                        <th class="px-4 py-3 text-right">{{ __('Ações') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($inventories as $inventory)
-                        <tr wire:key="director-inventory-row-{{ $inventory->id }}"
-                            class="cursor-pointer border-t border-slate-200 transition odd:bg-white even:bg-slate-50 hover:bg-slate-100/80"
-                            onclick="window.location='{{ route('app.director.inventory.show', $inventory) }}'">
-                            <td class="px-4 py-4">
-                                <div class="font-semibold text-slate-900">{{ $inventory->name }}</div>
-                                <div class="text-xs text-slate-500">
-                                    {{ $inventory->email ?: __('Sem email') }} · {{ $inventory->phone ?: __('Sem telefone') }}
-                                </div>
-                            </td>
-                            <td class="px-4 py-4">
-                                <span
-                                    class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $inventory->kind === 'central' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800' }}">
-                                    {{ $inventory->kind === 'central' ? __('Central') : __('Professor') }}
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            @forelse ($inventories as $inventory)
+                @php
+                    $isCentralInventory = $inventory->kind === 'central';
+                    $typeBadgeClasses = $isCentralInventory
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-sky-100 text-sky-800';
+                    $cardClasses = $isCentralInventory
+                        ? 'border-2 border-amber-300 bg-linear-to-br from-amber-50 via-white to-amber-100/70 hover:border-amber-400 hover:bg-amber-50/80'
+                        : 'border-2 border-sky-300 bg-linear-to-br from-sky-50 via-white to-cyan-100/70 hover:border-sky-400 hover:bg-sky-50/80';
+                    $location = trim(implode(' / ', array_filter([$inventory->city, $inventory->state]))) ?: __('Não informado');
+                    $responsibleName = $inventory->responsibleUser?->name ?: __('Não se aplica');
+                @endphp
+
+                <a href="{{ route('app.director.inventory.show', $inventory) }}"
+                    wire:key="director-inventory-card-{{ $inventory->id }}"
+                    class="flex flex-col gap-4 rounded-2xl border p-4 text-left shadow-xs transition {{ $cardClasses }}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="space-y-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $typeBadgeClasses }}">
+                                    {{ $isCentralInventory ? __('Central') : __('Professor') }}
                                 </span>
-                            </td>
-                            <td class="px-4 py-4 text-slate-700">
-                                {{ $inventory->responsibleUser?->name ?: __('Não se aplica') }}
-                            </td>
-                            <td class="px-4 py-4 text-slate-700">
-                                {{ trim(implode(' / ', array_filter([$inventory->city, $inventory->state]))) ?: __('Não informado') }}
-                            </td>
-                            <td class="px-4 py-4">
                                 <span
                                     class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $inventory->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">
                                     {{ $inventory->is_active ? __('Ativo') : __('Inativo') }}
                                 </span>
-                            </td>
-                            <td class="px-4 py-4 text-slate-700">{{ (int) $inventory->active_skus_count }}</td>
-                            <td class="px-4 py-4">
-                                <div class="flex justify-end" x-on:click.stop>
-                                    <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
-                                        wire:click.stop="openDeleteModal({{ $inventory->id }})"
-                                        aria-label="{{ __('Excluir estoque') }}">
-                                    </flux:button>
+                            </div>
+
+                            <div>
+                                <div class="text-lg font-bold tracking-tight text-slate-950 sm:text-xl">{{ $inventory->name }}</div>
+                                <div class="text-xs text-slate-500">
+                                    {{ $inventory->email ?: __('Sem email') }} · {{ $inventory->phone ?: __('Sem telefone') }}
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
-                                <div class="mx-auto max-w-md space-y-2">
-                                    <div class="text-base font-semibold text-slate-700">
-                                        {{ __('Nenhum estoque encontrado') }}
-                                    </div>
-                                    <div>
-                                        {{ __('Ajuste os filtros ou cadastre um novo estoque para iniciar o controle operacional.') }}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            </div>
+                        </div>
+
+                        <div x-on:click.stop>
+                            <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
+                                wire:click.stop="openDeleteModal({{ $inventory->id }})"
+                                aria-label="{{ __('Excluir estoque') }}">
+                            </flux:button>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-3 text-sm sm:grid-cols-2">
+                        <div class="rounded-xl border border-slate-200/80 bg-white/80 p-3">
+                            <div class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                {{ __('Professor responsável') }}
+                            </div>
+                            <div class="font-medium text-slate-800">{{ $responsibleName }}</div>
+                        </div>
+
+                        <div class="rounded-xl border border-slate-200/80 bg-white/80 p-3">
+                            <div class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                {{ __('Cidade / Estado') }}
+                            </div>
+                            <div class="font-medium text-slate-800">{{ $location }}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 text-xs font-semibold">
+                        <span class="rounded-full bg-slate-200 px-2.5 py-1 text-slate-700">
+                            {{ __('SKUs com saldo: :count', ['count' => (int) $inventory->active_skus_count]) }}
+                        </span>
+                        @if ($isCentralInventory)
+                            <span class="rounded-full bg-amber-200/70 px-2.5 py-1 text-amber-900">
+                                {{ __('Distribuição central') }}
+                            </span>
+                        @else
+                            <span class="rounded-full bg-sky-200/70 px-2.5 py-1 text-sky-900">
+                                {{ __('Operação do professor') }}
+                            </span>
+                        @endif
+                    </div>
+                </a>
+            @empty
+                <div class="rounded-2xl border border-amber-200/60 bg-white px-4 py-6 text-sm text-slate-600 sm:col-span-2 xl:col-span-3">
+                    <div class="mx-auto max-w-md space-y-2 text-center">
+                        <div class="text-base font-semibold text-slate-700">
+                            {{ __('Nenhum estoque encontrado') }}
+                        </div>
+                        <div>
+                            {{ __('Ajuste os filtros ou cadastre um novo estoque para iniciar o controle operacional.') }}
+                        </div>
+                    </div>
+                </div>
+            @endforelse
         </div>
 
         @if ($inventories->hasPages())
