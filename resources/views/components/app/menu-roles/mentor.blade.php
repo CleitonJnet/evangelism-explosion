@@ -17,6 +17,16 @@
                 </div>
             </div>
         </flux:sidebar.item>
+
+        <flux:sidebar.item icon="calendar" :href="route('app.mentor.trainings.index')"
+            :current="request()->routeIs('app.mentor.trainings.*')" wire:navigate :class="$sidebarItemClass">
+            <div>{{ __('Treinamentos') }}</div>
+        </flux:sidebar.item>
+
+        <flux:sidebar.item icon="calendar" :href="route('app.mentor.ojt.sessions.index')"
+            :current="request()->routeIs('app.mentor.ojt.sessions.*')" wire:navigate :class="$sidebarItemClass">
+            <div>{{ __('Sessões STP/OJT') }}</div>
+        </flux:sidebar.item>
     @endcan
 
 </flux:sidebar.group>

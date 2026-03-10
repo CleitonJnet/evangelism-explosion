@@ -4,30 +4,24 @@ namespace App\Policies;
 
 use App\Models\StpApproach;
 use App\Models\User;
+use App\Support\TrainingAccess\TrainingCapabilityResolver;
 
 class StpApproachPolicy
 {
+    public function __construct(private TrainingCapabilityResolver $capabilityResolver) {}
+
     public function view(User $user, StpApproach $approach): bool
     {
-        return $this->canManageApproach($user, $approach);
+        return $this->capabilityResolver->canViewStpOjt($user, $approach->training);
     }
 
     public function update(User $user, StpApproach $approach): bool
     {
-        return $this->canManageApproach($user, $approach);
+        return $this->capabilityResolver->canEdit($user, $approach->training);
     }
 
     public function delete(User $user, StpApproach $approach): bool
     {
-        return $this->canManageApproach($user, $approach);
-    }
-
-    private function canManageApproach(User $user, StpApproach $approach): bool
-    {
-        if ($approach->training()->where('teacher_id', $user->id)->exists()) {
-            return true;
-        }
-
-        return $approach->team()->where('mentor_user_id', $user->id)->exists();
+        return $this->capabilityResolver->canDelete($user, $approach->training);
     }
 }

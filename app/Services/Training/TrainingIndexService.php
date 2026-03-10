@@ -3,6 +3,8 @@
 namespace App\Services\Training;
 
 use App\Models\Training;
+use App\Models\User;
+use App\Support\TrainingAccess\TrainingVisibilityScope;
 use App\TrainingStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -10,6 +12,8 @@ use Illuminate\Support\Collection;
 
 class TrainingIndexService
 {
+    public function __construct(private TrainingVisibilityScope $visibilityScope) {}
+
     /**
      * @param  array<string, string>  $statusRoutes
      * @return array{
@@ -27,7 +31,7 @@ class TrainingIndexService
      *     }>
      * }
      */
-    public function buildIndexData(?string $statusKey, ?string $filterTerm, array $statusRoutes): array
+    public function buildIndexData(User $user, ?string $statusKey, ?string $filterTerm, array $statusRoutes): array
     {
         $normalizedStatusKey = $this->normalizeStatusKey($statusKey);
         $status = $this->statusFromKey($normalizedStatusKey);
@@ -46,6 +50,7 @@ class TrainingIndexService
             ->whereHas('course', fn (Builder $query) => $query->where('execution', 0))
             ->where('status', $status->value)
             ->when($filterTerm !== null, fn (Builder $query) => $this->applyFilter($query, $filterTerm))
+            ->tap(fn (Builder $query) => $this->visibilityScope->apply($query, $user))
             ->orderBy('ministries.name')
             ->orderBy('courses.type')
             ->orderBy('courses.name')

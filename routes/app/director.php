@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\System\Director\ChurchController;
 use App\Http\Controllers\System\Director\CourseController;
+use App\Http\Controllers\System\Director\DashboardController;
 use App\Http\Controllers\System\Director\InventoryController;
 use App\Http\Controllers\System\Director\MinistryController;
 use App\Http\Controllers\System\Director\OjtController;
@@ -15,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('can:access-director')->prefix('director')->name('director.')->group(function () {
-    Route::view('/', 'pages.app.roles.director.dashboard')->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::view('dashboard/infrastructure', 'pages.app.roles.director.dashboard-infrastructure')
+        ->name('dashboard.infrastructure');
 
     Volt::route('setup', 'pages.app.director.setup')->name('setup');
 

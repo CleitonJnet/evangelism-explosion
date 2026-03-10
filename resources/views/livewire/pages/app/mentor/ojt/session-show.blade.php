@@ -2,9 +2,10 @@
     <section class="rounded-2xl border border-[color:var(--ee-app-border)] bg-white p-6">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <flux:heading size="sm" level="2">{{ __('OJT Session') }}</flux:heading>
+                <flux:heading size="sm" level="2">{{ __('Sessão STP/OJT') }}</flux:heading>
                 <flux:text class="text-sm text-[color:var(--ee-app-muted)]">
-                    {{ __('Week') }} {{ $session->week_number }} · {{ $session->date?->format('Y-m-d') }}
+                    {{ $session->label ?: __('Sessão :number', ['number' => $session->sequence]) }} ·
+                    {{ $session->starts_at?->format('d/m/Y H:i') ?? __('Horário a definir') }}
                 </flux:text>
             </div>
         </div>
@@ -16,21 +17,20 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <div class="text-sm font-semibold text-heading">
-                            {{ __('Team') }} {{ $team->team_number }}
+                            {{ $team->name ?: __('Equipe :number', ['number' => $team->position + 1]) }}
                         </div>
                         <div class="text-xs text-[color:var(--ee-app-muted)]">
                             {{ __('Mentor') }}: {{ $team->mentor?->name ?? __('Mentor') }}
                         </div>
                     </div>
-                    <flux:button size="sm" variant="outline"
-                        :href="route('app.mentor.ojt.teams.report.create', $team)">
-                        {{ __('Report') }}
-                    </flux:button>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                        {{ $team->approaches->count() }} {{ __('abordagens') }}
+                    </span>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2 text-xs">
-                    @foreach ($team->trainees as $trainee)
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-slate-700" wire:key="mentor-team-trainee-{{ $team->id }}-{{ $trainee->id }}">
-                            {{ $trainee->trainee?->name ?? __('Trainee') }}
+                    @foreach ($team->students as $student)
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-slate-700" wire:key="mentor-team-student-{{ $team->id }}-{{ $student->id }}">
+                            {{ $student->name }}
                         </span>
                     @endforeach
                 </div>

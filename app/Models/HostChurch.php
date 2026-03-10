@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HostChurch extends Model
 {
@@ -16,20 +19,17 @@ class HostChurch extends Model
         'since_date' => 'date',
     ];
 
-    // Igreja (registro “principal”)
-    public function church()
+    public function church(): BelongsTo
     {
         return $this->belongsTo(Church::class);
     }
 
-    // Registros da pivô (útil para auditoria/CRUD)
-    public function admins()
+    public function admins(): HasMany
     {
         return $this->hasMany(HostChurchAdmin::class);
     }
 
-    // Usuários que são admins (atalho prático)
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'host_church_admins')
             ->withPivot(['certified_at', 'status'])

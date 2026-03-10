@@ -2,6 +2,7 @@
 
 use App\Livewire\Pages\App\Teacher\Training\View as TrainingView;
 use App\Models\Church;
+use App\Models\Role;
 use App\Models\StpApproach;
 use App\Models\StpSession;
 use App\Models\Training;
@@ -17,8 +18,13 @@ it('builds registration indicators from enrolled students instead of training co
     $churchA = Church::factory()->create();
     $churchB = Church::factory()->create();
 
+    $teacher = User::factory()->create();
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+    $teacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+
     $training = Training::factory()->create([
         'church_id' => $hostChurch->id,
+        'teacher_id' => $teacher->id,
     ]);
 
     $pastorStudent = User::factory()->create([
@@ -74,12 +80,24 @@ it('builds registration indicators from enrolled students instead of training co
         'people_count' => null,
     ]);
 
-    Livewire::test(TrainingView::class, ['training' => $training])
-        ->assertSet('totalRegistrations', 3)
-        ->assertSet('totalParticipatingChurches', 2)
-        ->assertSet('totalPastors', 2)
-        ->assertSet('totalUsedKits', 2)
-        ->assertSet('totalNewChurches', 2)
-        ->assertSet('totalDecisions', 2)
-        ->assertSet('resumoStp.decisao', 2);
+    Livewire::actingAs($teacher)
+        ->test(TrainingView::class, ['training' => $training])
+        ->assertSeeInOrder([
+            'Total de alunos:',
+            '3',
+            'Total de igrejas:',
+            '2',
+            'Total de igrejas novas:',
+            '2',
+            'Total de pastores:',
+            '2',
+            'Total de decisões:',
+            '2',
+        ])
+        ->assertSeeInOrder([
+            'Decisão',
+            '2',
+            'Sem decisão/ interessado',
+            '1',
+        ]);
 });

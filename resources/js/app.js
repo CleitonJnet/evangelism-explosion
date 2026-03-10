@@ -6,6 +6,7 @@ import "./stp-approaches-sortable";
 import "./testimonials-sortable";
 import "./ministry-courses-sortable";
 import "./course-sections-sortable";
+import "./charts/chart-registry";
 import { initDropdowns } from "./modules/dropdowns";
 import { initHeader } from "./modules/navigation";
 import {

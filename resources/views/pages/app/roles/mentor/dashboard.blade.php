@@ -1,25 +1,12 @@
-<x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200">
-                <x-app.placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20" />
-            </div>
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200">
-                <x-app.placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20" />
-            </div>
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200">
-                <x-app.placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20" />
-            </div>
-        </div>
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200">
-            <x-app.placeholder-pattern
-                class="absolute inset-0 size-full stroke-gray-900/20" />
-        </div>
+<x-layouts.app :title="__('Dashboard do Mentor')">
+    <x-src.toolbar.header :title="__('Painel do mentor')" :description="__('Acompanhe seus treinamentos, sessões STP/OJT e equipes vinculadas sem expor dados sensíveis do evento.')" />
+    <x-src.toolbar.nav>
+        <x-src.toolbar.button :href="route('app.mentor.dashboard')" :label="__('Dashboard')" icon="layout-grid" :active="request()->routeIs('app.mentor.dashboard')" />
+        <x-src.toolbar.button :href="route('app.mentor.trainings.index')" :label="__('Treinamentos')" icon="calendar" :active="request()->routeIs('app.mentor.trainings.*')" />
+        <x-src.toolbar.button :href="route('app.mentor.ojt.sessions.index')" :label="__('Sessões')" icon="calendar" :active="request()->routeIs('app.mentor.ojt.sessions.*')" />
+    </x-src.toolbar.nav>
+
+    <div class="mt-6">
+        <livewire:pages.app.mentor.dashboard />
     </div>
 </x-layouts.app>

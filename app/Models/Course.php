@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\MoneyHelper;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,16 @@ class Course extends Model
             'execution' => 'integer',
             'min_stp_sessions' => 'integer',
         ];
+    }
+
+    public function isLeadershipCourse(): bool
+    {
+        return (int) $this->execution === 0;
+    }
+
+    public function scopeLeadership(Builder $query): Builder
+    {
+        return $query->where('execution', 0);
     }
 
     public function getPriceAttribute(string|int|float|null $value): ?string

@@ -1,8 +1,10 @@
-<x-layouts.app :title="__('My OJT Sessions')">
-    <x-src.toolbar.bar :title="__('My OJT Sessions')" :description="__('Review your assigned OJT sessions.')">
-        <x-src.toolbar.button :href="route('app.mentor.dashboard')" :label="__('Dashboard')" icon="home" />
-        <x-src.toolbar.button :href="route('app.mentor.ojt.sessions.index')" :label="__('Sessions')" icon="calendar-check" :active="true" />
-    </x-src.toolbar.bar>
+<x-layouts.app :title="__('Sessões STP/OJT')">
+    <x-src.toolbar.header :title="__('Sessões STP/OJT')" :description="__('Acompanhe as sessões em que você atua diretamente como mentor.')" />
+    <x-src.toolbar.nav>
+        <x-src.toolbar.button :href="route('app.mentor.dashboard')" :label="__('Dashboard')" icon="layout-grid" />
+        <x-src.toolbar.button :href="route('app.mentor.trainings.index')" :label="__('Treinamentos')" icon="calendar" />
+        <x-src.toolbar.button :href="route('app.mentor.ojt.sessions.index')" :label="__('Sessões')" icon="calendar" :active="true" />
+    </x-src.toolbar.nav>
 
     <div class="mt-6">
         <livewire:pages.app.mentor.ojt.sessions />

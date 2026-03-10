@@ -4,30 +4,24 @@ namespace App\Policies;
 
 use App\Models\Training;
 use App\Models\User;
+use App\Support\TrainingAccess\TrainingCapabilityResolver;
 
 class TrainingPolicy
 {
+    public function __construct(private TrainingCapabilityResolver $capabilityResolver) {}
+
     public function view(User $user, Training $training): bool
     {
-        return $this->canManageTraining($user, $training);
+        return $this->capabilityResolver->canView($user, $training);
     }
 
     public function update(User $user, Training $training): bool
     {
-        return $this->canManageTraining($user, $training);
+        return $this->capabilityResolver->canEdit($user, $training);
     }
 
     public function delete(User $user, Training $training): bool
     {
-        return $this->canManageTraining($user, $training);
-    }
-
-    private function canManageTraining(User $user, Training $training): bool
-    {
-        if ($user->hasRole('Director') || $user->hasRole('Teacher')) {
-            return true;
-        }
-
-        return $training->teacher_id === $user->id;
+        return $this->capabilityResolver->canDelete($user, $training);
     }
 }

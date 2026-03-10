@@ -98,7 +98,7 @@ class TrainingController extends Controller
     private function renderIndex(TrainingIndexFilterRequest $request, string $status): View
     {
         return view('pages.app.roles.director.trainings.index', [
-            ...$this->trainingIndexService->buildIndexData($status, $request->filterTerm(), [
+            ...$this->trainingIndexService->buildIndexData($request->user(), $status, $request->filterTerm(), [
                 'planning' => 'app.director.training.planning',
                 'scheduled' => 'app.director.training.scheduled',
                 'canceled' => 'app.director.training.canceled',

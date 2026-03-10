@@ -6,6 +6,7 @@ use App\Helpers\PhoneHelper;
 use App\Helpers\PostalCodeHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Church extends Model
 {
@@ -105,5 +106,10 @@ class Church extends Model
     public function hostChurch()
     {
         return $this->hasOne(\App\Models\HostChurch::class);
+    }
+
+    public function trainings(): HasMany
+    {
+        return $this->hasMany(Training::class);
     }
 }

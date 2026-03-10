@@ -66,6 +66,8 @@ class TrainingController extends Controller
 
     public function updateTestimony(UpdateTrainingTestimonyRequest $request, Training $training): RedirectResponse
     {
+        $this->authorize('update', $training);
+
         $sanitizedNotes = TestimonySanitizer::sanitize($request->validated('notes'));
 
         $training->update([
@@ -89,7 +91,7 @@ class TrainingController extends Controller
     private function renderIndex(TrainingIndexFilterRequest $request, string $status): View
     {
         return view('pages.app.roles.teacher.trainings.index', [
-            ...$this->trainingIndexService->buildIndexData($status, $request->filterTerm(), [
+            ...$this->trainingIndexService->buildIndexData($request->user(), $status, $request->filterTerm(), [
                 'planning' => 'app.teacher.trainings.planning',
                 'scheduled' => 'app.teacher.trainings.scheduled',
                 'canceled' => 'app.teacher.trainings.canceled',

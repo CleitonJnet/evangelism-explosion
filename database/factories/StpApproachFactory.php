@@ -63,4 +63,32 @@ class StpApproachFactory extends Factory
             'payload' => null,
         ];
     }
+
+    /**
+     * @param  array<string, mixed>  $discipleship
+     */
+    public function withDiscipleship(array $discipleship = []): static
+    {
+        return $this->state(function (array $attributes) use ($discipleship): array {
+            $payload = is_array($attributes['payload'] ?? null) ? $attributes['payload'] : [];
+
+            return [
+                'payload' => [
+                    ...$payload,
+                    'discipleship' => [
+                        'status' => 'in_progress',
+                        'started_at' => now()->subDay()->toDateTimeString(),
+                        'completed_at' => null,
+                        'sessions_planned' => 1,
+                        'sessions_completed' => 0,
+                        'next_step' => 'Contato pastoral',
+                        'next_step_registered_at' => now()->toDateTimeString(),
+                        'local_church_referral_at' => null,
+                        'follow_up_pending' => true,
+                        ...$discipleship,
+                    ],
+                ],
+            ];
+        });
+    }
 }

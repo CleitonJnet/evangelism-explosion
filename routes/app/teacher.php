@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:access-teacher')->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+    Route::view('dashboard/infrastructure', 'pages.app.roles.teacher.dashboard-infrastructure')
+        ->name('dashboard.infrastructure');
 
     Route::middleware('can:manageChurches')->prefix('churches')->name('church.')->group(function () {
         Route::get('make-host', [ChurchController::class, 'make_host'])->name('make_host');

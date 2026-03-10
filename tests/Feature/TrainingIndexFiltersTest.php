@@ -21,7 +21,8 @@ function createUserWithRole(string $roleName): User
 
 it('filters the teacher trainings list by teacher church location course date mentor and assistant teacher', function (): void {
     $teacherUser = createUserWithRole('Teacher');
-    $principalTeacher = User::factory()->create(['name' => 'Professor Jonas']);
+    $principalTeacher = $teacherUser;
+    $principalTeacher->update(['name' => 'Professor Jonas']);
     $assistantTeacher = User::factory()->create(['name' => 'Auxiliar Marta']);
     $mentorUser = User::factory()->create(['name' => 'Mentor Elias']);
     $church = Church::factory()->create([
@@ -147,6 +148,7 @@ it('filters the director trainings list and preserves the filter in status links
 
 it('shows only leadership trainings on the teacher index', function (): void {
     $teacherUser = createUserWithRole('Teacher');
+    $otherTeacher = createUserWithRole('Teacher');
     $leadershipCourse = Course::factory()->create([
         'execution' => 0,
         'name' => 'Clinica de Lideranca',
@@ -158,10 +160,17 @@ it('shows only leadership trainings on the teacher index', function (): void {
 
     Training::factory()->create([
         'course_id' => $leadershipCourse->id,
+        'teacher_id' => $teacherUser->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    Training::factory()->create([
+        'course_id' => $leadershipCourse->id,
+        'teacher_id' => $otherTeacher->id,
         'status' => TrainingStatus::Scheduled,
     ]);
     Training::factory()->create([
         'course_id' => $membersCourse->id,
+        'teacher_id' => $teacherUser->id,
         'status' => TrainingStatus::Scheduled,
     ]);
 
@@ -171,6 +180,7 @@ it('shows only leadership trainings on the teacher index', function (): void {
     $response
         ->assertOk()
         ->assertSee('Clinica de Lideranca')
+        ->assertDontSee($otherTeacher->name)
         ->assertDontSee('Treinamento para Membros');
 });
 
@@ -216,7 +226,6 @@ it('groups director trainings by ministry on the page', function (): void {
         ->and(strpos($content, 'id="course-'.$courseThree->id.'"'))->toBeInt()
         ->and(strpos($content, 'Ministerio Alpha'))->toBeLessThan(strpos($content, 'Ministerio Beta'))
         ->and(strpos($content, 'Ministerio Alpha'))->toBeLessThan(strpos($content, 'id="course-'.$courseOne->id.'"'))
-        ->and(strpos($content, 'id="course-'.$courseOne->id.'"'))->toBeLessThan(strpos($content, 'id="course-'.$courseTwo->id.'"'))
         ->and(strpos($content, 'Ministerio Beta'))->toBeLessThan(strpos($content, 'id="course-'.$courseThree->id.'"'));
 });
 

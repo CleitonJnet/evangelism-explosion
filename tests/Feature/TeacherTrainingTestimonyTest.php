@@ -50,7 +50,7 @@ it('shows testimony page for the training owner teacher', function () {
         ->assertSee('Igreja Header Relato');
 });
 
-it('allows another teacher to access testimony page and update action', function () {
+it('forbids another teacher from accessing testimony page and update action', function () {
     $ownerTeacher = createTeacherForTrainingTestimony();
     $otherTeacher = createTeacherForTrainingTestimony();
     $training = Training::factory()->create([
@@ -59,14 +59,36 @@ it('allows another teacher to access testimony page and update action', function
 
     $this->actingAs($otherTeacher)
         ->get(route('app.teacher.trainings.testimony', $training))
-        ->assertOk();
+        ->assertForbidden();
 
     $this->actingAs($otherTeacher)
         ->put(route('app.teacher.trainings.testimony.update', $training), [
             'notes' => '<p>Relato</p>',
         ])
+        ->assertForbidden();
+});
+
+it('allows an assistant teacher to access and update testimony for the assigned training', function () {
+    $ownerTeacher = createTeacherForTrainingTestimony();
+    $assistantTeacher = createTeacherForTrainingTestimony();
+    $training = Training::factory()->create([
+        'teacher_id' => $ownerTeacher->id,
+        'notes' => null,
+    ]);
+    $training->assistantTeachers()->attach($assistantTeacher->id);
+
+    $this->actingAs($assistantTeacher)
+        ->get(route('app.teacher.trainings.testimony', $training))
+        ->assertOk();
+
+    $this->actingAs($assistantTeacher)
+        ->put(route('app.teacher.trainings.testimony.update', $training), [
+            'notes' => '<p>Relato auxiliar</p>',
+        ])
         ->assertRedirect(route('app.teacher.trainings.testimony', $training))
         ->assertSessionHas('success');
+
+    expect($training->fresh()->notes)->toContain('Relato auxiliar');
 });
 
 it('saves sanitized testimony in training notes', function () {

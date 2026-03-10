@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HostChurchAdmin extends Model
 {
@@ -17,12 +18,12 @@ class HostChurchAdmin extends Model
         'certified_at' => 'date',
     ];
 
-    public function hostChurch()
+    public function hostChurch(): BelongsTo
     {
         return $this->belongsTo(HostChurch::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
