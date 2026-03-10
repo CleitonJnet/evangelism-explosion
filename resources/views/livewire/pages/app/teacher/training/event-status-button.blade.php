@@ -48,6 +48,17 @@ new class extends Component {
         };
     }
 
+    public function statusDotClasses(int $statusValue): string
+    {
+        return match (TrainingStatus::tryFrom($statusValue)) {
+            TrainingStatus::Planning => 'bg-amber-500',
+            TrainingStatus::Scheduled => 'bg-sky-500',
+            TrainingStatus::Canceled => 'bg-rose-500',
+            TrainingStatus::Completed => 'bg-emerald-500',
+            default => 'bg-slate-400',
+        };
+    }
+
     /**
      * @return array<int, array{value: int, label: string}>
      */
@@ -106,7 +117,10 @@ new class extends Component {
                     wire:click="updateStatus({{ $option['value'] }})" wire:loading.attr="disabled"
                     wire:target="updateStatus">
                     <div class="flex w-full items-center justify-between gap-3 text-sm">
-                        <span>{{ __($option['label']) }}</span>
+                        <span class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full {{ $this->statusDotClasses($option['value']) }}"></span>
+                            <span>{{ __($option['label']) }}</span>
+                        </span>
                         @if ($status === $option['value'])
                             <span class="text-emerald-700">{{ __('Atual') }}</span>
                         @endif
