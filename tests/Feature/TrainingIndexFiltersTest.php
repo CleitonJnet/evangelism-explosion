@@ -202,7 +202,61 @@ it('groups director trainings by ministry on the page', function (): void {
     $response = $this->actingAs($directorUser)
         ->get(route('app.director.training.scheduled'));
 
+    $content = $response->getContent();
+
     $response
         ->assertOk()
-        ->assertSeeInOrder(['Ministerio Alpha', 'Curso A', 'Curso B', 'Ministerio Beta', 'Curso C']);
+        ->assertSee('Ministerio Alpha')
+        ->assertSee('Ministerio Beta');
+
+    expect(strpos($content, 'Ministerio Alpha'))->toBeInt()
+        ->and(strpos($content, 'Ministerio Beta'))->toBeInt()
+        ->and(strpos($content, 'id="course-'.$courseOne->id.'"'))->toBeInt()
+        ->and(strpos($content, 'id="course-'.$courseTwo->id.'"'))->toBeInt()
+        ->and(strpos($content, 'id="course-'.$courseThree->id.'"'))->toBeInt()
+        ->and(strpos($content, 'Ministerio Alpha'))->toBeLessThan(strpos($content, 'Ministerio Beta'))
+        ->and(strpos($content, 'Ministerio Alpha'))->toBeLessThan(strpos($content, 'id="course-'.$courseOne->id.'"'))
+        ->and(strpos($content, 'id="course-'.$courseOne->id.'"'))->toBeLessThan(strpos($content, 'id="course-'.$courseTwo->id.'"'))
+        ->and(strpos($content, 'Ministerio Beta'))->toBeLessThan(strpos($content, 'id="course-'.$courseThree->id.'"'));
+});
+
+it('renders the course index with valid courses only', function (): void {
+    $view = $this->blade(
+        <<<'BLADE'
+        @php
+            $groups = collect([
+                [
+                    'ministry' => (object) ['name' => 'Ministerio Alpha', 'color' => '#c9b457'],
+                    'courses' => collect([
+                        [
+                            'course' => (object) ['id' => 15, 'name' => 'Curso Valido', 'initials' => 'CV', 'type' => 'Clinica'],
+                            'items' => collect([]),
+                        ],
+                        [
+                            'course' => null,
+                            'items' => collect([]),
+                        ],
+                    ]),
+                ],
+            ]);
+
+            $statuses = [
+                ['key' => 'scheduled', 'label' => 'Agendados', 'route' => '/treinamentos/agendados'],
+            ];
+        @endphp
+
+        <x-src.training-index
+            role="director"
+            create-route="/treinamentos/novo"
+            status-key="scheduled"
+            :statuses="$statuses"
+            :groups="$groups"
+        />
+        BLADE,
+    );
+
+    $view
+        ->assertSee('href="#course-15"', false)
+        ->assertDontSee('href="#course-curso"', false)
+        ->assertDontSee('Curso não informado');
 });

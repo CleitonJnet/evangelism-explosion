@@ -9,6 +9,62 @@
 
 <div>
     @php
+        $hexToRgb = static function (?string $hexColor): ?array {
+            $color = trim((string) $hexColor);
+
+            if (!preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color)) {
+                return null;
+            }
+
+            $normalized = ltrim($color, '#');
+
+            if (strlen($normalized) === 3) {
+                $normalized = collect(str_split($normalized))
+                    ->map(fn (string $char): string => $char . $char)
+                    ->implode('');
+            }
+
+            return [
+                hexdec(substr($normalized, 0, 2)),
+                hexdec(substr($normalized, 2, 2)),
+                hexdec(substr($normalized, 4, 2)),
+            ];
+        };
+
+        $lightenHexColor = static function (?string $hexColor, float $mixWithWhite = 0.82) use ($hexToRgb): ?string {
+            $rgb = $hexToRgb($hexColor);
+
+            if ($rgb === null) {
+                return null;
+            }
+
+            [$red, $green, $blue] = $rgb;
+            $ratio = max(0, min(1, $mixWithWhite));
+
+            $lightenedRed = (int) round($red + ((255 - $red) * $ratio));
+            $lightenedGreen = (int) round($green + ((255 - $green) * $ratio));
+            $lightenedBlue = (int) round($blue + ((255 - $blue) * $ratio));
+
+            return sprintf('#%02X%02X%02X', $lightenedRed, $lightenedGreen, $lightenedBlue);
+        };
+
+        $ministryContainerStyles = static function (?string $hexColor) use ($hexToRgb, $lightenHexColor): string {
+            $rgb = $hexToRgb($hexColor);
+
+            if ($rgb === null) {
+                return 'background-color: rgb(255 255 255 / 0.6); border-color: rgb(226 232 240 / 0.8);';
+            }
+
+            $backgroundColor = $lightenHexColor($hexColor, 0.82) ?? '#FFFFFF';
+            $borderColor = $lightenHexColor($hexColor, 0.68) ?? '#E2E8F0';
+
+            return sprintf(
+                'background-color: %s; border-color: %s;',
+                $backgroundColor,
+                $borderColor,
+            );
+        };
+
         $currentStatus = collect($statuses)->firstWhere('key', $statusKey);
         $currentStatusTitle = $currentStatus['label'] ?? __('Treinamentos');
         $currentStatusDescription = match ($statusKey) {
@@ -18,7 +74,26 @@
             'completed' => __('Eventos concluídos, com foco em acompanhamento e histórico.'),
             default => __('Treinamentos organizados neste status.'),
         };
-        $totalEvents = $groups->sum(fn ($group) => $group['courses']->sum(fn ($courseGroup) => $courseGroup['items']->count()));
+        $displayGroups = $groups
+            ->map(function ($group) {
+                $validCourses = $group['courses']
+                    ->filter(fn ($courseGroup) => ($courseGroup['course']?->id) !== null)
+                    ->values();
+
+                return [
+                    ...$group,
+                    'courses' => $validCourses,
+                ];
+            })
+            ->filter(fn ($group) => $group['courses']->isNotEmpty())
+            ->values();
+        $totalEvents = $displayGroups->sum(fn ($group) => $group['courses']->sum(fn ($courseGroup) => $courseGroup['items']->count()));
+        $indexedCourses = $displayGroups
+            ->flatMap(fn ($group) => $group['courses'])
+            ->map(fn ($courseGroup) => $courseGroup['course'])
+            ->filter(fn ($course) => $course !== null && $course->id !== null)
+            ->unique('id')
+            ->values();
     @endphp
 
     <x-src.toolbar.header :title="$currentStatusTitle" :description="$currentStatusDescription">
@@ -73,24 +148,20 @@
         </div>
 
         <div class="flex min-w-max items-center justify-end gap-2">
-            @if ($groups->isNotEmpty())
-                @foreach ($groups as $group)
-                    @foreach ($group['courses'] as $courseGroup)
-                        @php
-                            $course = $courseGroup['course'];
-                            $courseLabel = $course?->initials ?? __('Curso');
-                            $courseId = $course?->id ?? 'curso';
-                            $courseName = $course?->name ?? $courseLabel;
-                        @endphp
+            @if ($indexedCourses->isNotEmpty())
+                @foreach ($indexedCourses as $course)
+                    @php
+                        $courseLabel = $course->initials ?: $course->name;
+                        $courseName = $course->name ?: __('Curso não informado');
+                    @endphp
 
-                        <x-src.toolbar.course-button :href="'#course-' . $courseId" :label="$courseLabel" :tooltip="$courseName" />
-                    @endforeach
+                    <x-src.toolbar.course-button :href="'#course-' . $course->id" :label="$courseLabel" :tooltip="$courseName" />
                 @endforeach
             @endif
         </div>
     </x-src.toolbar.nav>
 
-    @if ($groups->isEmpty())
+    @if ($displayGroups->isEmpty())
         <div class="rounded-2xl border border-amber-200/60 bg-white p-6 text-sm text-slate-600">
             @if (filled($filterValue))
                 {{ __('Nenhum treinamento encontrado para o filtro informado.') }}
@@ -100,13 +171,14 @@
         </div>
     @else
         <div class="flex flex-col gap-8">
-            @foreach ($groups as $group)
+            @foreach ($displayGroups as $group)
                 @php
                     $ministry = $group['ministry'];
                     $ministryName = $ministry?->name ?? __('Sem ministério');
+                    $ministryCardStyle = $ministryContainerStyles($ministry?->color);
                 @endphp
 
-                <div class="rounded-2xl border border-slate-200/80 bg-white/60 p-3 shadow-sm sm:p-4">
+                <div class="rounded-2xl border p-3 shadow-sm sm:p-4" style="{{ $ministryCardStyle }}">
                     <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
                         <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
                             {{ $ministryName }}
