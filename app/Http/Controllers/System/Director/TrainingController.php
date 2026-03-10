@@ -3,26 +3,26 @@
 namespace App\Http\Controllers\System\Director;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TrainingIndexFilterRequest;
 use App\Http\Requests\UpdateTrainingTestimonyRequest;
 use App\Models\Training;
 use App\Services\Training\TestimonySanitizer;
+use App\Services\Training\TrainingIndexService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class TrainingController extends Controller
 {
-    public function index(): View
+    public function __construct(private TrainingIndexService $trainingIndexService) {}
+
+    public function index(TrainingIndexFilterRequest $request): View
     {
-        return view('pages.app.roles.director.trainings.index', [
-            'statusKey' => 'scheduled',
-        ]);
+        return $this->renderIndex($request, 'scheduled');
     }
 
-    public function indexByStatus(string $status): View
+    public function indexByStatus(TrainingIndexFilterRequest $request, string $status): View
     {
-        return view('pages.app.roles.director.trainings.index', [
-            'statusKey' => $status,
-        ]);
+        return $this->renderIndex($request, $status);
     }
 
     public function create(): View
@@ -93,5 +93,18 @@ class TrainingController extends Controller
         $training->delete();
 
         return redirect()->route('app.director.training.index');
+    }
+
+    private function renderIndex(TrainingIndexFilterRequest $request, string $status): View
+    {
+        return view('pages.app.roles.director.trainings.index', [
+            ...$this->trainingIndexService->buildIndexData($status, $request->filterTerm(), [
+                'planning' => 'app.director.training.planning',
+                'scheduled' => 'app.director.training.scheduled',
+                'canceled' => 'app.director.training.canceled',
+                'completed' => 'app.director.training.completed',
+            ]),
+            'filter' => $request->filterTerm(),
+        ]);
     }
 }

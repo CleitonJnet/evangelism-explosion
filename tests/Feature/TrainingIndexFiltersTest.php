@@ -1,117 +1,155 @@
 <?php
 
-use App\Livewire\Pages\App\Director\Training\Index as DirectorTrainingIndex;
-use App\Livewire\Pages\App\Teacher\Training\Index as TeacherTrainingIndex;
 use App\Models\Church;
 use App\Models\Course;
+use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use App\TrainingStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-function totalTrainingItems(\Illuminate\Support\Collection $groups): int
+function createUserWithRole(string $roleName): User
 {
-    return $groups->sum(fn (array $group): int => $group['courses']->sum(fn (array $courseGroup): int => $courseGroup['items']->count()));
+    $user = User::factory()->create();
+    $role = Role::query()->firstOrCreate(['name' => $roleName]);
+    $user->roles()->syncWithoutDetaching([$role->id]);
+
+    return $user;
 }
 
-it('filters teacher trainings index with a single search input', function (): void {
-    $actingTeacher = User::factory()->create();
-    $matchingTeacher = User::factory()->create(['name' => 'Professor Jonas']);
-    $otherTeacher = User::factory()->create(['name' => 'Professor Lucas']);
+it('filters the teacher trainings list by teacher church location course date mentor and assistant teacher', function (): void {
+    $teacherUser = createUserWithRole('Teacher');
+    $principalTeacher = User::factory()->create(['name' => 'Professor Jonas']);
+    $assistantTeacher = User::factory()->create(['name' => 'Auxiliar Marta']);
+    $mentorUser = User::factory()->create(['name' => 'Mentor Elias']);
+    $church = Church::factory()->create([
+        'name' => 'Igreja Central Esperanca',
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+    $course = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Clinica',
+        'name' => 'Evangelismo Essencial',
+    ]);
+    $otherCourse = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Workshop',
+        'name' => 'Treinamento Urbano',
+    ]);
 
-    $matchingChurch = Church::factory()->create(['name' => 'Igreja Central Esperanca']);
-    $otherChurch = Church::factory()->create(['name' => 'Igreja Bairro Novo']);
-
-    $course = Course::factory()->create(['execution' => 0]);
-
-    Training::factory()->create([
+    $matchingTraining = Training::factory()->create([
         'course_id' => $course->id,
-        'teacher_id' => $matchingTeacher->id,
-        'church_id' => $matchingChurch->id,
-        'city' => 'Sao Paulo',
+        'teacher_id' => $principalTeacher->id,
+        'church_id' => $church->id,
+        'city' => 'Campinas',
         'state' => 'SP',
         'status' => TrainingStatus::Scheduled,
     ]);
-
-    Training::factory()->create([
-        'course_id' => $course->id,
-        'teacher_id' => $otherTeacher->id,
-        'church_id' => $otherChurch->id,
-        'city' => 'Rio de Janeiro',
-        'state' => 'RJ',
-        'status' => TrainingStatus::Scheduled,
+    $matchingTraining->assistantTeachers()->attach($assistantTeacher->id);
+    $matchingTraining->mentors()->attach($mentorUser->id, ['created_by' => $teacherUser->id]);
+    $matchingTraining->eventDates()->delete();
+    $matchingTraining->eventDates()->create([
+        'date' => '2026-04-12',
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
     ]);
 
-    $component = Livewire::actingAs($actingTeacher)
-        ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->set('searchTerm', 'Central');
+    $otherTraining = Training::factory()->create([
+        'course_id' => $otherCourse->id,
+        'teacher_id' => User::factory()->create(['name' => 'Professor Lucas'])->id,
+        'church_id' => Church::factory()->create([
+            'name' => 'Igreja Bairro Novo',
+            'city' => 'Recife',
+            'state' => 'PE',
+        ])->id,
+        'city' => 'Recife',
+        'state' => 'PE',
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    $otherTraining->eventDates()->delete();
+    $otherTraining->eventDates()->create([
+        'date' => '2026-06-20',
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
+    ]);
 
-    $groups = $component->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
+    $searches = [
+        'Professor Jonas',
+        'Central Esperanca',
+        'Campinas',
+        'SP',
+        '12/04/2026',
+        'Clinica',
+        'Auxiliar Marta',
+        'Mentor Elias',
+    ];
 
-    $groups = $component->set('searchTerm', 'Jonas')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
+    foreach ($searches as $search) {
+        $response = $this->actingAs($teacherUser)
+            ->get(route('app.teacher.trainings.scheduled', ['filter' => $search]));
 
-    $groups = $component->set('searchTerm', 'Sao')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
-
-    $groups = $component->set('searchTerm', 'SP')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
+        $response
+            ->assertOk()
+            ->assertSee('name="filter"', false)
+            ->assertSee('value="'.$search.'"', false)
+            ->assertSee('Evangelismo Essencial')
+            ->assertDontSee('Treinamento Urbano')
+            ->assertDontSee('Recife, PE');
+    }
 });
 
-it('filters director trainings index with a single search input', function (): void {
-    $actingDirector = User::factory()->create();
+it('filters the director trainings list and preserves the filter in status links', function (): void {
+    $directorUser = createUserWithRole('Director');
     $matchingTeacher = User::factory()->create(['name' => 'Professora Zuleica']);
-    $otherTeacher = User::factory()->create(['name' => 'Professora Bia']);
-
-    $matchingChurch = Church::factory()->create(['name' => 'Igreja Vida Plena']);
-    $otherChurch = Church::factory()->create(['name' => 'Igreja Vida Nova']);
-
-    $course = Course::factory()->create(['execution' => 0]);
+    $church = Church::factory()->create(['name' => 'Igreja Vida Plena']);
+    $course = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Workshop',
+        'name' => 'Treinamento Regional',
+    ]);
+    $otherCourse = Course::factory()->create([
+        'execution' => 0,
+        'type' => 'Seminario',
+        'name' => 'Capacitacao Local',
+    ]);
 
     Training::factory()->create([
         'course_id' => $course->id,
         'teacher_id' => $matchingTeacher->id,
-        'church_id' => $matchingChurch->id,
+        'church_id' => $church->id,
         'city' => 'Curitiba',
-        'state' => 'AC',
+        'state' => 'PR',
         'status' => TrainingStatus::Scheduled,
     ]);
 
     Training::factory()->create([
-        'course_id' => $course->id,
-        'teacher_id' => $otherTeacher->id,
-        'church_id' => $otherChurch->id,
+        'course_id' => $otherCourse->id,
+        'teacher_id' => User::factory()->create(['name' => 'Professora Bia'])->id,
+        'church_id' => Church::factory()->create(['name' => 'Igreja Vida Nova'])->id,
         'city' => 'Recife',
         'state' => 'PE',
         'status' => TrainingStatus::Scheduled,
     ]);
 
-    $component = Livewire::actingAs($actingDirector)
-        ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->set('searchTerm', 'Plena');
+    $response = $this->actingAs($directorUser)
+        ->get(route('app.director.training.scheduled', ['filter' => 'Zuleica']));
 
-    $groups = $component->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
-
-    $groups = $component->set('searchTerm', 'Zulei')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
-
-    $groups = $component->set('searchTerm', 'Curi')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
-
-    $groups = $component->set('searchTerm', 'AC')->viewData('groups');
-    expect(totalTrainingItems($groups))->toBe(1);
+    $response
+        ->assertOk()
+        ->assertSee('Treinamento Regional')
+        ->assertDontSee('Capacitacao Local')
+        ->assertDontSee('Recife, PE')
+        ->assertSee(route('app.director.training.completed', ['filter' => 'Zuleica']), false);
 });
 
 it('shows only leadership trainings on the teacher index', function (): void {
-    $actingTeacher = User::factory()->create();
+    $teacherUser = createUserWithRole('Teacher');
     $leadershipCourse = Course::factory()->create([
         'execution' => 0,
-        'name' => 'Clínica de Liderança',
+        'name' => 'Clinica de Lideranca',
     ]);
     $membersCourse = Course::factory()->create([
         'execution' => 1,
@@ -127,42 +165,17 @@ it('shows only leadership trainings on the teacher index', function (): void {
         'status' => TrainingStatus::Scheduled,
     ]);
 
-    $groups = Livewire::actingAs($actingTeacher)
-        ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->viewData('groups');
+    $response = $this->actingAs($teacherUser)
+        ->get(route('app.teacher.trainings.scheduled'));
 
-    expect($groups->flatMap(fn (array $group) => $group['courses']->pluck('course.name'))->filter()->values()->all())->toBe(['Clínica de Liderança']);
+    $response
+        ->assertOk()
+        ->assertSee('Clinica de Lideranca')
+        ->assertDontSee('Treinamento para Membros');
 });
 
-it('shows only leadership trainings on the director index', function (): void {
-    $actingDirector = User::factory()->create();
-    $leadershipCourse = Course::factory()->create([
-        'execution' => 0,
-        'name' => 'Clínica de Liderança',
-    ]);
-    $membersCourse = Course::factory()->create([
-        'execution' => 1,
-        'name' => 'Treinamento para Membros',
-    ]);
-
-    Training::factory()->create([
-        'course_id' => $leadershipCourse->id,
-        'status' => TrainingStatus::Scheduled,
-    ]);
-    Training::factory()->create([
-        'course_id' => $membersCourse->id,
-        'status' => TrainingStatus::Scheduled,
-    ]);
-
-    $groups = Livewire::actingAs($actingDirector)
-        ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->viewData('groups');
-
-    expect($groups->flatMap(fn (array $group) => $group['courses']->pluck('course.name'))->filter()->values()->all())->toBe(['Clínica de Liderança']);
-});
-
-it('groups director trainings by ministry', function (): void {
-    $actingDirector = User::factory()->create();
+it('groups director trainings by ministry on the page', function (): void {
+    $directorUser = createUserWithRole('Director');
     $ministryAlpha = \App\Models\Ministry::query()->create(['initials' => 'ALP', 'name' => 'Ministerio Alpha']);
     $ministryBeta = \App\Models\Ministry::query()->create(['initials' => 'BET', 'name' => 'Ministerio Beta']);
 
@@ -186,49 +199,10 @@ it('groups director trainings by ministry', function (): void {
     Training::factory()->create(['course_id' => $courseTwo->id, 'status' => TrainingStatus::Scheduled]);
     Training::factory()->create(['course_id' => $courseThree->id, 'status' => TrainingStatus::Scheduled]);
 
-    $groups = Livewire::actingAs($actingDirector)
-        ->test(DirectorTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->viewData('groups');
+    $response = $this->actingAs($directorUser)
+        ->get(route('app.director.training.scheduled'));
 
-    expect($groups)->toHaveCount(2)
-        ->and($groups->first()['ministry']?->name)->toBe('Ministerio Alpha')
-        ->and($groups->first()['courses'])->toHaveCount(2)
-        ->and($groups->last()['ministry']?->name)->toBe('Ministerio Beta')
-        ->and($groups->last()['courses'])->toHaveCount(1);
-});
-
-it('groups teacher trainings by ministry', function (): void {
-    $actingTeacher = User::factory()->create();
-    $ministryAlpha = \App\Models\Ministry::query()->create(['initials' => 'ALP', 'name' => 'Ministerio Alpha']);
-    $ministryBeta = \App\Models\Ministry::query()->create(['initials' => 'BET', 'name' => 'Ministerio Beta']);
-
-    $courseOne = Course::factory()->create([
-        'execution' => 0,
-        'name' => 'Curso A',
-        'ministry_id' => $ministryAlpha->id,
-    ]);
-    $courseTwo = Course::factory()->create([
-        'execution' => 0,
-        'name' => 'Curso B',
-        'ministry_id' => $ministryAlpha->id,
-    ]);
-    $courseThree = Course::factory()->create([
-        'execution' => 0,
-        'name' => 'Curso C',
-        'ministry_id' => $ministryBeta->id,
-    ]);
-
-    Training::factory()->create(['course_id' => $courseOne->id, 'status' => TrainingStatus::Scheduled]);
-    Training::factory()->create(['course_id' => $courseTwo->id, 'status' => TrainingStatus::Scheduled]);
-    Training::factory()->create(['course_id' => $courseThree->id, 'status' => TrainingStatus::Scheduled]);
-
-    $groups = Livewire::actingAs($actingTeacher)
-        ->test(TeacherTrainingIndex::class, ['statusKey' => 'scheduled'])
-        ->viewData('groups');
-
-    expect($groups)->toHaveCount(2)
-        ->and($groups->first()['ministry']?->name)->toBe('Ministerio Alpha')
-        ->and($groups->first()['courses'])->toHaveCount(2)
-        ->and($groups->last()['ministry']?->name)->toBe('Ministerio Beta')
-        ->and($groups->last()['courses'])->toHaveCount(1);
+    $response
+        ->assertOk()
+        ->assertSeeInOrder(['Ministerio Alpha', 'Curso A', 'Curso B', 'Ministerio Beta', 'Curso C']);
 });

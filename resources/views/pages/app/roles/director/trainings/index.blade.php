@@ -1,3 +1,10 @@
 <x-layouts.app :title="__('Listar Treinamentos')">
-    <livewire:pages.app.director.training.index :status-key="$statusKey ?? 'scheduled'" />
+    <x-src.training-index
+        role="director"
+        :create-route="route('app.director.training.create')"
+        :status-key="$statusKey"
+        :statuses="$statuses"
+        :groups="$groups"
+        :filter-value="$filter"
+    />
 </x-layouts.app>
