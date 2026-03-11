@@ -4,13 +4,15 @@
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="space-y-2">
                     <div class="text-lg font-semibold text-slate-900">
-                        {{ trim(($training->course?->type ?? '').' '.($training->course?->name ?? '')) }}
+                        {{ trim(($training->course?->type ?? '') . ' ' . ($training->course?->name ?? '')) }}
                     </div>
-                    <div class="text-sm text-slate-600">{{ $training->church?->name ?? __('Igreja não informada') }}</div>
+                    <div class="text-sm text-slate-600">{{ $training->church?->name ?? __('Igreja não informada') }}
+                    </div>
                     <div class="text-sm text-slate-500">
-                        {{ $training->city ?: __('Cidade não informada') }}{{ $training->state ? ', '.$training->state : '' }}
+                        {{ $training->city ?: __('Cidade não informada') }}{{ $training->state ? ', ' . $training->state : '' }}
                     </div>
-                    <div class="text-sm text-slate-500">{{ __('Professor responsável') }}: {{ $training->teacher?->name ?? __('Não informado') }}</div>
+                    <div class="text-sm text-slate-500">{{ __('Professor responsável') }}:
+                        {{ $training->teacher?->name ?? __('Não informado') }}</div>
                     <div class="flex flex-wrap gap-2 pt-1">
                         @forelse ($training->eventDates as $eventDate)
                             <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
@@ -25,8 +27,10 @@
                 </div>
 
                 <div class="flex shrink-0 flex-wrap gap-2">
-                    <flux:button variant="outline" :href="route('app.mentor.trainings.show', $training)">{{ __('Resumo') }}</flux:button>
-                    <flux:button variant="ghost" :href="route('app.mentor.trainings.ojt', $training)">{{ __('STP/OJT') }}</flux:button>
+                    <flux:button variant="outline" :href="route('app.mentor.trainings.show', $training)">
+                        {{ __('Resumo') }}</flux:button>
+                    <flux:button variant="ghost" :href="route('app.mentor.trainings.ojt', $training)">
+                        {{ __('STP') }}</flux:button>
                 </div>
             </div>
         </article>

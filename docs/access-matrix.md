@@ -2,12 +2,12 @@
 
 ## Training roles in scope
 
-| Perfil | Visibilidade de treinamento | Editar | Excluir | Ver STP/OJT | Ver dados sensíveis | Ver finanças |
-| --- | --- | --- | --- | --- | --- | --- |
-| Director | Todos os treinamentos | Sim | Sim | Sim | Sim | Sim |
-| Teacher | Apenas quando for titular ou auxiliar | Sim | Sim | Sim | Sim | Sim |
-| Mentor | Apenas quando estiver vinculado como mentor | Nao | Nao | Sim | Nao | Nao |
-| FieldWorker | Fora de escopo nesta fase | Nao definido | Nao definido | Nao definido | Nao definido | Nao definido |
+| Perfil      | Visibilidade de treinamento                 | Editar       | Excluir      | Ver STP      | Ver dados sensíveis | Ver finanças |
+| ----------- | ------------------------------------------- | ------------ | ------------ | ------------ | ------------------- | ------------ |
+| Director    | Todos os treinamentos                       | Sim          | Sim          | Sim          | Sim                 | Sim          |
+| Teacher     | Apenas quando for titular ou auxiliar       | Sim          | Sim          | Sim          | Sim                 | Sim          |
+| Mentor      | Apenas quando estiver vinculado como mentor | Nao          | Nao          | Sim          | Nao                 | Nao          |
+| FieldWorker | Fora de escopo nesta fase                   | Nao definido | Nao definido | Nao definido | Nao definido        | Nao definido |
 
 ## Fonte central
 
@@ -20,7 +20,7 @@
 ## Decisoes conservadoras desta etapa
 
 - Professor auxiliar recebe a mesma capacidade operacional do professor titular para o treinamento vinculado.
-- Mentor recebe somente leitura, com foco em STP/OJT e resumo basico do treinamento.
+- Mentor recebe somente leitura, com foco em STP e resumo basico do treinamento.
 - Dados sensiveis e financas permanecem restritos a `Director` e `Teacher` vinculado.
 - O dashboard do professor herda o mesmo recorte de titular/auxiliar usado nas queries operacionais.
 - O dashboard do diretor nao aplica recorte de treinamento; ele consolida a base nacional inteira dentro da janela de periodo.

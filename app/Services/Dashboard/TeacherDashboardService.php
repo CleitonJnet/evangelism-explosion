@@ -442,11 +442,11 @@ class TeacherDashboardService
             )->toArray(),
             $this->chartPayloadBuilder->bar(
                 id: 'teacher-stp-results',
-                title: 'Resultados STP/OJT',
+                title: 'Resultados STP',
                 labels: collect($stpBars)->pluck('label')->all(),
                 datasets: [
                     new ChartDatasetData(
-                        label: 'STP/OJT',
+                        label: 'STP',
                         data: collect($stpBars)->pluck('value')->all(),
                         backgroundColor: 'rgba(249, 115, 22, 0.78)',
                         borderColor: 'rgb(194, 65, 12)',
@@ -519,7 +519,7 @@ class TeacherDashboardService
 
         if ($nextTraining !== null) {
             $actions[] = ['label' => 'Próximo treinamento', 'href' => route('app.teacher.trainings.show', $nextTraining)];
-            $actions[] = ['label' => 'STP/OJT do próximo', 'href' => route('app.teacher.trainings.stp.approaches', $nextTraining)];
+            $actions[] = ['label' => 'STP do próximo', 'href' => route('app.teacher.trainings.stp.approaches', $nextTraining)];
         }
 
         return $actions;

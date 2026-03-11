@@ -34,6 +34,30 @@
             'card' => 'border-cyan-300 bg-[linear-gradient(180deg,rgba(207,250,254,0.66),rgba(255,255,255,1))]',
             'title' => 'text-cyan-950',
         ],
+        'teacher-registrations-line' => [
+            'card' => 'border-sky-300 bg-[linear-gradient(180deg,rgba(224,242,254,0.68),rgba(255,255,255,1))]',
+            'title' => 'text-sky-950',
+        ],
+        'teacher-trainings-status' => [
+            'card' => 'border-lime-300 bg-[linear-gradient(180deg,rgba(236,252,203,0.68),rgba(255,255,255,1))]',
+            'title' => 'text-lime-950',
+        ],
+        'teacher-financial-status' => [
+            'card' => 'border-amber-300 bg-[linear-gradient(180deg,rgba(254,243,199,0.64),rgba(255,255,255,1))]',
+            'title' => 'text-amber-950',
+        ],
+        'teacher-stp-results' => [
+            'card' => 'border-orange-300 bg-[linear-gradient(180deg,rgba(255,237,213,0.64),rgba(255,255,255,1))]',
+            'title' => 'text-orange-950',
+        ],
+        'teacher-discipleship-results' => [
+            'card' => 'border-cyan-300 bg-[linear-gradient(180deg,rgba(207,250,254,0.64),rgba(255,255,255,1))]',
+            'title' => 'text-cyan-950',
+        ],
+        'teacher-church-ranking' => [
+            'card' => 'border-violet-300 bg-[linear-gradient(180deg,rgba(237,233,254,0.68),rgba(255,255,255,1))]',
+            'title' => 'text-violet-950',
+        ],
         default => [
             'card' => 'border-slate-200 bg-white',
             'title' => 'text-sky-950',

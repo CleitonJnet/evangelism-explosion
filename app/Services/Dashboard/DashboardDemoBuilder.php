@@ -130,7 +130,7 @@ class DashboardDemoBuilder
                     key: 'decisions',
                     label: __('Decisões registradas'),
                     value: $this->formatKpiValue(14 + ($months * 3)),
-                    description: __('Preparado para STP/OJT e discipulado'),
+                    description: __('Preparado para STP e discipulado'),
                     trend: __('+7% vs. janela anterior'),
                 ),
                 new KpiData(

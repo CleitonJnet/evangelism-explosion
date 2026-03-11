@@ -1,5 +1,5 @@
-<x-layouts.app :title="__('Sessões STP/OJT')">
-    <x-src.toolbar.header :title="__('Sessões STP/OJT')" :description="__('Acompanhe as sessões em que você atua diretamente como mentor.')" />
+<x-layouts.app :title="__('Sessões STP')">
+    <x-src.toolbar.header :title="__('Sessões STP')" :description="__('Acompanhe as sessões em que você atua diretamente como mentor.')" />
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="route('app.mentor.dashboard')" :label="__('Dashboard')" icon="layout-grid" />
         <x-src.toolbar.button :href="route('app.mentor.trainings.index')" :label="__('Treinamentos')" icon="calendar" />

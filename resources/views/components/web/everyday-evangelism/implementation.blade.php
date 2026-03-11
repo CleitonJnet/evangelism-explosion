@@ -44,7 +44,7 @@
                                             <h3 class="font-extrabold text-slate-900">Mantenha o ciclo: ensino +
                                                 prática
                                             </h3>
-                                            <p class="text-slate-600">Replique STP/OJT e relato semanal; o modelo forma
+                                            <p class="text-slate-600">Replique STP e relato semanal; o modelo forma
                                                 convicção e habilidade.</p>
                                         </div>
                                     </div>

@@ -25,7 +25,7 @@
 
         <flux:sidebar.item icon="calendar" :href="route('app.mentor.ojt.sessions.index')"
             :current="request()->routeIs('app.mentor.ojt.sessions.*')" wire:navigate :class="$sidebarItemClass">
-            <div>{{ __('Sessões STP/OJT') }}</div>
+            <div>{{ __('Sessões STP') }}</div>
         </flux:sidebar.item>
     @endcan
 

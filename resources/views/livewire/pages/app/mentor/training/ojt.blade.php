@@ -18,7 +18,8 @@
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Acompanhamentos') }}</div>
-            <div class="mt-2 text-3xl font-bold text-slate-900">{{ $summary['approaches_summary']['acompanhamentos'] }}</div>
+            <div class="mt-2 text-3xl font-bold text-slate-900">{{ $summary['approaches_summary']['acompanhamentos'] }}
+            </div>
         </div>
     </section>
 
@@ -34,7 +35,8 @@
                             {{ $session->starts_at?->format('d/m/Y H:i') ?? __('Horário a definir') }}
                         </p>
                     </div>
-                    <flux:button size="sm" variant="outline" :href="route('app.mentor.ojt.sessions.show', $session)">
+                    <flux:button size="sm" variant="outline"
+                        :href="route('app.mentor.ojt.sessions.show', $session)">
                         {{ __('Abrir sessão') }}
                     </flux:button>
                 </div>
@@ -44,8 +46,11 @@
                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                             <div class="flex items-center justify-between gap-2">
                                 <div>
-                                    <div class="font-semibold text-slate-900">{{ $team->name ?: __('Equipe :number', ['number' => $team->position + 1]) }}</div>
-                                    <div class="text-xs text-slate-500">{{ __('Mentor') }}: {{ $team->mentor?->name ?? __('Não informado') }}</div>
+                                    <div class="font-semibold text-slate-900">
+                                        {{ $team->name ?: __('Equipe :number', ['number' => $team->position + 1]) }}
+                                    </div>
+                                    <div class="text-xs text-slate-500">{{ __('Mentor') }}:
+                                        {{ $team->mentor?->name ?? __('Não informado') }}</div>
                                 </div>
                                 <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
                                     {{ $team->approaches->count() }} {{ __('abordagens') }}
@@ -54,19 +59,21 @@
 
                             <div class="mt-3 flex flex-wrap gap-2">
                                 @forelse ($team->students as $student)
-                                    <span class="rounded-full bg-white px-3 py-1 text-xs text-slate-700">{{ $student->name }}</span>
+                                    <span
+                                        class="rounded-full bg-white px-3 py-1 text-xs text-slate-700">{{ $student->name }}</span>
                                 @empty
-                                    <span class="text-xs text-slate-500">{{ __('Sem alunos vinculados a esta equipe.') }}</span>
+                                    <span
+                                        class="text-xs text-slate-500">{{ __('Sem alunos vinculados a esta equipe.') }}</span>
                                 @endforelse
                             </div>
                         </div>
                     @endforeach
                 </div>
             </article>
-        @empty
-            <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-                {{ __('Nenhuma sessão STP/OJT vinculada à sua mentoria neste treinamento.') }}
-            </div>
-        @endforelse
-    </section>
-</div>
+            @empty
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
+                    {{ __('Nenhuma sessão STP vinculada à sua mentoria neste treinamento.') }}
+                </div>
+            @endforelse
+        </section>
+    </div>
