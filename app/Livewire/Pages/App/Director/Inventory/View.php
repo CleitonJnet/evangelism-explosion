@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\App\Director\Inventory;
 
 use App\Models\Inventory;
 use App\Models\StockMovement;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View as ViewView;
@@ -13,6 +14,7 @@ use Livewire\WithPagination;
 
 class View extends Component
 {
+    use AuthorizesRequests;
     use WithPagination;
 
     public int $inventoryId;
@@ -20,6 +22,10 @@ class View extends Component
     public string $materialSearch = '';
 
     public string $movementTypeFilter = '';
+
+    public bool $showDeleteModal = false;
+
+    public string $inventoryDeletionBlockedReason = '';
 
     public function mount(Inventory $inventory): void
     {
@@ -54,6 +60,52 @@ class View extends Component
             $this->resetPage('simpleBalancesPage');
             $this->resetPage('compositeBalancesPage');
         }
+    }
+
+    #[On('open-director-inventory-delete-modal')]
+    public function openDeleteModal(): void
+    {
+        $inventory = Inventory::query()->findOrFail($this->inventoryId);
+
+        $this->authorize('delete', $inventory);
+
+        $this->inventoryDeletionBlockedReason = $inventory->stockMovements()->exists()
+            ? __('Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.')
+            : '';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->inventoryDeletionBlockedReason = '';
+    }
+
+    public function deleteInventory(): void
+    {
+        $inventory = Inventory::query()->find($this->inventoryId);
+
+        if (! $inventory) {
+            $this->closeDeleteModal();
+            session()->flash('success', __('Estoque removido com sucesso.'));
+            $this->redirectRoute('app.director.inventory.index', navigate: true);
+
+            return;
+        }
+
+        $this->authorize('delete', $inventory);
+
+        if ($inventory->stockMovements()->exists()) {
+            $this->inventoryDeletionBlockedReason = __('Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.');
+
+            return;
+        }
+
+        $inventory->delete();
+
+        $this->closeDeleteModal();
+        session()->flash('success', __('Estoque removido com sucesso.'));
+        $this->redirectRoute('app.director.inventory.index', navigate: true);
     }
 
     public function updatingMaterialSearch(): void

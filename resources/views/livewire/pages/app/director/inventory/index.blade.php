@@ -60,13 +60,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div x-on:click.stop>
-                            <flux:button variant="danger" size="sm" icon="trash" icon:variant="outline"
-                                wire:click.stop="openDeleteModal({{ $inventory->id }})"
-                                aria-label="{{ __('Excluir estoque') }}">
-                            </flux:button>
-                        </div>
                     </div>
 
                     <div class="grid gap-3 text-sm sm:grid-cols-2">

@@ -1,4 +1,35 @@
 <div class="space-y-6" wire:poll.15s>
+    <flux:modal name="teacher-inventory-delete-modal" wire:model="showDeleteModal" class="max-w-md">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">{{ __('Excluir estoque') }}</flux:heading>
+                <flux:text class="mt-2 text-sm text-slate-600">
+                    @if ($inventoryDeletionBlockedReason !== '')
+                        {{ $inventoryDeletionBlockedReason }}
+                    @else
+                        {{ __('Tem certeza que deseja excluir este estoque? Esta ação não pode ser desfeita.') }}
+                    @endif
+                </flux:text>
+                <flux:text class="mt-1 text-sm font-semibold text-slate-900">
+                    {{ $inventory->name }}
+                </flux:text>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <flux:button type="button" variant="ghost" wire:click="closeDeleteModal">
+                    {{ $inventoryDeletionBlockedReason !== '' ? __('Fechar') : __('Cancelar') }}
+                </flux:button>
+
+                @if ($inventoryDeletionBlockedReason === '')
+                    <flux:button type="button" variant="danger" wire:click="deleteInventory" wire:loading.attr="disabled"
+                        wire:target="deleteInventory">
+                        {{ __('Confirmar exclusão') }}
+                    </flux:button>
+                @endif
+            </div>
+        </div>
+    </flux:modal>
+
     <section
         class="rounded-2xl border border-amber-300/20 bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 shadow-lg sm:p-6">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-200/80 pb-4">

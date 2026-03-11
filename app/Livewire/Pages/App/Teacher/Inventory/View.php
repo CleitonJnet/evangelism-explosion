@@ -23,6 +23,10 @@ class View extends Component
 
     public string $movementTypeFilter = '';
 
+    public bool $showDeleteModal = false;
+
+    public string $inventoryDeletionBlockedReason = '';
+
     public function mount(Inventory $inventory): void
     {
         $this->authorize('view', $inventory);
@@ -36,6 +40,52 @@ class View extends Component
         if ($this->inventoryId !== $inventoryId) {
             return;
         }
+    }
+
+    #[On('open-teacher-inventory-delete-modal')]
+    public function openDeleteModal(): void
+    {
+        $inventory = Inventory::query()->findOrFail($this->inventoryId);
+
+        $this->authorize('delete', $inventory);
+
+        $this->inventoryDeletionBlockedReason = $inventory->stockMovements()->exists()
+            ? __('Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.')
+            : '';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->inventoryDeletionBlockedReason = '';
+    }
+
+    public function deleteInventory(): void
+    {
+        $inventory = Inventory::query()->find($this->inventoryId);
+
+        if (! $inventory) {
+            $this->closeDeleteModal();
+            session()->flash('success', __('Estoque removido com sucesso.'));
+            $this->redirectRoute('app.teacher.inventory.index', navigate: true);
+
+            return;
+        }
+
+        $this->authorize('delete', $inventory);
+
+        if ($inventory->stockMovements()->exists()) {
+            $this->inventoryDeletionBlockedReason = __('Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.');
+
+            return;
+        }
+
+        $inventory->delete();
+
+        $this->closeDeleteModal();
+        session()->flash('success', __('Estoque removido com sucesso.'));
+        $this->redirectRoute('app.teacher.inventory.index', navigate: true);
     }
 
     public function updatingMaterialSearch(): void

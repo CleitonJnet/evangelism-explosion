@@ -3,6 +3,7 @@
 namespace App\Services\Dashboard;
 
 use App\Helpers\DayScheduleHelper;
+use App\Helpers\NameUser;
 use App\Models\Course;
 use App\Models\StpApproach;
 use App\Models\Training;
@@ -67,6 +68,7 @@ class DirectorDashboardService
                 'endDate' => $hasCustomRange ? $range['end']->toDateString() : null,
                 'usingCustomRange' => $hasCustomRange,
             ],
+            'eventStatusOverview' => $this->buildEventStatusOverview($trainings),
             'kpis' => $this->buildKpis($trainings, $newChurches, $discipleship, $paymentSummary),
             'charts' => $this->buildCharts($range['start'], $range['end'], $trainings, $newChurches, $discipleship, $paymentSummary),
             'leadershipTeachers' => $this->buildLeadershipTeachersTable(),
@@ -195,7 +197,7 @@ class DirectorDashboardService
 
         return [
             $this->kpi('trainings', 'Treinamentos no período', $trainings->count(), 'Janela nacional consolidada'),
-            $this->kpi('completed_trainings', 'Treinamentos concluídos', $completedTrainings->count(), 'Eventos encerrados no período'),
+            // $this->kpi('completed_trainings', 'Treinamentos concluídos', $completedTrainings->count(), 'Eventos encerrados no período'),
             $this->kpi('future_trainings', 'Treinamentos futuros', $futureTrainings->count(), 'Pipeline imediato do ministério'),
             $this->kpi('churches_reached', 'Igrejas alcançadas', $churchesReached, 'Igrejas com inscritos no período'),
             $this->kpi('new_churches', 'Novas igrejas', $newChurches->pluck('church_id')->filter()->unique()->count(), 'Expansão registrada via treinamento'),
@@ -302,7 +304,6 @@ class DirectorDashboardService
         array $paymentSummary,
     ): array {
         $series = [];
-        $registrationSeries = [];
         $decisionsSeries = [];
         $newChurchesSeries = [];
 
@@ -317,7 +318,6 @@ class DirectorDashboardService
             );
 
             $series[] = new TimeSeriesPointData($month->toDateString(), $monthTrainings->count());
-            $registrationSeries[] = new TimeSeriesPointData($month->toDateString(), (int) $monthTrainings->sum('students_count'));
             $decisionsSeries[] = new TimeSeriesPointData(
                 $month->toDateString(),
                 $monthTrainings->sum(fn (Training $training): int => (int) $this->stpMetrics->buildTrainingSummary($training)['decisao']),
@@ -329,16 +329,91 @@ class DirectorDashboardService
         }
 
         $coursesDistribution = $trainings
-            ->groupBy(fn (Training $training): string => $training->course?->name ?? 'Curso não informado')
-            ->map(fn (Collection $items): int => $items->count())
-            ->sortDesc()
+            ->groupBy(fn (Training $training): string => (string) ($training->course_id ?? 0))
+            ->map(function (Collection $items, string $courseId): array {
+                /** @var Training|null $training */
+                $training = $items->first();
+
+                return [
+                    'id' => $courseId,
+                    'label' => $training?->course?->name ?? 'Curso não informado',
+                    'value' => $items->count(),
+                    'color' => $training?->course ? $this->courseColor($training->course) : '#64748b',
+                ];
+            })
+            ->sortByDesc('value')
             ->take(8);
+
+        $registrationDatasets = $trainings
+            ->groupBy(fn (Training $training): string => (string) ($training->course_id ?? 0))
+            ->map(function (Collection $items) use ($rangeStart, $months): array {
+                /** @var Training|null $training */
+                $training = $items->first();
+
+                $points = [];
+
+                for ($index = 0; $index < $months; $index++) {
+                    $month = $rangeStart->addMonths($index);
+                    $monthRegistrations = $items
+                        ->filter(function (Training $training) use ($month): bool {
+                            $referenceDate = $this->firstEventDate($training) ?? CarbonImmutable::parse($training->created_at);
+
+                            return $referenceDate->isSameMonth($month);
+                        })
+                        ->sum('students_count');
+
+                    $points[] = new TimeSeriesPointData($month->toDateString(), (int) $monthRegistrations);
+                }
+
+                return [
+                    'label' => $training?->course?->name ?? 'Curso não informado',
+                    'value' => (int) $items->sum('students_count'),
+                    'color' => $training?->course ? $this->courseColor($training->course) : '#64748b',
+                    'points' => $points,
+                ];
+            })
+            ->sortByDesc('value')
+            ->values()
+            ->map(fn (array $dataset): ChartDatasetData => new ChartDatasetData(
+                label: $dataset['label'],
+                data: array_map(
+                    static fn (TimeSeriesPointData $point): array => $point->toArray(),
+                    $dataset['points'],
+                ),
+                backgroundColor: $this->hexToRgba($dataset['color'], 0.12),
+                borderColor: $dataset['color'],
+                fill: false,
+            ))
+            ->all();
 
         $statesDistribution = $trainings
             ->groupBy(fn (Training $training): string => $training->state ?: ($training->church?->state ?: 'Sem UF'))
             ->map(fn (Collection $items): int => $items->count())
             ->sortDesc()
             ->take(8);
+
+        $stateLabels = $statesDistribution->keys()->values();
+
+        $coursesByState = $trainings
+            ->filter(fn (Training $training): bool => $stateLabels->contains($training->state ?: ($training->church?->state ?: 'Sem UF')))
+            ->groupBy(fn (Training $training): string => (string) ($training->course_id ?? 0))
+            ->map(function (Collection $items) use ($stateLabels): array {
+                /** @var Training|null $firstTraining */
+                $firstTraining = $items->first();
+
+                return [
+                    'label' => $firstTraining?->course?->name ?? 'Curso não informado',
+                    'color' => $firstTraining?->course ? $this->courseColor($firstTraining->course) : '#64748b',
+                    'data' => $stateLabels
+                        ->map(fn (string $state): int => $items->filter(
+                            fn (Training $training): bool => ($training->state ?: ($training->church?->state ?: 'Sem UF')) === $state
+                        )->count())
+                        ->all(),
+                ];
+            })
+            ->sortByDesc(fn (array $course): int => array_sum($course['data']))
+            ->take(8)
+            ->values();
 
         $teacherRanking = $trainings
             ->flatMap(function (Training $training): array {
@@ -365,39 +440,80 @@ class DirectorDashboardService
             ->sortDesc()
             ->take(8);
 
+        $statusColors = [
+            TrainingStatus::Scheduled->value => '#0f766e',
+            TrainingStatus::Planning->value => '#d97706',
+            TrainingStatus::Completed->value => '#2563eb',
+            TrainingStatus::Canceled->value => '#dc2626',
+        ];
+
+        $statusSeries = collect(TrainingStatus::cases())
+            ->map(function (TrainingStatus $status) use ($rangeStart, $months, $trainings, $statusColors): ChartDatasetData {
+                $points = [];
+
+                for ($index = 0; $index < $months; $index++) {
+                    $month = $rangeStart->addMonths($index);
+                    $monthTrainings = $trainings->filter(function (Training $training) use ($month, $status): bool {
+                        $referenceDate = $this->firstEventDate($training) ?? CarbonImmutable::parse($training->created_at);
+
+                        return $referenceDate->isSameMonth($month) && $training->status === $status;
+                    });
+
+                    $points[] = new TimeSeriesPointData($month->toDateString(), $monthTrainings->count());
+                }
+
+                return new ChartDatasetData(
+                    label: $status->label(),
+                    data: array_map(
+                        static fn (TimeSeriesPointData $point): array => $point->toArray(),
+                        $points,
+                    ),
+                    backgroundColor: $this->hexToRgba($statusColors[$status->value], 0.16),
+                    borderColor: $statusColors[$status->value],
+                    fill: false,
+                    hidden: $status === TrainingStatus::Planning,
+                );
+            })
+            ->all();
+
         return [
-            $this->timeSeriesChart('director-trainings-month', 'Treinamentos por mês', 'Treinamentos', $series, ' treinamentos'),
-            $this->timeSeriesChart('director-registrations-month', 'Inscritos por mês', 'Inscritos', $registrationSeries, ' inscritos'),
+            $this->chartPayloadBuilder->timeSeries(
+                id: 'director-trainings-month',
+                title: 'Ritmo de eventos',
+                datasets: [
+                    ...$statusSeries,
+                ],
+                options: [
+                    'xAxis' => ['unit' => $months <= 3 ? 'week' : 'month'],
+                    'valueSuffix' => ' eventos',
+                    'legendPosition' => 'bottom',
+                ],
+            )->toArray(),
+            $this->chartPayloadBuilder->timeSeries(
+                id: 'director-registrations-month',
+                title: 'Inscritos por mês',
+                datasets: $registrationDatasets,
+                options: [
+                    'xAxis' => ['unit' => $months <= 3 ? 'week' : 'month'],
+                    'valueSuffix' => ' inscritos',
+                    'legendPosition' => 'bottom',
+                ],
+            )->toArray(),
             $this->timeSeriesChart('director-decisions-month', 'Decisões por mês', 'Decisões', $decisionsSeries, ' decisões'),
             $this->timeSeriesChart('director-new-churches-month', 'Novas igrejas por mês', 'Novas igrejas', $newChurchesSeries, ' igrejas'),
             $this->chartPayloadBuilder->doughnut(
                 id: 'director-distribution-course',
                 title: 'Distribuição por ministério/curso',
-                labels: $coursesDistribution->keys()->all(),
+                labels: $coursesDistribution->pluck('label')->all(),
                 datasets: [
                     new ChartDatasetData(
                         label: 'Treinamentos',
-                        data: $coursesDistribution->values()->all(),
-                        backgroundColor: [
-                            'rgba(14, 116, 144, 0.84)',
-                            'rgba(249, 115, 22, 0.84)',
-                            'rgba(16, 185, 129, 0.84)',
-                            'rgba(99, 102, 241, 0.84)',
-                            'rgba(245, 158, 11, 0.84)',
-                            'rgba(236, 72, 153, 0.84)',
-                            'rgba(34, 197, 94, 0.84)',
-                            'rgba(100, 116, 139, 0.84)',
-                        ],
-                        borderColor: [
-                            'rgb(14, 116, 144)',
-                            'rgb(194, 65, 12)',
-                            'rgb(5, 150, 105)',
-                            'rgb(79, 70, 229)',
-                            'rgb(180, 83, 9)',
-                            'rgb(190, 24, 93)',
-                            'rgb(22, 163, 74)',
-                            'rgb(71, 85, 105)',
-                        ],
+                        data: $coursesDistribution->pluck('value')->all(),
+                        backgroundColor: $coursesDistribution
+                            ->pluck('color')
+                            ->map(fn (string $color): string => $this->hexToRgba($color, 0.84))
+                            ->all(),
+                        borderColor: $coursesDistribution->pluck('color')->all(),
                     ),
                 ],
                 options: [
@@ -408,16 +524,20 @@ class DirectorDashboardService
             $this->chartPayloadBuilder->bar(
                 id: 'director-distribution-state',
                 title: 'Distribuição por estado',
-                labels: $statesDistribution->keys()->all(),
-                datasets: [
-                    new ChartDatasetData(
-                        label: 'Treinamentos',
-                        data: $statesDistribution->values()->all(),
-                        backgroundColor: 'rgba(37, 99, 235, 0.78)',
-                        borderColor: 'rgb(29, 78, 216)',
-                    ),
+                labels: $stateLabels->all(),
+                datasets: $coursesByState
+                    ->map(fn (array $course): ChartDatasetData => new ChartDatasetData(
+                        label: $course['label'],
+                        data: $course['data'],
+                        backgroundColor: $this->hexToRgba($course['color'], 0.84),
+                        borderColor: $course['color'],
+                    ))
+                    ->all(),
+                options: [
+                    'valueSuffix' => ' treinamentos',
+                    'stacked' => true,
+                    'legendPosition' => 'bottom',
                 ],
-                options: ['valueSuffix' => ' treinamentos'],
             )->toArray(),
             $this->chartPayloadBuilder->bar(
                 id: 'director-ranking-teachers',
@@ -486,7 +606,7 @@ class DirectorDashboardService
     }
 
     /**
-     * @return array<int, array{course_name: string, ministry_name: string, teachers: array<int, array{name: string, status: string, church_name: string, profile_photo_url: ?string, initials: string}>}>
+     * @return array<int, array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, courses: array<int, array{name: string, type: string, initials: string, color: string, ministry_name: string, is_active: bool}>}>
      */
     private function buildLeadershipTeachersTable(): array
     {
@@ -494,28 +614,131 @@ class DirectorDashboardService
             ->leadership()
             ->with([
                 'ministry:id,name',
-                'teachers' => fn ($query) => $query->with('church:id,name')->orderBy('name'),
+                'teachers' => fn ($query) => $query->with('church:id,name,city,state')->orderBy('name'),
             ])
             ->orderBy('name')
             ->get()
-            ->map(function (Course $course): array {
+            ->flatMap(function (Course $course): Collection {
+                return $course->teachers->map(function (User $teacher) use ($course): array {
+                    return [
+                        'teacher_id' => $teacher->id,
+                        'name' => $teacher->name,
+                        'church_name' => $teacher->church?->name ?? 'Sem igreja vinculada',
+                        'city' => $teacher->church?->city ?? 'Cidade não informada',
+                        'state' => $teacher->church?->state ?? 'UF não informada',
+                        'profile_photo_url' => $teacher->profile_photo_url,
+                        'initials' => $teacher->initials(),
+                        'is_active' => ((int) ($teacher->pivot->status ?? 0)) === 1,
+                        'course_name' => $course->name,
+                        'course_type' => trim((string) $course->type) !== '' ? (string) $course->type : 'Curso',
+                        'course_initials' => $this->courseInitials($course),
+                        'course_color' => $this->courseColor($course),
+                        'ministry_name' => $course->ministry?->name ?? 'Ministério não informado',
+                    ];
+                });
+            })
+            ->groupBy('teacher_id')
+            ->map(function (Collection $items): array {
+                /** @var array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, course_name: string, course_initials: string, course_color: string, ministry_name: string}|null $first */
+                $first = $items->first();
+
                 return [
-                    'course_name' => $course->name,
-                    'ministry_name' => $course->ministry?->name ?? 'Ministério não informado',
-                    'teachers' => $course->teachers
-                        ->map(fn (User $teacher): array => [
-                            'name' => $teacher->name,
-                            'status' => ((int) ($teacher->pivot->status ?? 0)) === 1 ? 'Ativo' : 'Inativo',
-                            'church_name' => $teacher->church?->name ?? 'Sem igreja vinculada',
-                            'profile_photo_url' => $teacher->profile_photo_url,
-                            'initials' => $teacher->initials(),
+                    'name' => $first['name'] ?? 'Professor não informado',
+                    'church_name' => $first['church_name'] ?? 'Sem igreja vinculada',
+                    'city' => $first['city'] ?? 'Cidade não informada',
+                    'state' => $first['state'] ?? 'UF não informada',
+                    'profile_photo_url' => $first['profile_photo_url'] ?? null,
+                    'initials' => $first['initials'] ?? '--',
+                    'is_active' => $items->contains(fn (array $item): bool => $item['is_active']),
+                    'courses' => $items
+                        ->map(fn (array $item): array => [
+                            'name' => $item['course_name'],
+                            'type' => $item['course_type'],
+                            'initials' => $item['course_initials'],
+                            'color' => $item['course_color'],
+                            'ministry_name' => $item['ministry_name'],
+                            'is_active' => $item['is_active'],
                         ])
+                        ->sortBy('name')
                         ->values()
                         ->all(),
                 ];
             })
+            ->sortBy('name')
             ->values()
             ->all();
+    }
+
+    private function courseInitials(Course $course): string
+    {
+        $initials = trim((string) $course->initials);
+
+        if ($initials !== '') {
+            return mb_strtoupper($initials, 'UTF-8');
+        }
+
+        return NameUser::initials($course->name);
+    }
+
+    private function courseColor(Course $course): string
+    {
+        $color = trim((string) $course->color);
+
+        return preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color) === 1 ? $color : '#475569';
+    }
+
+    private function hexToRgba(string $hex, float $alpha): string
+    {
+        $normalized = ltrim($hex, '#');
+
+        if (strlen($normalized) === 3) {
+            $normalized = collect(str_split($normalized))
+                ->map(fn (string $char): string => $char.$char)
+                ->implode('');
+        }
+
+        if (strlen($normalized) !== 6) {
+            return 'rgba(100, 116, 139, '.$alpha.')';
+        }
+
+        /** @var int $red */
+        $red = hexdec(substr($normalized, 0, 2));
+        /** @var int $green */
+        $green = hexdec(substr($normalized, 2, 2));
+        /** @var int $blue */
+        $blue = hexdec(substr($normalized, 4, 2));
+
+        return sprintf('rgba(%d, %d, %d, %.2f)', $red, $green, $blue, $alpha);
+    }
+
+    /**
+     * @param  Collection<int, Training>  $trainings
+     * @return array<int, array{key: string, label: string, value: int, tone: string}>
+     */
+    private function buildEventStatusOverview(Collection $trainings): array
+    {
+        return [
+            [
+                'key' => TrainingStatus::Scheduled->key(),
+                'value' => $trainings->where('status', TrainingStatus::Scheduled)->count(),
+                'tone' => 'border-teal-200 bg-teal-50 text-teal-800',
+            ],
+            [
+                'key' => TrainingStatus::Planning->key(),
+                'value' => $trainings->where('status', TrainingStatus::Planning)->count(),
+                'tone' => 'border-amber-200 bg-amber-50 text-amber-800',
+            ],
+            [
+                'key' => TrainingStatus::Completed->key(),
+                'value' => $trainings->where('status', TrainingStatus::Completed)->count(),
+                'tone' => 'border-blue-200 bg-blue-50 text-blue-800',
+            ],
+            [
+                'key' => TrainingStatus::Canceled->key(),
+                'value' => $trainings->where('status', TrainingStatus::Canceled)->count(),
+                'tone' => 'border-red-200 bg-red-50 text-red-800',
+            ],
+        ];
     }
 
     /**
@@ -549,6 +772,9 @@ class DirectorDashboardService
                         $this->hasScheduleIssue($training) ? 'Programação pendente' : 'Inscrições pendentes',
                         $pendingChurchIssues > 0 ? sprintf(' | %d validações de igreja', $pendingChurchIssues) : '',
                     ),
+                    'teacher_name' => $training->teacher?->name ?? 'Professor titular não informado',
+                    'event_date' => $this->firstEventDate($training)?->format('d/m/Y') ?? 'Data não informada',
+                    'route' => route('app.director.training.show', $training),
                 ];
             })
             ->filter(fn (array $item): bool => $item['context'] !== 'Inscrições pendentes')

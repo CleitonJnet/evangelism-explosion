@@ -170,6 +170,16 @@ abstract class RegistrationsPage extends Component
         $this->refreshRegistrations();
     }
 
+    #[On('training-participant-registration-created')]
+    public function handleParticipantRegistrationCreated(?int $trainingId = null): void
+    {
+        if ($trainingId !== null && $trainingId !== $this->training->id) {
+            return;
+        }
+
+        $this->refreshRegistrations();
+    }
+
     public function updatedSearch(string $search): void
     {
         $normalizedSearch = trim($search);

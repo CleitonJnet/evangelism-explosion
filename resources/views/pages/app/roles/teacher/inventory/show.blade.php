@@ -6,6 +6,12 @@
         <x-src.toolbar.button href="#" :label="__('Editar estoque')" icon="pencil" :tooltip="__('Abrir edição em modal na tela atual')"
             class="!border-slate-300 !bg-slate-100 !text-slate-700 hover:!bg-slate-200"
             onclick="window.Livewire.dispatch('open-teacher-inventory-edit-modal', { inventoryId: {{ $inventory->id }} }); return false;" />
+        <div class="ml-auto">
+            <x-src.toolbar.button href="#" :label="__('Excluir estoque')" icon="trash"
+                :tooltip="__('Abrir confirmação para excluir este estoque')"
+                class="!border-rose-200 !bg-rose-50 !text-rose-700 hover:!bg-rose-100"
+                onclick="window.Livewire.dispatch('open-teacher-inventory-delete-modal'); return false;" />
+        </div>
     </x-src.toolbar.nav>
 
     <livewire:pages.app.teacher.inventory.view :inventory="$inventory" />

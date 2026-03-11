@@ -131,6 +131,7 @@ trait InteractsWithTrainingContext
                     'churchTempReviewModal' => 'pages.app.director.training.church-temp-review-modal',
                     'approveChurchTempModal' => 'pages.app.director.training.approve-church-temp-modal',
                     'deliverMaterialModal' => 'pages.app.director.training.deliver-material-modal',
+                    'createParticipantRegistrationModal' => 'pages.app.teacher.training.create-participant-registration-modal',
                 ],
             ],
             default => [
@@ -149,6 +150,7 @@ trait InteractsWithTrainingContext
                     'churchTempReviewModal' => 'pages.app.teacher.training.church-temp-review-modal',
                     'approveChurchTempModal' => 'pages.app.teacher.training.approve-church-temp-modal',
                     'deliverMaterialModal' => null,
+                    'createParticipantRegistrationModal' => 'pages.app.teacher.training.create-participant-registration-modal',
                 ],
             ],
         };

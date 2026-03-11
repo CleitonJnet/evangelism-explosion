@@ -25,4 +25,9 @@ class InventoryPolicy
     {
         return $this->view($user, $inventory);
     }
+
+    public function delete(User $user, Inventory $inventory): bool
+    {
+        return $this->view($user, $inventory);
+    }
 }

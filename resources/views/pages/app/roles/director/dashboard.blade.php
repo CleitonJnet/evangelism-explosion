@@ -4,6 +4,7 @@
         $kpis = collect($dashboard['kpis']);
         $charts = collect($dashboard['charts']);
         $filters = $dashboard['filters'] ?? ['startDate' => null, 'endDate' => null, 'usingCustomRange' => false];
+        $eventStatusOverview = collect($dashboard['eventStatusOverview'] ?? []);
 
         $executiveKpis = $kpis
             ->whereIn('key', ['trainings', 'registrations', 'paid_students', 'payment_rate'])
@@ -17,17 +18,25 @@
             ->whereIn('key', ['gospel_explained', 'people_reached', 'decisions', 'discipleship'])
             ->values();
 
-        $balanceKpis = $kpis
-            ->whereIn('key', ['future_trainings', 'completed_trainings', 'scheduled_visits', 'ee_balance'])
+        $balanceKpis = $kpis->whereIn('key', ['completed_trainings'])->values();
+
+        $stpOverview = $kpis
+            ->whereIn('key', ['gospel_explained', 'people_reached', 'decisions', 'scheduled_visits'])
             ->values();
+
+        $growthOverview = $kpis->whereIn('key', ['registrations', 'pastors_trained', 'new_churches'])->values();
 
         $heroPrimary = $executiveKpis->first();
         $heroSecondary = $executiveKpis->slice(1)->values();
+        $leadershipTeachers = collect($dashboard['leadershipTeachers']);
+        $activeLeadershipTeachers = $leadershipTeachers->where('is_active', true)->values();
+        $inactiveLeadershipTeachers = $leadershipTeachers->where('is_active', false)->values();
 
         $chartSections = [
             [
                 'title' => 'Ritmo nacional',
                 'description' => 'Evolução da operação ao longo da janela selecionada.',
+                'layout' => 'swiper',
                 'charts' => $charts
                     ->whereIn('id', [
                         'director-trainings-month',
@@ -40,6 +49,7 @@
             [
                 'title' => 'Distribuição da operação',
                 'description' => 'Concentração por curso, estado, professor e igreja.',
+                'layout' => 'swiper',
                 'charts' => $charts
                     ->whereIn('id', [
                         'director-distribution-course',
@@ -95,6 +105,100 @@
         ];
     @endphp
 
+    @once
+        @push('css')
+            <style>
+                .js-swiper-director-national .swiper-button-next,
+                .js-swiper-director-national .swiper-button-prev {
+                    color: #b79a32;
+                }
+
+                .js-swiper-director-national .swiper-button-next:after,
+                .js-swiper-director-national .swiper-button-prev:after {
+                    font-size: 16px;
+                    font-weight: 900;
+                }
+
+                .js-swiper-director-national .swiper-pagination-bullet {
+                    background: #c7a840;
+                    opacity: .35;
+                }
+
+                .js-swiper-director-national .swiper-pagination-bullet-active {
+                    background: #f1d57a;
+                    opacity: 1;
+                }
+
+                .director-governance-scroll {
+                    scrollbar-color: rgba(148, 163, 184, 0.55) #082f49;
+                }
+
+                .director-governance-scroll::-webkit-scrollbar {
+                    width: 10px;
+                }
+
+                .director-governance-scroll::-webkit-scrollbar-track {
+                    background: #082f49;
+                }
+
+                .director-governance-scroll::-webkit-scrollbar-thumb {
+                    background: rgba(148, 163, 184, 0.55);
+                    border-radius: 9999px;
+                    border: 2px solid #082f49;
+                }
+            </style>
+        @endpush
+
+        @push('js')
+            <script>
+                (function() {
+                    function initDirectorNationalSwipers() {
+                        document.querySelectorAll('.SwiperDirectorNationalCharts').forEach((root) => {
+                            if (root.dataset.swiperInit === '1') {
+                                return;
+                            }
+
+                            root.dataset.swiperInit = '1';
+
+                            const nextEl = root.querySelector('.swiper-button-next');
+                            const prevEl = root.querySelector('.swiper-button-prev');
+                            const paginationEl = root.querySelector('.swiper-pagination');
+                            const slidesCount = root.querySelectorAll('.swiper-slide').length;
+                            const isSingleSlide = slidesCount <= 1;
+
+                            if (isSingleSlide) {
+                                nextEl?.classList.add('hidden');
+                                prevEl?.classList.add('hidden');
+                                paginationEl?.classList.add('hidden');
+                            }
+
+                            new Swiper(root, {
+                                slidesPerView: 'auto',
+                                spaceBetween: 16,
+                                loop: false,
+                                grabCursor: true,
+                                autoplay: false,
+                                navigation: {
+                                    nextEl,
+                                    prevEl
+                                },
+                                pagination: {
+                                    el: paginationEl,
+                                    clickable: true,
+                                    dynamicBullets: true,
+                                },
+                            });
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', initDirectorNationalSwipers);
+                    document.addEventListener('livewire:navigated', initDirectorNationalSwipers);
+                })
+                ();
+            </script>
+        @endpush
+    @endonce
+
     <section
         class="overflow-hidden rounded-4xl mb-6 border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(241,245,249,0.95))] shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)]">
         <div class="grid gap-6 px-6 py-6 lg:grid-cols-[1.4fr_0.9fr] lg:px-8 lg:py-8">
@@ -116,16 +220,16 @@
 
                 <div class="flex flex-wrap items-center gap-3 text-sm">
                     <span
+                        class="flex flex-auto basis-28 items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-medium text-amber-700">
+                        Escopo nacional completo
+                    </span>
+                    <span
                         class="flex flex-auto basis-28 items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
                         Período atual: {{ $dashboard['periodLabel'] }}
                     </span>
                     <span
-                        class="flex flex-auto basis-28 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
+                        class="flex flex-auto basis-28 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700 whitespace-nowrap">
                         Janela: {{ $dashboard['rangeLabel'] }}
-                    </span>
-                    <span
-                        class="flex flex-auto basis-28 items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-medium text-amber-700">
-                        Escopo nacional completo
                     </span>
                 </div>
 
@@ -149,6 +253,21 @@
                                 </a>
                             @endforeach
                         </div>
+
+                        {{-- @if ($heroSecondary->isNotEmpty())
+                            <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                                @foreach ($heroSecondary as $kpi)
+                                    <article class="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-3">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                            {{ $kpi['label'] }}
+                                        </p>
+                                        <p class="mt-2 text-2xl font-semibold text-slate-950">
+                                            {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
+                                        </p>
+                                    </article>
+                                @endforeach
+                            </div>
+                        @endif --}}
                     </div>
 
                     <form method="GET" action="{{ route('app.director.dashboard') }}"
@@ -226,18 +345,192 @@
         </div>
     </section>
 
-    <section class="my-6 flex flex-wrap gap-3">
-        @foreach ($balanceKpis as $kpi)
-            <article class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm flex-auto basis-20">
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 truncate">
-                    {{ $kpi['label'] }}</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-950">
-                    {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
-                </p>
-                <p class="mt-2 text-sm leading-5 text-slate-600">{{ $kpi['description'] }}</p>
+    <section class="my-6 grid gap-4 xl:grid-cols-[1.2fr_1.2fr_0.8fr]">
+        <article
+            class="rounded-[1.7rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,0.96),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.55)]">
+            <div class="flex flex-col gap-2 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Indicadores de eventos
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-slate-950">Status atuais da operação</h2>
+                </div>
+                <p class="text-sm leading-5 text-slate-600">Leitura rápida do andamento dos eventos nesta janela.</p>
+            </div>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                @foreach ($eventStatusOverview as $status)
+                    @php
+                        $statusDescription = match ($status['key']) {
+                            'planning' => 'Planejando',
+                            'scheduled' => 'Agendado',
+                            'completed' => 'Concluído',
+                            'canceled' => 'Cancelado',
+                            default => null,
+                        };
+                    @endphp
+
+                    @if ($statusDescription)
+                        <div class="rounded-2xl border px-4 py-3 shadow-sm {{ $status['tone'] }}">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold tracking-[0.08em] uppercase">
+                                    {{ $statusDescription }}
+                                </span>
+                                <span class="text-2xl font-semibold text-slate-950">
+                                    {{ number_format($status['value'], 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        </article>
+
+        <article
+            class="rounded-[1.7rem] border border-orange-200 bg-[linear-gradient(135deg,rgba(255,247,237,0.96),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.55)]">
+            <div
+                class="flex flex-col gap-2 border-b border-orange-200/80 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">
+                        Estatísticas STP
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-slate-950">Resultados ministeriais</h2>
+                </div>
+                <p class="text-sm leading-5 text-slate-600">Resumo da jornada das conversas e acompanhamentos.</p>
+            </div>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                @foreach ($stpOverview as $kpi)
+                    @php
+                        $stpTone = match ($kpi['key']) {
+                            'gospel_explained' => [
+                                'card' => 'border-orange-200 bg-orange-50/90',
+                                'text' => 'text-orange-900',
+                            ],
+                            'people_reached' => [
+                                'card' => 'border-amber-200 bg-amber-50/90',
+                                'text' => 'text-amber-900',
+                            ],
+                            'decisions' => [
+                                'card' => 'border-emerald-200 bg-emerald-50/90',
+                                'text' => 'text-emerald-900',
+                            ],
+                            'scheduled_visits' => [
+                                'card' => 'border-sky-200 bg-sky-50/90',
+                                'text' => 'text-sky-900',
+                            ],
+                            default => [
+                                'card' => 'border-slate-200 bg-slate-50',
+                                'text' => 'text-slate-900',
+                            ],
+                        };
+                    @endphp
+
+                    <div class="rounded-2xl border px-4 py-3 shadow-sm {{ $stpTone['card'] }}">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="text-sm font-semibold tracking-[0.08em] uppercase {{ $stpTone['text'] }}">
+                                {{ $kpi['label'] }}
+                            </span>
+                            <span class="text-2xl font-semibold {{ $stpTone['text'] }}">
+                                {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </article>
+
+        <div class="grid gap-4">
+            @foreach ($balanceKpis as $kpi)
+                @php
+                    $kpiTone = match ($kpi['key']) {
+                        'completed_trainings' => [
+                            'card' =>
+                                'border-emerald-200 bg-[linear-gradient(180deg,rgba(236,253,245,0.92),rgba(255,255,255,1))]',
+                            'label' => 'text-emerald-700',
+                        ],
+                        default => [
+                            'card' => 'border-slate-200 bg-white',
+                            'label' => 'text-slate-600',
+                        ],
+                    };
+                @endphp
+
+                <article
+                    class="rounded-[1.7rem] border p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.45)] {{ $kpiTone['card'] }}">
+                    <div class="flex h-full flex-col">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] {{ $kpiTone['label'] }}">
+                            {{ $kpi['label'] }}
+                        </p>
+                        <p class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+                            {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
+                        </p>
+                        <p class="mt-3 text-sm leading-5 text-slate-600">
+                            {{ $kpi['description'] }}
+                        </p>
+                    </div>
+                </article>
+            @endforeach
+
+            <article
+                class="rounded-[1.7rem] border border-violet-200 bg-[linear-gradient(180deg,rgba(245,243,255,0.95),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.45)]">
+                <div class="flex flex-col gap-2 border-b border-violet-200/80 pb-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700">
+                        Expansão da base
+                    </p>
+                    <h2 class="text-lg font-semibold text-slate-950">Pessoas, pastores e igrejas</h2>
+                </div>
+
+                <div class="mt-4 grid gap-3">
+                    @foreach ($growthOverview as $kpi)
+                        @php
+                            $growthTone = match ($kpi['key']) {
+                                'registrations' => 'border-sky-200 bg-sky-50/90 text-sky-900',
+                                'pastors_trained' => 'border-emerald-200 bg-emerald-50/90 text-emerald-900',
+                                'new_churches' => 'border-violet-200 bg-violet-50/90 text-violet-900',
+                                default => 'border-slate-200 bg-slate-50 text-slate-900',
+                            };
+                        @endphp
+
+                        <div class="rounded-2xl border px-4 py-3 shadow-sm {{ $growthTone }}">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold tracking-[0.08em] uppercase">
+                                    {{ $kpi['label'] }}
+                                </span>
+                                <span class="text-2xl font-semibold text-slate-950">
+                                    {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </article>
-        @endforeach
+        </div>
     </section>
+
+    {{-- <section class="mb-6">
+        <article class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Indicadores de eventos
+                    </p>
+                    <p class="mt-1 text-sm text-slate-600">Situação atual dos eventos desta janela.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 lg:max-w-[70%] lg:justify-end">
+                    @foreach ($eventStatusOverview as $status)
+                        <div
+                            class="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm {{ $status['tone'] }}">
+                            <span
+                                class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-950 ring-1 ring-black/5">
+                                {{ number_format($status['value'], 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </article>
+    </section> --}}
 
     @foreach ($chartSections as $section)
         <section
@@ -247,83 +540,31 @@
                 <p class="mt-1 text-sm text-slate-600">{{ $section['description'] }}</p>
             </div>
 
-            <div class="mt-5 grid gap-6 lg:grid-cols-2 2xl:grid-cols-4">
-                @foreach ($section['charts'] as $chart)
-                    <x-dashboard.chart :chart="$chart" />
-                @endforeach
-            </div>
+            @if (($section['layout'] ?? 'grid') === 'swiper')
+                <div class="relative mt-5">
+                    <div class="swiper js-swiper-director-national SwiperDirectorNationalCharts px-1 sm:px-2">
+                        <div class="swiper-wrapper">
+                            @foreach ($section['charts'] as $chart)
+                                <div class="swiper-slide !h-auto !w-full md:!w-[32rem] 2xl:!w-[36rem]">
+                                    <x-dashboard.chart :chart="$chart" />
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="swiper-button-prev left-0 sm:-left-1"></div>
+                        <div class="swiper-button-next right-0 sm:-right-1"></div>
+                        <div class="swiper-pagination relative! mt-6!"></div>
+                    </div>
+                </div>
+            @else
+                <div class="mt-5 grid gap-6 lg:grid-cols-2 2xl:grid-cols-4">
+                    @foreach ($section['charts'] as $chart)
+                        <x-dashboard.chart :chart="$chart" />
+                    @endforeach
+                </div>
+            @endif
         </section>
     @endforeach
-
-    <section class="mb-6 grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
-        <article
-            class="rounded-[1.9rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
-            <div class="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
-                <div>
-                    <h2 class="text-xl font-semibold text-slate-950">Panorama executivo</h2>
-                    <p class="mt-1 text-sm text-slate-600">Resumo direto dos números principais deste período.</p>
-                </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                    Camada principal
-                </span>
-            </div>
-
-            <div class="mt-5 grid gap-4 md:grid-cols-3">
-                <article class="rounded-[1.6rem] border border-slate-900 bg-slate-950 p-5 text-white md:col-span-2">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Foco da diretoria
-                    </p>
-                    <p class="mt-3 text-2xl font-semibold tracking-tight">O objetivo é acompanhar crescimento,
-                        resultado do campo e estabilidade financeira sem complicação.</p>
-                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Leia primeiro os totais, depois o
-                        alcance e, por fim, os alertas que precisam de ação.</p>
-                </article>
-
-                <article class="rounded-[1.6rem] border border-emerald-200 bg-emerald-50 p-5">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Leitura imediata
-                    </p>
-                    <p class="mt-3 text-3xl font-semibold text-slate-950">{{ $dashboard['periodLabel'] }}</p>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">Período selecionado para acompanhar os
-                        resultados com precisão.</p>
-                </article>
-            </div>
-
-            <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                @foreach ($executiveKpis as $kpi)
-                    <article
-                        class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition hover:border-slate-400">
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                            {{ $kpi['label'] }}</p>
-                        <p class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                            {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
-                        </p>
-                        <p class="mt-2 text-sm leading-5 text-slate-600">{{ $kpi['description'] }}</p>
-                    </article>
-                @endforeach
-            </div>
-        </article>
-
-        <article
-            class="rounded-[1.9rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,1),rgba(241,245,249,0.92))] p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
-            <div class="border-b border-slate-200 pb-4">
-                <h2 class="text-xl font-semibold text-slate-950">Equilíbrio da operação</h2>
-                <p class="mt-1 text-sm text-slate-600">Indicadores para entender se o ministério está avançando com
-                    equilíbrio.</p>
-            </div>
-
-            <div class="mt-5 grid gap-3">
-                @foreach ($balanceKpis as $kpi)
-                    <article class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                            {{ $kpi['label'] }}</p>
-                        <p class="mt-2 text-2xl font-semibold text-slate-950">
-                            {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
-                        </p>
-                        <p class="mt-2 text-sm leading-5 text-slate-600">{{ $kpi['description'] }}</p>
-                    </article>
-                @endforeach
-            </div>
-        </article>
-    </section>
 
     <section class="grid gap-6 xl:grid-cols-2 mb-6">
         <article
@@ -381,7 +622,7 @@
         </article>
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+    <section class="mb-32">
         <article
             class="rounded-[1.9rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
             <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-200 pb-4">
@@ -392,83 +633,310 @@
                 </div>
             </div>
 
-            <div class="space-y-4">
-                @forelse ($dashboard['leadershipTeachers'] as $row)
-                    <article class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
-                        <div class="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                                <h3 class="font-semibold text-slate-950">{{ $row['course_name'] }}</h3>
-                                <p class="mt-1 text-sm text-slate-600">{{ $row['ministry_name'] }}</p>
+            <div class="space-y-6">
+                <section x-data="{ page: 1, perPage: 5, total: {{ $activeLeadershipTeachers->count() }}, get totalPages() { return Math.max(1, Math.ceil(this.total / this.perPage)); } }">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-slate-500">
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Professor</th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Localização</th>
+                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">Cursos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($activeLeadershipTeachers as $teacher)
+                                    <tr x-cloak x-show="page === {{ (int) floor($loop->index / 5) + 1 }}"
+                                        class="border-b border-slate-200 transition hover:bg-slate-100/80 last:border-b-0 {{ $loop->odd ? 'bg-slate-50/90' : 'bg-white' }}">
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <div class="flex items-center gap-3">
+                                                <flux:avatar
+                                                    class="bg-slate-500 text-slate-50 after:inset-ring-black/10"
+                                                    :name="$teacher['name']" :src="$teacher['profile_photo_url']"
+                                                    :initials="$teacher['initials']" />
+                                                <div class="min-w-0">
+                                                    <p class="font-semibold text-slate-950">{{ $teacher['name'] }}</p>
+                                                    <p class="text-sm text-slate-600 whitespace-nowrap">
+                                                        {{ $teacher['church_name'] }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
+                                            <div>
+                                                <p>{{ $teacher['city'] }}</p>
+                                                <p class="text-xs text-slate-500">{{ $teacher['state'] }}</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <div class="flex justify-end pr-2">
+                                                @foreach ($teacher['courses'] as $course)
+                                                    <flux:tooltip
+                                                        :content="$course['is_active'] ? ($course['type'].
+                                                            ' - '.$course['name']) : ($course['type'].
+                                                            ' - '.$course['name'].
+                                                            ' | Vinculo inativo')"
+                                                        position="top">
+                                                        <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white {{ $course['is_active'] ? '' : 'opacity-55 saturate-75' }}"
+                                                            style="background: linear-gradient(135deg, {{ $course['color'] }}, {{ $course['color'] }}CC); border-color: {{ $course['color'] }};">
+                                                            {{ $course['initials'] }}
+                                                        </div>
+                                                    </flux:tooltip>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-3 py-4 text-slate-600">Nenhum professor ativo de
+                                            liderança encontrado na base atual.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if ($activeLeadershipTeachers->count() > 5)
+                        <div class="mt-4 flex items-center justify-between gap-3">
+                            <p class="text-sm text-slate-600">
+                                Mostrando
+                                <span x-text="((page - 1) * perPage) + 1"></span>
+                                a
+                                <span x-text="Math.min(page * perPage, total)"></span>
+                                de
+                                <span x-text="total"></span>
+                                professores ativos.
+                            </p>
+
+                            <div class="flex items-center gap-2">
+                                <button type="button" x-on:click="if (page > 1) page--" x-bind:disabled="page === 1"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
+                                    Anterior
+                                </button>
+
+                                <span class="text-sm font-medium text-slate-600">
+                                    Página <span x-text="page"></span> de <span x-text="totalPages"></span>
+                                </span>
+
+                                <button type="button" x-on:click="if (page < totalPages) page++"
+                                    x-bind:disabled="page === totalPages"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
+                                    Próxima
+                                </button>
                             </div>
-                            <span
-                                class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                                {{ count($row['teachers']) }} professor(es)
-                            </span>
                         </div>
+                    @endif
+                </section>
 
-                        <div class="mt-4 grid gap-3 md:grid-cols-2">
-                            @forelse ($row['teachers'] as $teacher)
-                                <article class="rounded-2xl border border-slate-300 bg-slate-50/60 p-4">
-                                    <div class="flex items-center gap-3">
-                                        <flux:avatar class="bg-slate-500 text-slate-50 after:inset-ring-black/10"
-                                            :name="$teacher['name']" :src="$teacher['profile_photo_url']"
-                                            :initials="$teacher['initials']" />
-                                        <div class="min-w-0">
-                                            <p class="truncate font-semibold text-slate-950">
-                                                {{ $teacher['name'] }}</p>
-                                            <p class="text-sm text-slate-600">{{ $teacher['church_name'] }}</p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
-                                        <span class="text-sm font-medium text-slate-600">Situação no curso</span>
-                                        <span
-                                            class="rounded-full px-3 py-1 text-xs font-semibold {{ $teacher['status'] === 'Ativo' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700' }}">
-                                            {{ $teacher['status'] }}
-                                        </span>
-                                    </div>
-                                </article>
-                            @empty
-                                <p class="text-sm text-slate-600">Nenhum professor vinculado a este curso.</p>
-                            @endforelse
-                        </div>
-                    </article>
-                @empty
-                    <p class="text-sm text-slate-600">Nenhum curso de liderança encontrado na base atual.</p>
-                @endforelse
-            </div>
-        </article>
-
-        <article
-            class="rounded-[1.9rem] border border-slate-900 bg-slate-950 p-6 text-white shadow-[0_20px_60px_-42px_rgba(15,23,42,0.9)]">
-            <div class="mb-4 border-b border-white/10 pb-4">
-                <h2 class="text-xl font-semibold">Governança e alertas</h2>
-                <p class="mt-1 text-sm text-slate-300">Aqui ficam os alertas mais importantes para saber onde agir
-                    primeiro.</p>
-            </div>
-
-            <div class="space-y-5">
-                @foreach ($governanceSections as $section)
-                    <section>
+                <section x-data="{ page: 1, perPage: 5, total: {{ $inactiveLeadershipTeachers->count() }}, get totalPages() { return Math.max(1, Math.ceil(this.total / this.perPage)); } }">
+                    <div class="flex items-center justify-between gap-3">
                         <div>
-                            <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                                {{ $section['title'] }}</h3>
-                            <p class="mt-1 text-sm text-slate-400">{{ $section['description'] }}</p>
+                            <h3 class="text-lg font-semibold text-slate-950">Professores inativos</h3>
+                            <p class="mt-1 text-sm text-slate-600">Professores cadastrados em cursos de liderança, mas
+                                marcados como inativos.</p>
                         </div>
+                    </div>
 
-                        <div class="mt-3 grid gap-2">
-                            @forelse ($section['items'] as $item)
-                                <article class="rounded-xl border px-4 py-3 text-sm {{ $section['tone'] }}">
-                                    {{ $section['render']($item) }}
-                                </article>
-                            @empty
-                                <p class="text-sm text-slate-400">{{ $section['empty'] }}</p>
-                            @endforelse
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-slate-500">
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Professor</th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Localização</th>
+                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">Cursos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($inactiveLeadershipTeachers as $teacher)
+                                    <tr x-cloak x-show="page === {{ (int) floor($loop->index / 5) + 1 }}"
+                                        class="border-b border-slate-200 transition hover:bg-red-50/80 last:border-b-0 {{ $loop->odd ? 'bg-[linear-gradient(90deg,rgba(254,242,242,0.95),rgba(255,255,255,1))]' : 'bg-[linear-gradient(90deg,rgba(255,255,255,1),rgba(248,250,252,1))]' }}">
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <div class="flex items-center gap-3">
+                                                <flux:avatar
+                                                    class="bg-slate-500 text-slate-50 after:inset-ring-black/10"
+                                                    :name="$teacher['name']" :src="$teacher['profile_photo_url']"
+                                                    :initials="$teacher['initials']" />
+                                                <div class="min-w-0">
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <p class="font-semibold text-slate-950">{{ $teacher['name'] }}
+                                                        </p>
+                                                        <span
+                                                            class="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                                            Inativo
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-sm text-slate-600 whitespace-nowrap">
+                                                        {{ $teacher['church_name'] }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
+                                            <div>
+                                                <p>{{ $teacher['city'] }}</p>
+                                                <p class="text-xs text-slate-500">{{ $teacher['state'] }}</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <div class="flex justify-end pr-2">
+                                                @foreach ($teacher['courses'] as $course)
+                                                    <flux:tooltip
+                                                        :content="$course['is_active'] ? ($course['type'].
+                                                            ' - '.$course['name']) : ($course['type'].
+                                                            ' - '.$course['name'].
+                                                            ' | Vinculo inativo')"
+                                                        position="top">
+                                                        <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white {{ $course['is_active'] ? '' : 'opacity-55 saturate-75' }}"
+                                                            style="background: linear-gradient(135deg, {{ $course['color'] }}, {{ $course['color'] }}CC); border-color: {{ $course['color'] }};">
+                                                            {{ $course['initials'] }}
+                                                        </div>
+                                                    </flux:tooltip>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-3 py-4 text-slate-600">Nenhum professor inativo
+                                            encontrado na base atual.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if ($inactiveLeadershipTeachers->count() > 5)
+                        <div class="mt-4 flex items-center justify-between gap-3">
+                            <p class="text-sm text-slate-600">
+                                Mostrando
+                                <span x-text="((page - 1) * perPage) + 1"></span>
+                                a
+                                <span x-text="Math.min(page * perPage, total)"></span>
+                                de
+                                <span x-text="total"></span>
+                                professores inativos.
+                            </p>
+
+                            <div class="flex items-center gap-2">
+                                <button type="button" x-on:click="if (page > 1) page--" x-bind:disabled="page === 1"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
+                                    Anterior
+                                </button>
+
+                                <span class="text-sm font-medium text-slate-600">
+                                    Página <span x-text="page"></span> de <span x-text="totalPages"></span>
+                                </span>
+
+                                <button type="button" x-on:click="if (page < totalPages) page++"
+                                    x-bind:disabled="page === totalPages"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
+                                    Próxima
+                                </button>
+                            </div>
                         </div>
-                    </section>
-                @endforeach
+                    @endif
+                </section>
             </div>
         </article>
     </section>
+
+    <div x-data="{ open: false }" class="fixed right-3 bottom-0 z-40 w-[calc(100vw-0.75rem)] max-w-md">
+        <article x-on:click.outside="open = false"
+            class="overflow-hidden rounded-t-xl border border-sky-900 bg-sky-950 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,0.95)]">
+            <button type="button" x-on:click="open = !open"
+                class="flex w-full items-center justify-between gap-3 border-b border-white/10 bg-[#06233a] px-4 py-2 text-left transition hover:bg-[#041a2b]">
+                <div class="flex min-w-0 items-center gap-3">
+                    <span
+                        class="inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-amber-300/40 text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.22)]">
+                        <flux:icon.exclamation-triangle class="size-3.5" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Governança</p>
+                        <p class="text-xs text-slate-400">Alertas prioritários para ação da diretoria.</p>
+                    </div>
+                </div>
+
+                <span
+                    class="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-slate-200">
+                    <flux:icon.chevron-down class="size-3.5 transition duration-200"
+                        x-bind:class="open ? '' : 'rotate-180'" />
+                </span>
+            </button>
+
+            <div x-cloak x-show="open" x-collapse
+                class="director-governance-scroll max-h-[70vh] overflow-y-auto bg-sky-950 px-4 py-4">
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold">Governança e alertas</h2>
+                    <p class="mt-1 text-sm text-slate-300">Aqui ficam os alertas mais importantes para saber onde agir
+                        primeiro.</p>
+                </div>
+
+                <div class="space-y-5">
+                    @foreach ($governanceSections as $section)
+                        <section>
+                            <div>
+                                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                                    {{ $section['title'] }}</h3>
+                                <p class="mt-1 text-sm text-slate-400">{{ $section['description'] }}</p>
+                            </div>
+
+                            <div class="mt-3 grid gap-2">
+                                @forelse ($section['items'] as $item)
+                                    @if ($section['title'] === 'Risco operacional' && isset($item['route']))
+                                        <a href="{{ $item['route'] }}"
+                                            class="block rounded-xl border px-4 py-3 text-sm transition hover:bg-white/90 {{ $section['tone'] }}">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <p class="font-semibold text-current">
+                                                        {{ $item['label'] }}
+                                                    </p>
+                                                    <p class="mt-1 text-sm text-current/80">
+                                                        {{ $item['context'] }}
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    class="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-800">
+                                                    Abrir
+                                                </span>
+                                            </div>
+
+                                            <div class="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                                                <div class="rounded-lg bg-white/55 px-3 py-2 text-slate-800">
+                                                    <span
+                                                        class="block font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                                        Professor titular
+                                                    </span>
+                                                    <span class="mt-1 block font-medium">
+                                                        {{ $item['teacher_name'] }}
+                                                    </span>
+                                                </div>
+                                                <div class="rounded-lg bg-white/55 px-3 py-2 text-slate-800">
+                                                    <span
+                                                        class="block font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                                        Data
+                                                    </span>
+                                                    <span class="mt-1 block font-medium">
+                                                        {{ $item['event_date'] }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @elseif (isset($item['route']))
+                                        <a href="{{ $item['route'] }}"
+                                            class="block rounded-xl border px-4 py-3 text-sm transition hover:bg-white/90 {{ $section['tone'] }}">
+                                            {{ $section['render']($item) }}
+                                        </a>
+                                    @else
+                                        <article class="rounded-xl border px-4 py-3 text-sm {{ $section['tone'] }}">
+                                            {{ $section['render']($item) }}
+                                        </article>
+                                    @endif
+                                @empty
+                                    <p class="text-sm text-slate-400">{{ $section['empty'] }}</p>
+                                @endforelse
+                            </div>
+                        </section>
+                    @endforeach
+                </div>
+            </div>
+        </article>
+    </div>
 </x-layouts.app>

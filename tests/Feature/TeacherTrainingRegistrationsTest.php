@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Pages\App\Teacher\Training\CreateParticipantRegistrationModal;
 use App\Livewire\Pages\App\Teacher\Training\Registrations;
 use App\Models\Church;
 use App\Models\ChurchTemp;
@@ -9,6 +10,7 @@ use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -85,6 +87,7 @@ it('renders the registrations page grouped by church', function () {
     $response->assertSeeText('Aluno Dois');
     $response->assertSeeText('Aluno Pendente');
     $response->assertSeeText('Aluno Sem Igreja');
+    $response->assertSeeText('Novo inscrito');
 });
 
 it('updates participant statuses on the training pivot', function () {
@@ -411,4 +414,87 @@ it('filters registrations by participant name, church region and email', functio
         ->assertSet('totalRegistrations', 1);
 
     expect(collect($component->get('churchGroups'))->pluck('church_name')->all())->toBe(['No church']);
+});
+
+it('routes teacher event registration modal by email to login mode when account already exists', function (): void {
+    $teacher = createTeacher();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+    $user = User::factory()->create(['email' => 'joao@example.com']);
+
+    Livewire::actingAs($teacher)
+        ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('email', 'JOAO@EXAMPLE.COM')
+        ->call('identifyByEmail')
+        ->assertSet('mode', 'login')
+        ->assertSet('email', 'joao@example.com')
+        ->assertSet('name', $user->name);
+});
+
+it('allows a teacher to register a student manually for the event', function (): void {
+    $teacher = createTeacher();
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('mode', 'register')
+        ->set('ispastor', '0')
+        ->set('name', 'Aluno Avulso')
+        ->set('mobile', '11999999999')
+        ->set('email', 'aluno.avulso@example.com')
+        ->set('password', 'Secret@123')
+        ->set('password_confirmation', 'Secret@123')
+        ->set('birth_date', '2000-01-15')
+        ->set('gender', '1')
+        ->call('registerEvent')
+        ->assertDispatched('training-participant-registration-created', trainingId: $training->id)
+        ->assertSet('showModal', false);
+
+    $participant = User::query()->where('email', 'aluno.avulso@example.com')->first();
+
+    expect($participant)->not->toBeNull();
+    expect($participant?->name)->toBe('Aluno Avulso');
+    expect($participant?->is_pastor)->toBeFalse();
+    expect($participant?->gender)->toBe(1);
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $participant?->id,
+        'payment' => 0,
+        'kit' => 0,
+        'accredited' => 0,
+    ]);
+});
+
+it('allows a teacher to enroll an existing student through login mode', function (): void {
+    $teacher = createTeacher();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+    $user = User::factory()->create([
+        'email' => 'existing@example.com',
+        'password' => Hash::make('Secret@123'),
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('mode', 'login')
+        ->set('email', 'existing@example.com')
+        ->set('password', 'Secret@123')
+        ->call('loginEvent')
+        ->assertHasNoErrors()
+        ->assertDispatched('training-participant-registration-created', trainingId: $training->id)
+        ->assertSet('showModal', false);
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $user->id,
+    ]);
 });

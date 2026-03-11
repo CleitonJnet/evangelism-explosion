@@ -23,6 +23,7 @@ export function buildCategoryChartConfig(payload) {
                     ticks: {
                         color: "#64748b",
                     },
+                    stacked: payload?.options?.stacked ?? false,
                 },
                 y: {
                     beginAtZero: true,

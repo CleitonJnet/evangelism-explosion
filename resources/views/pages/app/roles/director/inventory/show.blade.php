@@ -30,6 +30,12 @@
             <x-src.toolbar.button href="#" :label="__('Novo composto')" icon="squares-2x2" :tooltip="__('Cadastre ou mantenha pelo menos um item simples ativo para liberar produtos compostos')"
                 class="pointer-events-none !border-slate-300 !bg-slate-100 !text-slate-400 hover:!bg-slate-100 opacity-70" />
         </div>
+        <div class="ml-auto">
+            <x-src.toolbar.button href="#" :label="__('Excluir estoque')" icon="trash"
+                :tooltip="__('Abrir confirmação para excluir este estoque')"
+                class="!border-rose-200 !bg-rose-50 !text-rose-700 hover:!bg-rose-100"
+                onclick="window.Livewire.dispatch('open-director-inventory-delete-modal'); return false;" />
+        </div>
     </x-src.toolbar.nav>
 
     <livewire:pages.app.director.inventory.view :inventory="$inventory" />

@@ -32,7 +32,8 @@ readonly class ChartData
      *         backgroundColor: string|array<int, string>|null,
      *         borderColor: string|array<int, string>|null,
      *         type: ?string,
-     *         fill: bool
+     *         fill: bool,
+     *         hidden: bool
      *     }>,
      *     seriesType: string,
      *     height: int,

@@ -2,6 +2,7 @@
 
 use App\Livewire\Pages\App\Director\Inventory\Index as InventoryIndex;
 use App\Livewire\Pages\App\Director\Inventory\View;
+use App\Livewire\Pages\App\Director\Inventory\View as InventoryView;
 use App\Models\Inventory;
 use App\Models\Material;
 use App\Models\MaterialComponent;
@@ -159,6 +160,41 @@ it('blocks inventory deletion when it already has stock movements', function ():
             'Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.',
         )
         ->call('deleteSelectedInventory')
+        ->assertSet('showDeleteModal', true);
+
+    expect(Inventory::query()->find($inventory->id))->not->toBeNull();
+});
+
+it('deletes an inventory from the details page after confirmation', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $inventory = Inventory::query()->create(['name' => 'Estoque detalhes', 'kind' => 'central']);
+
+    Livewire::actingAs($director)
+        ->test(InventoryView::class, ['inventory' => $inventory])
+        ->call('openDeleteModal')
+        ->assertSet('showDeleteModal', true)
+        ->call('deleteInventory')
+        ->assertRedirect(route('app.director.inventory.index'));
+
+    expect(Inventory::query()->find($inventory->id))->toBeNull();
+});
+
+it('blocks inventory deletion from the details page when it already has stock movements', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $inventory = Inventory::query()->create(['name' => 'Estoque auditado detalhes', 'kind' => 'central']);
+    $material = Material::query()->create(['name' => 'Manual auditado detalhes']);
+
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 2, $director);
+
+    Livewire::actingAs($director)
+        ->test(InventoryView::class, ['inventory' => $inventory])
+        ->call('openDeleteModal')
+        ->assertSet('showDeleteModal', true)
+        ->assertSet(
+            'inventoryDeletionBlockedReason',
+            'Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.',
+        )
+        ->call('deleteInventory')
         ->assertSet('showDeleteModal', true);
 
     expect(Inventory::query()->find($inventory->id))->not->toBeNull();

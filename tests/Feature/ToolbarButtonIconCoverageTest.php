@@ -11,11 +11,13 @@ it('renders the inventory toolbar buttons with the supported icon set', function
                 <x-src.toolbar.button label="Saída" icon="minus" />
                 <x-src.toolbar.button label="Ajuste" icon="arrow-path" />
                 <x-src.toolbar.button label="Perda" icon="exclamation-triangle" />
+                <x-src.toolbar.button label="Excluir estoque" icon="trash" />
             </div>
         BLADE
     );
 
     expect($html)->toContain('Novo composto');
     expect($html)->toContain('Novo item simples');
-    expect(substr_count($html, '<svg'))->toBeGreaterThanOrEqual(5);
+    expect($html)->toContain('Excluir estoque');
+    expect(substr_count($html, '<svg'))->toBeGreaterThanOrEqual(6);
 });

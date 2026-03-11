@@ -172,6 +172,54 @@ it('allows a teacher to register stock movements only in the delegated inventory
         ->assertForbidden();
 });
 
+it('allows a teacher to delete the delegated inventory from the details page', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque para excluir',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(\App\Livewire\Pages\App\Teacher\Inventory\View::class, ['inventory' => $inventory])
+        ->call('openDeleteModal')
+        ->assertSet('showDeleteModal', true)
+        ->call('deleteInventory')
+        ->assertRedirect(route('app.teacher.inventory.index'));
+
+    expect(Inventory::query()->find($inventory->id))->toBeNull();
+});
+
+it('blocks teacher inventory deletion from the details page when stock movements already exist', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque auditado professor',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $material = Material::query()->create(['name' => 'Material auditado professor']);
+
+    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 1, $teacher);
+
+    Livewire::actingAs($teacher)
+        ->test(\App\Livewire\Pages\App\Teacher\Inventory\View::class, ['inventory' => $inventory])
+        ->call('openDeleteModal')
+        ->assertSet('showDeleteModal', true)
+        ->assertSet(
+            'inventoryDeletionBlockedReason',
+            'Este estoque não pode ser excluído porque já possui movimentações registradas no histórico auditável.',
+        )
+        ->call('deleteInventory')
+        ->assertSet('showDeleteModal', true);
+
+    expect(Inventory::query()->find($inventory->id))->not->toBeNull();
+});
+
 it('shows only delegated operational actions on the teacher inventory page', function (): void {
     $teacher = createTeacherForInventoryAccessTest();
 

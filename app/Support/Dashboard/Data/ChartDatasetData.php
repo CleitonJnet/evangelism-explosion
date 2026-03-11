@@ -14,6 +14,7 @@ readonly class ChartDatasetData
         public string|array|null $borderColor = null,
         public ?string $type = null,
         public bool $fill = false,
+        public bool $hidden = false,
     ) {}
 
     /**
@@ -23,7 +24,8 @@ readonly class ChartDatasetData
      *     backgroundColor: string|array<int, string>|null,
      *     borderColor: string|array<int, string>|null,
      *     type: ?string,
-     *     fill: bool
+     *     fill: bool,
+     *     hidden: bool
      * }
      */
     public function toArray(): array
@@ -35,6 +37,7 @@ readonly class ChartDatasetData
             'borderColor' => $this->borderColor,
             'type' => $this->type,
             'fill' => $this->fill,
+            'hidden' => $this->hidden,
         ];
     }
 }
