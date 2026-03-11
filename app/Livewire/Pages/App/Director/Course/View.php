@@ -3,6 +3,7 @@
 namespace App\Livewire\Pages\App\Director\Course;
 
 use App\Models\Course;
+use App\Models\Material;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -39,6 +40,8 @@ class View extends Component
 
     public bool $showTeacherModal = false;
 
+    public bool $showStudyMaterialsModal = false;
+
     public bool $showDeleteSectionModal = false;
 
     public bool $showDeleteTeacherModal = false;
@@ -50,6 +53,11 @@ class View extends Component
     public ?int $deletingTeacherId = null;
 
     public bool $teacherAlreadyAssignedWarning = false;
+
+    /**
+     * @var array<int, int>
+     */
+    public array $selectedStudyMaterialIds = [];
 
     public function mount(Course $course): void
     {
@@ -82,6 +90,11 @@ class View extends Component
         $activeTeachersCount = $course->teachers()
             ->wherePivot('status', 1)
             ->count();
+        $studyMaterials = $course->studyMaterials()
+            ->with(['components.componentMaterial'])
+            ->orderByRaw("case when type = 'composite' then 0 else 1 end")
+            ->orderBy('name')
+            ->get();
 
         $teacherCandidates = $this->teacherCandidates($this->teacherSearch);
         $assignedTeacherIds = $teachers->pluck('id')->all();
@@ -92,8 +105,10 @@ class View extends Component
             'teachers' => $teachers,
             'teachersCount' => $teachersCount,
             'activeTeachersCount' => $activeTeachersCount,
+            'studyMaterials' => $studyMaterials,
             'teacherCandidates' => $teacherCandidates,
             'assignedTeacherIds' => $assignedTeacherIds,
+            'studyMaterialOptions' => $this->studyMaterialOptions(),
         ]);
     }
 
@@ -175,6 +190,41 @@ class View extends Component
         $this->teacherAlreadyAssignedWarning = false;
         $this->resetTeacherForm();
         $this->showTeacherModal = true;
+    }
+
+    public function openStudyMaterialsModal(): void
+    {
+        $this->selectedStudyMaterialIds = $this->course()
+            ->studyMaterials()
+            ->pluck('materials.id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+
+        $this->showStudyMaterialsModal = true;
+    }
+
+    public function closeStudyMaterialsModal(): void
+    {
+        $this->showStudyMaterialsModal = false;
+        $this->selectedStudyMaterialIds = [];
+        $this->resetErrorBag();
+    }
+
+    public function saveStudyMaterials(): void
+    {
+        $validated = $this->validate(
+            [
+                'selectedStudyMaterialIds' => ['array'],
+                'selectedStudyMaterialIds.*' => ['integer', 'exists:materials,id'],
+            ],
+            [],
+            [
+                'selectedStudyMaterialIds' => __('materiais de estudo'),
+            ],
+        );
+
+        $this->course()->studyMaterials()->sync($validated['selectedStudyMaterialIds'] ?? []);
+        $this->closeStudyMaterialsModal();
     }
 
     public function closeTeacherModal(): void
@@ -442,6 +492,43 @@ class View extends Component
     private function course(): Course
     {
         return Course::query()->findOrFail($this->courseId);
+    }
+
+    /**
+     * @return Collection<int, Material>
+     */
+    private function availableStudyMaterials(): Collection
+    {
+        return Material::query()
+            ->with(['components.componentMaterial'])
+            ->orderByRaw('case when is_active = 1 then 0 else 1 end')
+            ->orderByRaw("case when type = 'composite' then 0 else 1 end")
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * @return array<int, array{value: int, label: string, description: string}>
+     */
+    private function studyMaterialOptions(): array
+    {
+        return $this->availableStudyMaterials()
+            ->map(function (Material $material): array {
+                $description = $material->isComposite()
+                    ? __('Kit composto')
+                    : __('Item simples');
+
+                if (! $material->is_active) {
+                    $description .= ' · '.__('inativo');
+                }
+
+                return [
+                    'value' => $material->id,
+                    'label' => $material->name,
+                    'description' => $description,
+                ];
+            })
+            ->all();
     }
 
     private function normalizeDuration(?string $duration): ?int

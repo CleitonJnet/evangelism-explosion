@@ -85,6 +85,11 @@ class Material extends Model
         return $this->belongsToMany(Course::class)->withTimestamps();
     }
 
+    public function studyCourses(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_study_material')->withTimestamps();
+    }
+
     public function stockMovements(): HasMany
     {
         return $this->hasMany(StockMovement::class);
@@ -136,7 +141,7 @@ class Material extends Model
             $blockers[] = __('Este item participa da composição de materiais compostos.');
         }
 
-        if ($this->courses()->exists()) {
+        if ($this->courses()->exists() || $this->studyCourses()->exists()) {
             $blockers[] = __('Este item está vinculado a cursos.');
         }
 

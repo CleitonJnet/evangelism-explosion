@@ -124,7 +124,7 @@ class DeliverMaterialModal extends Component
             'material_id' => [
                 'required',
                 'integer',
-                Rule::exists('course_material', 'material_id')->where('course_id', $this->training->course_id),
+                Rule::exists('course_study_material', 'material_id')->where('course_id', $this->training->course_id),
             ],
             'participant_id' => [
                 'nullable',
@@ -144,7 +144,7 @@ class DeliverMaterialModal extends Component
     {
         return [
             'participant_note.required_without' => __('Informe o participante avulso quando não houver inscrito selecionado.'),
-            'material_id.exists' => __('Escolha um material vinculado ao curso deste treinamento.'),
+            'material_id.exists' => __('Escolha um material de estudo vinculado ao curso deste treinamento.'),
             'participant_id.exists' => __('O participante selecionado não pertence a este treinamento.'),
         ];
     }
@@ -167,8 +167,8 @@ class DeliverMaterialModal extends Component
      */
     private function availableMaterials(): Collection
     {
-        return $this->training->course?->materials
-            ? $this->training->course->materials
+        return $this->training->course?->studyMaterials
+            ? $this->training->course->studyMaterials
                 ->sortBy(fn (Material $material): string => sprintf(
                     '%s %s',
                     $material->isComposite() ? '0' : '1',
@@ -248,7 +248,7 @@ class DeliverMaterialModal extends Component
         $training = Training::query()
             ->with([
                 'course.ministry',
-                'course.materials.components.componentMaterial',
+                'course.studyMaterials.components.componentMaterial',
                 'teacher',
                 'students' => fn ($query) => $query->orderBy('name'),
             ])

@@ -71,4 +71,9 @@ class Course extends Model
     {
         return $this->belongsToMany(Material::class)->withTimestamps();
     }
+
+    public function studyMaterials(): BelongsToMany
+    {
+        return $this->belongsToMany(Material::class, 'course_study_material')->withTimestamps();
+    }
 }

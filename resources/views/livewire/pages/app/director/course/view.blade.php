@@ -188,16 +188,70 @@
         </section>
 
         <section class="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
-            <div class="border-b border-slate-200 pb-3">
-                <h3 class="text-lg font-semibold text-slate-900">{{ __('Mídia e identidade') }}</h3>
-                <p class="text-sm text-slate-600">
-                    {{ __('Revise os arquivos de apresentação e os atributos visuais usados neste curso.') }}
-                </p>
+            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900">{{ __('Material de estudos do aluno') }}</h3>
+                    <p class="text-sm text-slate-600">
+                        {{ __('Esses itens definem o kit do aluno e alimentam o fluxo de entrega física no treinamento.') }}
+                    </p>
+                </div>
+
+                <flux:button variant="primary" wire:click="openStudyMaterialsModal">
+                    {{ __('Gerenciar materiais') }}
+                </flux:button>
             </div>
 
-            <div class="mt-5 space-y-4">
-                ...
-            </div>
+            @if ($studyMaterials->isEmpty())
+                <div class="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
+                    {{ __('Nenhum material de estudo foi definido para este curso ainda.') }}
+                </div>
+            @else
+                <div class="mt-5 grid gap-4">
+                    @foreach ($studyMaterials as $material)
+                        <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <div class="text-sm font-semibold text-slate-900">{{ $material->name }}</div>
+                                    <div class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        {{ $material->isComposite() ? __('Composto') : __('Simples') }}
+                                        @if (! $material->is_active)
+                                            · {{ __('Inativo') }}
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if ($material->minimum_stock !== null)
+                                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                                        {{ __('Estoque mínimo') }}: {{ $material->minimum_stock }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if (filled($material->description))
+                                <p class="mt-3 text-sm leading-6 text-slate-600">
+                                    {{ $material->description }}
+                                </p>
+                            @endif
+
+                            @if ($material->isComposite() && $material->components->isNotEmpty())
+                                <div class="mt-4 border-t border-slate-200 pt-4">
+                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        {{ __('Itens incluídos no kit') }}
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        @foreach ($material->components as $component)
+                                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                                                {{ $component->componentMaterial?->name ?? __('Componente removido') }}
+                                                x{{ $component->quantity }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            @endif
         </section>
     </div>
 
@@ -437,6 +491,51 @@
                 </flux:button>
                 <flux:button variant="danger" wire:click="confirmDeleteTeacher">
                     {{ __('Remover') }}
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="director-course-study-materials-modal" wire:model="showStudyMaterialsModal" class="max-w-4xl">
+        <div class="space-y-5">
+            <div>
+                <flux:heading size="lg">{{ __('Materiais de estudo do curso') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Selecione os itens que compõem o material de estudos e o kit do aluno deste curso.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-2">
+                @forelse ($studyMaterialOptions as $materialOption)
+                    <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <input type="checkbox" value="{{ $materialOption['value'] }}" wire:model.live="selectedStudyMaterialIds"
+                            class="mt-1 rounded border-slate-300">
+                        <div class="space-y-1">
+                            <div class="font-semibold text-slate-900">{{ $materialOption['label'] }}</div>
+                            <div class="text-xs uppercase tracking-wide text-slate-500">
+                                {{ $materialOption['description'] }}
+                            </div>
+                        </div>
+                    </label>
+                @empty
+                    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 md:col-span-2">
+                        {{ __('Cadastre materiais no estoque para vinculá-los ao curso.') }}
+                    </div>
+                @endforelse
+            </div>
+
+            @error('selectedStudyMaterialIds.*')
+                <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {{ $message }}
+                </div>
+            @enderror
+
+            <div class="flex items-center justify-end gap-3">
+                <x-src.btn-silver type="button" wire:click="closeStudyMaterialsModal">
+                    {{ __('Cancelar') }}
+                </x-src.btn-silver>
+                <flux:button variant="primary" wire:click="saveStudyMaterials">
+                    {{ __('Salvar materiais') }}
                 </flux:button>
             </div>
         </div>

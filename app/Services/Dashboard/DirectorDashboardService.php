@@ -162,12 +162,13 @@ class DirectorDashboardService
         array $discipleship,
         array $paymentSummary,
     ): array {
+        $registrationTrainings = $this->registrationEligibleTrainings($trainings);
         $futureTrainings = $trainings->filter(
             fn (Training $training): bool => $this->firstEventDate($training)?->greaterThanOrEqualTo(CarbonImmutable::today()) ?? false,
         );
         $completedTrainings = $trainings->where('status', TrainingStatus::Completed);
 
-        $churchesReached = $trainings
+        $churchesReached = $registrationTrainings
             ->flatMap(fn (Training $training) => $training->students)
             ->pluck('church_id')
             ->filter()
@@ -188,7 +189,7 @@ class DirectorDashboardService
             ->unique()
             ->count();
 
-        $pastorsTrained = $trainings
+        $pastorsTrained = $registrationTrainings
             ->flatMap(fn (Training $training) => $training->students)
             ->filter(fn (User $student): bool => (bool) $student->is_pastor)
             ->count();
@@ -202,7 +203,7 @@ class DirectorDashboardService
             $this->kpi('churches_reached', 'Igrejas alcançadas', $churchesReached, 'Igrejas com inscritos no período'),
             $this->kpi('new_churches', 'Novas igrejas', $newChurches->pluck('church_id')->filter()->unique()->count(), 'Expansão registrada via treinamento'),
             $this->kpi('active_teachers', 'Professores ativos', $activeTeachers, 'Titulares e auxiliares em atuação'),
-            $this->kpi('registrations', 'Inscritos', $trainings->sum('students_count'), 'Volume nacional de participantes'),
+            $this->kpi('registrations', 'Inscritos', $registrationTrainings->sum('students_count'), 'Volume nacional de participantes em treinamentos agendados e concluídos'),
             $this->kpi('paid_students', 'Pagantes', $paymentSummary['paid_students'], 'Pagamentos confirmados'),
             $this->kpi('payment_rate', 'Taxa de pagamento', $paymentSummary['payment_rate_label'], 'Conversão financeira dos inscritos'),
             $this->kpi('pastors_trained', 'Pastores treinados', $pastorsTrained, 'Liderança pastoral alcançada'),
@@ -246,13 +247,14 @@ class DirectorDashboardService
      */
     private function summarizePayments(Collection $trainings): array
     {
+        $registrationTrainings = $this->registrationEligibleTrainings($trainings);
         $paidStudents = 0;
-        $registrations = (int) $trainings->sum('students_count');
+        $registrations = (int) $registrationTrainings->sum('students_count');
         $eeBalance = 0.0;
         $hostBalance = 0.0;
         $underperformingTrainings = [];
 
-        foreach ($trainings as $training) {
+        foreach ($registrationTrainings as $training) {
             $finance = $this->financeMetrics->build($training);
             $paidStudents += (int) $finance['paidStudentsCount'];
             $eeBalance += $this->moneyToFloat($finance['eeMinistryBalance']);
@@ -303,6 +305,7 @@ class DirectorDashboardService
         array $discipleship,
         array $paymentSummary,
     ): array {
+        $registrationTrainings = $this->registrationEligibleTrainings($trainings);
         $series = [];
         $decisionsSeries = [];
         $newChurchesSeries = [];
@@ -344,7 +347,7 @@ class DirectorDashboardService
             ->sortByDesc('value')
             ->take(8);
 
-        $registrationDatasets = $trainings
+        $registrationDatasets = $registrationTrainings
             ->groupBy(fn (Training $training): string => (string) ($training->course_id ?? 0))
             ->map(function (Collection $items) use ($rangeStart, $months): array {
                 /** @var Training|null $training */
@@ -433,7 +436,7 @@ class DirectorDashboardService
             ->sortDesc()
             ->take(8);
 
-        $churchRanking = $trainings
+        $churchRanking = $registrationTrainings
             ->flatMap(fn (Training $training) => $training->students)
             ->map(fn (User $student): string => $this->registrationMetrics->resolveChurchLabel($student))
             ->countBy()
@@ -575,7 +578,7 @@ class DirectorDashboardService
                     new ChartDatasetData(
                         label: 'Funil',
                         data: [
-                            (int) $trainings->sum('students_count'),
+                            (int) $registrationTrainings->sum('students_count'),
                             (int) $paymentSummary['paid_students'],
                             (int) $this->summarizeStp($trainings)['evangelho_explicado'],
                             (int) $this->summarizeStp($trainings)['pessoas_ouviram'],
@@ -603,6 +606,17 @@ class DirectorDashboardService
                 options: ['valueSuffix' => ' registros'],
             )->toArray(),
         ];
+    }
+
+    /**
+     * @param  Collection<int, Training>  $trainings
+     * @return Collection<int, Training>
+     */
+    private function registrationEligibleTrainings(Collection $trainings): Collection
+    {
+        return $trainings->filter(
+            fn (Training $training): bool => in_array($training->status, [TrainingStatus::Scheduled, TrainingStatus::Completed], true),
+        )->values();
     }
 
     /**

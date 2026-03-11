@@ -3,12 +3,12 @@
 namespace App\Livewire\Pages\App\Teacher\Training;
 
 use App\Helpers\PhoneHelper;
-use App\Models\Role;
+use App\Models\Church;
 use App\Models\Training;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Services\Training\TeacherParticipantRegistrationProcessor;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -23,10 +23,6 @@ class CreateParticipantRegistrationModal extends Component
 
     public string $mode = 'identify';
 
-    public string $password = '';
-
-    public string $password_confirmation = '';
-
     public string $ispastor = '0';
 
     public string $name = '';
@@ -40,6 +36,12 @@ class CreateParticipantRegistrationModal extends Component
     public ?string $gender = null;
 
     public ?string $emailNotice = null;
+
+    public ?int $selectedChurchId = null;
+
+    public string $churchSearch = '';
+
+    public ?int $existingUserId = null;
 
     public function mount(int $trainingId): void
     {
@@ -76,6 +78,10 @@ class CreateParticipantRegistrationModal extends Component
                 ['value' => '1', 'label' => __('Masculino')],
                 ['value' => '2', 'label' => __('Feminino')],
             ],
+            'churchResults' => $this->churchResults(),
+            'selectedChurchName' => $this->selectedChurchId
+                ? Church::query()->whereKey($this->selectedChurchId)->value('name')
+                : null,
         ]);
     }
 
@@ -88,15 +94,16 @@ class CreateParticipantRegistrationModal extends Component
     {
         $this->resetValidation();
         $this->mode = 'identify';
-        $this->password = '';
         $this->ispastor = '0';
         $this->name = '';
         $this->email = '';
         $this->mobile = '';
-        $this->password_confirmation = '';
         $this->birth_date = null;
         $this->gender = null;
         $this->emailNotice = null;
+        $this->selectedChurchId = null;
+        $this->churchSearch = '';
+        $this->existingUserId = null;
     }
 
     private function authorizeTraining(Training $training): void
@@ -120,15 +127,18 @@ class CreateParticipantRegistrationModal extends Component
         $user = User::query()->where('email', $this->email)->first();
 
         if ($user) {
-            $this->mode = 'login';
+            $this->mode = 'register';
+            $this->existingUserId = $user->id;
             $this->name = $user->name;
             $this->mobile = (string) ($user->getRawOriginal('phone') ?? '');
             $this->birth_date = $user->birthdate?->format('Y-m-d');
             $this->gender = $user->gender ? (string) $user->gender : null;
             $this->ispastor = ((int) ($user->getRawOriginal('is_pastor') ?? 0)) > 0 ? '1' : '0';
+            $this->selectedChurchId = $user->church_id;
+            $this->churchSearch = $user->church?->name ?? '';
             $this->emailNotice = $this->isAlreadyEnrolled($user)
                 ? 'Conta encontrada. Este aluno já está inscrito neste evento.'
-                : 'Conta encontrada. Informe a senha para concluir a inscrição deste aluno.';
+                : 'Conta encontrada. Revise a igreja e confirme a inscrição do aluno.';
 
             if ($this->isAlreadyEnrolled($user)) {
                 $this->addError('email', 'Este aluno já está inscrito neste evento.');
@@ -138,66 +148,48 @@ class CreateParticipantRegistrationModal extends Component
         }
 
         $this->mode = 'register';
-        $this->emailNotice = 'Não encontramos este e-mail. Preencha os dados para criar a inscrição do aluno.';
+        $this->existingUserId = null;
+        $this->name = '';
+        $this->mobile = '';
+        $this->birth_date = null;
+        $this->gender = null;
+        $this->ispastor = '0';
+        $this->selectedChurchId = null;
+        $this->churchSearch = '';
+        $this->emailNotice = sprintf(
+            'Não encontramos este e-mail. Preencha os dados do aluno. O acesso será criado com a senha padrão "%s".',
+            TeacherParticipantRegistrationProcessor::DEFAULT_PASSWORD,
+        );
     }
 
-    public function switchToLogin(): void
+    public function selectChurch(int $churchId): void
     {
-        $this->mode = 'login';
-        $this->resetErrorBag();
+        $this->authorizeTraining($this->training());
+
+        $church = Church::query()->findOrFail($churchId);
+        $this->selectedChurchId = $church->id;
+        $this->churchSearch = $church->name;
     }
 
-    public function switchToRegister(): void
+    public function openCreateChurchModal(): void
     {
-        $this->mode = 'register';
-        $this->resetErrorBag();
+        $this->authorizeTraining($this->training());
+        $this->dispatch('open-create-mentor-church-modal', trainingId: $this->trainingId);
     }
 
-    public function loginEvent(): void
+    #[On('mentor-church-created')]
+    public function handleChurchCreated(int $trainingId, int $churchId, string $churchName): void
     {
-        if ($this->busy) {
+        if ($trainingId !== $this->trainingId) {
             return;
         }
 
-        $training = $this->training();
-        $this->authorizeTraining($training);
-        $this->email = $this->sanitizeEmail($this->email);
-        $this->resetErrorBag();
-
-        $validated = $this->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ], attributes: [
-            'email' => 'E-mail',
-            'password' => 'Senha',
-        ]);
-
-        $user = User::query()->where('email', $validated['email'])->first();
-
-        if (! $user || ! Hash::check($validated['password'], (string) $user->password)) {
-            $this->addError('email', 'Credenciais inválidas.');
-
-            return;
-        }
-
-        if ($this->isAlreadyEnrolled($user)) {
-            $this->addError('email', 'Este aluno já está inscrito neste evento.');
-
-            return;
-        }
-
-        $this->busy = true;
-
-        try {
-            $this->ensureEnrollmentAndStudentRole($training, $user);
-            $this->dispatch('training-participant-registration-created', trainingId: $training->id);
-            $this->closeModal();
-        } finally {
-            $this->busy = false;
-        }
+        $this->authorizeTraining($this->training());
+        $this->selectedChurchId = $churchId;
+        $this->churchSearch = $churchName;
     }
 
-    public function registerEvent(): void
+    public function registerEvent(TeacherParticipantRegistrationProcessor $processor): void
     {
         if ($this->busy) {
             return;
@@ -208,23 +200,7 @@ class CreateParticipantRegistrationModal extends Component
         $this->sanitizeFormInput();
         $this->resetErrorBag();
 
-        $emailRules = ['required', 'email', 'max:255'];
-
-        if (! User::query()->where('email', $this->email)->exists()) {
-            $emailRules[] = 'unique:users,email';
-        }
-
-        $validated = $this->validate([
-            'ispastor' => ['required', 'in:1,0'],
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'mobile' => ['required', 'string', 'min:7', 'max:20'],
-            'email' => $emailRules,
-            'password' => ['required', 'string', 'min:8', 'max:80', 'confirmed'],
-            'birth_date' => ['nullable', 'date'],
-            'gender' => ['required', 'in:1,2'],
-        ], $this->messages(), $this->validationAttributes());
-
-        $participant = User::query()->where('email', $validated['email'])->first();
+        $participant = $this->participantForCurrentEmail();
 
         if ($participant && $training->students()->whereKey($participant->id)->exists()) {
             $this->addError('email', 'Este aluno já está inscrito neste evento.');
@@ -232,40 +208,16 @@ class CreateParticipantRegistrationModal extends Component
             return;
         }
 
-        if ($participant && ! Hash::check($validated['password'], (string) $participant->password)) {
-            $this->addError('password', 'Senha incorreta.');
-
-            return;
-        }
+        $validated = $this->validate(
+            $participant ? $this->existingParticipantRules() : $this->newParticipantRules(),
+            $this->messages(),
+            $this->validationAttributes(),
+        );
 
         $this->busy = true;
 
         try {
-            $participant = DB::transaction(function () use ($validated, $participant): User {
-                if ($participant) {
-                    $participant->forceFill([
-                        'is_pastor' => $validated['ispastor'],
-                        'name' => $validated['name'],
-                        'birthdate' => $validated['birth_date'],
-                        'gender' => $validated['gender'],
-                        'phone' => $validated['mobile'],
-                    ])->save();
-                } else {
-                    $participant = User::query()->create([
-                        'is_pastor' => $validated['ispastor'],
-                        'name' => $validated['name'],
-                        'birthdate' => $validated['birth_date'],
-                        'gender' => $validated['gender'],
-                        'phone' => $validated['mobile'],
-                        'email' => $validated['email'],
-                        'password' => $validated['password'],
-                    ]);
-                }
-
-                return $participant;
-            });
-
-            $this->ensureEnrollmentAndStudentRole($training, $participant);
+            $processor->process($training, $validated);
             $this->dispatch('training-participant-registration-created', trainingId: $training->id);
             $this->closeModal();
         } finally {
@@ -326,14 +278,34 @@ class CreateParticipantRegistrationModal extends Component
         return implode('-', $capitalizedSegments);
     }
 
-    private function ensureEnrollmentAndStudentRole(Training $training, User $user): void
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function newParticipantRules(): array
     {
-        $studentRole = Role::query()->firstOrCreate(['name' => 'Student']);
-        $user->roles()->syncWithoutDetaching([$studentRole->id]);
+        return [
+            'ispastor' => ['required', 'in:1,0'],
+            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'mobile' => ['required', 'string', 'min:7', 'max:20'],
+            'email' => ['required', 'email', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'gender' => ['required', 'in:1,2'],
+            'selectedChurchId' => ['required', 'integer', 'exists:churches,id'],
+        ];
+    }
 
-        $training->students()->syncWithoutDetaching([
-            $user->id => ['accredited' => 0, 'kit' => 0, 'payment' => 0],
-        ]);
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function existingParticipantRules(): array
+    {
+        return [
+            'ispastor' => ['nullable', 'in:1,0'],
+            'email' => ['required', 'email', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'gender' => ['nullable', 'in:1,2'],
+            'selectedChurchId' => ['required', 'integer', 'exists:churches,id'],
+        ];
     }
 
     private function isAlreadyEnrolled(User $user): bool
@@ -368,10 +340,43 @@ class CreateParticipantRegistrationModal extends Component
             'name' => 'Nome completo',
             'mobile' => 'Celular',
             'email' => 'E-mail',
-            'password' => 'Senha',
-            'password_confirmation' => 'Confirmação de senha',
             'birth_date' => 'Data de nascimento',
             'gender' => 'Gênero',
+            'selectedChurchId' => 'igreja',
         ];
+    }
+
+    /**
+     * @return Collection<int, Church>
+     */
+    private function churchResults(): Collection
+    {
+        $search = trim($this->churchSearch);
+
+        if ($search === '') {
+            return Church::query()
+                ->orderBy('name')
+                ->limit(8)
+                ->get();
+        }
+
+        return Church::query()
+            ->where('name', 'like', '%'.$search.'%')
+            ->orWhere('city', 'like', '%'.$search.'%')
+            ->orWhere('state', 'like', '%'.$search.'%')
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+    }
+
+    private function participantForCurrentEmail(): ?User
+    {
+        $email = $this->sanitizeEmail($this->email);
+
+        if ($email === '') {
+            return null;
+        }
+
+        return User::query()->where('email', $email)->first();
     }
 }

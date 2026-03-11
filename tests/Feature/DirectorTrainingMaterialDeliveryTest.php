@@ -51,7 +51,7 @@ it('delivers a composite kit to a registered participant and marks training_user
 
     $kit = Material::query()->create(['name' => 'Kit do aluno', 'type' => 'composite']);
     $manual = Material::query()->create(['name' => 'Manual do aluno']);
-    $course->materials()->attach([$kit->id, $manual->id]);
+    $course->studyMaterials()->attach([$kit->id, $manual->id]);
 
     MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
@@ -105,7 +105,7 @@ it('registers manual delivery for a non-linked participant without changing trai
         'teacher_id' => $teacher->id,
     ]);
     $material = Material::query()->create(['name' => 'Apostila impressa']);
-    $course->materials()->attach($material->id);
+    $course->studyMaterials()->attach($material->id);
 
     app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 8, $director);
 
@@ -143,7 +143,7 @@ it('does not change financial confirmation when delivering simple material to a 
     $training->students()->attach($participant->id, ['kit' => 0, 'payment' => 1, 'accredited' => 0]);
 
     $material = Material::query()->create(['name' => 'Crachá']);
-    $course->materials()->attach($material->id);
+    $course->studyMaterials()->attach($material->id);
     app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 4, $director);
 
     Livewire::actingAs($director)
@@ -173,7 +173,7 @@ it('stores the training id on stock movements created by delivery', function ():
         'teacher_id' => $teacher->id,
     ]);
     $material = Material::query()->create(['name' => 'Bloco de notas']);
-    $course->materials()->attach($material->id);
+    $course->studyMaterials()->attach($material->id);
 
     app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 3, $director);
 
@@ -206,7 +206,7 @@ it('shows linked materials and movement history on the training detail page', fu
     ]);
     $material = Material::query()->create(['name' => 'Kit recomendado', 'type' => 'composite']);
     $component = Material::query()->create(['name' => 'Manual complementar']);
-    $course->materials()->attach([$material->id, $component->id]);
+    $course->studyMaterials()->attach([$material->id, $component->id]);
     MaterialComponent::query()->create([
         'parent_material_id' => $material->id,
         'component_material_id' => $component->id,

@@ -254,20 +254,6 @@
                             @endforeach
                         </div>
 
-                        {{-- @if ($heroSecondary->isNotEmpty())
-                            <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                                @foreach ($heroSecondary as $kpi)
-                                    <article class="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-3">
-                                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                            {{ $kpi['label'] }}
-                                        </p>
-                                        <p class="mt-2 text-2xl font-semibold text-slate-950">
-                                            {{ is_numeric($kpi['value']) ? number_format((float) $kpi['value'], 0, ',', '.') : $kpi['value'] }}
-                                        </p>
-                                    </article>
-                                @endforeach
-                            </div>
-                        @endif --}}
                     </div>
 
                     <form method="GET" action="{{ route('app.director.dashboard') }}"
@@ -279,14 +265,14 @@
                                     começo e um fim específicos.</p>
                             </div>
 
-                            <div class="grid gap-3 md:grid-cols-2">
-                                <label class="grid gap-1">
+                            <div class="flex gap-3 flex-wrap">
+                                <label class="grid gap-1 flex-auto">
                                     <span class="text-sm font-medium text-slate-700">Data inicial</span>
                                     <input type="date" name="start_date" value="{{ $filters['startDate'] }}"
                                         class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
                                 </label>
 
-                                <label class="grid gap-1">
+                                <label class="grid gap-1 flex-auto">
                                     <span class="text-sm font-medium text-slate-700">Data final</span>
                                     <input type="date" name="end_date" value="{{ $filters['endDate'] }}"
                                         class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
@@ -507,30 +493,6 @@
             </article>
         </div>
     </section>
-
-    {{-- <section class="mb-6">
-        <article class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Indicadores de eventos
-                    </p>
-                    <p class="mt-1 text-sm text-slate-600">Situação atual dos eventos desta janela.</p>
-                </div>
-
-                <div class="flex flex-wrap gap-2 lg:max-w-[70%] lg:justify-end">
-                    @foreach ($eventStatusOverview as $status)
-                        <div
-                            class="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm {{ $status['tone'] }}">
-                            <span
-                                class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-950 ring-1 ring-black/5">
-                                {{ number_format($status['value'], 0, ',', '.') }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </article>
-    </section> --}}
 
     @foreach ($chartSections as $section)
         <section

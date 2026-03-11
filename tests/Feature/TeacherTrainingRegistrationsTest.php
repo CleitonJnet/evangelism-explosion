@@ -10,7 +10,6 @@ use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -416,25 +415,32 @@ it('filters registrations by participant name, church region and email', functio
     expect(collect($component->get('churchGroups'))->pluck('church_name')->all())->toBe(['No church']);
 });
 
-it('routes teacher event registration modal by email to login mode when account already exists', function (): void {
+it('loads an existing student by email without asking for password', function (): void {
     $teacher = createTeacher();
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
     ]);
-    $user = User::factory()->create(['email' => 'joao@example.com']);
+    $church = Church::factory()->create(['name' => 'Igreja Central']);
+    $user = User::factory()->create([
+        'email' => 'joao@example.com',
+        'church_id' => $church->id,
+    ]);
 
     Livewire::actingAs($teacher)
         ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
         ->set('email', 'JOAO@EXAMPLE.COM')
         ->call('identifyByEmail')
-        ->assertSet('mode', 'login')
+        ->assertSet('mode', 'register')
+        ->assertSet('existingUserId', $user->id)
         ->assertSet('email', 'joao@example.com')
-        ->assertSet('name', $user->name);
+        ->assertSet('name', $user->name)
+        ->assertSet('selectedChurchId', $church->id);
 });
 
-it('allows a teacher to register a student manually for the event', function (): void {
+it('allows a teacher to register a new student with the default password and official church', function (): void {
     $teacher = createTeacher();
+    $church = Church::factory()->create(['name' => 'Igreja Nova Vida']);
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -443,15 +449,14 @@ it('allows a teacher to register a student manually for the event', function ():
     Livewire::actingAs($teacher)
         ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
-        ->set('mode', 'register')
+        ->set('email', 'aluno.avulso@example.com')
+        ->call('identifyByEmail')
         ->set('ispastor', '0')
         ->set('name', 'Aluno Avulso')
         ->set('mobile', '11999999999')
-        ->set('email', 'aluno.avulso@example.com')
-        ->set('password', 'Secret@123')
-        ->set('password_confirmation', 'Secret@123')
         ->set('birth_date', '2000-01-15')
         ->set('gender', '1')
+        ->set('selectedChurchId', $church->id)
         ->call('registerEvent')
         ->assertDispatched('training-participant-registration-created', trainingId: $training->id)
         ->assertSet('showModal', false);
@@ -462,6 +467,10 @@ it('allows a teacher to register a student manually for the event', function ():
     expect($participant?->name)->toBe('Aluno Avulso');
     expect($participant?->is_pastor)->toBeFalse();
     expect($participant?->gender)->toBe(1);
+    expect($participant?->church_id)->toBe($church->id);
+    expect($participant?->church_temp_id)->toBeNull();
+    expect($participant?->must_change_password)->toBeTrue();
+    expect(\Illuminate\Support\Facades\Hash::check('Master_01', (string) $participant?->getAuthPassword()))->toBeTrue();
 
     $this->assertDatabaseHas('training_user', [
         'training_id' => $training->id,
@@ -472,23 +481,32 @@ it('allows a teacher to register a student manually for the event', function ():
     ]);
 });
 
-it('allows a teacher to enroll an existing student through login mode', function (): void {
+it('allows a teacher to enroll an existing student without password and link an official church', function (): void {
     $teacher = createTeacher();
+    $officialChurch = Church::factory()->create(['name' => 'Igreja Esperança']);
+    $pendingChurchTemp = ChurchTemp::query()->create([
+        'name' => 'Igreja Temporária',
+        'city' => 'Recife',
+        'state' => 'PE',
+        'status' => 'pending',
+        'normalized_name' => 'igreja temporaria',
+    ]);
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
     ]);
     $user = User::factory()->create([
         'email' => 'existing@example.com',
-        'password' => Hash::make('Secret@123'),
+        'church_id' => null,
+        'church_temp_id' => $pendingChurchTemp->id,
     ]);
 
     Livewire::actingAs($teacher)
         ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
         ->call('openModal', $training->id)
-        ->set('mode', 'login')
         ->set('email', 'existing@example.com')
-        ->set('password', 'Secret@123')
-        ->call('loginEvent')
+        ->call('identifyByEmail')
+        ->set('selectedChurchId', $officialChurch->id)
+        ->call('registerEvent')
         ->assertHasNoErrors()
         ->assertDispatched('training-participant-registration-created', trainingId: $training->id)
         ->assertSet('showModal', false);
@@ -497,4 +515,26 @@ it('allows a teacher to enroll an existing student through login mode', function
         'training_id' => $training->id,
         'user_id' => $user->id,
     ]);
+
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'church_id' => $officialChurch->id,
+        'church_temp_id' => null,
+    ]);
+});
+
+it('allows a teacher to use a newly created official church in participant registration', function (): void {
+    $teacher = createTeacher();
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->set('email', 'novo.aluno@example.com')
+        ->call('identifyByEmail')
+        ->call('handleChurchCreated', $training->id, 55, 'Igreja Criada Agora')
+        ->assertSet('selectedChurchId', 55)
+        ->assertSet('churchSearch', 'Igreja Criada Agora');
 });

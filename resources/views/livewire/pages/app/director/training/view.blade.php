@@ -391,7 +391,7 @@
                 <h4 class="text-sm font-semibold uppercase text-slate-900">{{ __('Apoio operacional de materiais') }}
                 </h4>
                 <p class="mt-1 text-sm text-slate-600">
-                    {{ __('O treinamento aproveita os materiais vinculados ao curso. O financeiro continua separado da entrega física.') }}
+                    {{ __('O treinamento aproveita os materiais de estudo definidos no curso. O financeiro continua separado da entrega física.') }}
                 </p>
             </div>
 
@@ -405,11 +405,11 @@
             <div class="space-y-4">
                 <div class="rounded-2xl border border-slate-200 bg-white p-4">
                     <h5 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {{ __('Materiais vinculados ao curso') }}</h5>
+                        {{ __('Materiais de estudo do curso') }}</h5>
 
                     @if ($courseMaterials->isEmpty())
                         <p class="mt-3 text-sm text-slate-600">
-                            {{ __('Nenhum material foi vinculado a este curso ainda.') }}
+                            {{ __('Nenhum material de estudo foi definido para este curso ainda.') }}
                         </p>
                     @else
                         <div class="mt-3 grid gap-3">
@@ -458,7 +458,7 @@
 
                     @if ($recommendedKits->isEmpty())
                         <p class="mt-3 text-sm text-slate-600">
-                            {{ __('Nenhum material composto foi vinculado a este curso ainda.') }}
+                            {{ __('Nenhum material composto foi definido como kit deste curso ainda.') }}
                         </p>
                     @else
                         <div class="mt-3 flex flex-wrap gap-2">

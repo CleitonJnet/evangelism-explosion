@@ -88,7 +88,7 @@
                             {{ __('Apoio operacional') }}
                         </h3>
                         <p class="mt-1 text-xs text-slate-600">
-                            {{ __('Os materiais disponíveis aqui seguem o vínculo do curso com o treinamento. O financeiro continua separado da entrega física.') }}
+                            {{ __('Os materiais disponíveis aqui seguem o material de estudos definido no curso. O financeiro continua separado da entrega física.') }}
                         </p>
                     </div>
 

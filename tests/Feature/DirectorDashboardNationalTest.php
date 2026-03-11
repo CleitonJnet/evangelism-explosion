@@ -35,6 +35,10 @@ function createNonDirectorForDashboard(): User
 function moveDirectorTrainingIntoDate(Training $training, CarbonInterface $date): void
 {
     foreach ($training->eventDates->values() as $index => $eventDate) {
+        $eventDate->update(['date' => $date->copy()->addYears(5)->addDays($index)->toDateString()]);
+    }
+
+    foreach ($training->fresh()->eventDates->values() as $index => $eventDate) {
         $eventDate->update(['date' => $date->copy()->addDays($index)->toDateString()]);
     }
 }
@@ -133,19 +137,85 @@ it('loads the national kpis and leadership teachers list', function (): void {
         ->get(route('app.director.dashboard'));
 
     $response->assertOk();
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $kpiKeys = collect($dashboard['kpis'])->pluck('key');
+
     $response->assertSee('Treinamentos no período');
     $response->assertSee('Igrejas alcançadas');
     $response->assertSee('Novas igrejas');
     $response->assertSee('Professores ativos');
-    $response->assertSee('Pagantes');
-    $response->assertSee('Taxa de pagamento');
-    $response->assertSee('Pastores treinados');
-    $response->assertSee('Evangelho explicado');
-    $response->assertSee('Saldo EE');
     $response->assertSee('Professores por curso de liderança');
     $response->assertSee('Mentorear para Multiplicar');
     $response->assertSee('Professora Líder');
     $response->assertDontSee('Curso de Implementação');
+
+    expect($kpiKeys)->toContain(
+        'paid_students',
+        'payment_rate',
+        'pastors_trained',
+        'gospel_explained',
+        'ee_balance',
+    );
+});
+
+it('counts registrations only from scheduled and completed trainings on director dashboard', function (): void {
+    $director = createDirectorForDashboard();
+    $church = Church::factory()->create(['name' => 'Igreja Dashboard']);
+    $course = Course::factory()->create([
+        'name' => 'Curso Dashboard',
+        'execution' => 0,
+    ]);
+
+    $scheduledTraining = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($scheduledTraining, now()->subDays(12));
+
+    $completedTraining = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'status' => TrainingStatus::Completed,
+    ]);
+    moveDirectorTrainingIntoDate($completedTraining, now()->subDays(20));
+
+    $planningTraining = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'status' => TrainingStatus::Planning,
+    ]);
+    moveDirectorTrainingIntoDate($planningTraining, now()->subDays(5));
+
+    $canceledTraining = Training::factory()->create([
+        'course_id' => $course->id,
+        'church_id' => $church->id,
+        'status' => TrainingStatus::Canceled,
+    ]);
+    moveDirectorTrainingIntoDate($canceledTraining, now()->subDays(8));
+
+    $scheduledTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $completedTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $completedTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $planningTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $planningTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $planningTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+    $canceledTraining->students()->attach(User::factory()->create(['church_id' => $church->id])->id);
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.director.dashboard'));
+
+    $response->assertOk();
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $registrationsKpi = collect($dashboard['kpis'])->firstWhere('key', 'registrations');
+    $funnelChart = collect($dashboard['charts'])->firstWhere('id', 'director-funnel-ministry');
+
+    expect($registrationsKpi['value'])->toBe(3)
+        ->and($funnelChart['datasets'][0]['data'][0])->toBe(3);
 });
 
 it('applies the period filter on director dashboard', function (): void {

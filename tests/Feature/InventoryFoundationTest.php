@@ -12,12 +12,14 @@ use Illuminate\Support\Facades\Schema;
 it('creates the inventory foundation schema', function (): void {
     expect(Schema::hasTable('material_components'))->toBeTrue();
     expect(Schema::hasTable('course_material'))->toBeTrue();
+    expect(Schema::hasTable('course_study_material'))->toBeTrue();
     expect(Schema::hasTable('stock_movements'))->toBeTrue();
 
     expect(Schema::hasColumns('materials', ['type', 'minimum_stock', 'is_active']))->toBeTrue();
     expect(Schema::hasColumns('inventories', ['kind', 'user_id', 'is_active']))->toBeTrue();
     expect(Schema::hasColumns('material_components', ['parent_material_id', 'component_material_id', 'quantity']))->toBeTrue();
     expect(Schema::hasColumns('course_material', ['course_id', 'material_id']))->toBeTrue();
+    expect(Schema::hasColumns('course_study_material', ['course_id', 'material_id']))->toBeTrue();
     expect(Schema::hasColumns('stock_movements', [
         'inventory_id',
         'material_id',
@@ -106,6 +108,21 @@ it('allows a material to be linked to multiple courses', function (): void {
     expect($material->courses)->toHaveCount(2);
     expect($firstCourse->materials()->pluck('materials.id')->all())->toContain($material->id);
     expect($secondCourse->materials()->pluck('materials.id')->all())->toContain($material->id);
+});
+
+it('keeps study materials separate from general course categorization', function (): void {
+    $material = Material::query()->create([
+        'name' => 'Kit oficial do aluno',
+        'type' => 'composite',
+    ]);
+
+    $course = Course::factory()->create();
+
+    $course->studyMaterials()->attach($material->id);
+
+    expect($course->studyMaterials()->pluck('materials.id')->all())->toContain($material->id);
+    expect($course->materials()->pluck('materials.id')->all())->not->toContain($material->id);
+    expect($material->studyCourses()->pluck('courses.id')->all())->toContain($course->id);
 });
 
 it('exposes the main inventory stock relationships', function (): void {

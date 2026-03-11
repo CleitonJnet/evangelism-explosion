@@ -4,7 +4,7 @@
             <header class="border-b border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">
                 <h3 class="text-lg font-semibold">{{ __('Novo inscrito no evento') }}</h3>
                 <p class="text-sm opacity-80">
-                    {{ __('Fluxo excepcional para o professor registrar um aluno usando o mesmo acesso da inscrição pública.') }}
+                    {{ __('O professor pode associar um aluno existente ou criar um novo acesso sem sair da lista de inscritos.') }}
                 </p>
             </header>
 
@@ -12,7 +12,7 @@
                 <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                     <div class="font-semibold">{{ __('Entrada excepcional no evento') }}</div>
                     <div class="mt-1">
-                        {{ __('Comece pelo e-mail do aluno. Se já existir cadastro, o fluxo continua como no evento público; se não existir, o sistema abre o novo registro.') }}
+                        {{ __('Comece pelo e-mail do aluno. Se já existir cadastro, basta revisar a igreja e confirmar. Se não existir, o sistema criará o acesso com senha padrão Master_01.') }}
                     </div>
                 </section>
 
@@ -28,70 +28,117 @@
                     @endif
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" wire:click="switchToLogin"
-                        class="{{ $mode === 'login' ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-300 bg-white text-slate-700' }} rounded-xl border px-4 py-2 text-sm font-semibold transition hover:bg-slate-100">
-                        Já tenho conta
-                    </button>
-                    <button type="button" wire:click="switchToRegister"
-                        class="{{ $mode === 'register' ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-300 bg-white text-slate-700' }} rounded-xl border px-4 py-2 text-sm font-semibold transition hover:bg-slate-100">
-                        Criar inscrição
-                    </button>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    @if ($mode === 'login')
-                        <form wire:submit="loginEvent" class="space-y-8">
-                            <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                <x-src.form.input type="email" name="teacher-training-registration-login-email"
-                                    wire:model="email" label="E-mail" width_basic="320" required />
-                                <x-src.form.input type="password" name="teacher-training-registration-login-password"
-                                    wire:model="password" label="Senha" width_basic="320" required />
-                            </div>
-
-                            <div class="flex justify-end gap-3 pt-2">
-                                <x-src.btn-gold label="Entrar e inscrever" type="submit" class="text-nowrap" />
-                            </div>
-                        </form>
-                    @endif
-
-                    @if ($mode === 'register')
+                @if ($mode === 'register')
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <form wire:submit="registerEvent" class="space-y-8">
-                            <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                <x-src.form.select name="teacher-training-registration-ispastor" wire:model="ispastor"
-                                    label="É pastor?" width_basic="90" :select="false" value="0" :options="$yesNoOptions" />
+                            <section class="space-y-5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h4 class="text-base font-semibold text-sky-950">{{ __('Dados do aluno') }}</h4>
+                                        <p class="text-sm text-slate-600">
+                                            @if ($existingUserId)
+                                                {{ __('Cadastro localizado. A senha do aluno não é necessária para concluir o vínculo.') }}
+                                            @else
+                                                {{ __('Preencha o cadastro completo. O acesso será criado com senha padrão.') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @if (! $existingUserId)
+                                        <div class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+                                            {{ __('Senha inicial: Master_01') }}
+                                        </div>
+                                    @endif
+                                </div>
 
-                                <x-src.form.input name="teacher-training-registration-name" wire:model="name"
-                                    label="Nome completo" type="text" width_basic="400" required />
+                                <div class="flex flex-wrap gap-x-4 gap-y-8">
+                                    <x-src.form.select name="teacher-training-registration-ispastor" wire:model="ispastor"
+                                        label="É pastor?" width_basic="90" :select="false" value="0" :options="$yesNoOptions" />
 
-                                <x-src.form.input type="tel" name="teacher-training-registration-mobile" wire:model="mobile"
-                                    data-no-tel-mask label="Celular &#10023; WhatsApp" width_basic="200" required />
+                                    <x-src.form.input name="teacher-training-registration-name" wire:model="name"
+                                        label="Nome completo" type="text" width_basic="400" :required="! $existingUserId" />
 
-                                <x-src.form.input type="email" name="teacher-training-registration-email" wire:model="email"
-                                    label="E-mail" width_basic="350" required />
+                                    <x-src.form.input type="tel" name="teacher-training-registration-mobile" wire:model="mobile"
+                                        data-no-tel-mask label="Celular &#10023; WhatsApp" width_basic="200" :required="! $existingUserId" />
 
-                                <x-src.form.input type="password" name="teacher-training-registration-password" wire:model="password"
-                                    label="Informe uma senha" width_basic="300" required />
+                                    <x-src.form.input type="email" name="teacher-training-registration-email" wire:model="email"
+                                        label="E-mail" width_basic="350" required />
 
-                                <x-src.form.input type="password" name="teacher-training-registration-password-confirmation"
-                                    wire:model="password_confirmation" label="Confirme a senha" width_basic="300" required />
+                                    <x-src.form.input type="date" name="teacher-training-registration-birth-date" wire:model="birth_date"
+                                        label="Data de Nascimento" width_basic="200" />
 
-                                <x-src.form.input type="date" name="teacher-training-registration-birth-date" wire:model="birth_date"
-                                    label="Data de Nascimento" width_basic="200" />
+                                    <x-src.form.select name="teacher-training-registration-gender" wire:model="gender"
+                                        label="Gênero" width_basic="200" :options="$genderOptions" />
+                                </div>
+                            </section>
 
-                                <x-src.form.select name="teacher-training-registration-gender" wire:model="gender"
-                                    label="Gênero" width_basic="200" :options="$genderOptions" />
-                            </div>
+                            <section class="space-y-5">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <h4 class="text-base font-semibold text-sky-950">{{ __('Igreja do aluno') }}</h4>
+                                        <p class="text-sm text-slate-600">
+                                            {{ __('Selecione uma igreja oficial ou cadastre uma nova diretamente na base oficial.') }}
+                                        </p>
+                                    </div>
+                                    <x-src.btn-silver type="button" wire:click="openCreateChurchModal"
+                                        wire:loading.attr="disabled" wire:target="registerEvent,selectChurch,openCreateChurchModal">
+                                        {{ __('Criar igreja') }}
+                                    </x-src.btn-silver>
+                                </div>
+
+                                <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                    <label class="mb-1 block text-xs font-semibold text-slate-700">
+                                        {{ __('Buscar igreja') }}
+                                    </label>
+                                    <input type="text" wire:model.live.debounce.300ms="churchSearch"
+                                        placeholder="{{ __('Nome, cidade ou UF') }}"
+                                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800" />
+
+                                    <div class="mt-2 max-h-44 space-y-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2">
+                                        @forelse ($churchResults as $churchResult)
+                                            <button type="button"
+                                                class="w-full cursor-pointer rounded-md border border-slate-200 bg-white px-2 py-1 text-left text-xs text-slate-700 hover:bg-slate-100"
+                                                wire:click="selectChurch({{ $churchResult->id }})"
+                                                wire:loading.attr="disabled" wire:target="registerEvent,selectChurch">
+                                                <span class="font-semibold">{{ $churchResult->name }}</span>
+                                                <span class="text-slate-500">
+                                                    ({{ $churchResult->city ?? __('Cidade não informada') }}
+                                                    @if ($churchResult->state)
+                                                        /{{ $churchResult->state }}
+                                                    @endif)
+                                                </span>
+                                            </button>
+                                        @empty
+                                            <div class="text-xs text-slate-500">
+                                                {{ __('Nenhuma igreja encontrada.') }}
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+
+                                @if ($selectedChurchId && $selectedChurchName)
+                                    <div class="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+                                        {{ __('Igreja selecionada') }}: {{ $selectedChurchName }}
+                                    </div>
+                                @endif
+
+                                @error('selectedChurchId')
+                                    <div class="text-xs font-semibold text-red-600">{{ $message }}</div>
+                                @enderror
+                            </section>
 
                             <div class="flex justify-end gap-3 pt-2">
-                                <div class="w-full text-xs text-red-600">
-                                    {{ __('Os campos com obrigatórios seguem o mesmo fluxo da inscrição pública.') }}
+                                <div class="w-full text-xs text-slate-600">
+                                    @if ($existingUserId)
+                                        {{ __('A confirmação apenas vincula o aluno ao evento. Nenhum login será aberto pelo professor.') }}
+                                    @else
+                                        {{ __('O aluno será criado, vinculado ao evento e poderá entrar depois com a senha padrão.') }}
+                                    @endif
                                 </div>
                                 <x-src.btn-gold label="Confirmar inscrição" type="submit" class="text-nowrap" />
                             </div>
                         </form>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
 
             <div class="flex justify-between gap-2 border-t border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">
@@ -101,4 +148,7 @@
             </div>
         </div>
     </flux:modal>
+
+    <livewire:shared.create-church-modal :trainingId="$trainingId"
+        wire:key="create-participant-official-church-modal-{{ $trainingId }}" />
 </div>

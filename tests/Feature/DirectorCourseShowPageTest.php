@@ -1,10 +1,13 @@
 <?php
 
 use App\Models\Course;
+use App\Models\Material;
+use App\Models\MaterialComponent;
 use App\Models\Ministry;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -42,6 +45,21 @@ it('renders the director course details page within the selected ministry', func
         'min_stp_sessions' => 4,
         'certificate' => 'Sim',
     ]);
+    $kit = Material::query()->create([
+        'name' => 'Kit do aluno',
+        'type' => 'composite',
+        'minimum_stock' => 2,
+    ]);
+    $manual = Material::query()->create([
+        'name' => 'Manual do aluno',
+        'type' => 'simple',
+    ]);
+    $course->studyMaterials()->attach([$kit->id, $manual->id]);
+    MaterialComponent::query()->create([
+        'parent_material_id' => $kit->id,
+        'component_material_id' => $manual->id,
+        'quantity' => 1,
+    ]);
 
     $director = createDirectorForCoursePage();
 
@@ -55,6 +73,9 @@ it('renders the director course details page within the selected ministry', func
         ->assertSee('Informações do curso')
         ->assertSee('Mídia e identidade')
         ->assertSee('Conteúdo pedagógico')
+        ->assertSee('Material de estudos do aluno')
+        ->assertSee('Kit do aluno')
+        ->assertSee('Manual do aluno')
         ->assertSee('Implementação local')
         ->assertSee('Treinamento intensivo')
         ->assertSee('Líderes e facilitadores locais')
@@ -62,4 +83,27 @@ it('renders the director course details page within the selected ministry', func
         ->assertSee('Aplicação prática em campo.')
         ->assertSee('Sessões mínimas STP')
         ->assertDontSee('Certificado');
+});
+
+it('updates the study materials list for a course', function (): void {
+    $course = Course::factory()->create();
+    $director = createDirectorForCoursePage();
+    $kit = Material::query()->create([
+        'name' => 'Kit principal',
+        'type' => 'composite',
+    ]);
+    $manual = Material::query()->create([
+        'name' => 'Manual complementar',
+        'type' => 'simple',
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(\App\Livewire\Pages\App\Director\Course\View::class, ['course' => $course])
+        ->call('openStudyMaterialsModal')
+        ->set('selectedStudyMaterialIds', [$kit->id, $manual->id])
+        ->call('saveStudyMaterials')
+        ->assertSet('showStudyMaterialsModal', false);
+
+    expect($course->fresh()->studyMaterials()->pluck('materials.id')->all())
+        ->toContain($kit->id, $manual->id);
 });

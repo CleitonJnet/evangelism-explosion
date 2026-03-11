@@ -45,14 +45,14 @@ class View extends ViewPage
     protected function loadContextTrainingData(): void
     {
         $this->training->loadMissing([
-            'course.materials.components.componentMaterial',
+            'course.studyMaterials.components.componentMaterial',
             'stockMovements' => fn ($query) => $query
                 ->with(['inventory', 'material', 'user'])
                 ->latest()
                 ->limit(20),
         ]);
 
-        $this->courseMaterials = $this->training->course?->materials?->sortBy('name')->values() ?? new Collection;
+        $this->courseMaterials = $this->training->course?->studyMaterials?->sortBy('name')->values() ?? new Collection;
         $this->recommendedKits = $this->courseMaterials
             ->filter(fn (Material $material): bool => $material->isComposite())
             ->values();
