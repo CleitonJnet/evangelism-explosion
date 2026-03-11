@@ -33,9 +33,18 @@ class DirectorDashboardService
     /**
      * @return array<string, mixed>
      */
-    public function build(DashboardPeriod $period): array
-    {
-        $range = $period->range(CarbonImmutable::now());
+    public function build(
+        DashboardPeriod $period,
+        ?CarbonImmutable $startDate = null,
+        ?CarbonImmutable $endDate = null,
+    ): array {
+        $hasCustomRange = $startDate !== null && $endDate !== null;
+        $range = $hasCustomRange
+            ? [
+                'start' => $startDate->startOfDay(),
+                'end' => $endDate->endOfDay(),
+            ]
+            : $period->range(CarbonImmutable::now());
         $trainings = $this->loadTrainings()
             ->filter(fn (Training $training): bool => $this->isTrainingWithinRange($training, $range['start'], $range['end']))
             ->values();
@@ -46,15 +55,20 @@ class DirectorDashboardService
 
         return [
             'period' => $period,
-            'periodLabel' => $period->label(),
+            'periodLabel' => $hasCustomRange ? 'Período personalizado' : $period->label(),
             'rangeLabel' => sprintf(
                 '%s a %s',
                 $range['start']->translatedFormat('d/m/Y'),
                 $range['end']->translatedFormat('d/m/Y'),
             ),
             'periodOptions' => DashboardPeriod::options(),
+            'filters' => [
+                'startDate' => $hasCustomRange ? $range['start']->toDateString() : null,
+                'endDate' => $hasCustomRange ? $range['end']->toDateString() : null,
+                'usingCustomRange' => $hasCustomRange,
+            ],
             'kpis' => $this->buildKpis($trainings, $newChurches, $discipleship, $paymentSummary),
-            'charts' => $this->buildCharts($period, $range['start'], $trainings, $newChurches, $discipleship, $paymentSummary),
+            'charts' => $this->buildCharts($range['start'], $range['end'], $trainings, $newChurches, $discipleship, $paymentSummary),
             'leadershipTeachers' => $this->buildLeadershipTeachersTable(),
             'alerts' => $this->buildAlerts($trainings, $paymentSummary),
         ];
@@ -190,7 +204,7 @@ class DirectorDashboardService
             $this->kpi('paid_students', 'Pagantes', $paymentSummary['paid_students'], 'Pagamentos confirmados'),
             $this->kpi('payment_rate', 'Taxa de pagamento', $paymentSummary['payment_rate_label'], 'Conversão financeira dos inscritos'),
             $this->kpi('pastors_trained', 'Pastores treinados', $pastorsTrained, 'Liderança pastoral alcançada'),
-            $this->kpi('gospel_explained', 'Evangelho explicado', $stpSummary['evangelho_explicado'], 'Total consolidado de STP/OJT'),
+            $this->kpi('gospel_explained', 'Evangelho explicado', $stpSummary['evangelho_explicado'], 'Total consolidado de STP'),
             $this->kpi('people_reached', 'Pessoas alcançadas', $stpSummary['pessoas_ouviram'], 'Pessoas que ouviram o evangelho'),
             $this->kpi('decisions', 'Decisões', $stpSummary['decisao'], 'Respostas registradas'),
             $this->kpi('scheduled_visits', 'Visitas agendadas', $stpSummary['visita_agendada'], 'Follow-ups com data marcada'),
@@ -280,8 +294,8 @@ class DirectorDashboardService
      * @return array<int, array<string, mixed>>
      */
     private function buildCharts(
-        DashboardPeriod $period,
         CarbonImmutable $rangeStart,
+        CarbonImmutable $rangeEnd,
         Collection $trainings,
         Collection $newChurches,
         array $discipleship,
@@ -292,7 +306,9 @@ class DirectorDashboardService
         $decisionsSeries = [];
         $newChurchesSeries = [];
 
-        for ($index = 0; $index < $period->months(); $index++) {
+        $months = $rangeStart->startOfMonth()->diffInMonths($rangeEnd->startOfMonth()) + 1;
+
+        for ($index = 0; $index < $months; $index++) {
             $month = $rangeStart->addMonths($index);
 
             $monthTrainings = $trainings->filter(
@@ -470,7 +486,7 @@ class DirectorDashboardService
     }
 
     /**
-     * @return array<int, array{course_name: string, ministry_name: string, teachers: array<int, array{name: string, status: string, church_name: string}>}>
+     * @return array<int, array{course_name: string, ministry_name: string, teachers: array<int, array{name: string, status: string, church_name: string, profile_photo_url: ?string, initials: string}>}>
      */
     private function buildLeadershipTeachersTable(): array
     {
@@ -491,6 +507,8 @@ class DirectorDashboardService
                             'name' => $teacher->name,
                             'status' => ((int) ($teacher->pivot->status ?? 0)) === 1 ? 'Ativo' : 'Inativo',
                             'church_name' => $teacher->church?->name ?? 'Sem igreja vinculada',
+                            'profile_photo_url' => $teacher->profile_photo_url,
+                            'initials' => $teacher->initials(),
                         ])
                         ->values()
                         ->all(),

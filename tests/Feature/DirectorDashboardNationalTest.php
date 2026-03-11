@@ -188,6 +188,103 @@ it('applies the period filter on director dashboard', function (): void {
         ->and($distributionChart['labels'])->not->toContain('Curso Antigo Dashboard Diretor');
 });
 
+it('applies the custom date range filter on director dashboard', function (): void {
+    $director = createDirectorForDashboard();
+    $insideCourse = Course::factory()->create([
+        'name' => 'Curso Dentro do Intervalo',
+        'execution' => 0,
+    ]);
+    $outsideCourse = Course::factory()->create([
+        'name' => 'Curso Fora do Intervalo',
+        'execution' => 0,
+    ]);
+
+    $insideTraining = Training::factory()->create([
+        'course_id' => $insideCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($insideTraining, now()->subDays(20));
+
+    $outsideTraining = Training::factory()->create([
+        'course_id' => $outsideCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($outsideTraining, now()->subMonths(5));
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.director.dashboard', [
+            'start_date' => now()->subMonth()->toDateString(),
+            'end_date' => now()->subDays(10)->toDateString(),
+        ]));
+
+    $response->assertOk();
+    $response->assertSee('Período atual: Período personalizado');
+    $response->assertSee('name="start_date"', false);
+    $response->assertSee('name="end_date"', false);
+    $response->assertSee('value="'.now()->subMonth()->toDateString().'"', false);
+    $response->assertSee('value="'.now()->subDays(10)->toDateString().'"', false);
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $trainingsKpi = collect($dashboard['kpis'])->firstWhere('key', 'trainings');
+    $distributionChart = collect($dashboard['charts'])->firstWhere('id', 'director-distribution-course');
+
+    expect($trainingsKpi['value'])->toBe(1)
+        ->and($distributionChart['labels'])->toContain('Curso Dentro do Intervalo')
+        ->and($distributionChart['labels'])->not->toContain('Curso Fora do Intervalo')
+        ->and($dashboard['filters']['usingCustomRange'])->toBeTrue();
+});
+
+it('uses today as the end date when only the start date is informed', function (): void {
+    $director = createDirectorForDashboard();
+    $insideCourse = Course::factory()->create([
+        'name' => 'Curso Do Comeco Ate Hoje',
+        'execution' => 0,
+    ]);
+    $outsideCourse = Course::factory()->create([
+        'name' => 'Curso Antes Do Comeco',
+        'execution' => 0,
+    ]);
+
+    $insideTraining = Training::factory()->create([
+        'course_id' => $insideCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($insideTraining, now()->subDays(5));
+
+    $outsideTraining = Training::factory()->create([
+        'course_id' => $outsideCourse->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($outsideTraining, now()->subMonths(4));
+
+    $startDate = now()->subMonth()->toDateString();
+    $today = now()->toDateString();
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.director.dashboard', [
+            'start_date' => $startDate,
+        ]));
+
+    $response->assertOk();
+    $response->assertSee('Período atual: Período personalizado');
+    $response->assertSee('value="'.$startDate.'"', false);
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $trainingsKpi = collect($dashboard['kpis'])->firstWhere('key', 'trainings');
+    $distributionChart = collect($dashboard['charts'])->firstWhere('id', 'director-distribution-course');
+
+    expect($trainingsKpi['value'])->toBe(1)
+        ->and($distributionChart['labels'])->toContain('Curso Do Comeco Ate Hoje')
+        ->and($distributionChart['labels'])->not->toContain('Curso Antes Do Comeco')
+        ->and($dashboard['filters']['startDate'])->toBe($startDate)
+        ->and($dashboard['filters']['endDate'])->toBe($today)
+        ->and($dashboard['filters']['usingCustomRange'])->toBeTrue();
+});
+
 it('restricts the dashboard to directors only', function (): void {
     $teacher = createNonDirectorForDashboard();
 
