@@ -146,6 +146,8 @@ it('loads the national kpis and leadership teachers list', function (): void {
     $response->assertSee('Novas igrejas');
     $response->assertSee('Professores ativos');
     $response->assertSee('Professores por curso de liderança');
+    $response->assertSee('Como ler: Ritmo de eventos');
+    $response->assertSee('Como ler: Professores por curso de liderança');
     $response->assertSee('Mentorear para Multiplicar');
     $response->assertSee('Professora Líder');
     $response->assertDontSee('Curso de Implementação');

@@ -287,8 +287,8 @@
     @endonce
 
     <section
-        class="overflow-hidden rounded-4xl mb-6 border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(241,245,249,0.95))] shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)]">
-        <div class="grid gap-6 px-6 py-6 lg:grid-cols-[1.4fr_0.9fr] lg:px-8 lg:py-8">
+        class="mb-6 overflow-hidden rounded-[2rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(241,245,249,0.95))] shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)]">
+        <div class="grid gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:grid-cols-[1.4fr_0.9fr] lg:px-8 lg:py-8">
             <div class="space-y-6">
                 <div
                     class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-sky-800">
@@ -320,7 +320,7 @@
                     </span>
                 </div>
 
-                <article class="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm flex gap-6">
+                <article class="flex flex-col gap-5 rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:flex-row xl:items-start xl:gap-6">
                     <div class="flex-auto">
                         @if ($heroPrimary)
                             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -344,7 +344,7 @@
                     </div>
 
                     <form method="GET" action="{{ route('app.director.dashboard') }}"
-                        class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 flex-auto basis-80">
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:mt-5 xl:max-w-md xl:flex-auto xl:basis-80">
                         <div class="flex flex-col gap-3">
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">Filtrar por datas exatas</p>
@@ -352,14 +352,14 @@
                                     começo e um fim específicos.</p>
                             </div>
 
-                            <div class="flex gap-3 flex-wrap">
-                                <label class="grid gap-1 flex-auto">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="grid gap-1">
                                     <span class="text-sm font-medium text-slate-700">Data inicial</span>
                                     <input type="date" name="start_date" value="{{ $filters['startDate'] }}"
                                         class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
                                 </label>
 
-                                <label class="grid gap-1 flex-auto">
+                                <label class="grid gap-1">
                                     <span class="text-sm font-medium text-slate-700">Data final</span>
                                     <input type="date" name="end_date" value="{{ $filters['endDate'] }}"
                                         class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
@@ -384,7 +384,7 @@
                 </article>
             </div>
 
-            <aside class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4">
+            <aside class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-3 lg:grid-cols-1">
                 <div>
                     <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Leitura da diretoria
                     </h2>
@@ -418,7 +418,7 @@
         </div>
     </section>
 
-    <section class="my-6 grid gap-4 xl:grid-cols-[1.2fr_1.2fr_0.8fr]">
+    <section class="my-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.2fr_1.2fr_0.8fr]">
         <article
             class="rounded-[1.7rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,0.96),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.55)]">
             <div class="flex flex-col gap-2 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
@@ -583,7 +583,7 @@
 
     @foreach ($chartSections as $section)
         <section
-            class="rounded-[1.9rem] mb-6 border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
+            class="mb-6 rounded-[1.9rem] border border-slate-200 bg-white p-4 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)] sm:p-6">
             <div class="border-b border-slate-200 pb-4">
                 <h2 class="text-xl font-semibold text-slate-950">{{ $section['title'] }}</h2>
                 <p class="mt-1 text-sm text-slate-600">{{ $section['description'] }}</p>
@@ -594,7 +594,7 @@
                     <div class="swiper js-swiper-director-national SwiperDirectorNationalCharts px-1 sm:px-2">
                         <div class="swiper-wrapper">
                             @foreach ($section['charts'] as $chart)
-                                <div class="swiper-slide h-auto! w-full! md:w-lg! 2xl:w-xl!">
+                                <div class="swiper-slide h-auto! w-full! sm:w-[34rem]! 2xl:w-xl!">
                                     <x-dashboard.chart :chart="$chart" />
                                 </div>
                             @endforeach
@@ -615,7 +615,7 @@
         </section>
     @endforeach
 
-    <section class="grid gap-6 xl:grid-cols-2 mb-6">
+    <section class="mb-6 grid gap-6 xl:grid-cols-2">
         <article
             class="rounded-[1.9rem] border border-emerald-200 bg-[linear-gradient(180deg,rgba(236,253,245,0.86),rgba(255,255,255,1))] p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
             <div class="flex items-center justify-between gap-3 border-b border-emerald-200/70 pb-4">
@@ -671,7 +671,7 @@
         </article>
     </section>
 
-    <section class="mb-32">
+    <section class="mb-40 sm:mb-32">
         <article
             class="rounded-[1.9rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
             <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-200 pb-4">
@@ -680,6 +680,10 @@
                     <p class="mt-1 text-sm text-slate-600">Veja com facilidade quem são os professores de cada
                         curso e onde cada um serve.</p>
                 </div>
+
+                <x-dashboard.help-tooltip title="Como ler: Professores por curso de liderança"
+                    what="Mostra quais professores estao vinculados aos cursos de lideranca, se o vinculo esta ativo e quantos treinamentos cada um acumulou como titular e como auxiliar."
+                    how="Use os filtros de curso para enxergar uma frente especifica. Na coluna de treinamentos, compare titular e auxiliar para entender carga e papel de cada professor. Os selos de curso mostram em quais frentes cada pessoa esta servindo." />
             </div>
 
             <div class="space-y-6"
@@ -715,8 +719,8 @@
                         @endforeach
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
+                    <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                        <table class="w-full min-w-[780px] text-left text-sm whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-slate-200 text-slate-500">
                                     <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
@@ -816,8 +820,8 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 overflow-x-auto">
-                        <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
+                    <div class="-mx-4 mt-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                        <table class="w-full min-w-[780px] text-left text-sm whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-slate-200 text-slate-500">
                                     <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
@@ -919,7 +923,8 @@
         </article>
     </section>
 
-    <div x-data="{ open: false }" class="fixed right-3 bottom-0 z-40 w-[calc(100vw-0.75rem)] max-w-md">
+    <div x-data="{ open: false }"
+        class="fixed inset-x-2 bottom-0 z-40 w-auto sm:right-3 sm:left-auto sm:w-[calc(100vw-1.5rem)] sm:max-w-md">
         <article x-on:click.outside="open = false"
             class="overflow-hidden rounded-t-xl border border-sky-900 bg-sky-950 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,0.95)]">
             <button type="button" x-on:click="open = !open"
@@ -943,7 +948,7 @@
             </button>
 
             <div x-cloak x-show="open" x-collapse
-                class="director-governance-scroll max-h-[70vh] overflow-y-auto bg-sky-950 px-4 py-4">
+                class="director-governance-scroll max-h-[65vh] overflow-y-auto bg-sky-950 px-4 py-4 sm:max-h-[70vh]">
                 <div class="mb-4">
                     <h2 class="text-lg font-semibold">Governança e alertas</h2>
                     <p class="mt-1 text-sm text-slate-300">Aqui ficam os alertas mais importantes para saber onde agir

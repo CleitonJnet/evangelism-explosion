@@ -171,6 +171,8 @@ it('renders the main kpis plus stp and discipleship blocks on teacher dashboard'
     $response->assertSee('Impacto evangelístico');
     $response->assertSee('Discipulado paralelo');
     $response->assertSee('Dashboard Operacional');
+    $response->assertSee('Como ler: Inscrições por período');
+    $response->assertSee('Como ler: Situação financeira');
 });
 
 it('applies the custom date range filter on teacher dashboard within the teacher scope', function (): void {

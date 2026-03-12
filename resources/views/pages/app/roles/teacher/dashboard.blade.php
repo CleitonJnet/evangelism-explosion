@@ -231,7 +231,7 @@
         <div class="flex h-full w-full flex-1 flex-col gap-6">
             <section id="teacher-dashboard-hero"
                 class="overflow-hidden rounded-[1.9rem] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(241,245,249,0.95))] shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)]">
-                <div class="grid gap-6 px-6 py-6 lg:grid-cols-[1.35fr_0.9fr] lg:px-8 lg:py-8">
+                <div class="grid gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:grid-cols-[1.35fr_0.9fr] lg:px-8 lg:py-8">
                     <div class="space-y-6">
                         <div
                             class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-sky-800">
@@ -264,7 +264,7 @@
                             </span>
                         </div>
 
-                        <article class="flex gap-6 rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm">
+                        <article class="flex flex-col gap-5 rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:flex-row xl:items-start xl:gap-6">
                             <div class="flex-auto">
                                 @if ($heroPrimary)
                                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -307,7 +307,7 @@
                             </div>
 
                             <form method="GET" action="{{ route('app.teacher.dashboard') }}"
-                                class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 flex-auto basis-80">
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:mt-5 xl:max-w-md xl:flex-auto xl:basis-80">
                                 <div class="flex flex-col gap-3">
                                     <div>
                                         <p class="text-sm font-semibold text-slate-900">Filtrar por datas exatas</p>
@@ -315,14 +315,14 @@
                                             começo e um fim específicos.</p>
                                     </div>
 
-                                    <div class="flex gap-3 flex-wrap">
-                                        <label class="grid gap-1 flex-auto">
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        <label class="grid gap-1">
                                             <span class="text-sm font-medium text-slate-700">Data inicial</span>
                                             <input type="date" name="start_date" value="{{ $filters['startDate'] }}"
                                                 class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
                                         </label>
 
-                                        <label class="grid gap-1 flex-auto">
+                                        <label class="grid gap-1">
                                             <span class="text-sm font-medium text-slate-700">Data final</span>
                                             <input type="date" name="end_date" value="{{ $filters['endDate'] }}"
                                                 class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500">
@@ -347,7 +347,7 @@
                         </article>
                     </div>
 
-                    <aside class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4">
+                    <aside class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-3 lg:grid-cols-1">
                         <div>
                             <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Radar de
                                 execução
@@ -386,7 +386,7 @@
                 </div>
             </section>
 
-            <section id="teacher-dashboard-operation" class="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.8fr]">
+            <section id="teacher-dashboard-operation" class="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.15fr_1.15fr_0.8fr]">
                 <article
                     class="rounded-[1.7rem] border border-sky-200 bg-[linear-gradient(135deg,rgba(240,249,255,0.96),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.55)]">
                     <div
@@ -430,8 +430,7 @@
                     <div
                         class="flex flex-col gap-2 border-b border-orange-200/80 pb-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">Impacto
-                                evangelístico</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">Impacto evangelístico</p>
                             <h2 class="mt-1 text-lg font-semibold text-slate-950">Resultados STP</h2>
                         </div>
                         <p class="text-sm leading-5 text-slate-600">Resumo da prática e dos retornos do período.</p>
@@ -467,8 +466,7 @@
                     <article
                         class="rounded-[1.7rem] border border-cyan-200 bg-[linear-gradient(180deg,rgba(236,254,255,0.92),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.45)]">
                         <div class="border-b border-cyan-200/80 pb-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Discipulado
-                                paralelo</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Discipulado paralelo</p>
                             <h2 class="mt-1 text-lg font-semibold text-slate-950">Continuidade do cuidado</h2>
                         </div>
 
@@ -541,7 +539,7 @@
             <div id="teacher-dashboard-charts" class="contents">
                 @foreach ($chartSections as $section)
                     <section
-                        class="rounded-[1.9rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)]">
+                        class="rounded-[1.9rem] border border-slate-200 bg-white p-4 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.7)] sm:p-6">
                         <div class="border-b border-slate-200 pb-4">
                             <h2 class="text-xl font-semibold text-slate-950">{{ $section['title'] }}</h2>
                             <p class="mt-1 text-sm text-slate-600">{{ $section['description'] }}</p>
@@ -551,7 +549,7 @@
                             <div class="swiper js-swiper-teacher-dashboard SwiperTeacherDashboardCharts px-1 sm:px-2">
                                 <div class="swiper-wrapper">
                                     @foreach ($section['charts'] as $chart)
-                                        <div class="swiper-slide h-auto! w-full! lg:w-lg! 2xl:w-xl!">
+                                        <div class="swiper-slide h-auto! w-full! sm:w-[34rem]! 2xl:w-xl!">
                                             <x-dashboard.chart :chart="$chart" />
                                         </div>
                                     @endforeach
@@ -567,7 +565,8 @@
             </div>
         </div>
 
-        <div x-data="{ open: false }" class="fixed right-3 bottom-0 z-40 w-[calc(100vw-0.75rem)] max-w-md">
+        <div x-data="{ open: false }"
+            class="fixed inset-x-2 bottom-0 z-40 w-auto sm:right-3 sm:left-auto sm:w-[calc(100vw-1.5rem)] sm:max-w-md">
             <article x-on:click.outside="open = false"
                 class="overflow-hidden rounded-t-xl border border-sky-900 bg-sky-950 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,0.95)]">
                 <button type="button" x-on:click="open = !open"
@@ -592,7 +591,7 @@
                 </button>
 
                 <div x-cloak x-show="open" x-collapse
-                    class="teacher-actions-scroll max-h-[70vh] overflow-y-auto bg-sky-950 px-4 py-4">
+                    class="teacher-actions-scroll max-h-[65vh] overflow-y-auto bg-sky-950 px-4 py-4 sm:max-h-[70vh]">
                     <div class="mb-4">
                         <h2 class="text-lg font-semibold">Ações e pendências</h2>
                         <p class="mt-1 text-sm text-slate-300">Aqui ficam os atalhos e alertas operacionais do
