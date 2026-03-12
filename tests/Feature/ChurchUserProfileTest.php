@@ -5,13 +5,18 @@ use App\Models\Church;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
 function createChurchManager(string $roleName): User
 {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'password' => Hash::make('secret-123'),
+    ]);
     $role = Role::query()->firstOrCreate(['name' => $roleName]);
     $user->roles()->syncWithoutDetaching([$role->id]);
 
@@ -73,6 +78,118 @@ it('updates personal data, address and church from the church context profile', 
         ->and($profile->state)->toBe('PE')
         ->and($profile->church_id)->toBe($newChurch->id)
         ->and($profile->church_temp_id)->toBeNull();
+})->with([
+    'teacher' => 'Teacher',
+    'director' => 'Director',
+]);
+
+it('uploads and removes profile photo from the church context profile', function (string $roleName): void {
+    Storage::fake('public');
+
+    $manager = createChurchManager($roleName);
+    $profile = User::factory()->create([
+        'name' => 'Usuario com Foto',
+        'email' => 'usuario.foto@example.com',
+    ]);
+    $photo = UploadedFile::fake()->image('perfil.png', 320, 320);
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile,
+            'backUrl' => route($roleName === 'Teacher' ? 'app.teacher.churches.index' : 'app.director.church.index'),
+            'backLabel' => 'Voltar',
+        ])
+        ->call('openPhotoModal')
+        ->set('profilePhotoUpload', $photo)
+        ->call('updateProfilePhoto')
+        ->assertDispatched('profile-photo-updated');
+
+    $profile->refresh();
+
+    expect($profile->profile_photo_path)->not->toBeNull();
+
+    Storage::disk('public')->assertExists((string) $profile->profile_photo_path);
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile->fresh(),
+            'backUrl' => route($roleName === 'Teacher' ? 'app.teacher.churches.index' : 'app.director.church.index'),
+            'backLabel' => 'Voltar',
+        ])
+        ->call('openPhotoModal')
+        ->call('removeProfilePhoto')
+        ->assertDispatched('profile-photo-removed');
+
+    expect($profile->fresh()->profile_photo_path)->toBeNull();
+})->with([
+    'teacher' => 'Teacher',
+    'director' => 'Director',
+]);
+
+it('requires the authenticated manager password to delete a profile record', function (string $roleName): void {
+    $manager = createChurchManager($roleName);
+    $church = Church::factory()->create();
+    $profile = User::factory()->create([
+        'name' => 'Usuario Excluido',
+        'email' => 'usuario.excluido@example.com',
+        'church_id' => $church->id,
+    ]);
+    $expectedRedirect = route($roleName === 'Teacher' ? 'app.teacher.churches.show' : 'app.director.church.show', $church);
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile,
+            'backUrl' => route($roleName === 'Teacher' ? 'app.teacher.churches.index' : 'app.director.church.index'),
+            'backLabel' => 'Voltar',
+            'deleteRedirectUrl' => $expectedRedirect,
+        ])
+        ->call('openDeleteModal')
+        ->set('deletePassword', 'senha-incorreta')
+        ->call('deleteProfile')
+        ->assertHasErrors(['deletePassword']);
+
+    expect(User::query()->whereKey($profile->id)->exists())->toBeTrue();
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile,
+            'backUrl' => route($roleName === 'Teacher' ? 'app.teacher.churches.index' : 'app.director.church.index'),
+            'backLabel' => 'Voltar',
+            'deleteRedirectUrl' => $expectedRedirect,
+        ])
+        ->call('openDeleteModal')
+        ->set('deletePassword', 'secret-123')
+        ->call('deleteProfile')
+        ->assertRedirect($expectedRedirect);
+
+    expect(User::query()->whereKey($profile->id)->exists())->toBeFalse();
+})->with([
+    'teacher' => 'Teacher',
+    'director' => 'Director',
+]);
+
+it('falls back to the churches list when deleting a profile without church', function (string $roleName): void {
+    $manager = createChurchManager($roleName);
+    $expectedRedirect = route($roleName === 'Teacher' ? 'app.teacher.churches.index' : 'app.director.church.index');
+    $profile = User::factory()->create([
+        'church_id' => null,
+        'church_temp_id' => null,
+        'email' => 'sem.igreja.exclusao@example.com',
+    ]);
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile,
+            'backUrl' => $expectedRedirect,
+            'backLabel' => 'Voltar',
+            'deleteRedirectUrl' => $expectedRedirect,
+        ])
+        ->call('openDeleteModal')
+        ->set('deletePassword', 'secret-123')
+        ->call('deleteProfile')
+        ->assertRedirect($expectedRedirect);
+
+    expect(User::query()->whereKey($profile->id)->exists())->toBeFalse();
 })->with([
     'teacher' => 'Teacher',
     'director' => 'Director',

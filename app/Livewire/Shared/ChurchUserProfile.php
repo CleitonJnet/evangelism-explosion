@@ -2,26 +2,34 @@
 
 namespace App\Livewire\Shared;
 
+use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Church;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ChurchUserProfile extends Component
 {
     use AuthorizesRequests;
+    use PasswordValidationRules;
     use ProfileValidationRules;
+    use WithFileUploads;
 
     public User $user;
 
     public string $backUrl = '';
 
     public string $backLabel = '';
+
+    public string $deleteRedirectUrl = '';
 
     /**
      * @var array{
@@ -71,17 +79,28 @@ class ChurchUserProfile extends Component
 
     public bool $showChurchModal = false;
 
+    public bool $showPhotoModal = false;
+
+    public bool $showDeleteModal = false;
+
+    public bool $savingProfilePhoto = false;
+
     public string $churchSearch = '';
+
+    public string $deletePassword = '';
 
     public ?int $selectedChurchId = null;
 
-    public function mount(User $user, string $backUrl, string $backLabel): void
+    public mixed $profilePhotoUpload = null;
+
+    public function mount(User $user, string $backUrl, string $backLabel, string $deleteRedirectUrl = ''): void
     {
         Gate::authorize('manageChurches');
 
         $this->user = $user;
         $this->backUrl = $backUrl;
         $this->backLabel = $backLabel;
+        $this->deleteRedirectUrl = $deleteRedirectUrl !== '' ? $deleteRedirectUrl : $backUrl;
 
         $this->user->loadMissing(['roles', 'church', 'church_temp']);
         $this->fillFromUser();
@@ -208,6 +227,133 @@ class ChurchUserProfile extends Component
         $this->selectedChurchId = null;
     }
 
+    public function openPhotoModal(): void
+    {
+        Gate::authorize('manageChurches');
+
+        $this->resetValidation();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = true;
+    }
+
+    public function closePhotoModal(): void
+    {
+        $this->resetValidation();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = false;
+    }
+
+    public function updatedProfilePhotoUpload(): void
+    {
+        $this->resetErrorBag('profilePhotoUpload');
+
+        if ($this->profilePhotoUpload === null) {
+            return;
+        }
+
+        $this->validateOnly('profilePhotoUpload', $this->profilePhotoRules(), $this->profilePhotoMessages());
+    }
+
+    public function updateProfilePhoto(): void
+    {
+        Gate::authorize('manageChurches');
+
+        $validated = $this->validate($this->profilePhotoRules(), $this->profilePhotoMessages());
+        $this->savingProfilePhoto = true;
+
+        try {
+            $previousPhotoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+            $newPhotoPath = $validated['profilePhotoUpload']->storePublicly("profile-photos/{$this->user->id}", 'public');
+
+            $this->user->forceFill([
+                'profile_photo_path' => $newPhotoPath,
+            ])->save();
+
+            if ($previousPhotoPath !== '' && Storage::disk('public')->exists($previousPhotoPath)) {
+                Storage::disk('public')->delete($previousPhotoPath);
+            }
+
+            $this->refreshUser();
+            $this->profilePhotoUpload = null;
+            $this->showPhotoModal = false;
+
+            $this->dispatch('profile-photo-updated');
+        } finally {
+            $this->savingProfilePhoto = false;
+        }
+    }
+
+    public function removeProfilePhoto(): void
+    {
+        Gate::authorize('manageChurches');
+
+        $photoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+
+        if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+            Storage::disk('public')->delete($photoPath);
+        }
+
+        $this->user->forceFill([
+            'profile_photo_path' => null,
+        ])->save();
+
+        $this->refreshUser();
+        $this->profilePhotoUpload = null;
+        $this->showPhotoModal = false;
+
+        $this->dispatch('profile-photo-removed');
+    }
+
+    public function openDeleteModal(): void
+    {
+        Gate::authorize('manageChurches');
+
+        $this->resetValidation();
+        $this->deletePassword = '';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->resetValidation();
+        $this->deletePassword = '';
+        $this->showDeleteModal = false;
+    }
+
+    public function deleteProfile(): void
+    {
+        Gate::authorize('manageChurches');
+
+        $this->validate([
+            'deletePassword' => $this->currentPasswordRules(),
+        ], attributes: [
+            'deletePassword' => __('senha'),
+        ]);
+
+        $photoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+        $deletingOwnAccount = (int) Auth::id() === (int) $this->user->id;
+
+        $this->user->delete();
+
+        if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+            Storage::disk('public')->delete($photoPath);
+        }
+
+        $this->dispatch('profile-deleted');
+
+        if ($deletingOwnAccount) {
+            Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+
+            $this->redirect('/', navigate: true);
+
+            return;
+        }
+
+        $this->redirect($this->deleteRedirectUrl, navigate: true);
+    }
+
     public function updatedChurchSearch(): void
     {
         $this->selectedChurchId = $this->churchOptions()->first()?->id;
@@ -326,6 +472,37 @@ class ChurchUserProfile extends Component
             'district' => $this->user->district ?? '',
             'city' => $this->user->city ?? '',
             'state' => $this->user->state ?? '',
+        ];
+    }
+
+    public function profilePhotoUrl(): ?string
+    {
+        if ($this->profilePhotoUpload && str_starts_with((string) $this->profilePhotoUpload->getMimeType(), 'image/')) {
+            return $this->profilePhotoUpload->temporaryUrl();
+        }
+
+        return $this->user->profile_photo_url;
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    protected function profilePhotoRules(): array
+    {
+        return [
+            'profilePhotoUpload' => ['required', 'image', 'max:5120'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function profilePhotoMessages(): array
+    {
+        return [
+            'profilePhotoUpload.required' => __('Selecione uma imagem para a foto do perfil.'),
+            'profilePhotoUpload.image' => __('O arquivo enviado precisa ser uma imagem válida.'),
+            'profilePhotoUpload.max' => __('A foto do perfil deve ter no máximo 5 MB.'),
         ];
     }
 }

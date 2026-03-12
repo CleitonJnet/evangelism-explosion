@@ -53,6 +53,7 @@ it('shows complete church details to a teacher with access', function (): void {
         'church_id' => $church->id,
         'name' => 'Carlos Membro',
         'email' => 'carlos@example.org',
+        'phone' => '41999998888',
     ]);
 
     $course = Course::factory()->create([
@@ -72,6 +73,12 @@ it('shows complete church details to a teacher with access', function (): void {
         'end_time' => '12:00:00',
     ]);
 
+    $trainingWithCourse->students()->attach($member->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
+
     $response = $this->actingAs($teacher)->get(route('app.teacher.churches.show', $church));
 
     $response->assertOk();
@@ -82,11 +89,16 @@ it('shows complete church details to a teacher with access', function (): void {
     $response->assertSeeText('ana@example.org');
     $response->assertSeeText('Rua Central');
     $response->assertSeeText('Carlos Membro');
+    $response->assertSeeText('carlos@example.org');
+    $response->assertSeeText($member->phone ?? '');
     $response->assertSeeText('Curso Base de Evangelismo');
+    $response->assertSee(route('app.teacher.church.profiles.show', $member), false);
     $response->assertSee('data-row-link="'.route('app.teacher.trainings.show', $trainingWithCourse).'"', false);
     $response->assertSeeText($teacher->name);
     $response->assertSeeText('Membros totais');
     $response->assertSeeText('Treinamentos na igreja');
+    $response->assertSeeText('Novo participante');
+    $response->assertSeeText('Novo participante da igreja');
 
     expect($member->church_id)->toBe($church->id);
 });
@@ -262,6 +274,63 @@ it('filters linked members by name or email in church details', function (): voi
         ->set('memberSearch', 'maria.fernandes@example.org')
         ->assertSee('Maria Fernandes')
         ->assertDontSee('Joao Batista');
+});
+
+it('sorts linked members by courses and profile in church details', function (): void {
+    $church = Church::factory()->create();
+    $teacher = createTeacherForChurchDetails();
+    $facilitatorRole = Role::query()->firstOrCreate(['name' => 'Facilitator']);
+
+    Training::query()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'status' => 1,
+    ]);
+
+    $member = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Membro Base',
+        'email' => 'membro.base@example.org',
+        'is_pastor' => 0,
+    ]);
+    $pastor = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Pastor Local',
+        'email' => 'pastor.local@example.org',
+        'is_pastor' => 1,
+    ]);
+    $facilitator = User::factory()->create([
+        'church_id' => $church->id,
+        'name' => 'Facilitador Ativo',
+        'email' => 'facilitador.ativo@example.org',
+        'is_pastor' => 0,
+    ]);
+    $facilitator->roles()->syncWithoutDetaching([$facilitatorRole->id]);
+
+    $courseOne = Course::factory()->create(['name' => 'Curso Um', 'initials' => 'CU', 'color' => '#0f766e']);
+    $courseTwo = Course::factory()->create(['name' => 'Curso Dois', 'initials' => 'CD', 'color' => '#0369a1']);
+
+    $trainingOne = Training::factory()->create(['church_id' => $church->id, 'course_id' => $courseOne->id]);
+    $trainingTwo = Training::factory()->create(['church_id' => $church->id, 'course_id' => $courseTwo->id]);
+
+    $trainingOne->students()->attach($member->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+    $trainingOne->students()->attach($facilitator->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+    $trainingTwo->students()->attach($facilitator->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+
+    Livewire::actingAs($teacher)
+        ->test(ChurchDetailsView::class, ['church' => $church])
+        ->call('sortMembersBy', 'courses')
+        ->assertSet('memberSortField', 'courses')
+        ->assertSet('memberSortDirection', 'desc')
+        ->assertSeeInOrder(['Facilitador Ativo', 'Membro Base', 'Pastor Local'])
+        ->call('sortMembersBy', 'profile')
+        ->assertSet('memberSortField', 'profile')
+        ->assertSet('memberSortDirection', 'desc')
+        ->call('sortMembersBy', 'profile')
+        ->assertSet('memberSortField', 'profile')
+        ->assertSet('memberSortDirection', 'asc')
+        ->assertSee('CU')
+        ->assertSee('CD');
 });
 
 it('counts only scheduled and completed trainings in church indicators', function (): void {

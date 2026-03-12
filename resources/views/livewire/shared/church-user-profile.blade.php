@@ -1,14 +1,35 @@
+@php
+    $profilePhotoUrl = $this->profilePhotoUrl();
+@endphp
+
 <div class="relative">
+    <div wire:loading.flex wire:target="profilePhotoUpload,updateProfilePhoto"
+        class="fixed inset-0 z-[120] items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
+        <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-2xl">
+            <flux:icon.loading class="text-sky-900" />
+            <div class="space-y-1">
+                <p class="text-sm font-semibold text-slate-900">{{ __('Processando foto do perfil') }}</p>
+                <p class="text-xs text-slate-600">{{ __('Aguarde o upload e a gravacao no storage serem concluidos.') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
     <x-src.toolbar.header :title="__('Perfil do participante')" :description="__('Consulta do cadastro do usuário dentro do contexto de igrejas.')" :breadcrumb="false" />
 
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="$backUrl" :label="$backLabel" icon="list" :tooltip="__('Voltar para a listagem')" />
+        <x-src.toolbar.button :label="__('Foto do perfil')" icon="pencil" :tooltip="__('Atualizar foto do perfil')"
+            x-on:click.prevent="$wire.openPhotoModal()" />
         <x-src.toolbar.button :label="__('Dados pessoais')" icon="users" :tooltip="__('Editar dados pessoais')"
             x-on:click.prevent="$wire.openPersonalModal()" />
         <x-src.toolbar.button :label="__('Igreja')" icon="church" :tooltip="__('Alterar igreja vinculada')"
             x-on:click.prevent="$wire.openChurchModal()" />
         <x-src.toolbar.button :label="__('Endereco')" icon="home" :tooltip="__('Editar endereco')"
             x-on:click.prevent="$wire.openAddressModal()" />
+        <div class="ml-auto"></div>
+        <x-src.toolbar.button :label="__('Excluir registro')" icon="trash" :tooltip="__('Excluir cadastro do participante')"
+            x-on:click.prevent="$wire.openDeleteModal()" />
     </x-src.toolbar.nav>
 
     <section
@@ -17,8 +38,8 @@
             <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div class="flex items-center gap-4">
                     <div class="relative shrink-0">
-                        @if ($user->profile_photo_url)
-                            <img src="{{ $user->profile_photo_url }}"
+                        @if ($profilePhotoUrl)
+                            <img src="{{ $profilePhotoUrl }}"
                                 alt="{{ __('Foto de perfil de :name', ['name' => $user->name]) }}"
                                 class="h-36 w-36 rounded-2xl border border-white/20 object-cover shadow-lg">
                         @else
@@ -27,6 +48,11 @@
                                 {{ $user->initials() }}
                             </div>
                         @endif
+
+                        <div wire:loading.flex wire:target="profilePhotoUpload,updateProfilePhoto"
+                            class="absolute inset-0 items-center justify-center rounded-2xl bg-sky-950/75 px-3 text-center text-xs font-semibold text-white">
+                            {{ __('Atualizando foto...') }}
+                        </div>
                     </div>
 
                     <div class="space-y-3">
@@ -156,6 +182,101 @@
         </form>
     </flux:modal>
 
+    <flux:modal name="church-profile-photo-modal" wire:model="showPhotoModal" class="max-w-4xl w-full bg-sky-950! p-0!"
+        @close="closePhotoModal">
+        <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
+            <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
+                <flux:heading size="lg"><span class="text-white!">{{ __('Foto do perfil') }}</span>
+                </flux:heading>
+                <flux:subheading>
+                    <span class="text-white! opacity-80">
+                        {{ __('Envie uma imagem clara para representar o participante nas telas do sistema.') }}
+                    </span>
+                </flux:subheading>
+            </div>
+
+            <div class="min-h-0 flex-1 overflow-y-auto bg-white/95 px-6 py-5">
+                <div class="grid gap-6">
+                    <div class="grid gap-4 rounded-xl border border-slate-300 bg-white/70 p-4">
+                        <div class="text-sm font-semibold text-sky-950">{{ __('Upload da foto do perfil') }}</div>
+
+                        <div class="flex flex-wrap items-start gap-6">
+                            <div class="grid gap-2">
+                                <input id="church-profile-photo-upload" type="file" accept="image/*"
+                                    wire:model.live="profilePhotoUpload" class="sr-only">
+
+                                <label for="church-profile-photo-upload"
+                                    class="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-300 bg-slate-100 p-1">
+                                    @if ($profilePhotoUrl)
+                                        <img src="{{ $profilePhotoUrl }}" alt="{{ __('Previa da foto do perfil') }}"
+                                            class="h-32 w-32 rounded-xl object-cover">
+                                    @else
+                                        <div
+                                            class="flex h-32 w-32 items-center justify-center rounded-xl bg-slate-200 text-3xl font-semibold tracking-[0.2em] text-slate-700">
+                                            {{ $user->initials() }}
+                                        </div>
+                                    @endif
+
+                                    <div wire:loading.flex wire:target="profilePhotoUpload,updateProfilePhoto"
+                                        class="absolute inset-1 items-center justify-center rounded-xl bg-sky-950/70 px-3 text-center text-xs font-semibold text-white">
+                                        {{ __('Atualizando foto...') }}
+                                    </div>
+                                </label>
+
+                                <p class="text-xs text-slate-600">
+                                    {{ __('Clique na imagem para selecionar um novo arquivo.') }}</p>
+
+                                @error('profilePhotoUpload')
+                                    <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="min-w-0 flex-1 space-y-3">
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                                    {{ __('Formatos aceitos: JPG, PNG e WEBP. Tamanho maximo: 5 MB.') }}
+                                </div>
+
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                                    {{ __('Ao remover a foto, o sistema exibira automaticamente as iniciais do nome do usuario.') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        @if ($user->profile_photo_url)
+                            <x-src.btn-silver type="button" wire:click="removeProfilePhoto"
+                                wire:loading.attr="disabled"
+                                wire:target="removeProfilePhoto,updateProfilePhoto,profilePhotoUpload">
+                                {{ __('Excluir foto') }}
+                            </x-src.btn-silver>
+                        @endif
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <x-src.btn-silver type="button" wire:click="closePhotoModal" wire:loading.attr="disabled"
+                            wire:target="removeProfilePhoto,updateProfilePhoto,profilePhotoUpload">
+                            {{ __('Cancelar') }}
+                        </x-src.btn-silver>
+                        <x-src.btn-gold type="button" wire:click="updateProfilePhoto" wire:loading.attr="disabled"
+                            wire:target="updateProfilePhoto,profilePhotoUpload">
+                            <span wire:loading.remove wire:target="updateProfilePhoto,profilePhotoUpload">
+                                {{ __('Salvar foto') }}
+                            </span>
+                            <span wire:loading wire:target="updateProfilePhoto,profilePhotoUpload">
+                                {{ __('Salvando...') }}
+                            </span>
+                        </x-src.btn-gold>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </flux:modal>
+
     <flux:modal name="church-profile-address-modal" class="max-w-3xl" @close="closeAddressModal"
         wire:model="showAddressModal">
         <form class="space-y-6" wire:submit="updateAddress">
@@ -283,5 +404,40 @@
                 </div>
             </div>
         </div>
+    </flux:modal>
+
+    <flux:modal name="church-profile-delete-modal" class="max-w-2xl" @close="closeDeleteModal"
+        wire:model="showDeleteModal">
+        <form class="space-y-6" wire:submit="deleteProfile">
+            <div class="space-y-2">
+                <flux:heading size="lg">{{ __('Excluir registro do participante') }}</flux:heading>
+                <flux:text class="text-sm text-(--ee-app-muted)">
+                    {{ __('Esta acao e irreversivel. Informe a sua senha de acesso para confirmar a exclusao deste cadastro.') }}
+                </flux:text>
+            </div>
+
+            <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+                <div class="font-semibold">{{ $user->name }}</div>
+                <div class="mt-1">{{ $user->email ?: __('E-mail não informado') }}</div>
+            </div>
+
+            <flux:input wire:model="deletePassword" :label="__('Senha do usuário autenticado')" type="password" required
+                autocomplete="current-password" viewable />
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <x-app.action-message on="profile-deleted">
+                    {{ __('Registro excluido.') }}
+                </x-app.action-message>
+
+                <div class="flex items-center gap-3">
+                    <flux:button variant="outline" type="button" wire:click="closeDeleteModal">
+                        {{ __('Cancelar') }}
+                    </flux:button>
+                    <flux:button variant="danger" type="submit">
+                        {{ __('Excluir registro') }}
+                    </flux:button>
+                </div>
+            </div>
+        </form>
     </flux:modal>
 </div>

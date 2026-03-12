@@ -2,6 +2,8 @@
     <x-src.toolbar.header :title="__('Detalhes da igreja')" :description="__('Visão completa da igreja para gestão do diretor.')" fixed-route-name="app.director.church.show" />
     <x-src.toolbar.nav>
         <x-src.toolbar.button :href="route('app.director.church.index')" :label="__('Listar Igrejas')" icon="list" :tooltip="__('Voltar para listagem')" />
+        <x-src.toolbar.button :label="__('Novo participante')" icon="plus" :tooltip="__('Adicionar participante vinculado a esta igreja')"
+            x-on:click.prevent="$dispatch('open-director-church-participant-create-modal', { churchId: {{ $church->id }} })" />
         <x-src.toolbar.button :label="__('Editar')" icon="pencil" :tooltip="__('Editar dados da igreja')"
             x-on:click.prevent="$dispatch('open-director-church-edit-modal', { churchId: {{ $church->id }} })" />
     </x-src.toolbar.nav>
@@ -160,13 +162,36 @@
                 </div>
 
                 <div class="mt-3 overflow-x-auto">
-                    <table class="w-full min-w-xl text-left text-sm">
+                    <table class="w-full min-w-[760px] text-left text-sm">
                         <thead class="text-xs uppercase text-slate-500">
                             <tr class="border-b border-slate-200">
-                                <th class="px-2 py-2">{{ __('Nome') }}</th>
-                                <th class="px-2 py-2">{{ __('E-mail') }}</th>
-                                <th class="px-2 py-2">{{ __('Telefone') }}</th>
-                                <th class="px-2 py-2">{{ __('Perfil') }}</th>
+                                <th class="px-3 py-3 font-semibold">
+                                    <button type="button" wire:click="sortMembersBy('name')"
+                                        class="inline-flex items-center gap-1.5 text-left transition hover:text-slate-900">
+                                        <span>{{ __('Membro') }}</span>
+                                        @if ($memberSortField === 'name')
+                                            <span>{{ $memberSortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </button>
+                                </th>
+                                <th class="px-3 py-3 font-semibold">
+                                    <button type="button" wire:click="sortMembersBy('profile')"
+                                        class="inline-flex items-center gap-1.5 text-left transition hover:text-slate-900">
+                                        <span>{{ __('Perfil') }}</span>
+                                        @if ($memberSortField === 'profile')
+                                            <span>{{ $memberSortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </button>
+                                </th>
+                                <th class="px-3 py-3 font-semibold">
+                                    <button type="button" wire:click="sortMembersBy('courses')"
+                                        class="inline-flex items-center gap-1.5 text-left transition hover:text-slate-900">
+                                        <span>{{ __('Cursos') }}</span>
+                                        @if ($memberSortField === 'courses')
+                                            <span>{{ $memberSortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </button>
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
@@ -175,24 +200,71 @@
                                     $isFacilitator = $member->roles->contains(
                                         fn ($role): bool => mb_strtolower((string) $role->name, 'UTF-8') === 'facilitator',
                                     );
+                                    $profileLabel = $isFacilitator ? __('Facilitador') : ((bool) $member->is_pastor ? __('Pastor') : __('Membro'));
+                                    $memberCourses = $member->trainings->pluck('course')->filter()->unique('id')->values();
                                 @endphp
-                                <tr class="odd:bg-white even:bg-slate-50">
-                                    <td class="px-2 py-2 font-medium text-slate-900">{{ $member->name }}</td>
-                                    <td class="px-2 py-2 text-slate-700">{{ $member->email ?: __('Não informado') }}
+                                <tr wire:key="director-church-member-{{ $member->id }}"
+                                    class="cursor-pointer odd:bg-white even:bg-sky-50/50 hover:bg-amber-50/70 transition-colors"
+                                    data-row-link="{{ route('app.director.church.profiles.show', $member) }}"
+                                    x-on:click="window.location = $el.dataset.rowLink">
+                                    <td class="px-3 py-3 align-middle">
+                                        <div class="flex items-center gap-3">
+                                            @if ($member->profile_photo_url)
+                                                <img src="{{ $member->profile_photo_url }}"
+                                                    alt="{{ __('Foto de :name', ['name' => $member->name]) }}"
+                                                    class="h-11 w-11 shrink-0 rounded-full border border-slate-200 object-cover shadow-xs">
+                                            @else
+                                                <div
+                                                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold uppercase text-slate-700">
+                                                    {{ $member->initials() }}
+                                                </div>
+                                            @endif
+
+                                            <div class="min-w-0">
+                                                <div class="font-semibold whitespace-nowrap text-slate-950">{{ $member->name }}</div>
+                                                <div class="max-w-[18rem] truncate text-xs text-slate-600">
+                                                    {{ $member->email ?: __('Não informado') }}
+                                                </div>
+                                                <div class="text-xs text-slate-500">{{ $member->phone ?: __('Não informado') }}</div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td class="px-2 py-2 text-slate-700">{{ $member->phone ?: __('Não informado') }}
+                                    <td class="px-3 py-3 align-middle">
+                                        <div class="font-medium text-slate-800">{{ $profileLabel }}</div>
+                                        <div class="text-xs text-slate-500">
+                                            {{ $memberCourses->count() }} {{ \Illuminate\Support\Str::plural('curso', $memberCourses->count()) }}
+                                        </div>
                                     </td>
-                                    <td class="px-2 py-2 text-slate-700">
-                                        @if ($isFacilitator)
-                                            {{ __('Facilitador') }}
-                                        @else
-                                            {{ (bool) $member->is_pastor ? __('Pastor') : __('Membro') }}
-                                        @endif
+                                    <td class="px-3 py-3 align-middle">
+                                        <div class="flex items-center py-1">
+                                            @forelse ($memberCourses->take(6) as $index => $course)
+                                                @php
+                                                    $courseInitials = $course->initials ?: \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($course->name, 0, 2));
+                                                    $courseColor = $course->color ?: '#0f766e';
+                                                @endphp
+                                                <span
+                                                    class="{{ $index > 0 ? 'ml-1 md:-ml-1' : '' }} inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white"
+                                                    style="z-index: {{ 20 - $index }}; background: linear-gradient(135deg, {{ $courseColor }}, {{ $courseColor }}CC); border-color: {{ $courseColor }};"
+                                                    title="{{ trim(($course->type ? $course->type . ' - ' : '') . $course->name) }}">
+                                                    {{ $courseInitials }}
+                                                </span>
+                                            @empty
+                                                <span class="text-sm text-slate-500">{{ __('Sem cursos') }}</span>
+                                            @endforelse
+
+                                            @if ($memberCourses->count() > 6)
+                                                <span
+                                                    class="ml-1 md:-ml-1 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 border-white bg-slate-200 px-2.5 text-[11px] font-bold text-slate-700 shadow-sm ring-2 ring-white"
+                                                    style="z-index: 10;">
+                                                    +{{ $memberCourses->count() - 6 }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-2 py-4 text-center text-slate-600">
+                                    <td colspan="3" class="px-3 py-6 text-center text-slate-600">
                                         {{ __('Sem membros vinculados a esta igreja.') }}
                                     </td>
                                 </tr>
@@ -346,6 +418,8 @@
 
     </section>
 
+    <livewire:pages.app.director.church.create-participant-modal :church-id="$church->id"
+        wire:key="director-church-create-participant-modal-{{ $church->id }}" />
     <livewire:pages.app.director.church.edit-modal :church-id="$church->id"
         wire:key="director-church-edit-modal-{{ $church->id }}" />
 </div>

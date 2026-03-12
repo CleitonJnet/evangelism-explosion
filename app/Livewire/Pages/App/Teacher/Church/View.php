@@ -25,13 +25,17 @@ class View extends Component
 
     public Church $church;
 
-    public int $membersPerPage = 10;
+    public int $membersPerPage = 5;
 
     public int $trainingsPerPage = 8;
 
     public int $accreditedMembersPerPage = 5;
 
     public string $memberSearch = '';
+
+    public string $memberSortField = 'name';
+
+    public string $memberSortDirection = 'asc';
 
     public function mount(Church $church): void
     {
@@ -49,6 +53,17 @@ class View extends Component
         $this->church = $this->church->fresh();
     }
 
+    #[On('teacher-church-participant-created')]
+    public function handleParticipantCreated(?int $churchId = null): void
+    {
+        if ($churchId !== null && $churchId !== $this->church->id) {
+            return;
+        }
+
+        $this->church = $this->church->fresh();
+        $this->resetPage('membersPage');
+    }
+
     public function updatedMemberSearch(): void
     {
         $this->resetPage('membersPage');
@@ -57,6 +72,22 @@ class View extends Component
     public function clearMemberSearch(): void
     {
         $this->memberSearch = '';
+        $this->resetPage('membersPage');
+    }
+
+    public function sortMembersBy(string $field): void
+    {
+        if (! in_array($field, ['name', 'profile', 'courses'], true)) {
+            return;
+        }
+
+        if ($this->memberSortField === $field) {
+            $this->memberSortDirection = $this->memberSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->memberSortField = $field;
+            $this->memberSortDirection = $this->defaultDirectionForMemberSort($field);
+        }
+
         $this->resetPage('membersPage');
     }
 
@@ -94,6 +125,8 @@ class View extends Component
             'church' => $church,
             'totalMembersCount' => $totalMembersCount,
             'members' => $members,
+            'memberSortField' => $this->memberSortField,
+            'memberSortDirection' => $this->memberSortDirection,
             'trainings' => $trainings,
             'churchTrainingsCount' => $churchTrainingsCount,
             'teacherTrainingsCount' => $teacherTrainingsCount,
@@ -106,7 +139,18 @@ class View extends Component
 
     private function membersQuery(Church $church): Builder
     {
-        $query = $church->members()->with('roles');
+        $query = $church->members()
+            ->select('users.*')
+            ->selectSub(function ($query): void {
+                $query->from('training_user')
+                    ->join('trainings', 'trainings.id', '=', 'training_user.training_id')
+                    ->selectRaw('count(distinct trainings.course_id)')
+                    ->whereColumn('training_user.user_id', 'users.id');
+            }, 'member_courses_count')
+            ->with([
+                'roles:id,name',
+                'trainings.course:id,name,initials,color,type',
+            ]);
 
         if ($this->memberSearch !== '') {
             $query->where(function (Builder $query): void {
@@ -116,7 +160,42 @@ class View extends Component
             });
         }
 
-        return $query->getQuery();
+        return $this->applyMembersSorting($query->getQuery());
+    }
+
+    private function applyMembersSorting(Builder $query): Builder
+    {
+        $direction = $this->memberSortDirection;
+
+        return match ($this->memberSortField) {
+            'profile' => $query
+                ->orderByRaw(
+                    "case
+                        when exists (
+                            select 1
+                            from role_user
+                            inner join roles on roles.id = role_user.role_id
+                            where role_user.user_id = users.id
+                              and lower(roles.name) = ?
+                        ) then 2
+                        when users.is_pastor = 1 then 1
+                        else 0
+                    end {$direction}",
+                    ['facilitator'],
+                )
+                ->orderBy('name'),
+            'courses' => $query
+                ->orderBy('member_courses_count', $direction)
+                ->orderBy('name'),
+            default => $query
+                ->orderBy('name', $direction)
+                ->orderBy('email'),
+        };
+    }
+
+    private function defaultDirectionForMemberSort(string $field): string
+    {
+        return in_array($field, ['profile', 'courses'], true) ? 'desc' : 'asc';
     }
 
     private function trainingsQuery(Church $church): Builder
