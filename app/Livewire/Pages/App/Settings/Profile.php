@@ -7,6 +7,7 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,8 @@ class Profile extends Component
     use WithFileUploads;
 
     public User $user;
+
+    public bool $isManagingAnotherUser = false;
 
     /**
      * @var array{
@@ -82,16 +85,30 @@ class Profile extends Component
 
     public bool $showPhotoModal = false;
 
+    public bool $showDeleteModal = false;
+
     public bool $savingProfilePhoto = false;
 
-    public function mount(): void
+    public string $deletePassword = '';
+
+    public function mount(?User $user = null): void
     {
-        /** @var User $user */
-        $user = Auth::user();
+        /** @var User $authenticatedUser */
+        $authenticatedUser = Auth::user();
 
-        $this->authorize('view', $user);
+        abort_unless($authenticatedUser instanceof User, 403);
 
-        $this->user = $user;
+        if ($user instanceof User && $user->isNot($authenticatedUser)) {
+            Gate::authorize('manageChurches');
+
+            $this->user = $user;
+            $this->isManagingAnotherUser = true;
+        } else {
+            $this->authorize('view', $authenticatedUser);
+
+            $this->user = $authenticatedUser;
+            $this->isManagingAnotherUser = false;
+        }
 
         $this->refreshUser();
         $this->fillFromUser();
@@ -106,12 +123,16 @@ class Profile extends Component
 
     public function openChurchModal(): void
     {
+        if ($this->isManagingAnotherUser) {
+            return;
+        }
+
         $this->dispatch('open-church-modal');
     }
 
     public function updatePersonal(): void
     {
-        $this->authorize('update', $this->user);
+        $this->authorizeProfileUpdate();
 
         $validated = $this->validate($this->personalRules());
 
@@ -132,7 +153,7 @@ class Profile extends Component
 
     public function updateAddress(): void
     {
-        $this->authorize('update', $this->user);
+        $this->authorizeProfileUpdate();
 
         $validated = $this->validate($this->addressRules());
 
@@ -148,6 +169,8 @@ class Profile extends Component
 
     public function updatePassword(): void
     {
+        abort_if($this->isManagingAnotherUser, 404);
+
         $this->authorize('update', $this->user);
 
         try {
@@ -192,7 +215,7 @@ class Profile extends Component
 
     public function updateProfilePhoto(): void
     {
-        $this->authorize('update', $this->user);
+        $this->authorizeProfileUpdate();
 
         $validated = $this->validate($this->profilePhotoRules(), $this->profilePhotoMessages());
         $this->savingProfilePhoto = true;
@@ -221,7 +244,7 @@ class Profile extends Component
 
     public function removeProfilePhoto(): void
     {
-        $this->authorize('update', $this->user);
+        $this->authorizeProfileUpdate();
 
         $photoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
 
@@ -238,6 +261,30 @@ class Profile extends Component
         $this->showPhotoModal = false;
 
         $this->dispatch('profile-photo-removed');
+    }
+
+    public function deleteProfile(): void
+    {
+        abort_if(! $this->isManagingAnotherUser, 404);
+
+        Gate::authorize('manageChurches');
+
+        $this->validate([
+            'deletePassword' => $this->currentPasswordRules(),
+        ], attributes: [
+            'deletePassword' => __('senha'),
+        ]);
+
+        $photoPath = trim((string) $this->user->getRawOriginal('profile_photo_path'));
+
+        $this->user->delete();
+
+        if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+            Storage::disk('public')->delete($photoPath);
+        }
+
+        $this->dispatch('profile-deleted');
+        $this->redirect($this->managedProfileRedirectUrl(), navigate: true);
     }
 
     public function closePersonalModal(): void
@@ -266,6 +313,24 @@ class Profile extends Component
         $this->resetValidation();
         $this->profilePhotoUpload = null;
         $this->showPhotoModal = false;
+    }
+
+    public function openDeleteModal(): void
+    {
+        abort_if(! $this->isManagingAnotherUser, 404);
+
+        Gate::authorize('manageChurches');
+
+        $this->resetValidation();
+        $this->deletePassword = '';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->resetValidation();
+        $this->deletePassword = '';
+        $this->showDeleteModal = false;
     }
 
     public function isPastor(): bool
@@ -371,7 +436,26 @@ class Profile extends Component
     {
         $this->user->refresh();
         $this->user->loadMissing(['roles', 'church', 'church_temp', 'hostChurches.church', 'churches']);
-        Auth::setUser($this->user);
+    }
+
+    protected function authorizeProfileUpdate(): void
+    {
+        if ($this->isManagingAnotherUser) {
+            Gate::authorize('manageChurches');
+
+            return;
+        }
+
+        $this->authorize('update', $this->user);
+    }
+
+    protected function managedProfileRedirectUrl(): string
+    {
+        if (Gate::allows('access-director')) {
+            return route('app.director.dashboard');
+        }
+
+        return route('app.profile');
     }
 
     protected function fillFromUser(): void

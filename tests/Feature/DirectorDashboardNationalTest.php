@@ -267,7 +267,8 @@ it('shows leadership teacher training totals split by titular and assistant on d
 
     expect($listedTeacher)->not->toBeNull()
         ->and($listedTeacher['principal_trainings_count'])->toBe(2)
-        ->and($listedTeacher['assistant_trainings_count'])->toBe(1);
+        ->and($listedTeacher['assistant_trainings_count'])->toBe(1)
+        ->and($listedTeacher['profile_url'])->toBe(route('app.profile.show', $teacher));
 });
 
 it('counts registrations only from scheduled and completed trainings on director dashboard', function (): void {

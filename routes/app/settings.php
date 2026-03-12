@@ -7,6 +7,7 @@ use Livewire\Volt\Volt;
 
 Route::prefix('settings')->middleware(['auth', 'verified'])->group(function () {
     Route::get('profile', Profile::class)->name('profile');
+    Route::get('profile/{user}', Profile::class)->name('profile.show');
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');
     Volt::route('settings/appearance', 'settings.appearance')->name('appearance.edit');
 

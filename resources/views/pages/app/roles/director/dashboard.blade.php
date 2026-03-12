@@ -756,7 +756,8 @@
                             <tbody>
                                 <template x-for="(teacher, index) in activeTeachersView()" :key="`active-${teacher.name}-${index}`">
                                     <tr
-                                        class="border-b border-slate-200 transition hover:bg-slate-100/80 last:border-b-0"
+                                        class="cursor-pointer border-b border-slate-200 transition hover:bg-slate-100/80 last:border-b-0"
+                                        x-on:click="window.location = teacher.profile_url"
                                         :class="index % 2 === 0 ? 'bg-slate-50/90' : 'bg-white'">
                                         <td class="px-3 py-2.5 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
@@ -857,7 +858,8 @@
                             <tbody>
                                 <template x-for="(teacher, index) in inactiveTeachersView()" :key="`inactive-${teacher.name}-${index}`">
                                     <tr
-                                        class="border-b border-slate-200 transition hover:bg-red-50/80 last:border-b-0"
+                                        class="cursor-pointer border-b border-slate-200 transition hover:bg-red-50/80 last:border-b-0"
+                                        x-on:click="window.location = teacher.profile_url"
                                         :class="index % 2 === 0 ?
                                             'bg-[linear-gradient(90deg,rgba(254,242,242,0.95),rgba(255,255,255,1))]' :
                                             'bg-[linear-gradient(90deg,rgba(255,255,255,1),rgba(248,250,252,1))]'">

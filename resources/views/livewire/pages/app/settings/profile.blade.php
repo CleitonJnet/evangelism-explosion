@@ -24,18 +24,29 @@
             x-on:click.prevent="$wire.set('showPersonalModal', true)" data-test="profile-edit-personal" />
         <x-src.toolbar.button :label="__('Endereco')" icon="home" :tooltip="__('Editar endereco')"
             x-on:click.prevent="$wire.set('showAddressModal', true)" data-test="profile-edit-address" />
-        <x-src.toolbar.button :label="__('Senha')" icon="document-text" :tooltip="__('Trocar senha')"
-            x-on:click.prevent="$wire.set('showPasswordModal', true)" data-test="profile-change-password" />
-        @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::twoFactorAuthentication()))
+        @unless ($isManagingAnotherUser)
+            <x-src.toolbar.button :label="__('Senha')" icon="document-text" :tooltip="__('Trocar senha')"
+                x-on:click.prevent="$wire.set('showPasswordModal', true)" data-test="profile-change-password" />
+        @endunless
+        @if (! $isManagingAnotherUser && Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::twoFactorAuthentication()))
             <x-src.toolbar.button :label="__('2 fatores')" icon="check" :tooltip="__('Gerenciar autenticacao em dois fatores')"
                 x-on:click.prevent="$flux.modal('profile-two-factor-modal').show()" data-test="profile-two-factor" />
         @endif
-        <x-src.toolbar.button :label="__('Igreja')" icon="church" :tooltip="__('Trocar igreja vinculada')"
-            x-on:click.prevent="$wire.openChurchModal()" data-test="change-church" />
+        @unless ($isManagingAnotherUser)
+            <x-src.toolbar.button :label="__('Igreja')" icon="church" :tooltip="__('Trocar igreja vinculada')"
+                x-on:click.prevent="$wire.openChurchModal()" data-test="change-church" />
+        @endunless
         <div class="ml-auto"></div>
-        <x-src.toolbar.button :label="__('Excluir conta')" icon="trash" :tooltip="__('Excluir conta do usuario')"
-            x-on:click.prevent="$flux.modal('profile-delete-account-modal').show()"
-            data-test="profile-delete-account" />
+        @unless ($isManagingAnotherUser)
+            <x-src.toolbar.button :label="__('Excluir conta')" icon="trash" :tooltip="__('Excluir conta do usuario')"
+                x-on:click.prevent="$flux.modal('profile-delete-account-modal').show()"
+                data-test="profile-delete-account" />
+        @endunless
+        @if ($isManagingAnotherUser)
+            <x-src.toolbar.button :label="__('Excluir registro')" icon="trash"
+                :tooltip="__('Excluir cadastro do usuario com confirmacao de senha')"
+                x-on:click.prevent="$wire.openDeleteModal()" data-test="profile-delete-managed-user" />
+        @endif
     </x-src.toolbar.nav>
 
     <section
@@ -285,7 +296,7 @@
         </div>
     </flux:modal>
 
-    @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::twoFactorAuthentication()))
+    @if (! $isManagingAnotherUser && Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::twoFactorAuthentication()))
         <flux:modal name="profile-two-factor-modal" class="max-w-3xl">
             <div class="space-y-6">
                 <div class="space-y-2">
@@ -300,18 +311,52 @@
         </flux:modal>
     @endif
 
-    <flux:modal name="profile-delete-account-modal" class="max-w-2xl">
-        <div class="space-y-6">
-            <div class="space-y-2">
-                <flux:heading size="lg">{{ __('Excluir conta') }}</flux:heading>
-                <flux:text class="text-sm text-(--ee-app-muted)">
-                    {{ __('Esta acao e irreversivel e remove permanentemente o acesso e os dados da conta.') }}
-                </flux:text>
-            </div>
+    @unless ($isManagingAnotherUser)
+        <flux:modal name="profile-delete-account-modal" class="max-w-2xl">
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Excluir conta') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Esta acao e irreversivel e remove permanentemente o acesso e os dados da conta.') }}
+                    </flux:text>
+                </div>
 
-            <livewire:settings.delete-user-form :modal="true" wire:key="profile-delete-account-settings" />
-        </div>
-    </flux:modal>
+                <livewire:settings.delete-user-form :modal="true" wire:key="profile-delete-account-settings" />
+            </div>
+        </flux:modal>
+    @endunless
+
+    @if ($isManagingAnotherUser)
+        <flux:modal name="profile-delete-managed-modal" class="max-w-2xl" @close="closeDeleteModal"
+            wire:model="showDeleteModal">
+            <form class="space-y-6" wire:submit="deleteProfile">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Excluir registro do usuario') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Esta acao remove permanentemente o cadastro do usuario. Informe a sua senha para confirmar.') }}
+                    </flux:text>
+                </div>
+
+                <flux:input wire:model="deletePassword" :label="__('Senha do diretor autenticado')" type="password"
+                    required autocomplete="current-password" />
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <x-app.action-message on="profile-deleted">
+                        {{ __('Registro excluido.') }}
+                    </x-app.action-message>
+
+                    <div class="flex items-center gap-3">
+                        <flux:button variant="outline" type="button" wire:click="closeDeleteModal">
+                            {{ __('Cancelar') }}
+                        </flux:button>
+                        <flux:button variant="danger" type="submit" wire:loading.attr="disabled">
+                            {{ __('Excluir registro') }}
+                        </flux:button>
+                    </div>
+                </div>
+            </form>
+        </flux:modal>
+    @endif
 
     <flux:modal name="profile-personal-modal" class="max-w-2xl" @close="closePersonalModal"
         wire:model="showPersonalModal">
@@ -386,39 +431,41 @@
         </form>
     </flux:modal>
 
-    <flux:modal name="profile-password-modal" class="max-w-lg" @close="closePasswordModal"
-        wire:model="showPasswordModal">
-        <form class="space-y-6" wire:submit="updatePassword">
-            <div class="space-y-2">
-                <flux:heading size="lg">{{ __('Trocar senha') }}</flux:heading>
-                <flux:text class="text-sm text-(--ee-app-muted)">
-                    {{ __('Use uma senha forte e exclusiva para manter a conta segura.') }}
-                </flux:text>
-            </div>
-
-            <div class="grid gap-4">
-                <flux:input wire:model="current_password" :label="__('Senha atual')" type="password" required
-                    autocomplete="current-password" />
-                <flux:input wire:model="password" :label="__('Nova senha')" type="password" required
-                    autocomplete="new-password" />
-                <flux:input wire:model="password_confirmation" :label="__('Confirmar senha')" type="password"
-                    required autocomplete="new-password" />
-            </div>
-
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <x-app.action-message on="profile-password-updated">
-                    {{ __('Senha atualizada.') }}
-                </x-app.action-message>
-
-                <div class="flex items-center gap-3">
-                    <flux:button variant="outline" type="button" wire:click="closePasswordModal">
-                        {{ __('Cancelar') }}
-                    </flux:button>
-                    <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
-                        {{ __('Salvar') }}
-                    </flux:button>
+    @unless ($isManagingAnotherUser)
+        <flux:modal name="profile-password-modal" class="max-w-lg" @close="closePasswordModal"
+            wire:model="showPasswordModal">
+            <form class="space-y-6" wire:submit="updatePassword">
+                <div class="space-y-2">
+                    <flux:heading size="lg">{{ __('Trocar senha') }}</flux:heading>
+                    <flux:text class="text-sm text-(--ee-app-muted)">
+                        {{ __('Use uma senha forte e exclusiva para manter a conta segura.') }}
+                    </flux:text>
                 </div>
-            </div>
-        </form>
-    </flux:modal>
+
+                <div class="grid gap-4">
+                    <flux:input wire:model="current_password" :label="__('Senha atual')" type="password" required
+                        autocomplete="current-password" />
+                    <flux:input wire:model="password" :label="__('Nova senha')" type="password" required
+                        autocomplete="new-password" />
+                    <flux:input wire:model="password_confirmation" :label="__('Confirmar senha')" type="password"
+                        required autocomplete="new-password" />
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <x-app.action-message on="profile-password-updated">
+                        {{ __('Senha atualizada.') }}
+                    </x-app.action-message>
+
+                    <div class="flex items-center gap-3">
+                        <flux:button variant="outline" type="button" wire:click="closePasswordModal">
+                            {{ __('Cancelar') }}
+                        </flux:button>
+                        <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                            {{ __('Salvar') }}
+                        </flux:button>
+                    </div>
+                </div>
+            </form>
+        </flux:modal>
+    @endunless
 </div>
