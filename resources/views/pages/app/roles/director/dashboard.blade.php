@@ -507,7 +507,7 @@
                     <div class="swiper js-swiper-director-national SwiperDirectorNationalCharts px-1 sm:px-2">
                         <div class="swiper-wrapper">
                             @foreach ($section['charts'] as $chart)
-                                <div class="swiper-slide !h-auto !w-full md:!w-[32rem] 2xl:!w-[36rem]">
+                                <div class="swiper-slide h-auto! w-full! md:w-lg! 2xl:w-xl!">
                                     <x-dashboard.chart :chart="$chart" />
                                 </div>
                             @endforeach

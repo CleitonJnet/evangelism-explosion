@@ -75,7 +75,7 @@ abstract class ViewPage extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorize('view', $training);
+        $this->authorizeTrainingAbility('view', $training);
         $this->initializeTrainingContext($training);
         $this->loadTrainingData($training->id);
     }
@@ -116,7 +116,7 @@ abstract class ViewPage extends Component
             'students' => fn ($query) => $query->orderBy('name'),
         ])->findOrFail($trainingId)->loadCount('scheduleItems');
 
-        $this->authorize('view', $this->training);
+        $this->authorizeTrainingAbility('view', $this->training);
 
         $this->eventDates = $this->training->eventDates;
         $this->students = $this->training->students;

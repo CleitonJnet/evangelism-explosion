@@ -29,7 +29,7 @@ class Index extends Component
                 'scheduled' => 'app.teacher.trainings.scheduled',
                 'canceled' => 'app.teacher.trainings.canceled',
                 'completed' => 'app.teacher.trainings.completed',
-            ]),
+            ], 'teacher'),
         ]);
     }
 

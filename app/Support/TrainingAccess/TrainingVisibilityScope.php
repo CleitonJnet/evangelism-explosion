@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TrainingVisibilityScope
 {
-    public function apply(Builder $query, User $user): Builder
+    public function apply(Builder $query, User $user, string $context = 'auto'): Builder
+    {
+        return match ($context) {
+            'teacher' => $this->applyTeacherContext($query, $user),
+            'director' => $this->applyDirectorContext($query, $user),
+            'mentor' => $this->applyMentorContext($query, $user),
+            default => $this->applyAutomaticContext($query, $user),
+        };
+    }
+
+    private function applyAutomaticContext(Builder $query, User $user): Builder
     {
         if ($user->hasRole('Director')) {
             return $query;
@@ -42,5 +52,36 @@ class TrainingVisibilityScope
                 $visibleQuery->whereRaw('1 = 0');
             }
         });
+    }
+
+    private function applyTeacherContext(Builder $query, User $user): Builder
+    {
+        if (! $user->hasRole('Teacher')) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $teacherQuery) use ($user): void {
+            $teacherQuery
+                ->where('trainings.teacher_id', $user->id)
+                ->orWhereHas('assistantTeachers', fn (Builder $assistantQuery) => $assistantQuery->whereKey($user->id));
+        });
+    }
+
+    private function applyDirectorContext(Builder $query, User $user): Builder
+    {
+        if ($user->hasRole('Director')) {
+            return $query;
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
+    private function applyMentorContext(Builder $query, User $user): Builder
+    {
+        if (! $user->hasRole('Mentor')) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereHas('mentors', fn (Builder $mentorQuery) => $mentorQuery->whereKey($user->id));
     }
 }

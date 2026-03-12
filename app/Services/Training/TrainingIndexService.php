@@ -31,7 +31,7 @@ class TrainingIndexService
      *     }>
      * }
      */
-    public function buildIndexData(User $user, ?string $statusKey, ?string $filterTerm, array $statusRoutes): array
+    public function buildIndexData(User $user, ?string $statusKey, ?string $filterTerm, array $statusRoutes, string $context = 'auto'): array
     {
         $normalizedStatusKey = $this->normalizeStatusKey($statusKey);
         $status = $this->statusFromKey($normalizedStatusKey);
@@ -50,7 +50,7 @@ class TrainingIndexService
             ->whereHas('course', fn (Builder $query) => $query->where('execution', 0))
             ->where('status', $status->value)
             ->when($filterTerm !== null, fn (Builder $query) => $this->applyFilter($query, $filterTerm))
-            ->tap(fn (Builder $query) => $this->visibilityScope->apply($query, $user))
+            ->tap(fn (Builder $query) => $this->visibilityScope->apply($query, $user, $context))
             ->orderBy('ministries.name')
             ->orderBy('courses.type')
             ->orderBy('courses.name')

@@ -170,7 +170,7 @@ abstract class StatisticsPage extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorize('view', $training);
+        $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
 
@@ -899,7 +899,7 @@ abstract class StatisticsPage extends Component
             return;
         }
 
-        $this->authorize('view', $this->training);
+        $this->authorizeTrainingAbility('view', $this->training);
         $this->refreshSessionsAndTeams();
     }
 

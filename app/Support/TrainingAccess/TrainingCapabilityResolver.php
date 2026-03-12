@@ -7,6 +7,21 @@ use App\Models\User;
 
 class TrainingCapabilityResolver
 {
+    public function canViewAsTeacherContext(User $user, Training $training): bool
+    {
+        return $this->isAssignedTeacher($user, $training);
+    }
+
+    public function canEditAsTeacherContext(User $user, Training $training): bool
+    {
+        return $this->isAssignedTeacher($user, $training);
+    }
+
+    public function canDeleteAsTeacherContext(User $user, Training $training): bool
+    {
+        return $this->canEditAsTeacherContext($user, $training);
+    }
+
     public function canView(User $user, Training $training): bool
     {
         if ($this->isDirector($user)) {
@@ -92,6 +107,24 @@ class TrainingCapabilityResolver
             'can_view_finance' => $this->canViewFinance($user, $training),
             'can_manage_mentors' => $this->canManageMentors($user, $training),
             'can_see_discipleship' => $this->canSeeDiscipleship($user, $training),
+        ];
+    }
+
+    public function summaryForTeacherContext(User $user, Training $training): array
+    {
+        $canView = $this->canViewAsTeacherContext($user, $training);
+        $canEdit = $this->canEditAsTeacherContext($user, $training);
+
+        return [
+            'can_view' => $canView,
+            'can_edit' => $canEdit,
+            'can_delete' => $this->canDeleteAsTeacherContext($user, $training),
+            'can_manage_schedule' => $canEdit,
+            'can_view_stp_ojt' => $canView,
+            'can_view_sensitive_data' => $canEdit,
+            'can_view_finance' => $canEdit,
+            'can_manage_mentors' => $canEdit,
+            'can_see_discipleship' => $canView,
         ];
     }
 

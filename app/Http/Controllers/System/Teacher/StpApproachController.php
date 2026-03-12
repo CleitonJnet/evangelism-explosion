@@ -10,7 +10,7 @@ class StpApproachController extends Controller
 {
     public function board(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.stp-approaches', [
             'training' => $training,

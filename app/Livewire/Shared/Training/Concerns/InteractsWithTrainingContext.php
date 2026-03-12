@@ -6,6 +6,7 @@ use App\Models\Training;
 use App\Models\User;
 use App\Support\TrainingAccess\TrainingCapabilityResolver;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 trait InteractsWithTrainingContext
 {
@@ -75,7 +76,10 @@ trait InteractsWithTrainingContext
             return $this->defaultCapabilities();
         }
 
-        $summary = app(TrainingCapabilityResolver::class)->summary($user, $training);
+        $resolver = app(TrainingCapabilityResolver::class);
+        $summary = $this->trainingContext === 'teacher'
+            ? $resolver->summaryForTeacherContext($user, $training)
+            : $resolver->summary($user, $training);
 
         return [
             'canView' => (bool) ($summary['can_view'] ?? false),
@@ -153,6 +157,25 @@ trait InteractsWithTrainingContext
                     'createParticipantRegistrationModal' => 'pages.app.teacher.training.create-participant-registration-modal',
                 ],
             ],
+        };
+    }
+
+    protected function authorizeTrainingAbility(string $ability, Training $training): void
+    {
+        Gate::authorize($this->contextualTrainingAbility($ability), $training);
+    }
+
+    protected function contextualTrainingAbility(string $ability): string
+    {
+        if ($this->trainingContext !== 'teacher') {
+            return $ability;
+        }
+
+        return match ($ability) {
+            'view' => 'viewTeacherContext',
+            'update' => 'updateTeacherContext',
+            'delete' => 'deleteTeacherContext',
+            default => $ability,
         };
     }
 }

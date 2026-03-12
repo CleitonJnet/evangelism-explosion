@@ -14,15 +14,14 @@ use App\Support\Dashboard\Builders\ChartPayloadBuilder;
 use App\Support\Dashboard\Data\ChartDatasetData;
 use App\Support\Dashboard\Data\TimeSeriesPointData;
 use App\Support\Dashboard\Enums\DashboardPeriod;
-use App\Support\TrainingAccess\TrainingVisibilityScope;
 use App\TrainingStatus;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class TeacherDashboardService
 {
     public function __construct(
-        private TrainingVisibilityScope $visibilityScope,
         private ChartPayloadBuilder $chartPayloadBuilder,
         private TrainingRegistrationMetricsService $registrationMetrics,
         private TrainingFinanceMetricsService $financeMetrics,
@@ -33,9 +32,19 @@ class TeacherDashboardService
     /**
      * @return array<string, mixed>
      */
-    public function build(User $teacher, DashboardPeriod $period): array
-    {
-        $range = $period->range(CarbonImmutable::now());
+    public function build(
+        User $teacher,
+        DashboardPeriod $period,
+        ?CarbonImmutable $startDate = null,
+        ?CarbonImmutable $endDate = null,
+    ): array {
+        $hasCustomRange = $startDate !== null && $endDate !== null;
+        $range = $hasCustomRange
+            ? [
+                'start' => $startDate->startOfDay(),
+                'end' => $endDate->endOfDay(),
+            ]
+            : $period->range(CarbonImmutable::now());
         $today = CarbonImmutable::today();
         $visibleTrainings = $this->loadVisibleTrainings($teacher);
         $periodTrainings = $visibleTrainings
@@ -51,13 +60,18 @@ class TeacherDashboardService
 
         return [
             'period' => $period,
-            'periodLabel' => $period->label(),
+            'periodLabel' => $hasCustomRange ? 'Período personalizado' : $period->label(),
             'rangeLabel' => sprintf(
                 '%s a %s',
                 $range['start']->translatedFormat('d/m/Y'),
                 $range['end']->translatedFormat('d/m/Y'),
             ),
             'periodOptions' => DashboardPeriod::options(),
+            'filters' => [
+                'startDate' => $hasCustomRange ? $range['start']->toDateString() : null,
+                'endDate' => $hasCustomRange ? $range['end']->toDateString() : null,
+                'usingCustomRange' => $hasCustomRange,
+            ],
             'kpis' => $kpis,
             'evangelisticImpact' => $evangelisticImpact,
             'discipleship' => $discipleshipSummary,
@@ -92,8 +106,12 @@ class TeacherDashboardService
             ])
             ->withCount(['students', 'mentors']);
 
-        return $this->visibilityScope
-            ->apply($query, $teacher)
+        return $query
+            ->where(function (Builder $teacherQuery) use ($teacher): void {
+                $teacherQuery
+                    ->where('trainings.teacher_id', $teacher->id)
+                    ->orWhereHas('assistantTeachers', fn (Builder $assistantQuery) => $assistantQuery->whereKey($teacher->id));
+            })
             ->get();
     }
 

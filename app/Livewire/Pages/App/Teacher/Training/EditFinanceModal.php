@@ -193,7 +193,7 @@ class EditFinanceModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('access-teacher');
-        Gate::authorize('update', $training);
+        Gate::authorize('updateTeacherContext', $training);
     }
 
     /**

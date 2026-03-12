@@ -24,4 +24,19 @@ class TrainingPolicy
     {
         return $this->capabilityResolver->canDelete($user, $training);
     }
+
+    public function viewTeacherContext(User $user, Training $training): bool
+    {
+        return $this->capabilityResolver->canViewAsTeacherContext($user, $training);
+    }
+
+    public function updateTeacherContext(User $user, Training $training): bool
+    {
+        return $this->capabilityResolver->canEditAsTeacherContext($user, $training);
+    }
+
+    public function deleteTeacherContext(User $user, Training $training): bool
+    {
+        return $this->capabilityResolver->canDeleteAsTeacherContext($user, $training);
+    }
 }

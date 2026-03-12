@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Shared\Training;
 
+use App\Livewire\Shared\Training\Concerns\InteractsWithTrainingContext;
 use App\Models\ChurchTemp;
 use App\Models\Training;
 use App\Services\ChurchTempResolverService;
@@ -13,6 +14,8 @@ use Livewire\Component;
 
 abstract class ApproveChurchTempModal extends Component
 {
+    use InteractsWithTrainingContext;
+
     public Training $training;
 
     public bool $showModal = false;
@@ -43,6 +46,7 @@ abstract class ApproveChurchTempModal extends Component
 
     public function mount(Training $training): void
     {
+        $this->initializeTrainingContext($training);
         $this->authorizeTraining($training);
         $this->training = $training;
     }
@@ -186,7 +190,7 @@ abstract class ApproveChurchTempModal extends Component
     private function authorizeTraining(Training $training): void
     {
         Gate::authorize('manageChurches');
-        Gate::authorize('update', $training);
+        Gate::authorize($this->contextualTrainingAbility('update'), $training);
     }
 
     abstract protected function viewTemplate(): string;

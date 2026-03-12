@@ -54,6 +54,33 @@ it('allows directors to see the national dashboard with data from any teacher', 
         ->assertSee((string) $trainingTwo->course?->name);
 });
 
+it('denies teacher-directors access to other teachers trainings through teacher urls', function (): void {
+    $teacherDirector = createUserForTrainingAccess('Teacher');
+    $teacherDirector->roles()->syncWithoutDetaching([
+        Role::query()->firstOrCreate(['name' => 'Director'])->id,
+    ]);
+    $ownerTeacher = createUserForTrainingAccess('Teacher');
+    $training = Training::factory()->create([
+        'teacher_id' => $ownerTeacher->id,
+    ]);
+
+    $this->actingAs($teacherDirector)
+        ->get(route('app.teacher.trainings.show', $training))
+        ->assertForbidden();
+
+    $this->actingAs($teacherDirector)
+        ->get(route('app.teacher.trainings.schedule', $training))
+        ->assertForbidden();
+
+    $this->actingAs($teacherDirector)
+        ->get(route('app.teacher.trainings.registrations', $training))
+        ->assertForbidden();
+
+    $this->actingAs($teacherDirector)
+        ->get(route('app.teacher.trainings.statistics', $training))
+        ->assertForbidden();
+});
+
 it('keeps mentors in read only mode for training and stp approach', function (): void {
     $mentor = createUserForTrainingAccess('Mentor');
     $creator = User::factory()->create();

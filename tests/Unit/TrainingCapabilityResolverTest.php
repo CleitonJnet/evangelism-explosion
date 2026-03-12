@@ -115,3 +115,25 @@ it('denies training capabilities to unrelated users', function (): void {
         'can_see_discipleship' => false,
     ]);
 });
+
+it('limits teacher context capabilities to assigned trainings even for teacher-directors', function (): void {
+    $user = User::factory()->create();
+    assignRole($user, 'Teacher');
+    assignRole($user, 'Director');
+
+    $ownedTraining = Training::factory()->create([
+        'teacher_id' => $user->id,
+    ]);
+    $otherTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $resolver = app(TrainingCapabilityResolver::class);
+
+    expect($resolver->summaryForTeacherContext($user, $ownedTraining))->toMatchArray([
+        'can_view' => true,
+        'can_edit' => true,
+    ])->and($resolver->summaryForTeacherContext($user, $otherTraining))->toMatchArray([
+        'can_view' => false,
+        'can_edit' => false,
+    ]);
+});

@@ -84,7 +84,7 @@ abstract class SchedulePage extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorize('view', $training);
+        $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
         $this->showScheduleAttentionModal = Session::get('show_schedule_attention_modal', false);
@@ -414,6 +414,8 @@ abstract class SchedulePage extends Component
                 'scheduleItems' => fn ($query) => $query->with('section')->orderBy('date')->orderBy('position'),
             ])
             ->findOrFail($this->training->id);
+
+        $this->authorizeTrainingAbility('view', $this->training);
 
         $this->eventDates = $this->training->eventDates;
         $this->scheduleItems = $this->training->scheduleItems;

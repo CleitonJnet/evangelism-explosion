@@ -18,6 +18,8 @@ class TeacherDashboardFilterRequest extends FormRequest
     {
         return [
             'period' => ['nullable', 'in:quarter,semester,year'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
 }

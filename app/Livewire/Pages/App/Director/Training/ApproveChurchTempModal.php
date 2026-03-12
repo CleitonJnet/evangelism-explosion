@@ -6,6 +6,8 @@ use App\Livewire\Shared\Training\ApproveChurchTempModal as SharedApproveChurchTe
 
 class ApproveChurchTempModal extends SharedApproveChurchTempModal
 {
+    protected string $trainingContext = 'director';
+
     protected function viewTemplate(): string
     {
         return 'livewire.pages.app.director.training.approve-church-temp-modal';

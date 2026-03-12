@@ -86,7 +86,7 @@ abstract class RegistrationsPage extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorize('view', $training);
+        $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
         $this->refreshRegistrations();
@@ -262,6 +262,8 @@ abstract class RegistrationsPage extends Component
                     ->orderBy('name'),
             ])
             ->findOrFail($this->training->id);
+
+        $this->authorizeTrainingAbility('view', $this->training);
 
         $metrics = app(TrainingRegistrationMetricsService::class)->build($this->training, $this->search);
 

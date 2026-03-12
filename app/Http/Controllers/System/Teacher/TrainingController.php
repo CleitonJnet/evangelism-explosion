@@ -32,14 +32,14 @@ class TrainingController extends Controller
 
     public function show(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.show', ['training' => $training]);
     }
 
     public function schedule(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.schedule', [
             'training' => $training,
@@ -48,7 +48,7 @@ class TrainingController extends Controller
 
     public function registrations(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.registrations', [
             'training' => $training,
@@ -57,7 +57,7 @@ class TrainingController extends Controller
 
     public function testimony(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.testimony', [
             'training' => $training,
@@ -66,7 +66,7 @@ class TrainingController extends Controller
 
     public function updateTestimony(UpdateTrainingTestimonyRequest $request, Training $training): RedirectResponse
     {
-        $this->authorize('update', $training);
+        $this->authorize('updateTeacherContext', $training);
 
         $sanitizedNotes = TestimonySanitizer::sanitize($request->validated('notes'));
 
@@ -81,7 +81,7 @@ class TrainingController extends Controller
 
     public function destroy(Training $training): RedirectResponse
     {
-        $this->authorize('delete', $training);
+        $this->authorize('deleteTeacherContext', $training);
 
         $training->delete();
 
@@ -96,7 +96,7 @@ class TrainingController extends Controller
                 'scheduled' => 'app.teacher.trainings.scheduled',
                 'canceled' => 'app.teacher.trainings.canceled',
                 'completed' => 'app.teacher.trainings.completed',
-            ]),
+            ], 'teacher'),
             'filter' => $request->filterTerm(),
         ]);
     }

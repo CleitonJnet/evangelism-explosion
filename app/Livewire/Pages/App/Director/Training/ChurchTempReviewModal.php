@@ -6,6 +6,8 @@ use App\Livewire\Shared\Training\ChurchTempReviewModal as SharedChurchTempReview
 
 class ChurchTempReviewModal extends SharedChurchTempReviewModal
 {
+    protected string $trainingContext = 'director';
+
     protected function viewTemplate(): string
     {
         return 'livewire.pages.app.director.training.church-temp-review-modal';

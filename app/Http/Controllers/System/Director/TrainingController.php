@@ -103,7 +103,7 @@ class TrainingController extends Controller
                 'scheduled' => 'app.director.training.scheduled',
                 'canceled' => 'app.director.training.canceled',
                 'completed' => 'app.director.training.completed',
-            ]),
+            ], 'director'),
             'filter' => $request->filterTerm(),
         ]);
     }

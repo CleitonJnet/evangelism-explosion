@@ -81,7 +81,7 @@ new class extends Component {
     private function resolveTraining(): Training
     {
         $training = Training::query()->findOrFail($this->trainingId);
-        Gate::authorize('update', $training);
+        Gate::authorize('updateTeacherContext', $training);
 
         return $training;
     }

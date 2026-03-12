@@ -72,7 +72,7 @@ abstract class StpBoardPage extends Component
 
     public function mount(Training $training): void
     {
-        $this->authorize('view', $training);
+        $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
 

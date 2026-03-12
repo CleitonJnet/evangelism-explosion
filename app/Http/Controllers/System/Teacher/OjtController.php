@@ -10,7 +10,7 @@ class OjtController extends Controller
 {
     public function statistics(Training $training): View
     {
-        $this->authorize('view', $training);
+        $this->authorize('viewTeacherContext', $training);
 
         return view('pages.app.roles.teacher.trainings.statistics', [
             'training' => $training,
