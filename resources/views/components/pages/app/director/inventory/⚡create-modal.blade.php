@@ -3,12 +3,16 @@
 use App\Helpers\MoneyHelper;
 use App\Models\Ministry;
 use App\Models\Material;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use WithFileUploads;
+
     public bool $showModal = false;
 
     public bool $busy = false;
@@ -24,6 +28,8 @@ new class extends Component
     public int $minimum_stock = 0;
 
     public ?string $description = null;
+
+    public mixed $photoUpload = null;
 
     /**
      * @var array<int>
@@ -73,6 +79,7 @@ new class extends Component
                 'price' => ['nullable', 'string', 'max:20', 'regex:/^-?\d+(?:[,.]\d{0,2})?$/'],
                 'minimum_stock' => ['required', 'integer', 'min:0'],
                 'description' => ['nullable', 'string', 'max:2000'],
+                'photoUpload' => ['nullable', 'image', 'max:5120'],
                 'selectedCourseIds' => ['array'],
                 'selectedCourseIds.*' => ['integer', 'exists:courses,id'],
                 'selectedComponentIds' => ['array'],
@@ -87,6 +94,7 @@ new class extends Component
                 'integer' => 'O campo :attribute deve ser um número inteiro.',
                 'min' => 'O campo :attribute deve ser no mínimo :min.',
                 'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                'image' => 'O campo :attribute deve ser uma imagem válida.',
                 'price.regex' => 'O campo preço deve conter apenas números e separador decimal.',
                 'selectedComponentIds.*.exists' => 'Somente itens simples podem compor um produto composto.',
                 'selectedComponentIds.*.distinct' => 'O mesmo componente não pode ser informado mais de uma vez.',
@@ -96,6 +104,7 @@ new class extends Component
                 'price' => 'preço',
                 'minimum_stock' => 'estoque mínimo',
                 'description' => 'descrição',
+                'photoUpload' => 'foto',
                 'selectedCourseIds' => 'cursos',
                 'selectedComponentIds' => 'componentes',
             ]);
@@ -122,6 +131,7 @@ new class extends Component
                 'type' => $validated['type'],
                 'status' => 'active',
                 'is_active' => true,
+                'photo' => $this->storeUploadedPhoto(),
                 'price' => $validated['price'] ?? '0',
                 'minimum_stock' => $validated['minimum_stock'],
                 'description' => $validated['description'] ?? null,
@@ -249,9 +259,28 @@ new class extends Component
         $this->price = MoneyHelper::formatInput(0, '0,00');
         $this->minimum_stock = 0;
         $this->description = null;
+        $this->photoUpload = null;
         $this->selectedCourseIds = [];
         $this->selectedComponentIds = [];
         $this->componentQuantities = [];
+    }
+
+    private function storeUploadedPhoto(): ?string
+    {
+        if (! $this->photoUpload instanceof UploadedFile) {
+            return null;
+        }
+
+        return $this->photoUpload->store('material-photos', 'public');
+    }
+
+    public function photoPreviewUrl(): string
+    {
+        if ($this->photoUpload && str_starts_with((string) $this->photoUpload->getMimeType(), 'image/')) {
+            return $this->photoUpload->temporaryUrl();
+        }
+
+        return asset('images/logo/ee-gold.webp');
     }
 };
 ?>
@@ -272,6 +301,37 @@ new class extends Component
 
             <div class="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-6">
                 <div class="space-y-8">
+                    <section class="space-y-5">
+                        <div>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Identidade visual') }}</h4>
+                            <p class="text-sm text-slate-600">
+                                {{ __('Foto usada para identificar o produto nas listagens e operações de estoque.') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-6">
+                            <div
+                                class="grid justify-items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 flex-auto basis-40">
+                                <input id="director-material-photo-upload" type="file" accept="image/*"
+                                    wire:model.live="photoUpload" class="sr-only">
+
+                                <label for="director-material-photo-upload"
+                                    class="cursor-pointer overflow-hidden rounded-xl flex justify-center items-center p-1">
+                                    <img src="{{ $this->photoPreviewUrl() }}" alt="{{ __('Foto do produto') }}"
+                                        class="h-28 w-28 rounded-lg object-cover">
+                                </label>
+
+                                <p class="text-center text-xs text-slate-600">
+                                    {{ __('Clique na imagem para enviar a foto.') }}
+                                </p>
+
+                                @error('photoUpload')
+                                    <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </section>
+
                     <section class="space-y-5">
                         <div>
                             <h4 class="text-base font-semibold text-sky-950">{{ __('Dados principais') }}</h4>
@@ -479,10 +539,11 @@ new class extends Component
             <footer class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <div class="flex justify-between gap-3">
                     <x-src.btn-silver type="button" wire:click="closeModal" wire:loading.attr="disabled"
-                        wire:target="save">
+                        wire:target="save,photoUpload">
                         {{ __('Cancelar') }}
                     </x-src.btn-silver>
-                    <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save">
+                    <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled"
+                        wire:target="save,photoUpload">
                         {{ __('Salvar') }}
                     </x-src.btn-gold>
                 </div>

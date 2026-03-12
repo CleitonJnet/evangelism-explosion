@@ -302,25 +302,85 @@
                         </div>
                     </div>
 
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" wire:click="filterUserDirectoryByCourse"
+                            class="{{ $userDirectoryCourseId === null ? 'border-sky-700 bg-sky-700 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-800' }} inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-semibold transition">
+                            {{ __('Todos os cursos') }}
+                        </button>
+
+                        @foreach ($userDirectoryCourses as $course)
+                            <button type="button" wire:click="filterUserDirectoryByCourse({{ $course->id }})"
+                                class="{{ $userDirectoryCourseId === $course->id ? 'border-sky-700 bg-sky-700 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-800' }} inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition">
+                                <span>{{ $course->name }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-                        <table class="w-full min-w-5xl text-left text-sm">
+                        <table class="w-full min-w-6xl text-left text-sm">
                             <thead class="sticky top-0 z-10 bg-slate-100 text-xs uppercase text-slate-500">
                                 <tr class="border-b border-slate-200">
                                     <th class="px-3 py-3 text-center">{{ __('Foto') }}</th>
-                                    <th class="px-3 py-3">{{ __('Usuário') }}</th>
-                                    <th class="px-3 py-3">{{ __('Cidade / UF') }}</th>
-                                    <th class="px-3 py-3">{{ __('Igreja') }}</th>
-                                    <th class="px-3 py-3">{{ __('Cursos') }}</th>
+                                    <th class="px-3 py-3">
+                                        <button type="button" wire:click="sortUserDirectoryBy('name')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Usuário') }}</span>
+                                            @if ($userDirectorySortField === 'name')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-3">
+                                        <button type="button" wire:click="sortUserDirectoryBy('location')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Cidade / UF') }}</span>
+                                            @if ($userDirectorySortField === 'location')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-3">
+                                        <button type="button" wire:click="sortUserDirectoryBy('church')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Igreja') }}</span>
+                                            @if ($userDirectorySortField === 'church')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-3">
+                                        <button type="button" wire:click="sortUserDirectoryBy('course')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Cursos') }}</span>
+                                            @if ($userDirectorySortField === 'course')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-3 text-center">
+                                        <button type="button" wire:click="sortUserDirectoryBy('courses_count')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Qtd. cursos') }}</span>
+                                            @if ($userDirectorySortField === 'courses_count')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-3 text-center">
+                                        <button type="button" wire:click="sortUserDirectoryBy('trainings_count')"
+                                            class="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-slate-900">
+                                            <span>{{ __('Treinamentos') }}</span>
+                                            @if ($userDirectorySortField === 'trainings_count')
+                                                <span>{{ $userDirectorySortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            @endif
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200">
                                 @forelse ($allUsers as $listedUser)
                                     @php
-                                        $completedCourses = $listedUser->trainings
-                                            ->pluck('course')
-                                            ->filter()
-                                            ->unique('id')
-                                            ->values();
+                                        $completedCourses = $listedUser->directory_courses;
                                     @endphp
                                     <tr wire:key="teacher-all-user-{{ $listedUser->id }}"
                                         class="cursor-pointer odd:bg-white even:bg-slate-50/80 hover:bg-sky-50/70 transition"
@@ -363,29 +423,34 @@
                                             </div>
                                         </td>
                                         <td class="px-3 py-3 align-middle">
-                                            <div class="flex items-center">
-                                                @forelse ($completedCourses->take(5) as $index => $course)
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @forelse ($completedCourses as $course)
                                                     <span
-                                                        class="{{ $index > 0 ? '-ml-2' : '' }} inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-white bg-sky-100 px-2 text-[11px] font-bold uppercase text-sky-800 shadow-sm"
+                                                        class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-bold uppercase text-sky-800 shadow-sm"
                                                         title="{{ $course->name }}">
                                                         {{ $course->initials ?: \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($course->name, 0, 2)) }}
                                                     </span>
                                                 @empty
                                                     <span class="text-sm text-slate-500">{{ __('Sem cursos') }}</span>
                                                 @endforelse
-
-                                                @if ($completedCourses->count() > 5)
-                                                    <span
-                                                        class="-ml-2 inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-white bg-slate-200 px-2 text-[11px] font-bold text-slate-700 shadow-sm">
-                                                        +{{ $completedCourses->count() - 5 }}
-                                                    </span>
-                                                @endif
                                             </div>
+                                        </td>
+                                        <td class="px-3 py-3 text-center align-middle">
+                                            <span
+                                                class="inline-flex rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                {{ (int) $listedUser->directory_courses_count }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-3 text-center align-middle">
+                                            <span
+                                                class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                {{ (int) $listedUser->directory_trainings_count }}
+                                            </span>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-3 py-8 text-center text-sm text-slate-600">
+                                        <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-600">
                                             {{ __('Nenhum usuário encontrado para este filtro.') }}
                                         </td>
                                     </tr>

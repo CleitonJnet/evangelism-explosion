@@ -159,6 +159,115 @@ it('loads the national kpis and leadership teachers list', function (): void {
     );
 });
 
+it('renders sorting controls and course filter buttons for the leadership teachers table', function (): void {
+    $director = createDirectorForDashboard();
+    $church = Church::factory()->create(['name' => 'Igreja Filtro']);
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+    $teacher = User::factory()->create([
+        'name' => 'Professor Filtro',
+        'church_id' => $church->id,
+    ]);
+    $teacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+
+    $firstCourse = Course::factory()->create([
+        'name' => 'Curso Alfa',
+        'type' => 'Lideranca',
+        'execution' => 0,
+        'color' => '#0f766e',
+    ]);
+    $secondCourse = Course::factory()->create([
+        'name' => 'Curso Beta',
+        'type' => 'Lideranca',
+        'execution' => 0,
+        'color' => '#2563eb',
+    ]);
+    $courseWithoutTeacher = Course::factory()->create([
+        'name' => 'Curso Sem Professor',
+        'type' => 'Lideranca',
+        'execution' => 0,
+    ]);
+
+    $firstCourse->teachers()->attach($teacher->id, ['status' => 1]);
+    $secondCourse->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.director.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Todos os cursos');
+    $response->assertSee('Curso Alfa');
+    $response->assertSee('Curso Beta');
+    $response->assertDontSee('Curso Sem Professor');
+    $response->assertSee("toggleSort('trainings')", false);
+    $response->assertSee("toggleSort('courses')", false);
+    $response->assertSee("setCourseFilter({$firstCourse->id})", false);
+    $response->assertSee("setCourseFilter({$secondCourse->id})", false);
+});
+
+it('shows leadership teacher training totals split by titular and assistant on director dashboard', function (): void {
+    $director = createDirectorForDashboard();
+    $church = Church::factory()->create(['name' => 'Igreja Escola']);
+    $leadershipCourse = Course::factory()->create([
+        'name' => 'Curso Lideranca Integral',
+        'execution' => 0,
+    ]);
+    $otherCourse = Course::factory()->create([
+        'name' => 'Curso Complementar',
+        'execution' => 0,
+    ]);
+
+    $teacher = User::factory()->create([
+        'name' => 'Professor Contado',
+        'church_id' => $church->id,
+    ]);
+    $otherTeacher = User::factory()->create();
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+    $teacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+    $otherTeacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+    $leadershipCourse->teachers()->attach($teacher->id, ['status' => 1]);
+
+    $principalTrainingA = Training::factory()->create([
+        'course_id' => $leadershipCourse->id,
+        'church_id' => $church->id,
+        'teacher_id' => $teacher->id,
+        'status' => TrainingStatus::Completed,
+    ]);
+    $principalTrainingB = Training::factory()->create([
+        'course_id' => $otherCourse->id,
+        'church_id' => $church->id,
+        'teacher_id' => $teacher->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    $assistantTraining = Training::factory()->create([
+        'course_id' => $otherCourse->id,
+        'church_id' => $church->id,
+        'teacher_id' => $otherTeacher->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    $assistantTraining->assistantTeachers()->attach($teacher->id);
+
+    moveDirectorTrainingIntoDate($principalTrainingA, now()->subDays(15));
+    moveDirectorTrainingIntoDate($principalTrainingB, now()->subDays(10));
+    moveDirectorTrainingIntoDate($assistantTraining, now()->subDays(5));
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.director.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Treinamentos');
+    $response->assertSee('Professor Contado');
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $listedTeacher = collect($dashboard['leadershipTeachers'])->firstWhere('name', 'Professor Contado');
+
+    expect($listedTeacher)->not->toBeNull()
+        ->and($listedTeacher['principal_trainings_count'])->toBe(2)
+        ->and($listedTeacher['assistant_trainings_count'])->toBe(1);
+});
+
 it('counts registrations only from scheduled and completed trainings on director dashboard', function (): void {
     $director = createDirectorForDashboard();
     $church = Church::factory()->create(['name' => 'Igreja Dashboard']);

@@ -620,7 +620,7 @@ class DirectorDashboardService
     }
 
     /**
-     * @return array<int, array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, courses: array<int, array{name: string, type: string, initials: string, color: string, ministry_name: string, is_active: bool}>}>
+     * @return array<int, array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, principal_trainings_count: int, assistant_trainings_count: int, courses: array<int, array{id: int, name: string, type: string, initials: string, color: string, ministry_name: string, is_active: bool}>}>
      */
     private function buildLeadershipTeachersTable(): array
     {
@@ -628,7 +628,10 @@ class DirectorDashboardService
             ->leadership()
             ->with([
                 'ministry:id,name',
-                'teachers' => fn ($query) => $query->with('church:id,name,city,state')->orderBy('name'),
+                'teachers' => fn ($query) => $query
+                    ->with('church:id,name,city,state')
+                    ->withCount(['ledTrainings', 'assistedTrainings'])
+                    ->orderBy('name'),
             ])
             ->orderBy('name')
             ->get()
@@ -643,6 +646,9 @@ class DirectorDashboardService
                         'profile_photo_url' => $teacher->profile_photo_url,
                         'initials' => $teacher->initials(),
                         'is_active' => ((int) ($teacher->pivot->status ?? 0)) === 1,
+                        'principal_trainings_count' => (int) ($teacher->led_trainings_count ?? 0),
+                        'assistant_trainings_count' => (int) ($teacher->assisted_trainings_count ?? 0),
+                        'course_id' => $course->id,
                         'course_name' => $course->name,
                         'course_type' => trim((string) $course->type) !== '' ? (string) $course->type : 'Curso',
                         'course_initials' => $this->courseInitials($course),
@@ -653,7 +659,7 @@ class DirectorDashboardService
             })
             ->groupBy('teacher_id')
             ->map(function (Collection $items): array {
-                /** @var array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, course_name: string, course_initials: string, course_color: string, ministry_name: string}|null $first */
+                /** @var array{name: string, church_name: string, city: string, state: string, profile_photo_url: ?string, initials: string, is_active: bool, principal_trainings_count: int, assistant_trainings_count: int, course_name: string, course_initials: string, course_color: string, ministry_name: string}|null $first */
                 $first = $items->first();
 
                 return [
@@ -664,8 +670,11 @@ class DirectorDashboardService
                     'profile_photo_url' => $first['profile_photo_url'] ?? null,
                     'initials' => $first['initials'] ?? '--',
                     'is_active' => $items->contains(fn (array $item): bool => $item['is_active']),
+                    'principal_trainings_count' => (int) ($first['principal_trainings_count'] ?? 0),
+                    'assistant_trainings_count' => (int) ($first['assistant_trainings_count'] ?? 0),
                     'courses' => $items
                         ->map(fn (array $item): array => [
+                            'id' => $item['course_id'],
                             'name' => $item['course_name'],
                             'type' => $item['course_type'],
                             'initials' => $item['course_initials'],

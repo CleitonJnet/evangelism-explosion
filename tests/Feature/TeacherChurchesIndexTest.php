@@ -333,6 +333,85 @@ it('lists all system users in the directory modal and filters by church city sta
         ->assertSeeText('CL');
 });
 
+it('sorts and filters directory users by related courses and training counts', function (): void {
+    $teacher = createTeacherUser();
+
+    $courseAlpha = Course::factory()->create([
+        'initials' => 'AL',
+        'name' => 'Alpha',
+    ]);
+    $courseBeta = Course::factory()->create([
+        'initials' => 'BT',
+        'name' => 'Beta',
+    ]);
+
+    $church = Church::factory()->create(['name' => 'Igreja Diretório Cursos']);
+
+    $trainingAlphaOne = createTeacherTraining($teacher, $church->id);
+    $trainingAlphaOne->course()->associate($courseAlpha);
+    $trainingAlphaOne->save();
+
+    $trainingAlphaTwo = createTeacherTraining($teacher, $church->id);
+    $trainingAlphaTwo->course()->associate($courseAlpha);
+    $trainingAlphaTwo->save();
+
+    $trainingBeta = createTeacherTraining($teacher, $church->id);
+    $trainingBeta->course()->associate($courseBeta);
+    $trainingBeta->save();
+
+    $userWithMostTrainings = User::factory()->create([
+        'name' => 'Ana Multiplos Cursos',
+        'church_id' => $church->id,
+    ]);
+    $userFromAlpha = User::factory()->create([
+        'name' => 'Bruno Alpha',
+        'church_id' => $church->id,
+    ]);
+    $userFromBeta = User::factory()->create([
+        'name' => 'Carla Beta',
+        'church_id' => $church->id,
+    ]);
+
+    $trainingAlphaOne->students()->attach([$userWithMostTrainings->id, $userFromAlpha->id]);
+    $trainingAlphaTwo->students()->attach([$userWithMostTrainings->id]);
+    $trainingBeta->students()->attach([$userWithMostTrainings->id, $userFromBeta->id]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(ChurchIndex::class)
+        ->call('openAllUsersModal')
+        ->assertViewHas('userDirectoryCourses', function ($courses) use ($courseAlpha, $courseBeta) {
+            $courseNames = $courses->pluck('name')->all();
+
+            expect($courseNames)->toContain($courseAlpha->name);
+            expect($courseNames)->toContain($courseBeta->name);
+
+            return true;
+        });
+
+    $component->call('sortUserDirectoryBy', 'courses_count');
+    $sortedByCoursesCount = collect($component->viewData('allUsers')->items())->pluck('name')->values();
+
+    expect($sortedByCoursesCount->first())->toBe('Bruno Alpha');
+
+    $component->call('sortUserDirectoryBy', 'courses_count');
+    $sortedByCoursesCountDesc = collect($component->viewData('allUsers')->items())->pluck('name')->values();
+
+    expect($sortedByCoursesCountDesc->first())->toBe('Ana Multiplos Cursos');
+
+    $component->call('sortUserDirectoryBy', 'trainings_count');
+    $component->call('sortUserDirectoryBy', 'trainings_count');
+    $sortedByTrainingsDesc = collect($component->viewData('allUsers')->items())->pluck('name')->values();
+
+    expect($sortedByTrainingsDesc->first())->toBe('Ana Multiplos Cursos');
+
+    $component->call('filterUserDirectoryByCourse', $courseBeta->id);
+    $filteredByCourse = collect($component->viewData('allUsers')->items())->pluck('name')->all();
+
+    expect($filteredByCourse)->toContain('Ana Multiplos Cursos');
+    expect($filteredByCourse)->toContain('Carla Beta');
+    expect($filteredByCourse)->not->toContain('Bruno Alpha');
+});
+
 it('renders the church-context profile route for users listed in the directory modal', function (): void {
     $teacher = createTeacherUser();
     $church = Church::factory()->create(['name' => 'Igreja Perfil Professor']);

@@ -400,6 +400,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function ledTrainings(): HasMany
+    {
+        return $this->hasMany(Training::class, 'teacher_id');
+    }
+
     public function trainings(): BelongsToMany
     {
         return $this->belongsToMany(Training::class, 'training_user')

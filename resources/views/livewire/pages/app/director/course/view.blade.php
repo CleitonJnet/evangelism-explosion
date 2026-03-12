@@ -291,7 +291,9 @@
         <section class="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
                 <div>
-                    <flux:heading size="sm" level="2">{{ $teachersLabel }}</flux:heading>
+                    <flux:heading size="sm" level="2">
+                        {{ $teachersLabel }} ({{ $teachersCount }})
+                    </flux:heading>
                     <flux:text class="text-sm text-slate-600">
                         {{ __('Lista de :label responsáveis por ministrar o ensino das aulas em grupo deste curso.', ['label' => mb_strtolower($teachersLabel)]) }}
                     </flux:text>
@@ -321,7 +323,8 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse ($teachers as $teacher)
-                            <tr wire:key="teacher-{{ $teacher->id }}">
+                            <tr wire:key="teacher-{{ $teacher->id }}"
+                                class="odd:bg-white even:bg-slate-50/80">
                                 <td class="px-3 py-2">
                                     @if ($teacher->church_id)
                                         <a class="font-semibold text-slate-900"
@@ -374,10 +377,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-
-            <div class="mt-4">
-                {{ $teachers->links(data: ['scrollTo' => false]) }}
             </div>
         </section>
 

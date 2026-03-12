@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialComponent;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 function createTeacherUserForInventoryTests(): User
@@ -223,7 +224,7 @@ it('registers stock entry from the product modal entry tab', function (): void {
     $material = Material::query()->create(['name' => 'Livro de classe']);
 
     Livewire::actingAs($director)
-        ->test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
+        ->test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
         ->call('openModal', $material->id, 'entry')
         ->set('entry_quantity', 7)
         ->set('entry_notes', 'Entrada pela modal do produto')
@@ -330,7 +331,7 @@ it('transfers stock from the product modal transfer tab', function (): void {
     app(\App\Services\Inventory\StockMovementService::class)->addStock($source, $material, 6, $director);
 
     Livewire::actingAs($director)
-        ->test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $source->id])
+        ->test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id, 'inventoryId' => $source->id])
         ->call('openModal', $material->id, 'transfer')
         ->set('transfer_destination_inventory_id', $destination->id)
         ->set('transfer_quantity', 4)
@@ -343,9 +344,18 @@ it('transfers stock from the product modal transfer tab', function (): void {
 });
 
 it('shows coherent balances and movement history on the inventory detail page', function (): void {
+    Storage::fake('public');
+
     $director = User::factory()->create();
     $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
-    $material = Material::query()->create(['name' => 'Livro base', 'minimum_stock' => 6]);
+    Storage::disk('public')->put('material-photos/livro-base.webp', 'fake-image');
+
+    $material = Material::query()->create([
+        'name' => 'Livro base',
+        'minimum_stock' => 6,
+        'price' => '12,50',
+        'photo' => 'material-photos/livro-base.webp',
+    ]);
 
     app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 5, $director, notes: 'Saldo inicial');
 
@@ -353,6 +363,10 @@ it('shows coherent balances and movement history on the inventory detail page', 
         ->test(View::class, ['inventory' => $inventory])
         ->assertSee('Central')
         ->assertSee('Livro base')
+        ->assertSee('Foto')
+        ->assertSee(Storage::disk('public')->url('material-photos/livro-base.webp'), false)
+        ->assertSee('Preço')
+        ->assertSee('R$ 12,50')
         ->assertSee('Abaixo do mínimo')
         ->assertSee('entry')
         ->assertSee('Saldo inicial');

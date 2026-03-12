@@ -31,6 +31,11 @@
         $leadershipTeachers = collect($dashboard['leadershipTeachers']);
         $activeLeadershipTeachers = $leadershipTeachers->where('is_active', true)->values();
         $inactiveLeadershipTeachers = $leadershipTeachers->where('is_active', false)->values();
+        $leadershipCourseFilters = $leadershipTeachers
+            ->flatMap(fn (array $teacher) => collect($teacher['courses'] ?? []))
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
 
         $chartSections = [
             [
@@ -190,6 +195,88 @@
                             });
                         });
                     }
+
+                    window.directorTeacherDirectory = function(payload) {
+                        return {
+                            activeTeachers: payload.activeTeachers ?? [],
+                            inactiveTeachers: payload.inactiveTeachers ?? [],
+                            courseFilters: payload.courseFilters ?? [],
+                            selectedCourseId: null,
+                            sortColumn: 'name',
+                            sortDirection: 'asc',
+                            setCourseFilter(courseId) {
+                                this.selectedCourseId = this.selectedCourseId === courseId ? null : courseId;
+                            },
+                            toggleSort(column) {
+                                if (this.sortColumn === column) {
+                                    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+
+                                    return;
+                                }
+
+                                this.sortColumn = column;
+                                this.sortDirection = column === 'trainings' ? 'desc' : 'asc';
+                            },
+                            isSorted(column) {
+                                return this.sortColumn === column;
+                            },
+                            sortIndicator(column) {
+                                if (!this.isSorted(column)) {
+                                    return '↕';
+                                }
+
+                                return this.sortDirection === 'asc' ? '↑' : '↓';
+                            },
+                            activeTeachersView() {
+                                return this.sortTeachers(this.filterTeachers(this.activeTeachers));
+                            },
+                            inactiveTeachersView() {
+                                return this.sortTeachers(this.filterTeachers(this.inactiveTeachers));
+                            },
+                            filterTeachers(teachers) {
+                                if (this.selectedCourseId === null) {
+                                    return teachers;
+                                }
+
+                                return teachers.filter((teacher) => (teacher.courses ?? []).some((course) => Number(course.id) === Number(this.selectedCourseId)));
+                            },
+                            sortTeachers(teachers) {
+                                const direction = this.sortDirection === 'asc' ? 1 : -1;
+
+                                return [...teachers].sort((firstTeacher, secondTeacher) => {
+                                    const comparison = this.compareValues(this.sortValue(firstTeacher), this.sortValue(secondTeacher));
+
+                                    if (comparison !== 0) {
+                                        return comparison * direction;
+                                    }
+
+                                    return this.compareValues(firstTeacher.name ?? '', secondTeacher.name ?? '') * direction;
+                                });
+                            },
+                            sortValue(teacher) {
+                                switch (this.sortColumn) {
+                                    case 'location':
+                                        return [teacher.state, teacher.city, teacher.church_name].filter(Boolean).join(' ');
+                                    case 'trainings':
+                                        return Number(teacher.principal_trainings_count ?? 0) + Number(teacher.assistant_trainings_count ?? 0);
+                                    case 'courses':
+                                        return (teacher.courses ?? []).map((course) => `${course.type ?? ''} ${course.name ?? ''}`.trim()).join(' | ');
+                                    case 'name':
+                                    default:
+                                        return teacher.name ?? '';
+                                }
+                            },
+                            compareValues(firstValue, secondValue) {
+                                if (typeof firstValue === 'number' && typeof secondValue === 'number') {
+                                    return firstValue - secondValue;
+                                }
+
+                                return String(firstValue ?? '').localeCompare(String(secondValue ?? ''), 'pt-BR', {
+                                    sensitivity: 'base',
+                                });
+                            },
+                        };
+                    };
 
                     document.addEventListener('DOMContentLoaded', initDirectorNationalSwipers);
                     document.addEventListener('livewire:navigated', initDirectorNationalSwipers);
@@ -595,101 +682,132 @@
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <section x-data="{ page: 1, perPage: 5, total: {{ $activeLeadershipTeachers->count() }}, get totalPages() { return Math.max(1, Math.ceil(this.total / this.perPage)); } }">
+            <div class="space-y-6"
+                x-data="directorTeacherDirectory({
+                    activeTeachers: @js($activeLeadershipTeachers->values()->all()),
+                    inactiveTeachers: @js($inactiveLeadershipTeachers->values()->all()),
+                    courseFilters: @js($leadershipCourseFilters->all()),
+                })">
+                <section>
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        <button type="button" x-on:click="setCourseFilter(null)"
+                            class="inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium transition"
+                            :class="selectedCourseId === null ? 'border-slate-900 bg-slate-900 text-white' :
+                                'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'">
+                            Todos os cursos
+                        </button>
+
+                        @foreach ($leadershipCourseFilters as $courseFilter)
+                            <button type="button" x-on:click="setCourseFilter({{ $courseFilter['id'] }})"
+                                class="inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium transition duration-200"
+                                :class="selectedCourseId === {{ $courseFilter['id'] }} ?
+                                    'text-white shadow-sm' :
+                                    'bg-white text-slate-800 shadow-sm'"
+                                @if (!empty($courseFilter['color']))
+                                    :style="selectedCourseId === {{ $courseFilter['id'] }} ?
+                                        'border-color: {{ $courseFilter['color'] }}; background: linear-gradient(135deg, {{ $courseFilter['color'] }}, {{ $courseFilter['color'] }}DD); color: #ffffff;' :
+                                        'border-color: {{ $courseFilter['color'] }}55; background: linear-gradient(135deg, {{ $courseFilter['color'] }}12, {{ $courseFilter['color'] }}20); color: #0f172a;'"
+                                    x-on:mouseenter="if (selectedCourseId !== {{ $courseFilter['id'] }}) { $el.style.background = 'linear-gradient(135deg, {{ $courseFilter['color'] }}24, {{ $courseFilter['color'] }}38)'; $el.style.borderColor = '{{ $courseFilter['color'] }}99'; $el.style.color = '#020617'; }"
+                                    x-on:mouseleave="if (selectedCourseId !== {{ $courseFilter['id'] }}) { $el.style.background = 'linear-gradient(135deg, {{ $courseFilter['color'] }}12, {{ $courseFilter['color'] }}20)'; $el.style.borderColor = '{{ $courseFilter['color'] }}55'; $el.style.color = '#0f172a'; }"
+                                @endif>
+                                {{ $courseFilter['type'] }}: {{ $courseFilter['name'] }}
+                            </button>
+                        @endforeach
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-slate-200 text-slate-500">
-                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Professor</th>
-                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Localização</th>
-                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">Cursos</th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('name')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Professor</span>
+                                            <span x-text="sortIndicator('name')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('location')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Localização</span>
+                                            <span x-text="sortIndicator('location')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('trainings')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Treinamentos</span>
+                                            <span x-text="sortIndicator('trainings')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('courses')"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap text-inherit">
+                                            <span>Cursos</span>
+                                            <span x-text="sortIndicator('courses')" class="text-xs"></span>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($activeLeadershipTeachers as $teacher)
-                                    <tr x-cloak x-show="page === {{ (int) floor($loop->index / 5) + 1 }}"
-                                        class="border-b border-slate-200 transition hover:bg-slate-100/80 last:border-b-0 {{ $loop->odd ? 'bg-slate-50/90' : 'bg-white' }}">
+                                <template x-for="(teacher, index) in activeTeachersView()" :key="`active-${teacher.name}-${index}`">
+                                    <tr
+                                        class="border-b border-slate-200 transition hover:bg-slate-100/80 last:border-b-0"
+                                        :class="index % 2 === 0 ? 'bg-slate-50/90' : 'bg-white'">
                                         <td class="px-3 py-2.5 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
-                                                <flux:avatar
-                                                    class="bg-slate-500 text-slate-50 after:inset-ring-black/10"
-                                                    :name="$teacher['name']" :src="$teacher['profile_photo_url']"
-                                                    :initials="$teacher['initials']" />
+                                                <div
+                                                    class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-500 text-xs font-semibold text-slate-50 ring-1 ring-black/10">
+                                                    <img x-show="teacher.profile_photo_url" :src="teacher.profile_photo_url"
+                                                        :alt="teacher.name" class="h-full w-full object-cover">
+                                                    <span x-show="!teacher.profile_photo_url" x-text="teacher.initials"></span>
+                                                </div>
                                                 <div class="min-w-0">
-                                                    <p class="font-semibold text-slate-950">{{ $teacher['name'] }}</p>
-                                                    <p class="text-sm text-slate-600 whitespace-nowrap">
-                                                        {{ $teacher['church_name'] }}</p>
+                                                    <p class="font-semibold text-slate-950" x-text="teacher.name?.toUpperCase()"></p>
+                                                    <p class="text-sm text-slate-600 whitespace-nowrap"
+                                                        x-text="teacher.church_name"></p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
                                             <div>
-                                                <p>{{ $teacher['city'] }}</p>
-                                                <p class="text-xs text-slate-500">{{ $teacher['state'] }}</p>
+                                                <p x-text="teacher.city"></p>
+                                                <p class="text-xs text-slate-500" x-text="teacher.state"></p>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
+                                            <div>
+                                                <p x-text="`Titular: ${teacher.principal_trainings_count}`"></p>
+                                                <p class="text-xs text-slate-500"
+                                                    x-text="`Auxiliar: ${teacher.assistant_trainings_count}`"></p>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2.5 whitespace-nowrap">
                                             <div class="flex justify-end pr-2">
-                                                @foreach ($teacher['courses'] as $course)
-                                                    <flux:tooltip
-                                                        :content="$course['is_active'] ? ($course['type'].
-                                                            ' - '.$course['name']) : ($course['type'].
-                                                            ' - '.$course['name'].
-                                                            ' | Vinculo inativo')"
-                                                        position="top">
-                                                        <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white {{ $course['is_active'] ? '' : 'opacity-55 saturate-75' }}"
-                                                            style="background: linear-gradient(135deg, {{ $course['color'] }}, {{ $course['color'] }}CC); border-color: {{ $course['color'] }};">
-                                                            {{ $course['initials'] }}
-                                                        </div>
-                                                    </flux:tooltip>
-                                                @endforeach
+                                                <template x-for="course in teacher.courses" :key="`active-course-${teacher.name}-${course.id}`">
+                                                    <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white"
+                                                        :class="course.is_active ? '' : 'opacity-55 saturate-75'"
+                                                        :title="course.is_active ? `${course.type} - ${course.name}` :
+                                                            `${course.type} - ${course.name} | Vinculo inativo`"
+                                                        :style="`background: linear-gradient(135deg, ${course.color}, ${course.color}CC); border-color: ${course.color};`">
+                                                        <span x-text="course.initials"></span>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="px-3 py-4 text-slate-600">Nenhum professor ativo de
-                                            liderança encontrado na base atual.</td>
-                                    </tr>
-                                @endforelse
+                                </template>
+                                <tr x-show="activeTeachersView().length === 0">
+                                    <td colspan="4" class="px-3 py-4 text-slate-600">
+                                        Nenhum professor ativo encontrado para o filtro selecionado.
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-
-                    @if ($activeLeadershipTeachers->count() > 5)
-                        <div class="mt-4 flex items-center justify-between gap-3">
-                            <p class="text-sm text-slate-600">
-                                Mostrando
-                                <span x-text="((page - 1) * perPage) + 1"></span>
-                                a
-                                <span x-text="Math.min(page * perPage, total)"></span>
-                                de
-                                <span x-text="total"></span>
-                                professores ativos.
-                            </p>
-
-                            <div class="flex items-center gap-2">
-                                <button type="button" x-on:click="if (page > 1) page--" x-bind:disabled="page === 1"
-                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
-                                    Anterior
-                                </button>
-
-                                <span class="text-sm font-medium text-slate-600">
-                                    Página <span x-text="page"></span> de <span x-text="totalPages"></span>
-                                </span>
-
-                                <button type="button" x-on:click="if (page < totalPages) page++"
-                                    x-bind:disabled="page === totalPages"
-                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
-                                    Próxima
-                                </button>
-                            </div>
-                        </div>
-                    @endif
                 </section>
 
-                <section x-data="{ page: 1, perPage: 5, total: {{ $inactiveLeadershipTeachers->count() }}, get totalPages() { return Math.max(1, Math.ceil(this.total / this.perPage)); } }">
+                <section>
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <h3 class="text-lg font-semibold text-slate-950">Professores inativos</h3>
@@ -702,99 +820,100 @@
                         <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-slate-200 text-slate-500">
-                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Professor</th>
-                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Localização</th>
-                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">Cursos</th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('name')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Professor</span>
+                                            <span x-text="sortIndicator('name')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('location')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Localização</span>
+                                            <span x-text="sortIndicator('location')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('trainings')"
+                                            class="inline-flex items-center gap-2 text-left whitespace-nowrap text-inherit">
+                                            <span>Treinamentos</span>
+                                            <span x-text="sortIndicator('trainings')" class="text-xs"></span>
+                                        </button>
+                                    </th>
+                                    <th class="px-3 py-2.5 text-right font-semibold whitespace-nowrap">
+                                        <button type="button" x-on:click="toggleSort('courses')"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap text-inherit">
+                                            <span>Cursos</span>
+                                            <span x-text="sortIndicator('courses')" class="text-xs"></span>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($inactiveLeadershipTeachers as $teacher)
-                                    <tr x-cloak x-show="page === {{ (int) floor($loop->index / 5) + 1 }}"
-                                        class="border-b border-slate-200 transition hover:bg-red-50/80 last:border-b-0 {{ $loop->odd ? 'bg-[linear-gradient(90deg,rgba(254,242,242,0.95),rgba(255,255,255,1))]' : 'bg-[linear-gradient(90deg,rgba(255,255,255,1),rgba(248,250,252,1))]' }}">
+                                <template x-for="(teacher, index) in inactiveTeachersView()" :key="`inactive-${teacher.name}-${index}`">
+                                    <tr
+                                        class="border-b border-slate-200 transition hover:bg-red-50/80 last:border-b-0"
+                                        :class="index % 2 === 0 ?
+                                            'bg-[linear-gradient(90deg,rgba(254,242,242,0.95),rgba(255,255,255,1))]' :
+                                            'bg-[linear-gradient(90deg,rgba(255,255,255,1),rgba(248,250,252,1))]'">
                                         <td class="px-3 py-2.5 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
-                                                <flux:avatar
-                                                    class="bg-slate-500 text-slate-50 after:inset-ring-black/10"
-                                                    :name="$teacher['name']" :src="$teacher['profile_photo_url']"
-                                                    :initials="$teacher['initials']" />
+                                                <div
+                                                    class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-500 text-xs font-semibold text-slate-50 ring-1 ring-black/10">
+                                                    <img x-show="teacher.profile_photo_url" :src="teacher.profile_photo_url"
+                                                        :alt="teacher.name" class="h-full w-full object-cover">
+                                                    <span x-show="!teacher.profile_photo_url" x-text="teacher.initials"></span>
+                                                </div>
                                                 <div class="min-w-0">
                                                     <div class="flex flex-wrap items-center gap-2">
-                                                        <p class="font-semibold text-slate-950">{{ $teacher['name'] }}
-                                                        </p>
+                                                        <p class="font-semibold text-slate-950" x-text="teacher.name?.toUpperCase()"></p>
                                                         <span
                                                             class="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
                                                             Inativo
                                                         </span>
                                                     </div>
-                                                    <p class="text-sm text-slate-600 whitespace-nowrap">
-                                                        {{ $teacher['church_name'] }}</p>
+                                                    <p class="text-sm text-slate-600 whitespace-nowrap"
+                                                        x-text="teacher.church_name"></p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
                                             <div>
-                                                <p>{{ $teacher['city'] }}</p>
-                                                <p class="text-xs text-slate-500">{{ $teacher['state'] }}</p>
+                                                <p x-text="teacher.city"></p>
+                                                <p class="text-xs text-slate-500" x-text="teacher.state"></p>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">
+                                            <div>
+                                                <p x-text="`Titular: ${teacher.principal_trainings_count}`"></p>
+                                                <p class="text-xs text-slate-500"
+                                                    x-text="`Auxiliar: ${teacher.assistant_trainings_count}`"></p>
                                             </div>
                                         </td>
                                         <td class="px-3 py-2.5 whitespace-nowrap">
                                             <div class="flex justify-end pr-2">
-                                                @foreach ($teacher['courses'] as $course)
-                                                    <flux:tooltip
-                                                        :content="$course['is_active'] ? ($course['type'].
-                                                            ' - '.$course['name']) : ($course['type'].
-                                                            ' - '.$course['name'].
-                                                            ' | Vinculo inativo')"
-                                                        position="top">
-                                                        <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white {{ $course['is_active'] ? '' : 'opacity-55 saturate-75' }}"
-                                                            style="background: linear-gradient(135deg, {{ $course['color'] }}, {{ $course['color'] }}CC); border-color: {{ $course['color'] }};">
-                                                            {{ $course['initials'] }}
-                                                        </div>
-                                                    </flux:tooltip>
-                                                @endforeach
+                                                <template x-for="course in teacher.courses" :key="`inactive-course-${teacher.name}-${course.id}`">
+                                                    <div class="ml-1 first:ml-0 sm:ml-1 md:-ml-1 md:first:ml-0 inline-flex h-9 min-w-9 items-center justify-center rounded-full border-2 px-2.5 text-[11px] font-bold tracking-[0.14em] text-white shadow-sm ring-2 ring-white"
+                                                        :class="course.is_active ? '' : 'opacity-55 saturate-75'"
+                                                        :title="course.is_active ? `${course.type} - ${course.name}` :
+                                                            `${course.type} - ${course.name} | Vinculo inativo`"
+                                                        :style="`background: linear-gradient(135deg, ${course.color}, ${course.color}CC); border-color: ${course.color};`">
+                                                        <span x-text="course.initials"></span>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="px-3 py-4 text-slate-600">Nenhum professor inativo
-                                            encontrado na base atual.</td>
-                                    </tr>
-                                @endforelse
+                                </template>
+                                <tr x-show="inactiveTeachersView().length === 0">
+                                    <td colspan="4" class="px-3 py-4 text-slate-600">
+                                        Nenhum professor inativo encontrado para o filtro selecionado.
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-
-                    @if ($inactiveLeadershipTeachers->count() > 5)
-                        <div class="mt-4 flex items-center justify-between gap-3">
-                            <p class="text-sm text-slate-600">
-                                Mostrando
-                                <span x-text="((page - 1) * perPage) + 1"></span>
-                                a
-                                <span x-text="Math.min(page * perPage, total)"></span>
-                                de
-                                <span x-text="total"></span>
-                                professores inativos.
-                            </p>
-
-                            <div class="flex items-center gap-2">
-                                <button type="button" x-on:click="if (page > 1) page--" x-bind:disabled="page === 1"
-                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
-                                    Anterior
-                                </button>
-
-                                <span class="text-sm font-medium text-slate-600">
-                                    Página <span x-text="page"></span> de <span x-text="totalPages"></span>
-                                </span>
-
-                                <button type="button" x-on:click="if (page < totalPages) page++"
-                                    x-bind:disabled="page === totalPages"
-                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
-                                    Próxima
-                                </button>
-                            </div>
-                        </div>
-                    @endif
                 </section>
             </div>
         </article>

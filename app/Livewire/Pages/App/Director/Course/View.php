@@ -29,8 +29,6 @@ class View extends Component
 
     public int $sectionsPerPage = 5;
 
-    public int $teachersPerPage = 5;
-
     /**
      * @var array{user_id: int|null, status: int}
      */
@@ -85,7 +83,7 @@ class View extends Component
         $teachers = $course->teachers()
             ->with('church')
             ->orderBy('name')
-            ->paginate($this->teachersPerPage, pageName: 'teachersPage');
+            ->get();
         $teachersCount = $course->teachers()->count();
         $activeTeachersCount = $course->teachers()
             ->wherePivot('status', 1)
@@ -290,7 +288,6 @@ class View extends Component
             $teacherId => ['status' => $status],
         ]);
 
-        $this->resetPage('teachersPage');
         $this->closeTeacherModal();
     }
 
@@ -304,7 +301,6 @@ class View extends Component
     public function deleteTeacher(int $teacherId): void
     {
         $this->course()->teachers()->detach($teacherId);
-        $this->resetPage('teachersPage');
     }
 
     public function reorderSectionByIndex(int $sectionId, int $targetIndex, bool $forceIndex = false): void

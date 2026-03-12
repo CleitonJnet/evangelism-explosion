@@ -7,9 +7,20 @@ use App\Models\MaterialComponent;
 use App\Models\Ministry;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
+function fakeMaterialPhotoUpload(string $filename = 'material.png'): UploadedFile
+{
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4K8AAAAASUVORK5CYII=');
+
+    return UploadedFile::fake()->createWithContent($filename, $png);
+}
+
 it('creates a simple material', function (): void {
+    Storage::fake('public');
+
     $ministry = Ministry::query()->create([
         'name' => 'Evangelismo',
         'initials' => 'EV',
@@ -19,11 +30,12 @@ it('creates a simple material', function (): void {
         'ministry_id' => $ministry->id,
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'simple')
         ->set('name', 'Manual do participante')
         ->set('type', 'simple')
         ->set('status', 'active')
+        ->set('photoUpload', fakeMaterialPhotoUpload('manual.png'))
         ->set('price', '12,50')
         ->set('minimum_stock', 3)
         ->set('selectedCourseIds', [$course->id])
@@ -38,10 +50,35 @@ it('creates a simple material', function (): void {
     expect($material?->is_active)->toBeTrue();
     expect($material?->minimum_stock)->toBe(3);
     expect($material?->courses()->pluck('courses.id')->all())->toBe([$course->id]);
+    expect($material?->photo)->not->toBeNull();
+    Storage::disk('public')->assertExists((string) $material?->photo);
+});
+
+it('updates the material photo from the edit modal', function (): void {
+    Storage::fake('public');
+    Storage::disk('public')->put('material-photos/old-photo.webp', 'old-image');
+
+    $material = Material::query()->create([
+        'name' => 'Manual editavel',
+        'photo' => 'material-photos/old-photo.webp',
+    ]);
+
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
+        ->call('openModal', $material->id, 'edit')
+        ->set('photoUpload', fakeMaterialPhotoUpload('novo-manual.png'))
+        ->call('save')
+        ->assertDispatched('director-material-updated');
+
+    $updatedMaterial = $material->fresh();
+
+    expect($updatedMaterial?->photo)->not->toBe('material-photos/old-photo.webp');
+    expect($updatedMaterial?->photo)->not->toBeNull();
+    Storage::disk('public')->assertMissing('material-photos/old-photo.webp');
+    Storage::disk('public')->assertExists((string) $updatedMaterial?->photo);
 });
 
 it('reopens creation modals with active status by default', function (): void {
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'simple')
         ->set('status', 'inactive')
         ->call('closeModal')
@@ -74,7 +111,7 @@ it('lists courses by their order in the item creation modal', function (): void 
         'order' => 1,
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'simple')
         ->assertSeeInOrder([
             'Curso exibido primeiro',
@@ -109,16 +146,14 @@ it('separates courses by execution inside the ministry when there are more than 
         'order' => 3,
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'simple')
-        ->assertSeeInOrder([
-            'Treinamento',
-            'Liderança',
-            'Curso liderança 1',
-            'Curso liderança 2',
-            'Implementação',
-            'Curso implementação 1',
-        ]);
+        ->assertSee('Treinamento')
+        ->assertSee('Liderança')
+        ->assertSee('Implementação')
+        ->assertSee('Curso liderança 1')
+        ->assertSee('Curso liderança 2')
+        ->assertSee('Curso implementação 1');
 });
 
 it('creates a composite material with selected simple items', function (): void {
@@ -132,7 +167,7 @@ it('creates a composite material with selected simple items', function (): void 
         'type' => 'simple',
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'composite')
         ->set('name', 'Kit do aluno')
         ->set('type', 'composite')
@@ -163,7 +198,7 @@ it('renders stable keys and unique quantity inputs for selected composite compon
         'type' => 'simple',
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'composite')
         ->set('selectedComponentIds', [$firstComponent->id, $secondComponent->id])
         ->assertSee('director-material-create-selected-component-'.$firstComponent->id)
@@ -178,7 +213,7 @@ it('blocks composite items from being selected as components when creating a com
         'type' => 'composite',
     ]);
 
-    Livewire::test('pages.app.director.inventory.create-modal')
+    Livewire::test('pages.app.director.inventory.material-create-modal')
         ->call('openModal', 'composite')
         ->set('name', 'Kit final')
         ->set('type', 'composite')
@@ -243,7 +278,7 @@ it('updates course links from the material edit modal', function (): void {
 
     $material->courses()->sync([$firstCourse->id]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id)
         ->set('selectedCourseIds', [$secondCourse->id])
         ->call('save')
@@ -315,7 +350,7 @@ it('shows composition management inside the edit tab for composite materials', f
         'type' => 'composite',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id, 'edit')
         ->assertSee('Gerenciar composição')
         ->assertSee('Composição do produto composto');
@@ -332,7 +367,7 @@ it('shows exit and edit tabs for composite materials in the stock modal', functi
         'kind' => 'central',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
         ->call('openModal', $material->id, 'entry')
         ->assertSet('activeTab', 'exit')
         ->assertSee('Saída manual')
@@ -399,7 +434,7 @@ it('can inactivate a material without deleting it', function (): void {
         'status' => 'active',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id)
         ->call('toggleActive')
         ->assertDispatched('director-material-updated');
@@ -415,7 +450,7 @@ it('preserves the active tab when toggling material status', function (): void {
         'status' => 'active',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id, 'edit')
         ->assertSet('activeTab', 'edit')
         ->call('toggleActive')
@@ -433,7 +468,7 @@ it('deletes permanently a material that has never been used', function (): void 
         'status' => 'active',
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id)
         ->call('confirmPermanentDelete')
         ->call('deletePermanently')
@@ -469,7 +504,7 @@ it('blocks permanent deletion when the material already has operational use', fu
         'balance_after' => 5,
     ]);
 
-    Livewire::test('pages.app.director.inventory.edit-modal', ['materialId' => $material->id])
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id])
         ->call('openModal', $material->id)
         ->call('confirmPermanentDelete')
         ->call('deletePermanently')

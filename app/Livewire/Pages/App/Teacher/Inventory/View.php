@@ -5,7 +5,7 @@ namespace App\Livewire\Pages\App\Teacher\Inventory;
 use App\Models\Inventory;
 use App\Models\StockMovement;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View as ViewView;
 use Livewire\Attributes\On;
@@ -88,11 +88,7 @@ class View extends Component
         $this->redirectRoute('app.teacher.inventory.index', navigate: true);
     }
 
-    public function updatingMaterialSearch(): void
-    {
-        $this->resetPage('simpleBalancesPage');
-        $this->resetPage('compositeBalancesPage');
-    }
+    public function updatingMaterialSearch(): void {}
 
     public function updatingMovementTypeFilter(): void
     {
@@ -122,6 +118,8 @@ class View extends Component
             ->select([
                 'materials.id',
                 'materials.name',
+                'materials.photo',
+                'materials.price',
                 'materials.type',
                 'materials.minimum_stock',
                 'materials.is_active',
@@ -132,7 +130,7 @@ class View extends Component
             ->where('materials.type', 'simple')
             ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
             ->orderBy('materials.name')
-            ->paginate(10, pageName: 'simpleBalancesPage');
+            ->get();
 
         $compositeBalances = DB::table('materials')
             ->leftJoin('inventory_material', function ($join) use ($inventory): void {
@@ -146,6 +144,8 @@ class View extends Component
             ->select([
                 'materials.id',
                 'materials.name',
+                'materials.photo',
+                'materials.price',
                 'materials.type',
                 'materials.minimum_stock',
                 'materials.is_active',
@@ -163,7 +163,7 @@ class View extends Component
             ->whereIn('materials.id', $availableCompositeIds === [] ? [0] : $availableCompositeIds)
             ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
             ->orderBy('materials.name')
-            ->paginate(10, pageName: 'compositeBalancesPage');
+            ->get();
 
         $compositeBalances = $this->appendComposableQuantity($compositeBalances, $inventory->id);
 
@@ -238,13 +238,9 @@ class View extends Component
         ]);
     }
 
-    private function appendComposableQuantity(LengthAwarePaginator $compositeBalances, int $inventoryId): LengthAwarePaginator
+    private function appendComposableQuantity(Collection $compositeBalances, int $inventoryId): Collection
     {
-        $compositeBalances->setCollection(
-            $this->appendComposableQuantityToCollection($compositeBalances->getCollection(), $inventoryId),
-        );
-
-        return $compositeBalances;
+        return $this->appendComposableQuantityToCollection($compositeBalances, $inventoryId);
     }
 
     private function appendComposableQuantityToCollection($items, int $inventoryId)

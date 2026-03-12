@@ -5,6 +5,7 @@ use App\Models\Material;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -242,6 +243,8 @@ it('shows only delegated operational actions on the teacher inventory page', fun
 });
 
 it('shows only materials transferred to the teachers inventory', function (): void {
+    Storage::fake('public');
+
     $teacher = createTeacherForInventoryAccessTest();
 
     $inventory = Inventory::query()->create([
@@ -251,10 +254,14 @@ it('shows only materials transferred to the teachers inventory', function (): vo
         'is_active' => true,
     ]);
 
+    Storage::disk('public')->put('material-photos/material-transferido.webp', 'fake-image');
+
     $transferredMaterial = Material::query()->create([
         'name' => 'Material Transferido',
         'type' => 'simple',
         'is_active' => true,
+        'photo' => 'material-photos/material-transferido.webp',
+        'price' => '18,90',
     ]);
     $centralOnlyMaterial = Material::query()->create([
         'name' => 'Material Só no Central',
@@ -272,6 +279,10 @@ it('shows only materials transferred to the teachers inventory', function (): vo
 
     $response->assertOk();
     $response->assertSeeText('Material Transferido');
+    $response->assertSeeText('Foto');
+    $response->assertSee(Storage::disk('public')->url('material-photos/material-transferido.webp'), false);
+    $response->assertSeeText('Preço');
+    $response->assertSeeText('R$ 18,90');
     $response->assertDontSeeText('Material Só no Central');
 });
 

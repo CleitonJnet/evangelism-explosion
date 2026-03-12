@@ -35,6 +35,12 @@ class Index extends Component
 
     public string $userDirectorySearch = '';
 
+    public string $userDirectorySortField = 'name';
+
+    public string $userDirectorySortDirection = 'asc';
+
+    public ?int $userDirectoryCourseId = null;
+
     public ?int $selectedUnlinkedUserId = null;
 
     public string $selectedUnlinkedUserName = '';
@@ -68,6 +74,7 @@ class Index extends Component
             'churchSearchResults' => $this->churchSearchResults($accessibleChurchIds, $churchSearch),
             'userSearchResults' => $this->userSearchResults($accessibleChurchIds, $churchSearch),
             'allUsers' => $this->allUsersForDirectory(),
+            'userDirectoryCourses' => $this->userDirectoryCourses(),
             'unlinkedUsers' => $this->unlinkedUsersForTeacher($user),
             'linkableChurches' => $this->linkableChurchesForModal($accessibleChurchIds),
             'selectedUserTrainings' => $this->selectedUserTrainingsForModal($user),
@@ -94,6 +101,30 @@ class Index extends Component
 
     public function updatedUserDirectorySearch(): void
     {
+        $this->resetPage('allUsersPage');
+    }
+
+    public function sortUserDirectoryBy(string $field): void
+    {
+        $allowedFields = ['name', 'location', 'church', 'course', 'courses_count', 'trainings_count'];
+
+        if (! in_array($field, $allowedFields, true)) {
+            return;
+        }
+
+        if ($this->userDirectorySortField === $field) {
+            $this->userDirectorySortDirection = $this->userDirectorySortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->userDirectorySortField = $field;
+            $this->userDirectorySortDirection = 'asc';
+        }
+
+        $this->resetPage('allUsersPage');
+    }
+
+    public function filterUserDirectoryByCourse(?int $courseId = null): void
+    {
+        $this->userDirectoryCourseId = $courseId;
         $this->resetPage('allUsersPage');
     }
 
@@ -443,14 +474,50 @@ class Index extends Component
 
         $accessibleChurchIds = $this->teacherAccessibleChurchIds($user);
         $assistantTrainingIds = $this->assistantTrainingIds($user);
-        $userDirectorySearch = trim($this->userDirectorySearch);
+        $allUsers = $this->userDirectoryUsersCollection($user, $accessibleChurchIds, $assistantTrainingIds);
+        $filteredUsers = $this->filteredUserDirectoryCollection($allUsers);
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage('allUsersPage');
+        $perPage = 10;
+        $items = $filteredUsers->forPage($currentPage, $perPage)->values();
+
+        return new LengthAwarePaginator(
+            $items,
+            $filteredUsers->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => LengthAwarePaginator::resolveCurrentPath(),
+                'pageName' => 'allUsersPage',
+            ],
+        );
+    }
+
+    /**
+     * @param  array<int, int>  $accessibleChurchIds
+     * @param  array<int, int>  $assistantTrainingIds
+     * @return Collection<int, User>
+     */
+    private function userDirectoryUsersCollection(User $user, array $accessibleChurchIds, array $assistantTrainingIds): Collection
+    {
+        $relevantTrainingIds = $this->relevantDirectoryTrainingIds($user, $assistantTrainingIds);
 
         return User::query()
             ->with([
                 'church:id,name',
                 'church_temp:id,name',
                 'roles:id,name',
-                'trainings.course:id,initials,name',
+                'trainings' => function ($query) use ($relevantTrainingIds): void {
+                    if ($relevantTrainingIds === []) {
+                        $query->whereRaw('1 = 0');
+
+                        return;
+                    }
+
+                    $query->whereIn('trainings.id', $relevantTrainingIds)
+                        ->with('course:id,initials,name')
+                        ->orderBy('trainings.id');
+                },
             ])
             ->where(function (Builder $query) use ($user, $accessibleChurchIds, $assistantTrainingIds): void {
                 if ($accessibleChurchIds !== []) {
@@ -471,23 +538,131 @@ class Index extends Component
                         });
                 });
             })
-            ->when($userDirectorySearch !== '', function (Builder $query) use ($userDirectorySearch): void {
-                $query->where(function (Builder $query) use ($userDirectorySearch): void {
-                    $query->where('name', 'like', '%'.$userDirectorySearch.'%')
-                        ->orWhere('email', 'like', '%'.$userDirectorySearch.'%')
-                        ->orWhere('city', 'like', '%'.$userDirectorySearch.'%')
-                        ->orWhere('state', 'like', '%'.$userDirectorySearch.'%')
-                        ->orWhereHas('church', function (Builder $query) use ($userDirectorySearch): void {
-                            $query->where('name', 'like', '%'.$userDirectorySearch.'%');
-                        })
-                        ->orWhereHas('church_temp', function (Builder $query) use ($userDirectorySearch): void {
-                            $query->where('name', 'like', '%'.$userDirectorySearch.'%');
-                        });
-                });
-            })
             ->orderByRaw('LOWER(name) asc')
             ->orderBy('id')
-            ->paginate(10, ['*'], 'allUsersPage');
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    private function filteredUserDirectoryCollection(Collection $users): Collection
+    {
+        $search = mb_strtolower(trim($this->userDirectorySearch));
+        $selectedCourseId = $this->userDirectoryCourseId;
+        $sortField = $this->userDirectorySortField;
+        $descending = $this->userDirectorySortDirection === 'desc';
+
+        $filtered = $users
+            ->map(function (User $listedUser): User {
+                $listedUser->setAttribute('directory_courses', $this->directoryCoursesForUser($listedUser));
+                $listedUser->setAttribute('directory_courses_count', $this->directoryCoursesForUser($listedUser)->count());
+                $listedUser->setAttribute('directory_trainings_count', $listedUser->trainings->unique('id')->count());
+                $listedUser->setAttribute(
+                    'directory_primary_course_name',
+                    $this->directoryCoursesForUser($listedUser)
+                        ->pluck('name')
+                        ->filter()
+                        ->sort()
+                        ->first() ?? '',
+                );
+
+                return $listedUser;
+            })
+            ->filter(function (User $listedUser) use ($search, $selectedCourseId): bool {
+                if ($selectedCourseId !== null && ! $this->directoryCoursesForUser($listedUser)->contains('id', $selectedCourseId)) {
+                    return false;
+                }
+
+                if ($search === '') {
+                    return true;
+                }
+
+                $haystack = collect([
+                    $listedUser->name,
+                    $listedUser->email,
+                    $listedUser->city,
+                    $listedUser->state,
+                    $listedUser->church?->name,
+                    $listedUser->church_temp?->name,
+                    $this->directoryCoursesForUser($listedUser)->pluck('name')->implode(' '),
+                ])->filter()->implode(' ');
+
+                return str_contains(mb_strtolower($haystack), $search);
+            });
+
+        $sorted = $filtered->sortBy(
+            fn (User $listedUser): string|int => $this->userDirectorySortValue($listedUser, $sortField),
+            options: SORT_NATURAL,
+            descending: $descending,
+        );
+
+        return $sorted->values();
+    }
+
+    /**
+     * @return Collection<int, \App\Models\Course>
+     */
+    private function userDirectoryCourses(): Collection
+    {
+        $user = Auth::user();
+        abort_unless($user instanceof User, 403);
+
+        $accessibleChurchIds = $this->teacherAccessibleChurchIds($user);
+        $assistantTrainingIds = $this->assistantTrainingIds($user);
+
+        return $this->userDirectoryUsersCollection($user, $accessibleChurchIds, $assistantTrainingIds)
+            ->flatMap(fn (User $listedUser): Collection => $this->directoryCoursesForUser($listedUser))
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
+    }
+
+    /**
+     * @param  array<int, int>  $assistantTrainingIds
+     * @return array<int, int>
+     */
+    private function relevantDirectoryTrainingIds(User $user, array $assistantTrainingIds): array
+    {
+        return Training::query()
+            ->where('teacher_id', $user->id)
+            ->pluck('id')
+            ->merge($assistantTrainingIds)
+            ->map(static fn (mixed $trainingId): int => (int) $trainingId)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return Collection<int, mixed>
+     */
+    private function directoryCoursesForUser(User $listedUser): Collection
+    {
+        /** @var Collection<int, mixed>|null $directoryCourses */
+        $directoryCourses = $listedUser->getAttribute('directory_courses');
+
+        if ($directoryCourses instanceof Collection) {
+            return $directoryCourses;
+        }
+
+        return $listedUser->trainings
+            ->pluck('course')
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
+    private function userDirectorySortValue(User $listedUser, string $sortField): string|int
+    {
+        return match ($sortField) {
+            'location' => mb_strtolower(trim(($listedUser->city ?? '').' '.($listedUser->state ?? '').' '.$listedUser->name)),
+            'church' => mb_strtolower(trim(($listedUser->church?->name ?? $listedUser->church_temp?->name ?? '').' '.$listedUser->name)),
+            'course' => mb_strtolower((string) $listedUser->getAttribute('directory_primary_course_name')),
+            'courses_count' => (int) $listedUser->getAttribute('directory_courses_count'),
+            'trainings_count' => (int) $listedUser->getAttribute('directory_trainings_count'),
+            default => mb_strtolower((string) $listedUser->name),
+        };
     }
 
     /**

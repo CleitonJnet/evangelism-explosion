@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    @php
+        $resolveMaterialPhotoUrl = static function (?string $photoPath): string {
+            $normalizedPhoto = trim((string) $photoPath);
+
+            if ($normalizedPhoto !== '') {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($normalizedPhoto);
+            }
+
+            return asset('images/logo/ee-gold.webp');
+        };
+    @endphp
     <flux:modal name="director-inventory-delete-modal" wire:model="showDeleteModal" class="max-w-md">
         <div class="space-y-4">
             <div>
@@ -158,7 +169,9 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-emerald-100 text-xs uppercase text-emerald-900">
                                 <tr>
+                                    <th class="w-24 px-4 py-3 text-center">{{ __('Foto') }}</th>
                                     <th class="px-4 py-3">{{ __('Produto composto') }}</th>
+                                    <th class="w-40 px-4 py-3 text-center">{{ __('Preço') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Componentes') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Pode compor') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
@@ -169,6 +182,11 @@
                                 @forelse ($compositeBalances as $balance)
                                     <tr class="cursor-pointer border-t border-emerald-200 transition odd:bg-white even:bg-emerald-50/45 hover:bg-emerald-100/60 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
                                         onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'exit' }); return false;">
+                                        <td class="px-4 py-3">
+                                            <img src="{{ $resolveMaterialPhotoUrl($balance->photo) }}" alt="{{ __('Foto de :name', ['name' => $balance->name]) }}"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/logo/ee-gold.webp') }}';"
+                                                class="mx-auto h-12 w-12 rounded-lg object-cover">
+                                        </td>
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="truncate">{{ $balance->name }}</span>
@@ -179,6 +197,9 @@
                                                     </span>
                                                 @endif
                                             </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center font-semibold">
+                                            {{ \App\Helpers\MoneyHelper::format_money($balance->price) ?: __('Não informado') }}
                                         </td>
                                         <td class="px-4 py-3 text-center">{{ $balance->components_count }}</td>
                                         <td class="px-4 py-3 text-center font-semibold text-sky-800">
@@ -203,7 +224,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="7" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum produto composto encontrado') }}
@@ -219,11 +240,6 @@
                         </table>
                     </div>
 
-                    @if ($compositeBalances->hasPages())
-                        <div class="mt-4">
-                            {{ $compositeBalances->links(data: ['scrollTo' => false]) }}
-                        </div>
-                    @endif
                 </section>
 
                 <section class="border-t border-slate-200 pt-6">
@@ -238,7 +254,9 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-sky-100 text-xs uppercase text-sky-900">
                                 <tr>
+                                    <th class="w-24 px-4 py-3 text-center">{{ __('Foto') }}</th>
                                     <th class="px-4 py-3">{{ __('Item simples') }}</th>
+                                    <th class="w-40 px-4 py-3 text-center">{{ __('Preço') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Saldo') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
                                     <th class="w-44 px-4 py-3 text-center">{{ __('Alerta') }}</th>
@@ -249,6 +267,11 @@
                                     <tr @if ($balance->is_active) data-simple-material-row-active @endif
                                         class="cursor-pointer border-t border-sky-200 transition odd:bg-white even:bg-sky-50/40 hover:bg-sky-100/65 {{ $balance->is_active ? 'text-slate-900' : 'text-slate-400' }}"
                                         onclick="window.Livewire.dispatch('open-director-material-edit-modal', { materialId: {{ $balance->id }}, tab: 'entry' }); return false;">
+                                        <td class="px-4 py-3">
+                                            <img src="{{ $resolveMaterialPhotoUrl($balance->photo) }}" alt="{{ __('Foto de :name', ['name' => $balance->name]) }}"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/logo/ee-gold.webp') }}';"
+                                                class="mx-auto h-12 w-12 rounded-lg object-cover">
+                                        </td>
                                         <td class="px-4 py-3 font-medium">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="truncate">{{ $balance->name }}</span>
@@ -259,6 +282,9 @@
                                                     </span>
                                                 @endif
                                             </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center font-semibold">
+                                            {{ \App\Helpers\MoneyHelper::format_money($balance->price) ?: __('Não informado') }}
                                         </td>
                                         <td class="px-4 py-3 text-center font-semibold">{{ $balance->current_quantity }}</td>
                                         <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
@@ -280,7 +306,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum item simples encontrado') }}
@@ -296,11 +322,6 @@
                         </table>
                     </div>
 
-                    @if ($simpleBalances->hasPages())
-                        <div class="mt-4">
-                            {{ $simpleBalances->links(data: ['scrollTo' => false]) }}
-                        </div>
-                    @endif
                 </section>
             </div>
         </section>
@@ -409,14 +430,14 @@
         wire:key="director-inventory-edit-modal-{{ $inventory->id }}" />
     <livewire:pages.app.director.inventory.stock-action-modal :inventory-id="$inventory->id"
         wire:key="director-inventory-stock-action-modal-{{ $inventory->id }}" />
-    <livewire:pages.app.director.inventory.create-modal
+    <livewire:pages.app.director.inventory.material-create-modal
         wire:key="director-material-create-modal-from-stock-{{ $inventory->id }}" />
-    @foreach ($compositeBalances->getCollection() as $balance)
-        <livewire:pages.app.director.inventory.edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
+    @foreach ($compositeBalances as $balance)
+        <livewire:pages.app.director.inventory.material-edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
             wire:key="director-material-edit-modal-composite-{{ $balance->id }}" />
     @endforeach
-    @foreach ($simpleBalances->getCollection() as $balance)
-        <livewire:pages.app.director.inventory.edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
+    @foreach ($simpleBalances as $balance)
+        <livewire:pages.app.director.inventory.material-edit-modal :material-id="$balance->id" :inventory-id="$inventory->id"
             wire:key="director-material-edit-modal-simple-{{ $balance->id }}" />
     @endforeach
 

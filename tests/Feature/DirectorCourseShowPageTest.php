@@ -71,7 +71,6 @@ it('renders the director course details page within the selected ministry', func
         ->assertSee('open-director-course-edit-modal')
         ->assertSee('Unidades')
         ->assertSee('Informações do curso')
-        ->assertSee('Mídia e identidade')
         ->assertSee('Conteúdo pedagógico')
         ->assertSee('Material de estudos do aluno')
         ->assertSee('Kit do aluno')
@@ -106,4 +105,41 @@ it('updates the study materials list for a course', function (): void {
 
     expect($course->fresh()->studyMaterials()->pluck('materials.id')->all())
         ->toContain($kit->id, $manual->id);
+});
+
+it('shows all teachers on the director course details page without pagination', function (): void {
+    $ministry = Ministry::query()->create([
+        'name' => 'Evangelismo Eficaz',
+        'initials' => 'EE',
+    ]);
+
+    $course = Course::factory()->create([
+        'ministry_id' => $ministry->id,
+        'execution' => 0,
+        'name' => 'Clínica de Líderes',
+    ]);
+
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+
+    foreach (range(1, 6) as $index) {
+        $teacher = User::factory()->create([
+            'name' => sprintf('Professor %02d', $index),
+            'email' => sprintf('professor%02d@example.com', $index),
+        ]);
+        $teacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+        $course->teachers()->attach($teacher->id, ['status' => 1]);
+    }
+
+    $director = createDirectorForCoursePage();
+
+    $this->actingAs($director)
+        ->get(route('app.director.ministry.course.show', ['ministry' => $ministry, 'course' => $course]))
+        ->assertOk()
+        ->assertSee('Professores do curso (6)')
+        ->assertSee('Professor 01')
+        ->assertSee('Professor 02')
+        ->assertSee('Professor 03')
+        ->assertSee('Professor 04')
+        ->assertSee('Professor 05')
+        ->assertSee('Professor 06');
 });

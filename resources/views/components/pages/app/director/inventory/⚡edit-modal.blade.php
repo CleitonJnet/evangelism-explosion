@@ -6,12 +6,17 @@ use App\Models\Material;
 use App\Services\Inventory\StockMovementService;
 use App\Exceptions\Inventory\InsufficientStockException;
 use App\Exceptions\Inventory\InvalidCompositeMaterialException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use WithFileUploads;
+
     public int $materialId;
 
     public ?int $inventoryId = null;
@@ -31,6 +36,10 @@ new class extends Component
     public int $minimum_stock = 0;
 
     public ?string $description = null;
+
+    public mixed $photoUpload = null;
+
+    public ?string $currentPhotoPath = null;
 
     public bool $confirmingPermanentDelete = false;
 
@@ -377,6 +386,7 @@ new class extends Component
                 'price' => ['nullable', 'string', 'max:20', 'regex:/^-?\d+(?:[,.]\d{0,2})?$/'],
                 'minimum_stock' => ['required', 'integer', 'min:0'],
                 'description' => ['nullable', 'string', 'max:2000'],
+                'photoUpload' => ['nullable', 'image', 'max:5120'],
                 'selectedCourseIds' => ['array'],
                 'selectedCourseIds.*' => ['integer', 'exists:courses,id'],
             ], [
@@ -385,18 +395,33 @@ new class extends Component
                 'integer' => 'O campo :attribute deve ser um número inteiro.',
                 'min' => 'O campo :attribute deve ser no mínimo :min.',
                 'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                'image' => 'O campo :attribute deve ser uma imagem válida.',
                 'price.regex' => 'O campo preço deve conter apenas números e separador decimal.',
             ], [
                 'name' => 'nome',
                 'price' => 'preço',
                 'minimum_stock' => 'estoque mínimo',
                 'description' => 'descrição',
+                'photoUpload' => 'foto',
                 'selectedCourseIds' => 'cursos',
             ]);
 
             $material = Material::query()->findOrFail($this->materialId);
+            $photoPath = $this->currentPhotoPath;
+
+            if ($this->photoUpload instanceof UploadedFile) {
+                $storedPhotoPath = $this->photoUpload->store('material-photos', 'public');
+
+                if ($photoPath && ! str_starts_with($photoPath, 'http') && Storage::disk('public')->exists($photoPath)) {
+                    Storage::disk('public')->delete($photoPath);
+                }
+
+                $photoPath = $storedPhotoPath;
+            }
+
             $material->forceFill([
                 'name' => $validated['name'],
+                'photo' => $photoPath,
                 'price' => $validated['price'] ?? '0',
                 'minimum_stock' => $validated['minimum_stock'],
                 'description' => $validated['description'] ?? null,
@@ -493,6 +518,12 @@ new class extends Component
                 $this->confirmingPermanentDelete = false;
 
                 return;
+            }
+
+            $photoPath = trim((string) $material->getRawOriginal('photo'));
+
+            if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+                Storage::disk('public')->delete($photoPath);
             }
 
             $material->delete();
@@ -616,6 +647,8 @@ new class extends Component
         $this->name = (string) $material->name;
         $this->type = (string) ($material->type ?: 'simple');
         $this->status = $material->is_active ? 'active' : 'inactive';
+        $this->currentPhotoPath = $material->getRawOriginal('photo');
+        $this->photoUpload = null;
         $this->price = $material->price !== null ? (string) $material->price : null;
         $this->minimum_stock = (int) $material->minimum_stock;
         $this->description = $material->description;
@@ -680,6 +713,21 @@ new class extends Component
         }
 
         return $availableTabs[0];
+    }
+
+    public function photoPreviewUrl(): string
+    {
+        if ($this->photoUpload && str_starts_with((string) $this->photoUpload->getMimeType(), 'image/')) {
+            return $this->photoUpload->temporaryUrl();
+        }
+
+        $photoPath = trim((string) $this->currentPhotoPath);
+
+        if ($photoPath !== '' && Storage::disk('public')->exists($photoPath)) {
+            return Storage::disk('public')->url($photoPath);
+        }
+
+        return asset('images/logo/ee-gold.webp');
     }
 };
 ?>
@@ -891,6 +939,37 @@ new class extends Component
                 @else
                     <div class="space-y-8">
                         <section class="space-y-5">
+                            <div>
+                                <h4 class="text-base font-semibold text-sky-950">{{ __('Identidade visual') }}</h4>
+                                <p class="text-sm text-slate-600">
+                                    {{ __('Foto usada para identificar o produto nas listagens e operações de estoque.') }}
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-6">
+                                <div
+                                    class="grid justify-items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 flex-auto basis-40">
+                                    <input id="director-material-edit-photo-upload" type="file" accept="image/*"
+                                        wire:model.live="photoUpload" class="sr-only">
+
+                                    <label for="director-material-edit-photo-upload"
+                                        class="cursor-pointer overflow-hidden rounded-xl flex justify-center items-center p-1">
+                                        <img src="{{ $this->photoPreviewUrl() }}" alt="{{ __('Foto do produto') }}"
+                                            class="h-28 w-28 rounded-lg object-cover">
+                                    </label>
+
+                                    <p class="text-center text-xs text-slate-600">
+                                        {{ __('Clique na imagem para alterar a foto.') }}
+                                    </p>
+
+                                    @error('photoUpload')
+                                        <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-5">
                             <div class="flex flex-wrap gap-x-4 gap-y-8">
                                 <x-src.form.input name="director-material-edit-name" wire:model.live="name" label="Nome"
                                     type="text" width_basic="320" required />
@@ -1070,7 +1149,7 @@ new class extends Component
 
                     <div class="flex justify-between gap-3 md:justify-end">
                         <x-src.btn-silver type="button" wire:click="closeModal" wire:loading.attr="disabled"
-                            wire:target="save,saveEntry,saveExit,saveAdjustment,saveLoss,saveTransfer">
+                            wire:target="save,saveEntry,saveExit,saveAdjustment,saveLoss,saveTransfer,photoUpload">
                             {{ __('Fechar') }}
                         </x-src.btn-silver>
                         @if ($activeTab === 'entry')
@@ -1100,7 +1179,7 @@ new class extends Component
                             </x-src.btn-gold>
                         @else
                             <x-src.btn-gold type="button" wire:click="save" wire:loading.attr="disabled"
-                                wire:target="save">
+                                wire:target="save,photoUpload">
                                 {{ __('Salvar alterações') }}
                             </x-src.btn-gold>
                         @endif
