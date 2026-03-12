@@ -104,3 +104,26 @@ it('keeps the existing gender value when saving personal data without changing g
     expect($profile->name)->toBe('Usuario Com Genero Atualizado')
         ->and($profile->gender)->toBe(User::GENDER_FEMALE);
 });
+
+it('stores null birthdate when personal birthdate is cleared', function (): void {
+    $manager = createChurchManager('Teacher');
+    $profile = User::factory()->create([
+        'birthdate' => '1990-05-10',
+        'email' => 'usuario.nascimento@example.com',
+    ]);
+
+    Livewire::actingAs($manager)
+        ->test(ChurchUserProfile::class, [
+            'user' => $profile,
+            'backUrl' => route('app.teacher.churches.index'),
+            'backLabel' => 'Voltar',
+        ])
+        ->call('openPersonalModal')
+        ->assertSet('personal.birthdate', '1990-05-10')
+        ->set('personal.birthdate', '')
+        ->call('updatePersonal')
+        ->assertHasNoErrors()
+        ->assertDispatched('profile-personal-updated');
+
+    expect($profile->fresh()->birthdate)->toBeNull();
+});

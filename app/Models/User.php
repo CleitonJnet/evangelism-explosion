@@ -329,6 +329,17 @@ class User extends Authenticatable
         $this->attributes['gender'] = self::normalizeGenderValue($value);
     }
 
+    public function setBirthdateAttribute(mixed $value): void
+    {
+        if ($value instanceof \DateTimeInterface) {
+            $this->attributes['birthdate'] = $value->format('Y-m-d');
+
+            return;
+        }
+
+        $this->attributes['birthdate'] = $this->stringValue($value);
+    }
+
     protected function stringValue(mixed $value): ?string
     {
         if ($value === null) {

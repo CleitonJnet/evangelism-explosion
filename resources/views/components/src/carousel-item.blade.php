@@ -12,6 +12,7 @@
     'free' => false,
     'alert' => false,
     'alert_message' => null,
+    'footer_label' => 'Saiba mais.',
 ])
 
 <div class="overflow-hidden swiper-slide shine rounded-2xl max-w-sm"
@@ -112,7 +113,7 @@
 
                 <div class="mt-2 flex items-center justify-center gap-1.5 font-bold text-amber-200"
                     style="text-shadow: 1px 1px 1px black">
-                    Saiba mais.
+                    {{ $footer_label }}
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0
                                         group-hover:animate-[arrow-pulse_800ms_ease-in-out_infinite]"

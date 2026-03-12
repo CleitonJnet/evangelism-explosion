@@ -130,12 +130,15 @@
                         : '#';
                     $requiresCompletionReview = $training->requiresCompletionReview();
                     $completionReviewAlertMessage = $training->completionReviewAlertMessage();
+                    $footerLabel = $role === 'director'
+                        ? ($training->teacher?->name ?? __('Professor não informado'))
+                        : __('Saiba mais.');
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
                     :start_time="$startTime" :city="$training->city" :state="$training->state" :route="$detailsRoute" :schedule="$schedule"
                     :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0"
-                    :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" />
+                    :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" :footer_label="$footerLabel" />
             @endforeach
         </div>
         <div class="swiper-button-prev left-0 sm:-left-1 md:-left-2"></div>

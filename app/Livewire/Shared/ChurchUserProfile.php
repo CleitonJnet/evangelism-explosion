@@ -274,7 +274,7 @@ class ChurchUserProfile extends Component
         return [
             'personal.name' => $this->nameRules(),
             'personal.email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class, 'email')->ignore($this->user->id)],
-            'personal.birthdate' => ['nullable', 'date'],
+            'personal.birthdate' => ['nullable', 'date_format:Y-m-d'],
             'personal.gender' => ['nullable', 'in:1,2'],
             'personal.phone' => ['nullable', 'string', 'max:30'],
             'personal.is_pastor' => ['nullable', 'in:1,0'],
