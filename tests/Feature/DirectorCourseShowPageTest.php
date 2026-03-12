@@ -7,6 +7,7 @@ use App\Models\Ministry;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -142,4 +143,48 @@ it('shows all teachers on the director course details page without pagination', 
         ->assertSee('Professor 04')
         ->assertSee('Professor 05')
         ->assertSee('Professor 06');
+});
+
+it('shows teacher photo when available and initials when photo is missing', function (): void {
+    Storage::fake('public');
+
+    $ministry = Ministry::query()->create([
+        'name' => 'Evangelismo Eficaz',
+        'initials' => 'EE',
+    ]);
+
+    $course = Course::factory()->create([
+        'ministry_id' => $ministry->id,
+        'execution' => 0,
+        'name' => 'Clínica de Líderes',
+    ]);
+
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+
+    Storage::disk('public')->put('profile-photos/professor-com-foto.jpg', 'fake-image');
+
+    $teacherWithPhoto = User::factory()->create([
+        'name' => 'Marina Costa',
+        'email' => 'marina@example.com',
+        'profile_photo_path' => 'profile-photos/professor-com-foto.jpg',
+    ]);
+    $teacherWithPhoto->roles()->syncWithoutDetaching([$teacherRole->id]);
+    $course->teachers()->attach($teacherWithPhoto->id, ['status' => 1]);
+
+    $teacherWithoutPhoto = User::factory()->create([
+        'name' => 'Carlos Souza',
+        'email' => 'carlos@example.com',
+        'profile_photo_path' => null,
+    ]);
+    $teacherWithoutPhoto->roles()->syncWithoutDetaching([$teacherRole->id]);
+    $course->teachers()->attach($teacherWithoutPhoto->id, ['status' => 1]);
+
+    $director = createDirectorForCoursePage();
+
+    $this->actingAs($director)
+        ->get(route('app.director.ministry.course.show', ['ministry' => $ministry, 'course' => $course]))
+        ->assertOk()
+        ->assertSee('Foto')
+        ->assertSee(Storage::disk('public')->url('profile-photos/professor-com-foto.jpg'), escape: false)
+        ->assertSee('CS');
 });

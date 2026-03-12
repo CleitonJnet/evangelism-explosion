@@ -82,7 +82,8 @@
                         : '--:--';
 
                     // SOBRE O TREINAMENTO
-                    $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $item['training']->payment)) > 0;
+                    $isPaid = (float) preg_replace('/\D/', '', (string) $item['training']->payment) > 0;
+                    $free = ! $isPaid;
 
                     $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
                         $item['training']->eventDates,
@@ -101,7 +102,8 @@
                         ? route('web.event.banner.download', ['id' => $item['training']->id])
                         : null;
 
-                    $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $item['training']->payment)) > 0;
+                    $isPaid = (float) preg_replace('/\D/', '', (string) $item['training']->payment) > 0;
+                    $free = ! $isPaid;
 
                     $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
                         $item['training']->eventDates,
@@ -133,12 +135,14 @@
                     $footerLabel = $role === 'director'
                         ? ($training->teacher?->name ?? __('Professor não informado'))
                         : __('Saiba mais.');
+                    $studentsCount = (int) ($training->students_count ?? 0);
                 @endphp
 
                 <x-src.carousel-item :category="$category" :type="$type" :event="$eventName" :date="$date"
                     :start_time="$startTime" :city="$training->city" :state="$training->state" :route="$detailsRoute" :schedule="$schedule"
                     :free="$free" :banner="$bannerDownloadUrl" :new-churches-count="$training->new_churches_count ?? 0"
-                    :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" :footer_label="$footerLabel" />
+                    :alert="$requiresCompletionReview" :alert_message="$completionReviewAlertMessage" :footer_label="$footerLabel"
+                    :students-count="$studentsCount" :show-students-count="true" />
             @endforeach
         </div>
         <div class="swiper-button-prev left-0 sm:-left-1 md:-left-2"></div>

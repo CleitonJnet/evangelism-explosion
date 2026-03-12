@@ -14,7 +14,8 @@
                 ? \Illuminate\Support\Carbon::parse($eventDate->start_time)->format('H:i')
                 : '--:--';
 
-            $free = str_replace(',', '.', str_replace(['R$', ' ', '.'], '', $event->payment)) > 0;
+            $isPaid = (float) preg_replace('/\D/', '', (string) $event->payment) > 0;
+            $free = ! $isPaid;
 
             $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
                 $event->eventDates,

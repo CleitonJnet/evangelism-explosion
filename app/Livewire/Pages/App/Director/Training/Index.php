@@ -31,7 +31,7 @@ class Index extends Component
                 'course.ministry',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
-            ->withCount('newChurches')
+            ->withCount(['newChurches', 'students'])
             ->whereHas('course', fn ($query) => $query->where('execution', 0))
             ->where('status', $status->value)
             ->orderBy('ministries.name')

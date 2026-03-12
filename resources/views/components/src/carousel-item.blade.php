@@ -13,6 +13,8 @@
     'alert' => false,
     'alert_message' => null,
     'footer_label' => 'Saiba mais.',
+    'studentsCount' => 0,
+    'showStudentsCount' => false,
 ])
 
 <div class="overflow-hidden swiper-slide shine rounded-2xl max-w-sm"
@@ -52,20 +54,27 @@
 
             <div class="p-3 pt-5">
 
-                <div class="px-2 py-1 mb-2 text-sm truncate border rounded-lg bg-black/20 text-amber-100/90 border-amber-400/20 flex justify-between"
+                <div class="px-2 py-1 mb-2 text-sm truncate border rounded-lg bg-black/20 text-amber-100/90 border-amber-400/20 flex justify-between gap-2"
                     title="{{ $category }}">
-                    {{ $category }}
-                    <div>
+                    <span class="min-w-0 truncate">{{ $category }}</span>
+                    <div class="flex shrink-0 items-center gap-1.5 text-[0.8rem]"
+                        @if ($showStudentsCount) title="{{ $studentsCount }} alunos inscritos" @endif>
+                        @if ($showStudentsCount)
+                            <span
+                                class="inline-flex min-w-6 items-center justify-center px-2 py-0.5 text-[0.75rem] font-semibold leading-none text-amber-50 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
+                                {{ $studentsCount }}
+                            </span>
+                        @endif
                         @if ($schedule)
-                            <span>&#x2637;</span>
+                            <span title="{{ __('Agenda do evento disponível') }}">&#x2637;</span>
                         @endif
                         @if ($banner)
-                            <span>&#x2750;</span>
+                            <span title="{{ __('Treinamento com banner') }}">&#x2750;</span>
                         @endif
                         @if ($free)
-                            <span>&#x2666;</span>
+                            <span title="{{ __('Evento gratuito') }}">&#x2662;</span>
                         @else
-                            <span>&#x2662;</span>
+                            <span title="{{ __('Evento pago') }}">&#x2666;</span>
                         @endif
                     </div>
                 </div>

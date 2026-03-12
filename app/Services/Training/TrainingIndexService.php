@@ -46,7 +46,7 @@ class TrainingIndexService
                 'course.ministry',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
             ])
-            ->withCount('newChurches')
+            ->withCount(['newChurches', 'students'])
             ->whereHas('course', fn (Builder $query) => $query->where('execution', 0))
             ->where('status', $status->value)
             ->when($filterTerm !== null, fn (Builder $query) => $this->applyFilter($query, $filterTerm))

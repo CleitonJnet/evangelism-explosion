@@ -306,6 +306,7 @@
             <div class="mt-6 overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <colgroup>
+                        <col class="w-20">
                         <col>
                         <col>
                         <col>
@@ -314,6 +315,7 @@
                     </colgroup>
                     <thead class="bg-slate-50 text-xs uppercase text-slate-600">
                         <tr class="border-b border-slate-200">
+                            <th class="px-3 py-2 text-center">{{ __('Foto') }}</th>
                             <th class="px-3 py-2">{{ $teacherLabel }}</th>
                             <th class="px-3 py-2">{{ __('Igreja') }}</th>
                             <th class="px-3 py-2">{{ __('Cidade / Estado') }}</th>
@@ -325,6 +327,20 @@
                         @forelse ($teachers as $teacher)
                             <tr wire:key="teacher-{{ $teacher->id }}"
                                 class="odd:bg-white even:bg-slate-50/80">
+                                <td class="px-3 py-2">
+                                    <div class="flex justify-center">
+                                        <div
+                                            class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-500 text-xs font-semibold text-slate-50 ring-1 ring-black/10">
+                                            @if ($teacher->profile_photo_url)
+                                                <img src="{{ $teacher->profile_photo_url }}"
+                                                    alt="{{ __('Foto de perfil de :name', ['name' => $teacher->name]) }}"
+                                                    class="h-full w-full object-cover">
+                                            @else
+                                                {{ $teacher->initials() }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="px-3 py-2">
                                     @if ($teacher->church_id)
                                         <a class="font-semibold text-slate-900"
@@ -370,7 +386,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-3 py-4 text-sm text-slate-600" colspan="5">
+                                <td class="px-3 py-4 text-sm text-slate-600" colspan="6">
                                     {{ __('Nenhum professor associado.') }}
                                 </td>
                             </tr>
