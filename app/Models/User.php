@@ -405,6 +405,31 @@ class User extends Authenticatable
         return $this->hasMany(Training::class, 'teacher_id');
     }
 
+    public function createdEventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class, 'created_by_user_id');
+    }
+
+    public function updatedEventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class, 'updated_by_user_id');
+    }
+
+    public function submittedEventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class, 'submitted_by_user_id');
+    }
+
+    public function reviewedEventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class, 'last_reviewed_by_user_id');
+    }
+
+    public function eventReportReviews(): HasMany
+    {
+        return $this->hasMany(EventReportReview::class, 'reviewer_user_id');
+    }
+
     public function trainings(): BelongsToMany
     {
         return $this->belongsToMany(Training::class, 'training_user')

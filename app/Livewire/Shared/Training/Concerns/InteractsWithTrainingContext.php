@@ -77,9 +77,11 @@ trait InteractsWithTrainingContext
         }
 
         $resolver = app(TrainingCapabilityResolver::class);
-        $summary = $this->trainingContext === 'teacher'
-            ? $resolver->summaryForTeacherContext($user, $training)
-            : $resolver->summary($user, $training);
+        $summary = match ($this->trainingContext) {
+            'teacher' => $resolver->summaryForTeacherContext($user, $training),
+            'base' => $resolver->summaryForBaseContext($user, $training),
+            default => $resolver->summary($user, $training),
+        };
 
         return [
             'canView' => (bool) ($summary['can_view'] ?? false),
@@ -135,6 +137,25 @@ trait InteractsWithTrainingContext
                     'churchTempReviewModal' => 'pages.app.director.training.church-temp-review-modal',
                     'approveChurchTempModal' => 'pages.app.director.training.approve-church-temp-modal',
                     'deliverMaterialModal' => 'pages.app.director.training.deliver-material-modal',
+                    'createParticipantRegistrationModal' => null,
+                ],
+            ],
+            'base' => [
+                'routes' => [
+                    'show' => 'app.portal.base.trainings.show',
+                    'schedule' => 'app.portal.base.trainings.schedule',
+                    'statistics' => 'app.portal.base.trainings.statistics',
+                    'stpBoard' => 'app.portal.base.trainings.stp.approaches',
+                    'registrations' => 'app.portal.base.trainings.registrations',
+                ],
+                'components' => [
+                    'editEventDatesModal' => 'pages.app.teacher.training.edit-event-dates-modal',
+                    'editEventBannerModal' => 'pages.app.teacher.training.edit-event-banner-modal',
+                    'manageMentorsModal' => 'pages.app.teacher.training.manage-mentors-modal',
+                    'eventTeachers' => 'pages.app.teacher.training.event-teachers',
+                    'churchTempReviewModal' => 'pages.app.teacher.training.church-temp-review-modal',
+                    'approveChurchTempModal' => 'pages.app.teacher.training.approve-church-temp-modal',
+                    'deliverMaterialModal' => null,
                     'createParticipantRegistrationModal' => 'pages.app.teacher.training.create-participant-registration-modal',
                 ],
             ],
@@ -167,14 +188,19 @@ trait InteractsWithTrainingContext
 
     protected function contextualTrainingAbility(string $ability): string
     {
-        if ($this->trainingContext !== 'teacher') {
-            return $ability;
-        }
-
-        return match ($ability) {
-            'view' => 'viewTeacherContext',
-            'update' => 'updateTeacherContext',
-            'delete' => 'deleteTeacherContext',
+        return match ($this->trainingContext) {
+            'teacher' => match ($ability) {
+                'view' => 'viewTeacherContext',
+                'update' => 'updateTeacherContext',
+                'delete' => 'deleteTeacherContext',
+                default => $ability,
+            },
+            'base' => match ($ability) {
+                'view' => 'viewBaseContext',
+                'update' => 'updateBaseContext',
+                'delete' => 'deleteBaseContext',
+                default => $ability,
+            },
             default => $ability,
         };
     }

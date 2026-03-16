@@ -16,6 +16,25 @@
 
         <flux:sidebar.nav>
             @php
+                $showPortalNavigation = request()->routeIs('app.portal.*') || ($currentPortal?->value === 'student' && request()->routeIs('app.student.*'));
+            @endphp
+
+            @if ($currentPortal)
+                <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                            {{ __('Portal atual') }}
+                        </span>
+                        <span class="text-sm font-semibold text-white">{{ $currentPortal->label() }}</span>
+                    </div>
+
+                    <flux:button variant="ghost" size="sm" :href="route('app.start')" wire:navigate>
+                        {{ __('Trocar portal') }}
+                    </flux:button>
+                </div>
+            @endif
+
+            @php
                 $currentRoleKey = match (true) {
                     request()->routeIs('app.board.*') => 'board',
                     request()->routeIs('app.director.*') => 'director',
@@ -38,7 +57,20 @@
                 ];
             @endphp
 
-            @if ($currentRoleKey && isset($roleMenus[$currentRoleKey]))
+            @if ($showPortalNavigation && ! empty($portalMenuSections))
+                @foreach ($portalMenuSections as $section)
+                    <flux:sidebar.group :heading="__($section['title'])"
+                        class="grid [&>div>div]:truncate [&>div>div]:text-slate-300/80">
+                        @foreach ($section['items'] as $item)
+                            <x-app.menu-sidebar-item
+                                :label="$item['label']"
+                                :route="route($item['route'])"
+                                :current="request()->routeIs($item['route'])"
+                                :icon="$item['icon']" />
+                        @endforeach
+                    </flux:sidebar.group>
+                @endforeach
+            @elseif ($currentRoleKey && isset($roleMenus[$currentRoleKey]))
                 <x-dynamic-component :component="$roleMenus[$currentRoleKey]" />
             @endif
 

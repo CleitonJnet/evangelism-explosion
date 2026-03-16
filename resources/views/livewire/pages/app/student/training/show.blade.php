@@ -6,6 +6,23 @@
 @endphp
 
 <div class="flex flex-col gap-6">
+    @if (request()->routeIs('app.portal.student.*'))
+        <x-app.portal.page-header
+            eyebrow="Portal do aluno"
+            :title="$training->course?->name ? 'Detalhes do treinamento' : 'Treinamento'"
+            description="Agenda, local, contato e acompanhamento do pagamento em uma unica tela."
+            :breadcrumbs="[
+                ['label' => 'Portais', 'url' => route('app.start')],
+                ['label' => 'Aluno', 'url' => route('app.portal.student.dashboard')],
+                ['label' => 'Treinamentos', 'url' => route('app.portal.student.trainings.index')],
+                ['label' => $training->course?->name ?? 'Detalhes', 'current' => true],
+            ]">
+            <flux:button variant="ghost" :href="route('app.portal.student.trainings.index')" wire:navigate>
+                {{ __('Voltar para treinamentos') }}
+            </flux:button>
+        </x-app.portal.page-header>
+    @endif
+
     <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-2">
             <div class="text-sm font-semibold text-neutral-500">Bem-vindo(a)</div>

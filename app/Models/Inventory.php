@@ -14,7 +14,7 @@ class Inventory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'kind', 'phone', 'email', 'user_id', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'notes', 'is_active'];
+    protected $fillable = ['name', 'kind', 'phone', 'email', 'user_id', 'church_id', 'street', 'number', 'complement', 'district', 'city', 'state', 'postal_code', 'notes', 'is_active'];
 
     /**
      * @return array<string, string>
@@ -23,6 +23,7 @@ class Inventory extends Model
     {
         return [
             'user_id' => 'integer',
+            'church_id' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -40,6 +41,11 @@ class Inventory extends Model
     public function responsibleUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function church(): BelongsTo
+    {
+        return $this->belongsTo(Church::class);
     }
 
     public function currentQuantityFor(Material|int $material): int
@@ -64,6 +70,11 @@ class Inventory extends Model
             ->where('materials.is_active', true)
             ->wherePivot('current_quantity', '>', 0)
             ->exists();
+    }
+
+    public function isBaseInventory(): bool
+    {
+        return $this->kind === 'base';
     }
 
     /**

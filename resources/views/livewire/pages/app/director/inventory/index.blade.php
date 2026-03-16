@@ -7,7 +7,7 @@
                     {{ __('Estoques cadastrados') }}
                 </h2>
                 <p class="text-sm text-slate-600">
-                    {{ __('Gerencie o estoque central e os estoques locais vinculados aos professores.') }}
+                    {{ __('Gerencie o estoque central e os estoques locais vinculados a professores e bases.') }}
                 </p>
             </div>
             <div class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
@@ -27,25 +27,43 @@
         <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @forelse ($inventories as $inventory)
                 @php
-                    $isCentralInventory = $inventory->kind === 'central';
-                    $typeBadgeClasses = $isCentralInventory
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-sky-100 text-sky-800';
-                    $cardClasses = $isCentralInventory
-                        ? 'border-2 border-amber-300 bg-linear-to-br from-amber-50 via-white to-amber-100/70 hover:border-amber-400 hover:bg-amber-50/80'
-                        : 'border-2 border-sky-300 bg-linear-to-br from-sky-50 via-white to-cyan-100/70 hover:border-sky-400 hover:bg-sky-50/80';
+                    $presentation = match ($inventory->kind) {
+                        'central' => [
+                            'badge' => __('Central'),
+                            'badge_classes' => 'bg-amber-100 text-amber-800',
+                            'card_classes' => 'border-2 border-amber-300 bg-linear-to-br from-amber-50 via-white to-amber-100/70 hover:border-amber-400 hover:bg-amber-50/80',
+                            'responsible_label' => __('Responsável'),
+                            'responsible_name' => __('Não se aplica'),
+                            'scope_label' => __('Distribuição central'),
+                        ],
+                        'base' => [
+                            'badge' => __('Base'),
+                            'badge_classes' => 'bg-sky-100 text-sky-800',
+                            'card_classes' => 'border-2 border-sky-300 bg-linear-to-br from-sky-50 via-white to-cyan-100/70 hover:border-sky-400 hover:bg-sky-50/80',
+                            'responsible_label' => __('Base vinculada'),
+                            'responsible_name' => $inventory->church?->name ?: __('Base não informada'),
+                            'scope_label' => __('Operação institucional da base'),
+                        ],
+                        default => [
+                            'badge' => __('Professor'),
+                            'badge_classes' => 'bg-indigo-100 text-indigo-800',
+                            'card_classes' => 'border-2 border-indigo-300 bg-linear-to-br from-indigo-50 via-white to-sky-100/70 hover:border-indigo-400 hover:bg-indigo-50/80',
+                            'responsible_label' => __('Professor responsável'),
+                            'responsible_name' => $inventory->responsibleUser?->name ?: __('Não informado'),
+                            'scope_label' => __('Operação do professor'),
+                        ],
+                    };
                     $location = trim(implode(' / ', array_filter([$inventory->city, $inventory->state]))) ?: __('Não informado');
-                    $responsibleName = $inventory->responsibleUser?->name ?: __('Não se aplica');
                 @endphp
 
                 <a href="{{ route('app.director.inventory.show', $inventory) }}"
                     wire:key="director-inventory-card-{{ $inventory->id }}"
-                    class="flex flex-col gap-4 rounded-2xl border p-4 text-left shadow-xs transition {{ $cardClasses }}">
+                    class="flex flex-col gap-4 rounded-2xl border p-4 text-left shadow-xs transition {{ $presentation['card_classes'] }}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="space-y-2">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $typeBadgeClasses }}">
-                                    {{ $isCentralInventory ? __('Central') : __('Professor') }}
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $presentation['badge_classes'] }}">
+                                    {{ $presentation['badge'] }}
                                 </span>
                                 <span
                                     class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $inventory->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">
@@ -65,9 +83,9 @@
                     <div class="grid gap-3 text-sm sm:grid-cols-2">
                         <div class="rounded-xl border border-slate-200/80 bg-white/80 p-3">
                             <div class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                {{ __('Professor responsável') }}
+                                {{ $presentation['responsible_label'] }}
                             </div>
-                            <div class="font-medium text-slate-800">{{ $responsibleName }}</div>
+                            <div class="font-medium text-slate-800">{{ $presentation['responsible_name'] }}</div>
                         </div>
 
                         <div class="rounded-xl border border-slate-200/80 bg-white/80 p-3">
@@ -82,15 +100,9 @@
                         <span class="rounded-full bg-slate-200 px-2.5 py-1 text-slate-700">
                             {{ __('SKUs com saldo: :count', ['count' => (int) $inventory->active_skus_count]) }}
                         </span>
-                        @if ($isCentralInventory)
-                            <span class="rounded-full bg-amber-200/70 px-2.5 py-1 text-amber-900">
-                                {{ __('Distribuição central') }}
-                            </span>
-                        @else
-                            <span class="rounded-full bg-sky-200/70 px-2.5 py-1 text-sky-900">
-                                {{ __('Operação do professor') }}
-                            </span>
-                        @endif
+                        <span class="rounded-full bg-white/80 px-2.5 py-1 text-slate-800">
+                            {{ $presentation['scope_label'] }}
+                        </span>
                     </div>
                 </a>
             @empty

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::name('web.')->group(function () {
     Route::get('/', [SiteController::class, 'home'])->name('home');
     Route::get('donate', [SiteController::class, 'donate'])->name('donate');
+    Route::prefix('portais')->name('portals.')->group(function () {
+        Route::get('/', [SiteController::class, 'portals'])->name('index');
+        Route::get('{portal}', [SiteController::class, 'portalShow'])->name('show');
+        Route::get('{portal}/acessar', [SiteController::class, 'portalAccess'])->name('access');
+    });
 
     Route::prefix('ministry')->name('ministry.')->group(function () {
         Route::get('everyday-evangelism', [SiteController::class, 'everyday_evangelism'])->name('everyday-evangelism');

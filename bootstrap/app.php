@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureChurchLinked;
 use App\Http\Middleware\ForcePasswordChange;
+use App\Http\Middleware\ResolvePortalContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             EnsureChurchLinked::class,
             ForcePasswordChange::class,
+            ResolvePortalContext::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

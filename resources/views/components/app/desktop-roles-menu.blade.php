@@ -8,7 +8,7 @@
                 request()->routeIs('app.facilitator.*') => __('Facilitator'),
                 request()->routeIs('app.fieldworker.*') => __('FieldWorker'),
                 request()->routeIs('app.mentor.*') => __('Mentor'),
-                request()->routeIs('app.student.*') => __('Student'),
+                request()->routeIs('app.student.*') || request()->routeIs('app.portal.student.*') => __('Student'),
                 default => __('Triagem'),
             };
         @endphp
@@ -72,7 +72,7 @@
                 @endcan
 
                 @can('access-student')
-                    <flux:menu.item :href="route('app.student.training.index')" wire:navigate
+                    <flux:menu.item :href="route('app.portal.student.dashboard')" wire:navigate
                         class="hover:bg-sky-950! hover:text-white!">
                         &#10023; {{ __('Student') }}
                     </flux:menu.item>

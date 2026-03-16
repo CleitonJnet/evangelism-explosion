@@ -9,6 +9,7 @@
 
 <x-layouts.guest :title="$title" :description="$description" :keywords="$keywords" :ogImage="$ogImage">
     <x-web.home.hero />
+    <x-web.home.portals :portal-cards="$portalCards" />
     <x-web.home.about />
     <x-web.home.list-events />
     @livewire('web.home.testimonials')

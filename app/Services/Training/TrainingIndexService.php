@@ -16,9 +16,11 @@ class TrainingIndexService
 
     /**
      * @param  array<string, string>  $statusRoutes
+     * @param  array{filter?: ?string, assignment?: ?string, church?: ?string, from?: ?string, to?: ?string}  $filters
      * @return array{
      *     statusKey: string,
      *     statuses: array<int, array{key: string, label: string, route: string}>,
+     *     filters: array{filter: ?string, assignment: string, church: ?string, from: ?string, to: ?string},
      *     groups: Collection<int, array{
      *         ministry: \App\Models\Ministry|null,
      *         courses: Collection<int, array{
@@ -31,10 +33,11 @@ class TrainingIndexService
      *     }>
      * }
      */
-    public function buildIndexData(User $user, ?string $statusKey, ?string $filterTerm, array $statusRoutes, string $context = 'auto'): array
+    public function buildIndexData(User $user, ?string $statusKey, ?string $filterTerm, array $statusRoutes, string $context = 'auto', array $filters = []): array
     {
         $normalizedStatusKey = $this->normalizeStatusKey($statusKey);
         $status = $this->statusFromKey($normalizedStatusKey);
+        $normalizedFilters = $this->normalizeFilters($filterTerm, $filters);
 
         $trainings = Training::query()
             ->select('trainings.*')
@@ -42,6 +45,8 @@ class TrainingIndexService
             ->leftJoin('ministries', 'ministries.id', '=', 'courses.ministry_id')
             ->with([
                 'teacher',
+                'assistantTeachers',
+                'mentors',
                 'church',
                 'course.ministry',
                 'eventDates' => fn ($query) => $query->orderBy('date')->orderBy('start_time'),
@@ -49,8 +54,11 @@ class TrainingIndexService
             ->withCount(['newChurches', 'students'])
             ->whereHas('course', fn (Builder $query) => $query->where('execution', 0))
             ->where('status', $status->value)
-            ->when($filterTerm !== null, fn (Builder $query) => $this->applyFilter($query, $filterTerm))
             ->tap(fn (Builder $query) => $this->visibilityScope->apply($query, $user, $context))
+            ->when($normalizedFilters['filter'] !== null, fn (Builder $query) => $this->applyFilter($query, $normalizedFilters['filter']))
+            ->when($normalizedFilters['assignment'] !== 'all', fn (Builder $query) => $this->applyAssignmentFilter($query, $user, $normalizedFilters['assignment']))
+            ->when($normalizedFilters['church'] !== null, fn (Builder $query) => $this->applyChurchFilter($query, $normalizedFilters['church']))
+            ->when($normalizedFilters['from'] !== null || $normalizedFilters['to'] !== null, fn (Builder $query) => $this->applyPeriodFilter($query, $normalizedFilters['from'], $normalizedFilters['to']))
             ->orderBy('ministries.name')
             ->orderBy('courses.type')
             ->orderBy('courses.name')
@@ -58,7 +66,8 @@ class TrainingIndexService
 
         return [
             'statusKey' => $normalizedStatusKey,
-            'statuses' => $this->statusTabs($statusRoutes, $filterTerm),
+            'statuses' => $this->statusTabs($statusRoutes, $normalizedFilters),
+            'filters' => $normalizedFilters,
             'groups' => $this->groupByMinistry($trainings, $normalizedStatusKey),
         ];
     }
@@ -94,6 +103,41 @@ class TrainingIndexService
         });
     }
 
+    private function applyAssignmentFilter(Builder $query, User $user, string $assignment): void
+    {
+        match ($assignment) {
+            'lead_teacher' => $query->where('trainings.teacher_id', $user->id),
+            'assistant_teacher' => $query->whereHas('assistantTeachers', fn (Builder $assistantQuery) => $assistantQuery->whereKey($user->id)),
+            'mentor' => $query->whereHas('mentors', fn (Builder $mentorQuery) => $mentorQuery->whereKey($user->id)),
+            default => null,
+        };
+    }
+
+    private function applyChurchFilter(Builder $query, string $church): void
+    {
+        $like = '%'.$church.'%';
+
+        $query->whereHas('church', function (Builder $churchQuery) use ($like): void {
+            $churchQuery
+                ->where('name', 'like', $like)
+                ->orWhere('city', 'like', $like)
+                ->orWhere('state', 'like', $like);
+        });
+    }
+
+    private function applyPeriodFilter(Builder $query, ?string $from, ?string $to): void
+    {
+        $query->whereHas('eventDates', function (Builder $dateQuery) use ($from, $to): void {
+            if ($from !== null) {
+                $dateQuery->whereDate('date', '>=', $from);
+            }
+
+            if ($to !== null) {
+                $dateQuery->whereDate('date', '<=', $to);
+            }
+        });
+    }
+
     private function parseFilterDate(string $filterTerm): ?string
     {
         foreach (['d/m/Y', 'Y-m-d', 'd-m-Y'] as $format) {
@@ -113,19 +157,20 @@ class TrainingIndexService
 
     /**
      * @param  array<string, string>  $statusRoutes
+     * @param  array{filter: ?string, assignment: string, church: ?string, from: ?string, to: ?string}  $filters
      * @return array<int, array{key: string, label: string, route: string}>
      */
-    private function statusTabs(array $statusRoutes, ?string $filterTerm): array
+    private function statusTabs(array $statusRoutes, array $filters): array
     {
         return collect(TrainingStatus::cases())
-            ->map(function (TrainingStatus $status) use ($statusRoutes, $filterTerm): array {
+            ->map(function (TrainingStatus $status) use ($statusRoutes, $filters): array {
                 $routeName = $statusRoutes[$status->key()] ?? null;
 
                 return [
                     'key' => $status->key(),
                     'label' => $status->label(),
                     'route' => $routeName !== null
-                        ? route($routeName, array_filter(['filter' => $filterTerm]))
+                        ? route($routeName, $this->routeParameters($filters))
                         : '#',
                 ];
             })
@@ -217,6 +262,45 @@ class TrainingIndexService
             ->values();
     }
 
+    /**
+     * @param  array{filter?: ?string, assignment?: ?string, church?: ?string, from?: ?string, to?: ?string}  $filters
+     * @return array{filter: ?string, assignment: string, church: ?string, from: ?string, to: ?string}
+     */
+    private function normalizeFilters(?string $filterTerm, array $filters): array
+    {
+        $filter = $filters['filter'] ?? $filterTerm;
+        $filter = is_string($filter) ? trim($filter) : null;
+        $church = $filters['church'] ?? null;
+        $church = is_string($church) ? trim($church) : null;
+        $assignment = $filters['assignment'] ?? 'all';
+        $allowedAssignments = ['all', 'lead_teacher', 'assistant_teacher', 'mentor'];
+
+        return [
+            'filter' => $filter !== '' ? $filter : null,
+            'assignment' => in_array($assignment, $allowedAssignments, true) ? $assignment : 'all',
+            'church' => $church !== '' ? $church : null,
+            'from' => $this->normalizeDateValue($filters['from'] ?? null),
+            'to' => $this->normalizeDateValue($filters['to'] ?? null),
+        ];
+    }
+
+    /**
+     * @param  array{filter: ?string, assignment: string, church: ?string, from: ?string, to: ?string}  $filters
+     * @return array<string, string>
+     */
+    private function routeParameters(array $filters): array
+    {
+        $parameters = [
+            'filter' => $filters['filter'],
+            'assignment' => $filters['assignment'] !== 'all' ? $filters['assignment'] : null,
+            'church' => $filters['church'],
+            'from' => $filters['from'],
+            'to' => $filters['to'],
+        ];
+
+        return array_filter($parameters, fn (?string $value): bool => $value !== null && $value !== '');
+    }
+
     private function normalizeStatusKey(?string $statusKey): string
     {
         $key = $statusKey ?? TrainingStatus::Scheduled->key();
@@ -239,5 +323,16 @@ class TrainingIndexService
         }
 
         return TrainingStatus::Scheduled;
+    }
+
+    private function normalizeDateValue(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $date = trim($value);
+
+        return $date !== '' ? $date : null;
     }
 }

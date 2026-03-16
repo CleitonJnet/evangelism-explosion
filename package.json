@@ -14,7 +14,7 @@
         "chartjs-adapter-date-fns": "^3.0.0",
         "concurrently": "^9.0.1",
         "date-fns": "^4.1.0",
-        "download": "^8.0.0",
+        "download": "^3.3.0",
         "laravel-vite-plugin": "^2.0",
         "sortablejs": "^1.15.6",
         "tailwindcss": "^4.0.7",

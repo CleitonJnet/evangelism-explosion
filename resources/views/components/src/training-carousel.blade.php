@@ -81,7 +81,6 @@
                         ? \Illuminate\Support\Carbon::parse($eventDate->start_time)->format('H:i')
                         : '--:--';
 
-                    // SOBRE O TREINAMENTO
                     $isPaid = (float) preg_replace('/\D/', '', (string) $item['training']->payment) > 0;
                     $free = ! $isPaid;
 
@@ -102,39 +101,21 @@
                         ? route('web.event.banner.download', ['id' => $item['training']->id])
                         : null;
 
-                    $isPaid = (float) preg_replace('/\D/', '', (string) $item['training']->payment) > 0;
-                    $free = ! $isPaid;
-
-                    $canAccessPublicSchedule = \App\Helpers\DayScheduleHelper::hasAllDaysMatch(
-                        $item['training']->eventDates,
-                        $item['training']->scheduleItems,
-                    );
-                    $schedule = !empty($canAccessPublicSchedule);
-
-                    $bannerPath = is_string($item['training']->banner) ? trim($item['training']->banner) : '';
-                    $bannerExtension = strtolower(pathinfo($bannerPath, PATHINFO_EXTENSION));
-                    $allowedImageExtensions = ['webp', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
-                    $hasBannerImage =
-                        $bannerPath !== '' &&
-                        in_array($bannerExtension, $allowedImageExtensions, true) &&
-                        Storage::disk('public')->exists($bannerPath);
-                    $bannerDownloadUrl = $hasBannerImage
-                        ? route('web.event.banner.download', ['id' => $item['training']->id])
-                        : null;
-
-                    $detailsRouteName = match ($role) {
-                        'director' => 'app.director.training.show',
-                        'teacher' => 'app.teacher.trainings.show',
-                        default => 'app.' . $role . '.trainings.show',
+                    $detailsRoute = match ($role) {
+                        'director' => route('app.director.trainings.show', $training->id),
+                        'teacher' => route('app.teacher.trainings.show', $training->id),
+                        'portal-base-serving' => route('app.portal.base.trainings.context', $training->id),
+                        default => \Illuminate\Support\Facades\Route::has('app.' . $role . '.trainings.show')
+                            ? route('app.' . $role . '.trainings.show', $training->id)
+                            : '#',
                     };
-                    $detailsRoute = \Illuminate\Support\Facades\Route::has($detailsRouteName)
-                        ? route($detailsRouteName, $training->id)
-                        : '#';
                     $requiresCompletionReview = $training->requiresCompletionReview();
                     $completionReviewAlertMessage = $training->completionReviewAlertMessage();
-                    $footerLabel = $role === 'director'
-                        ? ($training->teacher?->name ?? __('Professor não informado'))
-                        : __('Saiba mais.');
+                    $footerLabel = match ($role) {
+                        'director' => $training->teacher?->name ?? __('Professor nao informado'),
+                        'portal-base-serving' => __('Abrir contexto.'),
+                        default => __('Saiba mais.'),
+                    };
                     $studentsCount = (int) ($training->students_count ?? 0);
                 @endphp
 

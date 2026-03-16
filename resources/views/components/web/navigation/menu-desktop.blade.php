@@ -41,6 +41,56 @@
         </a>
     </x-src.dropdown>
 
+    <x-src.dropdown label="Portais" description="PLATAFORMA MINISTERIAL" width="380px" :isroute="request()->routeIs('web.portals.*')">
+        <a href="{{ route('web.portals.index') }}"
+            class="flex items-start gap-3 rounded-xl p-3 transition {{ request()->routeIs('web.portals.index') ? 'bg-white/5' : 'hover:bg-white/10' }} shine">
+            <div>
+                <div class="border-b-2 border-amber-600/50 pb-0.5 font-extrabold text-white">
+                    &#10022; {{ __('Ver os 3 portais') }}
+                </div>
+                <div class="px-0.5 pt-0.5 text-xs leading-snug text-white/60">
+                    {{ __('Entenda quem usa cada portal, o que cada area resolve e escolha a entrada certa.') }}
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('web.portals.show', 'base') }}"
+            class="flex items-start gap-3 rounded-xl p-3 transition {{ request()->routeIs('web.portals.show') && request()->route('portal')?->value === 'base' ? 'bg-white/5' : 'hover:bg-white/10' }} shine">
+            <div>
+                <div class="border-b-2 border-sky-600/50 pb-0.5 font-extrabold text-white">
+                    &#10022; {{ __('Base e Treinamentos') }}
+                </div>
+                <div class="px-0.5 pt-0.5 text-xs leading-snug text-white/60">
+                    {{ __('Operacao da base, agenda, materiais e fluxo de quem serve no campo.') }}
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('web.portals.show', 'staff') }}"
+            class="flex items-start gap-3 rounded-xl p-3 transition {{ request()->routeIs('web.portals.show') && request()->route('portal')?->value === 'staff' ? 'bg-white/5' : 'hover:bg-white/10' }} shine">
+            <div>
+                <div class="border-b-2 border-amber-500/50 pb-0.5 font-extrabold text-white">
+                    &#10022; {{ __('Staff / Governanca') }}
+                </div>
+                <div class="px-0.5 pt-0.5 text-xs leading-snug text-white/60">
+                    {{ __('Governanca, bases acompanhadas, conselho e estoque central.') }}
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('web.portals.show', 'student') }}"
+            class="flex items-start gap-3 rounded-xl p-3 transition {{ request()->routeIs('web.portals.show') && request()->route('portal')?->value === 'student' ? 'bg-white/5' : 'hover:bg-white/10' }} shine">
+            <div>
+                <div class="border-b-2 border-slate-500/50 pb-0.5 font-extrabold text-white">
+                    &#10022; {{ __('Aluno') }}
+                </div>
+                <div class="px-0.5 pt-0.5 text-xs leading-snug text-white/60">
+                    {{ __('Jornada do participante com treinamentos, comprovantes e historico.') }}
+                </div>
+            </div>
+        </a>
+    </x-src.dropdown>
+
 
     <a href="{{ route('web.event.index') }}"
         class="flex items-center h-full transition {{ request()->routeIs('web.event.*') ? 'text-amber-300' : 'text-white/90' }} hover:text-amber-300">

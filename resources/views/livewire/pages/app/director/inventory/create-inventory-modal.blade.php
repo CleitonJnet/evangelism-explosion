@@ -42,10 +42,20 @@
                             </div>
                         @endif
 
+                        @if ($kind === 'base')
+                            <div class="mb-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                                {{ __('Como este estoque é do tipo base, vincule-o a uma igreja-base para liberar a visualização institucional no Portal Base.') }}
+                            </div>
+                        @endif
+
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
                             @if ($kind === 'teacher')
                                 <x-src.form.select name="director-inventory-create-user" wire:model.live="user_id"
                                     label="Professor responsável" width_basic="320" :options="$teacherOptions" required />
+                            @endif
+                            @if ($kind === 'base')
+                                <x-src.form.select name="director-inventory-create-church" wire:model.live="church_id"
+                                    label="Base vinculada" width_basic="420" :options="$churchOptions" required />
                             @endif
                             <x-src.form.input name="director-inventory-create-phone" wire:model.live="phone"
                                 label="Telefone" type="text" width_basic="200" />

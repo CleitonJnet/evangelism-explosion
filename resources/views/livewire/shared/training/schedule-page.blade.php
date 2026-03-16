@@ -12,6 +12,7 @@
     $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
+    $canManageSchedule = (bool) ($capabilities['canManageSchedule'] ?? false);
 @endphp
 
 <div x-data="{ showRegenerateScheduleModal: false, showScheduleAttentionModal: @js($showScheduleAttentionModal) }" x-on:schedule-alert.window="window.alert($event.detail.message)"
@@ -40,27 +41,31 @@
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o Treinamento')"
                 class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
-            <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
-                x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
-            <x-src.toolbar.button :href="'#'" :label="__('Banner do Evento')" icon="plus" :tooltip="__('Enviar imagem de divulgação')"
-                x-on:click.prevent="$dispatch('open-edit-event-banner-modal', { trainingId: {{ $training->id }} })" />
+            @if ($canManageSchedule)
+                <x-src.toolbar.button :href="'#'" :label="__('Datas do Evento')" icon="calendar" :tooltip="__('Editar dias e horários')"
+                    x-on:click.prevent="$dispatch('open-edit-event-dates-modal', { trainingId: {{ $training->id }} })" />
+                <x-src.toolbar.button :href="'#'" :label="__('Banner do Evento')" icon="plus" :tooltip="__('Enviar imagem de divulgação')"
+                    x-on:click.prevent="$dispatch('open-edit-event-banner-modal', { trainingId: {{ $training->id }} })" />
+            @endif
         </div>
 
         <div class="flex items-center gap-2 overflow-auto">
-            <label
-                class="flex items-center justify-end gap-3 cursor-pointer bg-sky-900/5 hover:bg-sky-900/75 hover:text-white transition rounded-lg"
-                aria-label="{{ __('Regenerar programação do evento') }}">
-                <span class="text-xs max-w-24 text-right p-1 select-none">
-                    {{ __('Redefinir programação') }}
-                </span>
-                <flux:button variant="primary" type="button" icon="arrow-path"
-                    tooltip="{{ __('Regenerar programação do evento') }}"
-                    aria-label="{{ __('Regenerar programação do evento') }}"
-                    x-on:click="showRegenerateScheduleModal = true" wire:loading.attr="disabled"
-                    wire:target="regenerate" class="cursor-pointer" />
-            </label>
+            @if ($canManageSchedule)
+                <label
+                    class="flex items-center justify-end gap-3 cursor-pointer bg-sky-900/5 hover:bg-sky-900/75 hover:text-white transition rounded-lg"
+                    aria-label="{{ __('Regenerar programação do evento') }}">
+                    <span class="text-xs max-w-24 text-right p-1 select-none">
+                        {{ __('Redefinir programação') }}
+                    </span>
+                    <flux:button variant="primary" type="button" icon="arrow-path"
+                        tooltip="{{ __('Regenerar programação do evento') }}"
+                        aria-label="{{ __('Regenerar programação do evento') }}"
+                        x-on:click="showRegenerateScheduleModal = true" wire:loading.attr="disabled"
+                        wire:target="regenerate" class="cursor-pointer" />
+                </label>
 
-            <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+                <span class="mx-1 h-7 w-px bg-slate-300/80"></span>
+            @endif
 
             @php
                 $hasMultipleDays = $eventDates->count() > 1;
@@ -135,51 +140,58 @@
                                     <input type="time" id="day_time_start_{{ $dateKey }}" class=""
                                         wire:model.live.blur="dayTimes.{{ $dateKey }}.start_time"
                                         wire:loading.attr="disabled"
-                                        wire:target="dayTimes.{{ $dateKey }}.start_time">
+                                        wire:target="dayTimes.{{ $dateKey }}.start_time" @disabled(! $canManageSchedule)>
                                 </label>
                                 <label for="day_time_end_{{ $dateKey }}">
                                     <span>{{ __('Fim das sessões') }}</span>
                                     <input type="time" id="day_time_end_{{ $dateKey }}" class=""
                                         wire:model.live="dayTimes.{{ $dateKey }}.end_time"
                                         wire:loading.attr="disabled"
-                                        wire:target="dayTimes.{{ $dateKey }}.end_time">
+                                        wire:target="dayTimes.{{ $dateKey }}.end_time" @disabled(! $canManageSchedule)>
                                 </label>
                             </div>
                         </div>
                         <div
                             class="flex flex-auto flex-wrap items-center justify-end gap-2 text-xs text-(--ee-app-muted)">
+                            @if (! $canManageSchedule)
+                                <div class="rounded-xl border border-dashed border-slate-300 bg-white/70 px-3 py-2 text-xs text-slate-600">
+                                    {{ __('Programacao disponivel apenas para leitura neste contexto.') }}
+                                </div>
+                            @endif
                             <x-app.switch-schedule :label="__('Boas-vindas')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.welcome', true)"
                                 wire:change="toggleDayBlock('{{ $dateKey }}', 'welcome', $event.target.checked)"
-                                wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             <x-app.switch-schedule :label="__('Devocional')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.devotional', true)"
                                 wire:change="toggleDayBlock('{{ $dateKey }}', 'devotional', $event.target.checked)"
-                                wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             @if ($showBreakfast)
                                 <x-app.switch-schedule :label="__('Café')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.breakfast', true)"
                                     wire:change="toggleDayBlock('{{ $dateKey }}', 'breakfast', $event.target.checked)"
-                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             @endif
                             @if ($showLunch)
                                 <x-app.switch-schedule :label="__('Almoço')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.lunch', true)"
                                     wire:change="toggleDayBlock('{{ $dateKey }}', 'lunch', $event.target.checked)"
-                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             @endif
                             @if ($showSnack)
                                 <x-app.switch-schedule :label="__('Lanche')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.snack', true)"
                                     wire:change="toggleDayBlock('{{ $dateKey }}', 'snack', $event.target.checked)"
-                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             @endif
                             @if ($showDinner)
                                 <x-app.switch-schedule :label="__('Jantar')" :key="$dateKey" :checked="data_get($dayBlocks, $dateKey . '.dinner', true)"
                                     wire:change="toggleDayBlock('{{ $dateKey }}', 'dinner', $event.target.checked)"
-                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" />
+                                    wire:loading.attr="disabled" wire:target="toggleDayBlock" @disabled(! $canManageSchedule) />
                             @endif
-                            <button type="button"
-                                class="flex flex-col items-center justify-center gap-1 rounded-xl bg-slate-200 hover:bg-sky-200 transition duration-200 basis-20 py-1.5 cursor-pointer border border-slate-300 h-14"
-                                wire:click="addBreak('{{ $dateKey }}')" wire:loading.attr="disabled"
-                                wire:target="addBreak">
-                                {{ __('Adicionar intervalo') }}
-                            </button>
+                            @if ($canManageSchedule)
+                                <button type="button"
+                                    class="flex flex-col items-center justify-center gap-1 rounded-xl bg-slate-200 hover:bg-sky-200 transition duration-200 basis-20 py-1.5 cursor-pointer border border-slate-300 h-14"
+                                    wire:click="addBreak('{{ $dateKey }}')" wire:loading.attr="disabled"
+                                    wire:target="addBreak">
+                                    {{ __('Adicionar intervalo') }}
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -245,7 +257,7 @@
                                                 <button type="button"
                                                     class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-(--ee-app-border) bg-white text-(--ee-app-muted) transition hover:text-slate-700 hover:bg-sky-500 cursor-grab js-drag-handle"
                                                     title="{{ __('Arrastar para reordenar') }}"
-                                                    aria-label="{{ __('Arrastar para reordenar') }}">
+                                                    aria-label="{{ __('Arrastar para reordenar') }}" @disabled(! $canManageSchedule)>
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -306,7 +318,7 @@
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
                                                             x-on:click="step(-5)"
-                                                            aria-label="{{ __('Reduzir duração') }}">
+                                                            aria-label="{{ __('Reduzir duração') }}" @disabled(! $canManageSchedule)>
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
                                                                 <path d="M10 14 4 6h12l-6 8Z" />
@@ -327,11 +339,11 @@
                                                             class="w-14 border-x border-(--ee-app-border) py-1 text-center text-sm bg-white focus-within:bg-white"
                                                             wire:model.live.debounce.700ms="durationInputs.{{ $item->id }}"
                                                             wire:loading.attr="disabled"
-                                                            wire:target="durationInputs.{{ $item->id }}" />
+                                                            wire:target="durationInputs.{{ $item->id }}" @disabled(! $canManageSchedule) />
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
                                                             x-on:click="step(5)"
-                                                            aria-label="{{ __('Aumentar duração') }}">
+                                                            aria-label="{{ __('Aumentar duração') }}" @disabled(! $canManageSchedule)>
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
                                                                 <path d="M10 6 4 14h12L10 6Z" />
@@ -367,7 +379,7 @@
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
                                                             x-on:click="step(-5)"
-                                                            aria-label="{{ __('Reduzir duração') }}">
+                                                            aria-label="{{ __('Reduzir duração') }}" @disabled(! $canManageSchedule)>
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
                                                                 <path d="M10 14 4 6h12l-6 8Z" />
@@ -388,11 +400,11 @@
                                                             class="w-14 border-x border-(--ee-app-border) py-1 text-center text-sm bg-white focus-within:bg-white"
                                                             wire:model.live.debounce.700ms="durationInputs.{{ $item->id }}"
                                                             wire:loading.attr="disabled"
-                                                            wire:target="durationInputs.{{ $item->id }}" />
+                                                            wire:target="durationInputs.{{ $item->id }}" @disabled(! $canManageSchedule) />
                                                         <button type="button"
                                                             class="inline-flex h-8 w-8 items-center justify-center text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
                                                             x-on:click="step(5)"
-                                                            aria-label="{{ __('Aumentar duração') }}">
+                                                            aria-label="{{ __('Aumentar duração') }}" @disabled(! $canManageSchedule)>
                                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                                                 viewBox="0 0 20 20" class="h-3 w-3 fill-current">
                                                                 <path d="M10 6 4 14h12L10 6Z" />
@@ -407,7 +419,7 @@
                                                             class="hidden group-hover:inline-flex items-center justify-center transition duration-200 group-hover:text-red-700 group-hover:bg-red-50 absolute right-0 inset-y-0 w-fit h-full px-2 cursor-pointer"
                                                             title="{{ __('Excluir intervalo') }}"
                                                             wire:click="deleteBreak({{ $item->id }})"
-                                                            wire:loading.attr="disabled" wire:target="deleteBreak">
+                                                            wire:loading.attr="disabled" wire:target="deleteBreak" @disabled(! $canManageSchedule)>
                                                             <svg version="1.1" id="remove"
                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                 class="w-5 h-5 fill-red-500"

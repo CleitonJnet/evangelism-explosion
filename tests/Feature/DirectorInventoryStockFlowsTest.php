@@ -3,6 +3,7 @@
 use App\Livewire\Pages\App\Director\Inventory\Index as InventoryIndex;
 use App\Livewire\Pages\App\Director\Inventory\View;
 use App\Livewire\Pages\App\Director\Inventory\View as InventoryView;
+use App\Models\Church;
 use App\Models\Inventory;
 use App\Models\Material;
 use App\Models\MaterialComponent;
@@ -470,4 +471,63 @@ it('refreshes the product tables after a material is created', function (): void
     $component
         ->dispatch('director-material-created', materialId: $material->id)
         ->assertSee('Produto recém-cadastrado');
+});
+
+it('creates and edits a base inventory linked to a church', function (): void {
+    $church = Church::factory()->create([
+        'name' => 'Igreja Base Campinas',
+        'city' => 'Campinas',
+        'state' => 'SP',
+    ]);
+
+    Livewire::test('pages.app.director.inventory.create-inventory-modal')
+        ->call('openModal')
+        ->set('name', 'Acervo Base Campinas')
+        ->set('kind', 'base')
+        ->set('church_id', $church->id)
+        ->set('address.city', 'Campinas')
+        ->set('address.state', 'SP')
+        ->call('save')
+        ->assertDispatched('director-inventory-created');
+
+    $inventory = Inventory::query()->where('name', 'Acervo Base Campinas')->first();
+
+    expect($inventory)->not->toBeNull();
+    expect($inventory?->kind)->toBe('base');
+    expect($inventory?->church_id)->toBe($church->id);
+    expect($inventory?->user_id)->toBeNull();
+
+    Livewire::test('pages.app.director.inventory.edit-inventory-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id)
+        ->set('name', 'Acervo Base Campinas Atualizado')
+        ->call('save')
+        ->assertDispatched('director-inventory-updated');
+
+    expect($inventory->fresh()?->name)->toBe('Acervo Base Campinas Atualizado');
+});
+
+it('renders base inventories with their institutional highlight on the director listing', function (): void {
+    $director = createDirectorUserForInventoryTests();
+    $church = Church::factory()->create([
+        'name' => 'Igreja Base Limeira',
+        'city' => 'Limeira',
+        'state' => 'SP',
+    ]);
+
+    Inventory::query()->create([
+        'name' => 'Acervo Base Limeira',
+        'kind' => 'base',
+        'church_id' => $church->id,
+        'is_active' => true,
+        'city' => 'Limeira',
+        'state' => 'SP',
+    ]);
+
+    $response = $this->actingAs($director)->get(route('app.director.inventory.index'));
+
+    $response->assertOk();
+    $response->assertSeeText('Acervo Base Limeira');
+    $response->assertSeeText('Base vinculada');
+    $response->assertSeeText('Operação institucional da base');
+    $response->assertSeeText('Igreja Base Limeira');
 });

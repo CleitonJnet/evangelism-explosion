@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Director\Inventory;
 
+use App\Models\Church;
 use App\Models\Inventory;
 use App\Models\User;
 use Illuminate\Validation\Rule;
@@ -24,6 +25,8 @@ class EditInventoryModal extends Component
     public string $kind = 'teacher';
 
     public ?int $user_id = null;
+
+    public ?int $church_id = null;
 
     public string $status = 'active';
 
@@ -115,6 +118,7 @@ class EditInventoryModal extends Component
                 'name' => $validated['name'],
                 'kind' => $validated['kind'],
                 'user_id' => $validated['kind'] === 'teacher' ? $validated['user_id'] : null,
+                'church_id' => $validated['kind'] === 'base' ? $validated['church_id'] : null,
                 'is_active' => $validated['status'] === 'active',
                 'phone' => $validated['phone'] ?? null,
                 'email' => $validated['email'] ?? null,
@@ -140,8 +144,10 @@ class EditInventoryModal extends Component
     {
         return view('livewire.pages.app.director.inventory.edit-inventory-modal', [
             'teacherOptions' => $this->teacherOptions(),
+            'churchOptions' => $this->churchOptions(),
             'kindOptions' => [
                 ['value' => 'central', 'label' => __('Central')],
+                ['value' => 'base', 'label' => __('Base')],
                 ['value' => 'teacher', 'label' => __('Professor')],
             ],
         ]);
@@ -154,12 +160,18 @@ class EditInventoryModal extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'kind' => ['required', 'in:central,teacher'],
+            'kind' => ['required', 'in:central,base,teacher'],
             'user_id' => [
                 Rule::requiredIf(fn (): bool => $this->kind === 'teacher'),
                 'nullable',
                 'integer',
                 Rule::in($this->teacherIds()),
+            ],
+            'church_id' => [
+                Rule::requiredIf(fn (): bool => $this->kind === 'base'),
+                'nullable',
+                'integer',
+                Rule::in($this->churchIds()),
             ],
             'status' => ['required', 'in:active,inactive'],
             'phone' => ['nullable', 'string', 'max:30'],
@@ -197,6 +209,7 @@ class EditInventoryModal extends Component
             'name' => 'nome',
             'kind' => 'tipo',
             'user_id' => 'professor responsável',
+            'church_id' => 'base vinculada',
             'status' => 'status',
             'phone' => 'telefone',
             'email' => 'email',
@@ -233,6 +246,27 @@ class EditInventoryModal extends Component
     }
 
     /**
+     * @return array<int, array{value: int, label: string}>
+     */
+    private function churchOptions(): array
+    {
+        return $this->churches()
+            ->map(fn (Church $church): array => [
+                'value' => $church->id,
+                'label' => trim($church->name.' - '.implode(' / ', array_filter([$church->city, $church->state]))),
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function churchIds(): array
+    {
+        return $this->churches()->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
+    /**
      * @return \Illuminate\Support\Collection<int, User>
      */
     private function teachers()
@@ -243,6 +277,16 @@ class EditInventoryModal extends Component
             ->get(['id', 'name']);
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int, Church>
+     */
+    private function churches()
+    {
+        return Church::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'city', 'state']);
+    }
+
     private function fillForm(): void
     {
         $inventory = Inventory::query()->findOrFail($this->inventoryId);
@@ -250,6 +294,7 @@ class EditInventoryModal extends Component
         $this->name = (string) $inventory->name;
         $this->kind = (string) ($inventory->kind ?: 'teacher');
         $this->user_id = $inventory->user_id ? (int) $inventory->user_id : null;
+        $this->church_id = $inventory->church_id ? (int) $inventory->church_id : null;
         $this->status = $inventory->is_active ? 'active' : 'inactive';
         $this->pendingStatus = $this->status;
         $this->phone = $inventory->phone;

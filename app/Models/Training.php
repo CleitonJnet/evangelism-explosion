@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EventReportType;
 use App\Helpers\MoneyHelper;
 use App\Helpers\PhoneHelper;
 use App\Helpers\PostalCodeHelper;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -255,6 +257,21 @@ class Training extends Model
     public function stpSessions(): HasMany
     {
         return $this->hasMany(StpSession::class);
+    }
+
+    public function eventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class);
+    }
+
+    public function churchEventReport(): HasOne
+    {
+        return $this->hasOne(EventReport::class)->where('type', EventReportType::Church->value);
+    }
+
+    public function teacherEventReport(): HasOne
+    {
+        return $this->hasOne(EventReport::class)->where('type', EventReportType::Teacher->value);
     }
 
     public function financeAudits(): HasMany

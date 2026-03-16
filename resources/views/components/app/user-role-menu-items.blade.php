@@ -17,6 +17,11 @@
     <flux:menu.separator />
 
     <flux:menu.radio.group>
+        <flux:menu.item :href="route('app.start')" icon="squares-2x2" wire:navigate
+            :class="$roleItemClass(request()->routeIs('app.portal.*') || request()->routeIs('app.start'))">
+            {{ __('Portais') }}
+        </flux:menu.item>
+
         @can('access-board')
             <flux:menu.item :href="route('app.board.dashboard')" icon="home" wire:navigate
                 :class="$roleItemClass(request()->routeIs('app.board.*'))">
@@ -60,15 +65,10 @@
         @endcan
 
         @can('access-student')
-            <flux:menu.item :href="route('app.student.dashboard')" icon="home" wire:navigate
-                :class="$roleItemClass(request()->routeIs('app.student.*'))">
+            <flux:menu.item :href="route('app.portal.student.dashboard')" icon="home" wire:navigate
+                :class="$roleItemClass(request()->routeIs('app.student.*') || request()->routeIs('app.portal.student.*'))">
                 {{ __('Student') }}
             </flux:menu.item>
         @endcan
-
-        <flux:menu.item :href="route('app.start')" icon="home" wire:navigate
-            :class="$roleItemClass(! request()->routeIs('app.*'))">
-            {{ __('Triagem') }}
-        </flux:menu.item>
     </flux:menu.radio.group>
 @endif

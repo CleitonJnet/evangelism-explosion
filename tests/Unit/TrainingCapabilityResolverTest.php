@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Church;
 use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
@@ -135,5 +136,77 @@ it('limits teacher context capabilities to assigned trainings even for teacher-d
     ])->and($resolver->summaryForTeacherContext($user, $otherTraining))->toMatchArray([
         'can_view' => false,
         'can_edit' => false,
+    ]);
+});
+
+it('keeps serving context scoped to real assignments even for teacher-directors', function (): void {
+    $user = User::factory()->create();
+    assignRole($user, 'Teacher');
+    assignRole($user, 'Director');
+    assignRole($user, 'Mentor');
+
+    $ownedTraining = Training::factory()->create([
+        'teacher_id' => $user->id,
+    ]);
+    $mentoredTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $otherTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $mentoredTraining->mentors()->attach($user->id, ['created_by' => User::factory()->create()->id]);
+    $resolver = app(TrainingCapabilityResolver::class);
+
+    expect($resolver->summaryForServingContext($user, $ownedTraining))->toMatchArray([
+        'can_view' => true,
+        'can_edit' => true,
+    ])->and($resolver->summaryForServingContext($user, $mentoredTraining))->toMatchArray([
+        'can_view' => true,
+        'can_edit' => false,
+    ])->and($resolver->summaryForServingContext($user, $otherTraining))->toMatchArray([
+        'can_view' => false,
+        'can_edit' => false,
+    ]);
+});
+
+it('allows host church users in the base portal to view the event without opening sensitive tabs', function (): void {
+    $facilitator = assignRole(User::factory()->create(['church_id' => Church::factory()->create()->id]), 'Facilitator');
+    $training = Training::factory()->create([
+        'church_id' => $facilitator->church_id,
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $resolver = app(TrainingCapabilityResolver::class);
+
+    expect($resolver->summaryForBaseContext($facilitator, $training))->toBe([
+        'can_view' => true,
+        'can_edit' => false,
+        'can_delete' => false,
+        'can_manage_schedule' => false,
+        'can_view_stp_ojt' => false,
+        'can_view_sensitive_data' => false,
+        'can_view_finance' => false,
+        'can_manage_mentors' => false,
+        'can_see_discipleship' => false,
+    ]);
+});
+
+it('combines serving and host church assignments in the base portal context', function (): void {
+    $mentor = User::factory()->create(['church_id' => Church::factory()->create()->id]);
+    assignRole($mentor, 'Mentor');
+    assignRole($mentor, 'FieldWorker');
+
+    $training = Training::factory()->create([
+        'church_id' => $mentor->church_id,
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $training->mentors()->attach($mentor->id, ['created_by' => User::factory()->create()->id]);
+
+    $resolver = app(TrainingCapabilityResolver::class);
+
+    expect($resolver->baseAssignments($mentor, $training))->toBe([
+        'Mentor',
+        'Igreja-base',
+        'Field worker contextual',
+        'Gestor da base',
     ]);
 });

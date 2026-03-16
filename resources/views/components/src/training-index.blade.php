@@ -1,6 +1,8 @@
 @props([
-    'createRoute',
+    'createRoute' => null,
+    'filterMode' => 'basic',
     'filterValue' => null,
+    'filters' => [],
     'groups',
     'role',
     'statusKey',
@@ -68,12 +70,19 @@
         $currentStatus = collect($statuses)->firstWhere('key', $statusKey);
         $currentStatusTitle = $currentStatus['label'] ?? __('Treinamentos');
         $currentStatusDescription = match ($statusKey) {
-            'planning' => __('Eventos em preparação, com estrutura e agenda ainda em montagem.'),
-            'scheduled' => __('Eventos confirmados e prontos para acompanhamento da execução.'),
-            'canceled' => __('Eventos cancelados, mantidos aqui para consulta e histórico.'),
-            'completed' => __('Eventos concluídos, com foco em acompanhamento e histórico.'),
+            'planning' => __('Eventos em preparacao, com estrutura e agenda ainda em montagem.'),
+            'scheduled' => __('Eventos confirmados e prontos para acompanhamento da execucao.'),
+            'canceled' => __('Eventos cancelados, mantidos aqui para consulta e historico.'),
+            'completed' => __('Eventos concluidos, com foco em acompanhamento e historico.'),
             default => __('Treinamentos organizados neste status.'),
         };
+        $activeFilters = [
+            'filter' => $filters['filter'] ?? $filterValue,
+            'assignment' => $filters['assignment'] ?? 'all',
+            'church' => $filters['church'] ?? null,
+            'from' => $filters['from'] ?? null,
+            'to' => $filters['to'] ?? null,
+        ];
         $displayGroups = $groups
             ->map(function ($group) {
                 $validCourses = $group['courses']
@@ -105,9 +114,10 @@
     </x-src.toolbar.header>
 
     <x-src.toolbar.nav>
-        <x-src.toolbar.button :href="$createRoute" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
-
-        <span class="mx-1 h-7 w-px shrink-0 bg-slate-300/80"></span>
+        @if (filled($createRoute))
+            <x-src.toolbar.button :href="$createRoute" :label="__('Novo')" icon="plus" :tooltip="__('Novo treinamento')" />
+            <span class="mx-1 h-7 w-px shrink-0 bg-slate-300/80"></span>
+        @endif
 
         @foreach ($statuses as $status)
             @php
@@ -144,7 +154,15 @@
         <span class="mx-1 h-7 w-px shrink-0 bg-slate-300/80"></span>
 
         <div class="flex flex-1 items-center justify-center">
-            <x-src.toolbar.training-filter :action="request()->url()" :value="$filterValue" />
+            <x-src.toolbar.training-filter
+                :action="request()->url()"
+                :value="$activeFilters['filter']"
+                :mode="$filterMode"
+                :assignment="$activeFilters['assignment']"
+                :church="$activeFilters['church']"
+                :from="$activeFilters['from']"
+                :to="$activeFilters['to']"
+            />
         </div>
 
         <div class="flex min-w-max items-center justify-end gap-2">
@@ -152,7 +170,7 @@
                 @foreach ($indexedCourses as $course)
                     @php
                         $courseLabel = $course->initials ?: $course->name;
-                        $courseName = $course->name ?: __('Curso não informado');
+                        $courseName = $course->name ?: __('Curso nao informado');
                     @endphp
 
                     <x-src.toolbar.course-button :href="'#course-' . $course->id" :label="$courseLabel" :tooltip="$courseName" />
@@ -163,8 +181,8 @@
 
     @if ($displayGroups->isEmpty())
         <div class="rounded-2xl border border-amber-200/60 bg-white p-6 text-sm text-slate-600">
-            @if (filled($filterValue))
-                {{ __('Nenhum treinamento encontrado para o filtro informado.') }}
+            @if (filled($activeFilters['filter']) || filled($activeFilters['church']) || filled($activeFilters['from']) || filled($activeFilters['to']) || $activeFilters['assignment'] !== 'all')
+                {{ __('Nenhum treinamento encontrado para os filtros informados.') }}
             @else
                 {{ __('Sem eventos para este status.') }}
             @endif
@@ -174,7 +192,7 @@
             @foreach ($displayGroups as $group)
                 @php
                     $ministry = $group['ministry'];
-                    $ministryName = $ministry?->name ?? __('Sem ministério');
+                    $ministryName = $ministry?->name ?? __('Sem ministerio');
                     $ministryCardStyle = $ministryContainerStyles($ministry?->color);
                 @endphp
 
@@ -193,7 +211,7 @@
                             @php
                                 $course = $courseGroup['course'];
                                 $courseType = $course?->type ?? __('Treinamento');
-                                $courseName = $course?->name ?? __('Curso não informado');
+                                $courseName = $course?->name ?? __('Curso nao informado');
                                 $courseId = $course?->id ?? 'curso';
                             @endphp
 

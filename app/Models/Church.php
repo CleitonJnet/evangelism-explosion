@@ -105,11 +105,21 @@ class Church extends Model
 
     public function hostChurch()
     {
-        return $this->hasOne(\App\Models\HostChurch::class);
+        return $this->hasOne(HostChurch::class);
     }
 
     public function trainings(): HasMany
     {
         return $this->hasMany(Training::class);
+    }
+
+    public function inventories(): HasMany
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function eventReports(): HasMany
+    {
+        return $this->hasMany(EventReport::class);
     }
 }

@@ -69,7 +69,9 @@ it('combines teacher and mentor visibility when the user has both roles', functi
     assignTrainingRole($user, 'Mentor');
 
     $ownedTraining = Training::factory()->create(['teacher_id' => $user->id]);
-    $mentoredTraining = Training::factory()->create();
+    $mentoredTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
     $otherTraining = Training::factory()->create([
         'teacher_id' => User::factory()->create()->id,
     ]);
@@ -103,4 +105,30 @@ it('limits teacher context to owned and assisted trainings even for teacher-dire
 
     expect($scopedIds)->toBe([$ownedTraining->id])
         ->not->toContain($otherTraining->id);
+});
+
+it('limits serving context to explicit assignments even for teacher-directors', function (): void {
+    $user = User::factory()->create();
+    assignTrainingRole($user, 'Teacher');
+    assignTrainingRole($user, 'Director');
+    assignTrainingRole($user, 'Mentor');
+
+    $ownedTraining = Training::factory()->create(['teacher_id' => $user->id]);
+    $mentoredTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $hiddenTraining = Training::factory()->create([
+        'teacher_id' => User::factory()->create()->id,
+    ]);
+    $mentoredTraining->mentors()->attach($user->id, ['created_by' => User::factory()->create()->id]);
+
+    $scopedIds = app(TrainingVisibilityScope::class)
+        ->apply(Training::query()->orderBy('id'), $user, 'serving')
+        ->pluck('id')
+        ->all();
+
+    expect($scopedIds)->toBe([
+        $ownedTraining->id,
+        $mentoredTraining->id,
+    ])->not->toContain($hiddenTraining->id);
 });

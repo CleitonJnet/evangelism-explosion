@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\App\Director\Inventory;
 
+use App\Models\Church;
 use App\Models\Inventory;
 use App\Models\User;
 use Illuminate\Validation\Rule;
@@ -20,6 +21,8 @@ class CreateInventoryModal extends Component
     public string $kind = 'teacher';
 
     public ?int $user_id = null;
+
+    public ?int $church_id = null;
 
     public ?string $phone = null;
 
@@ -75,6 +78,7 @@ class CreateInventoryModal extends Component
                 'name' => $validated['name'],
                 'kind' => $validated['kind'],
                 'user_id' => $validated['kind'] === 'teacher' ? $validated['user_id'] : null,
+                'church_id' => $validated['kind'] === 'base' ? $validated['church_id'] : null,
                 'is_active' => true,
                 'phone' => $validated['phone'] ?? null,
                 'email' => $validated['email'] ?? null,
@@ -102,8 +106,10 @@ class CreateInventoryModal extends Component
     {
         return view('livewire.pages.app.director.inventory.create-inventory-modal', [
             'teacherOptions' => $this->teacherOptions(),
+            'churchOptions' => $this->churchOptions(),
             'kindOptions' => [
                 ['value' => 'central', 'label' => __('Central')],
+                ['value' => 'base', 'label' => __('Base')],
                 ['value' => 'teacher', 'label' => __('Professor')],
             ],
         ]);
@@ -116,12 +122,18 @@ class CreateInventoryModal extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'kind' => ['required', 'in:central,teacher'],
+            'kind' => ['required', 'in:central,base,teacher'],
             'user_id' => [
                 Rule::requiredIf(fn (): bool => $this->kind === 'teacher'),
                 'nullable',
                 'integer',
                 Rule::in($this->teacherIds()),
+            ],
+            'church_id' => [
+                Rule::requiredIf(fn (): bool => $this->kind === 'base'),
+                'nullable',
+                'integer',
+                Rule::in($this->churchIds()),
             ],
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
@@ -158,6 +170,7 @@ class CreateInventoryModal extends Component
             'name' => 'nome',
             'kind' => 'tipo',
             'user_id' => 'professor responsável',
+            'church_id' => 'base vinculada',
             'phone' => 'telefone',
             'email' => 'email',
             'address.street' => 'logradouro',
@@ -193,6 +206,27 @@ class CreateInventoryModal extends Component
     }
 
     /**
+     * @return array<int, array{value: int, label: string}>
+     */
+    private function churchOptions(): array
+    {
+        return $this->churches()
+            ->map(fn (Church $church): array => [
+                'value' => $church->id,
+                'label' => trim($church->name.' - '.implode(' / ', array_filter([$church->city, $church->state]))),
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function churchIds(): array
+    {
+        return $this->churches()->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
+    /**
      * @return \Illuminate\Support\Collection<int, User>
      */
     private function teachers()
@@ -203,12 +237,23 @@ class CreateInventoryModal extends Component
             ->get(['id', 'name']);
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int, Church>
+     */
+    private function churches()
+    {
+        return Church::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'city', 'state']);
+    }
+
     private function resetForm(): void
     {
         $this->resetValidation();
         $this->name = '';
         $this->kind = 'teacher';
         $this->user_id = null;
+        $this->church_id = null;
         $this->phone = null;
         $this->email = null;
         $this->address = [

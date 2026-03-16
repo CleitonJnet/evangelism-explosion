@@ -36,6 +36,15 @@
             <a href="{{ route('web.about.vision-mission') }}" class="block js-close-menu hover:text-amber-300"><small
                     class="mr-1">&#10022; </small>
                 {{ __('Visão, Missão e Princípios') }}</a>
+            <a href="{{ route('web.portals.index') }}" class="block js-close-menu hover:text-amber-300"><small
+                    class="mr-1">&#10022; </small>
+                {{ __('Portais') }}</a>
+            <a href="{{ route('web.portals.show', 'base') }}" class="block js-close-menu pl-4 text-white/80 hover:text-amber-300">
+                {{ __('Base e Treinamentos') }}</a>
+            <a href="{{ route('web.portals.show', 'staff') }}" class="block js-close-menu pl-4 text-white/80 hover:text-amber-300">
+                {{ __('Staff / Governança') }}</a>
+            <a href="{{ route('web.portals.show', 'student') }}" class="block js-close-menu pl-4 text-white/80 hover:text-amber-300">
+                {{ __('Aluno') }}</a>
             <a href="{{ route('web.event.index') }}" class="block js-close-menu hover:text-amber-300"><small
                     class="mr-1">&#10022;
                 </small>{{ __('Eventos') }}</a>

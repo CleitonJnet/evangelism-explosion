@@ -41,10 +41,22 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-src.toolbar.header :title="__('Meus treinamentos')" :description="__(
-        'Acompanhe os treinamentos em que você está inscrito, com informações de datas, local e situação do pagamento.',
-    )" />
-    <x-src.toolbar.nav />
+    @if (request()->routeIs('app.portal.student.*'))
+        <x-app.portal.page-header
+            eyebrow="Portal do aluno"
+            title="Treinamentos"
+            description="Sua agenda de treinamentos, com status financeiro e acesso rapido aos detalhes."
+            :breadcrumbs="[
+                ['label' => 'Portais', 'url' => route('app.start')],
+                ['label' => 'Aluno', 'url' => route('app.portal.student.dashboard')],
+                ['label' => 'Treinamentos', 'current' => true],
+            ]" />
+    @else
+        <x-src.toolbar.header :title="__('Meus treinamentos')" :description="__(
+            'Acompanhe os treinamentos em que você está inscrito, com informações de datas, local e situação do pagamento.',
+        )" />
+        <x-src.toolbar.nav />
+    @endif
 
     <div class="flex flex-col gap-6">
         @if ($this->trainings->isEmpty())
@@ -74,10 +86,10 @@ new class extends Component {
                             $training?->state,
                         ]);
                         $address = $addressParts ? implode(', ', $addressParts) : 'Endereco não informado';
-                    @endphp
+                        @endphp
 
                     <div wire:key="training-{{ $training->id }}"
-                        class="flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+                        class="flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-sky-300 hover:shadow-md">
                         <div class="flex items-start justify-between gap-3">
                             <div class="text-lg font-semibold text-neutral-900 uppercase">
                                 {{ $courseType }}: {{ $courseName }}
@@ -160,7 +172,7 @@ new class extends Component {
                         @endif
 
                         <div class="mt-auto">
-                            <a href="{{ route('app.student.training.show', $training) }}"
+                            <a href="{{ route(request()->routeIs('app.portal.student.*') ? 'app.portal.student.trainings.show' : 'app.student.training.show', $training) }}"
                                 class="inline-flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-100 px-4 py-2 text-sm font-semibold text-neutral-800 transition hover:bg-neutral-200">
                                 Ver detalhes
                             </a>

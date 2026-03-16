@@ -158,6 +158,7 @@ class Index extends Component
             'kindOptions' => [
                 ['value' => '', 'label' => __('Todos os tipos')],
                 ['value' => 'central', 'label' => __('Central')],
+                ['value' => 'base', 'label' => __('Base')],
                 ['value' => 'teacher', 'label' => __('Professor')],
             ],
         ]);
@@ -176,7 +177,7 @@ class Index extends Component
         $matchingStateUfs = $this->matchingStateUfs($search);
 
         return Inventory::query()
-            ->with('responsibleUser:id,name')
+            ->with(['responsibleUser:id,name', 'church:id,name,city,state'])
             ->select('inventories.*')
             ->selectSub(
                 DB::table('inventory_material')
@@ -191,7 +192,8 @@ class Index extends Component
                         ->where('name', 'like', '%'.$search.'%')
                         ->orWhere('city', 'like', '%'.$search.'%')
                         ->orWhere('state', 'like', '%'.$search.'%')
-                        ->orWhereHas('responsibleUser', fn ($userQuery) => $userQuery->where('name', 'like', '%'.$search.'%'));
+                        ->orWhereHas('responsibleUser', fn ($userQuery) => $userQuery->where('name', 'like', '%'.$search.'%'))
+                        ->orWhereHas('church', fn ($churchQuery) => $churchQuery->where('name', 'like', '%'.$search.'%'));
 
                     if ($matchingStateUfs !== []) {
                         $innerQuery->orWhereIn('state', $matchingStateUfs);
@@ -200,7 +202,7 @@ class Index extends Component
             })
             ->when($this->statusFilter !== '', fn ($query) => $query->where('is_active', $this->statusFilter === 'active'))
             ->when($this->kindFilter !== '', fn ($query) => $query->where('kind', $this->kindFilter))
-            ->orderByRaw("CASE WHEN kind = 'central' THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN kind = 'central' THEN 0 WHEN kind = 'base' THEN 1 ELSE 2 END")
             ->orderBy('name');
     }
 

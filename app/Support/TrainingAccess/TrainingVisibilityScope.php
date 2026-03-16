@@ -13,6 +13,7 @@ class TrainingVisibilityScope
             'teacher' => $this->applyTeacherContext($query, $user),
             'director' => $this->applyDirectorContext($query, $user),
             'mentor' => $this->applyMentorContext($query, $user),
+            'serving' => $this->applyServingContext($query, $user),
             default => $this->applyAutomaticContext($query, $user),
         };
     }
@@ -23,6 +24,24 @@ class TrainingVisibilityScope
             return $query;
         }
 
+        return $this->applyServingContext($query, $user);
+    }
+
+    private function applyTeacherContext(Builder $query, User $user): Builder
+    {
+        if (! $user->hasRole('Teacher')) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $teacherQuery) use ($user): void {
+            $teacherQuery
+                ->where('trainings.teacher_id', $user->id)
+                ->orWhereHas('assistantTeachers', fn (Builder $assistantQuery) => $assistantQuery->whereKey($user->id));
+        });
+    }
+
+    private function applyServingContext(Builder $query, User $user): Builder
+    {
         return $query->where(function (Builder $visibleQuery) use ($user): void {
             $hasConstraint = false;
 
@@ -51,19 +70,6 @@ class TrainingVisibilityScope
             if (! $hasConstraint) {
                 $visibleQuery->whereRaw('1 = 0');
             }
-        });
-    }
-
-    private function applyTeacherContext(Builder $query, User $user): Builder
-    {
-        if (! $user->hasRole('Teacher')) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->where(function (Builder $teacherQuery) use ($user): void {
-            $teacherQuery
-                ->where('trainings.teacher_id', $user->id)
-                ->orWhereHas('assistantTeachers', fn (Builder $assistantQuery) => $assistantQuery->whereKey($user->id));
         });
     }
 
