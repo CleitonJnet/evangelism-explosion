@@ -121,14 +121,14 @@ class View extends Component
                 'materials.photo',
                 'materials.price',
                 'materials.type',
-                'materials.minimum_stock',
                 'materials.is_active',
                 DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
                 DB::raw('COALESCE(inventory_material.received_items, 0) as received_items'),
                 DB::raw('COALESCE(inventory_material.lost_items, 0) as lost_items'),
+                DB::raw('COALESCE(inventory_material.minimum_stock, 0) as minimum_stock'),
             ])
             ->where('materials.type', 'simple')
-            ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < materials.minimum_stock AND materials.minimum_stock > 0 THEN 0 ELSE 1 END')
+            ->orderByRaw('CASE WHEN COALESCE(inventory_material.current_quantity, 0) < COALESCE(inventory_material.minimum_stock, 0) AND COALESCE(inventory_material.minimum_stock, 0) > 0 THEN 0 ELSE 1 END')
             ->orderBy('materials.name')
             ->get();
 
@@ -168,7 +168,6 @@ class View extends Component
         $compositeBalances = $this->appendComposableQuantity($compositeBalances, $inventory->id);
 
         $lowStockItems = DB::table('materials')
-            ->where('materials.minimum_stock', '>', 0)
             ->leftJoin('inventory_material', function ($join) use ($inventory): void {
                 $join
                     ->on('inventory_material.material_id', '=', 'materials.id')
@@ -179,13 +178,15 @@ class View extends Component
                     ->where(function ($simpleQuery): void {
                         $simpleQuery
                             ->where('materials.type', 'simple')
-                            ->whereNotNull('inventory_material.inventory_id');
+                            ->whereNotNull('inventory_material.inventory_id')
+                            ->where('inventory_material.minimum_stock', '>', 0);
                     });
 
                 if ($availableCompositeIds !== []) {
                     $query->orWhere(function ($compositeQuery) use ($availableCompositeIds): void {
                         $compositeQuery
                             ->where('materials.type', 'composite')
+                            ->where('materials.minimum_stock', '>', 0)
                             ->whereIn('materials.id', $availableCompositeIds);
                     });
                 }
@@ -194,8 +195,8 @@ class View extends Component
                 'materials.id',
                 'materials.name',
                 'materials.type',
-                'materials.minimum_stock',
                 DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
+                DB::raw("CASE WHEN materials.type = 'simple' THEN COALESCE(inventory_material.minimum_stock, 0) ELSE materials.minimum_stock END as minimum_stock"),
             ])
             ->orderBy('materials.name')
             ->get();

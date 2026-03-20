@@ -29,7 +29,7 @@ class Inventory extends Model
 
     public function materials(): BelongsToMany
     {
-        return $this->belongsToMany(Material::class)->withPivot('received_items', 'current_quantity', 'lost_items');
+        return $this->belongsToMany(Material::class)->withPivot('received_items', 'current_quantity', 'lost_items', 'minimum_stock');
     }
 
     public function stockMovements(): HasMany

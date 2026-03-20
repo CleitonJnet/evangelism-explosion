@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('received_items')->default(0);
             $table->integer('current_quantity')->default(0);
             $table->integer('lost_items')->default(0);
+            $table->unsignedInteger('minimum_stock')->default(0);
         });
     }
 

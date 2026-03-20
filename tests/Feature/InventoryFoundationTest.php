@@ -17,6 +17,7 @@ it('creates the inventory foundation schema', function (): void {
 
     expect(Schema::hasColumns('materials', ['type', 'minimum_stock', 'is_active']))->toBeTrue();
     expect(Schema::hasColumns('inventories', ['kind', 'user_id', 'is_active']))->toBeTrue();
+    expect(Schema::hasColumns('inventory_material', ['minimum_stock']))->toBeTrue();
     expect(Schema::hasColumns('material_components', ['parent_material_id', 'component_material_id', 'quantity']))->toBeTrue();
     expect(Schema::hasColumns('course_material', ['course_id', 'material_id']))->toBeTrue();
     expect(Schema::hasColumns('course_study_material', ['course_id', 'material_id']))->toBeTrue();

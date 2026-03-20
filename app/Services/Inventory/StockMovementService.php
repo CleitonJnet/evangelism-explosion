@@ -370,6 +370,7 @@ class StockMovementService
             'received_items' => 0,
             'current_quantity' => 0,
             'lost_items' => 0,
+            'minimum_stock' => 0,
         ]);
     }
 

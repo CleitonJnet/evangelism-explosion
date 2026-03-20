@@ -202,6 +202,173 @@ it('allows a teacher to register stock movements only in the delegated inventory
         ->assertForbidden();
 });
 
+it('shows the add simple items action on the teacher inventory details page', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Operacional do Professor',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.inventory.show', ['inventory' => $inventory]))
+        ->assertOk()
+        ->assertSeeText('Adicionar itens');
+});
+
+it('allows a teacher to attach multiple simple materials to the delegated inventory', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque com Vinculo Manual',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $firstMaterial = Material::query()->create([
+        'name' => 'Apostila avulsa',
+        'type' => 'simple',
+        'is_active' => true,
+        'minimum_stock' => 2,
+    ]);
+
+    $secondMaterial = Material::query()->create([
+        'name' => 'Manual do professor',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test('pages.app.teacher.inventory.attach-simple-materials-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id)
+        ->call('toggleMaterial', $firstMaterial->id)
+        ->call('toggleMaterial', $secondMaterial->id)
+        ->set('minimumStockByMaterialId.'.$firstMaterial->id, 4)
+        ->set('minimumStockByMaterialId.'.$secondMaterial->id, 1)
+        ->call('save')
+        ->assertDispatched('teacher-inventory-stock-updated');
+
+    expect($inventory->fresh()->materials()->pluck('materials.id')->all())
+        ->toMatchArray([$firstMaterial->id, $secondMaterial->id]);
+
+    expect($inventory->fresh()->materials()->whereKey($firstMaterial->id)->first()?->pivot->current_quantity)->toBe(0);
+    expect($inventory->fresh()->materials()->whereKey($firstMaterial->id)->first()?->pivot->received_items)->toBe(0);
+    expect($inventory->fresh()->materials()->whereKey($firstMaterial->id)->first()?->pivot->lost_items)->toBe(0);
+    expect($inventory->fresh()->materials()->whereKey($firstMaterial->id)->first()?->pivot->minimum_stock)->toBe(4);
+    expect($inventory->fresh()->materials()->whereKey($secondMaterial->id)->first()?->pivot->minimum_stock)->toBe(1);
+});
+
+it('does not inherit the global material minimum when the teacher attaches a simple item', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Sem Heranca de Minimo',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $material = Material::query()->create([
+        'name' => 'Item com minimo global',
+        'type' => 'simple',
+        'is_active' => true,
+        'minimum_stock' => 9,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test('pages.app.teacher.inventory.attach-simple-materials-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id)
+        ->call('toggleMaterial', $material->id)
+        ->call('save')
+        ->assertDispatched('teacher-inventory-stock-updated');
+
+    expect($inventory->fresh()->materials()->whereKey($material->id)->first()?->pivot->minimum_stock)->toBe(0);
+});
+
+it('shows only simple active materials not yet linked in the teacher attach modal', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Filtragem',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $eligibleMaterial = Material::query()->create([
+        'name' => 'Item Elegivel',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    $alreadyLinkedMaterial = Material::query()->create([
+        'name' => 'Item Ja Vinculado',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    $inactiveMaterial = Material::query()->create([
+        'name' => 'Item Inativo',
+        'type' => 'simple',
+        'is_active' => false,
+    ]);
+
+    $compositeMaterial = Material::query()->create([
+        'name' => 'Kit Composto',
+        'type' => 'composite',
+        'is_active' => true,
+    ]);
+
+    $inventory->materials()->attach($alreadyLinkedMaterial->id, [
+        'received_items' => 0,
+        'current_quantity' => 0,
+        'lost_items' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test('pages.app.teacher.inventory.attach-simple-materials-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id)
+        ->assertSee($eligibleMaterial->name)
+        ->assertDontSee($alreadyLinkedMaterial->name)
+        ->assertDontSee($inactiveMaterial->name)
+        ->assertDontSee($compositeMaterial->name);
+});
+
+it('prevents attaching materials that are not available to the delegated inventory', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Validacao',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $linkedMaterial = Material::query()->create([
+        'name' => 'Material Ja Presente',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    $inventory->materials()->attach($linkedMaterial->id, [
+        'received_items' => 0,
+        'current_quantity' => 0,
+        'lost_items' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test('pages.app.teacher.inventory.attach-simple-materials-modal', ['inventoryId' => $inventory->id])
+        ->call('openModal', $inventory->id)
+        ->set('selectedMaterialIds', [$linkedMaterial->id])
+        ->call('save')
+        ->assertHasErrors(['selectedMaterialIds.0']);
+
+    expect($inventory->fresh()->materials()->whereKey($linkedMaterial->id)->count())->toBe(1);
+});
+
 it('allows a teacher to delete the delegated inventory from the details page', function (): void {
     $teacher = createTeacherForInventoryAccessTest();
 
@@ -336,6 +503,7 @@ it('shows a red zero-balance alert for teacher inventory items with zero stock',
         'received_items' => 0,
         'current_quantity' => 0,
         'lost_items' => 0,
+        'minimum_stock' => 5,
     ]);
 
     $response = $this->actingAs($teacher)->get(route('app.teacher.inventory.show', ['inventory' => $inventory]));

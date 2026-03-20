@@ -414,6 +414,8 @@
 
     <livewire:pages.app.teacher.inventory.edit-inventory-modal :inventory-id="$inventory->id"
         wire:key="teacher-inventory-edit-modal-{{ $inventory->id }}" />
+    <livewire:pages.app.teacher.inventory.attach-simple-materials-modal :inventory-id="$inventory->id"
+        wire:key="teacher-inventory-attach-simple-materials-modal-{{ $inventory->id }}" />
     <livewire:pages.app.teacher.inventory.stock-action-modal :inventory-id="$inventory->id"
         wire:key="teacher-inventory-stock-action-modal-{{ $inventory->id }}" />
     @foreach ($compositeBalances as $balance)
