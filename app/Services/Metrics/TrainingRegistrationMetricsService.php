@@ -67,7 +67,7 @@ class TrainingRegistrationMetricsService
 
         $churchGroups = $students
             ->groupBy(fn (User $student): string => $this->resolveChurchLabel($student))
-            ->map(function ($group, string $churchName): array {
+            ->map(function ($group, string $churchName) use ($training): array {
                 $registrations = $group
                     ->map(fn (User $student): array => $this->mapRegistration($student))
                     ->values()
@@ -86,14 +86,7 @@ class TrainingRegistrationMetricsService
                     'church_name' => $churchName,
                     'has_church_issue' => collect($registrations)
                         ->contains(fn (array $registration): bool => (bool) ($registration['has_church_issue'] ?? false)),
-                    'summary' => sprintf(
-                        '%d inscritos, %d pastor(es), %d comprovantes, %d kits entregues, %d credenciados',
-                        $totals['registrations'],
-                        $totals['pastors'],
-                        $totals['payment_receipts'],
-                        $totals['kits'],
-                        $totals['accredited'],
-                    ),
+                    'summary' => $this->formatChurchGroupSummary($training, $totals),
                     'totals' => $totals,
                     'registrations' => $registrations,
                 ];
@@ -122,6 +115,25 @@ class TrainingRegistrationMetricsService
                 ->unique()
                 ->count(),
         ];
+    }
+
+    /**
+     * @param  array{registrations: int, pastors: int, accredited: int, kits: int, payment_receipts: int}  $totals
+     */
+    private function formatChurchGroupSummary(Training $training, array $totals): string
+    {
+        $parts = [
+            sprintf('%d inscritos', $totals['registrations']),
+            sprintf('%d pastor(es)', $totals['pastors']),
+            sprintf('%d comprovantes', $totals['payment_receipts']),
+            sprintf('%d kits entregues', $totals['kits']),
+        ];
+
+        if ((bool) ($training->course?->is_accreditable ?? false)) {
+            $parts[] = sprintf('%d credenciados', $totals['accredited']);
+        }
+
+        return implode(', ', $parts);
     }
 
     /**

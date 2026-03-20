@@ -34,6 +34,7 @@ it('creates a new course from the ministry details modal', function (): void {
         ->call('openModal')
         ->set('execution', 0)
         ->set('min_stp_sessions', 2)
+        ->set('is_accreditable', true)
         ->set('type', 'Clínica')
         ->set('name', 'Clínica de Líderes')
         ->set('initials', 'CL')
@@ -54,6 +55,7 @@ it('creates a new course from the ministry details modal', function (): void {
     expect($course)->not->toBeNull();
     expect($course?->ministry_id)->toBe($ministry->id);
     expect((int) $course?->execution)->toBe(0);
+    expect($course?->is_accreditable)->toBeTrue();
     expect((int) $course?->order)->toBe(1);
     expect($course?->certificate)->toBeNull();
     expect($course?->price)->toBe('120,00');

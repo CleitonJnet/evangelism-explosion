@@ -31,6 +31,7 @@ it('updates an existing course from the course details modal', function (): void
         'ministry_id' => $ministry->id,
         'execution' => 0,
         'min_stp_sessions' => 1,
+        'is_accreditable' => false,
         'type' => 'Clínica',
         'name' => 'Clínica de Líderes',
         'initials' => 'CL',
@@ -52,6 +53,7 @@ it('updates an existing course from the course details modal', function (): void
         ->call('openModal')
         ->set('execution', 1)
         ->set('min_stp_sessions', 3)
+        ->set('is_accreditable', true)
         ->set('type', 'Implementação')
         ->set('name', 'Clínica Atualizada')
         ->set('initials', 'CA')
@@ -71,6 +73,7 @@ it('updates an existing course from the course details modal', function (): void
 
     expect((int) $course->execution)->toBe(1)
         ->and((int) $course->min_stp_sessions)->toBe(3)
+        ->and($course->is_accreditable)->toBeTrue()
         ->and($course->type)->toBe('Implementação')
         ->and($course->name)->toBe('Clínica Atualizada')
         ->and($course->initials)->toBe('CA')

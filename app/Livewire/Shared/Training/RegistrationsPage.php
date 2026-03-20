@@ -181,6 +181,10 @@ abstract class RegistrationsPage extends Component
 
     public function toggleAccredited(int $userId, bool $enabled): void
     {
+        if (! $this->trainingCourseIsAccreditable()) {
+            return;
+        }
+
         $this->updateEnrollment($userId, ['accredited' => $enabled]);
 
         if ($enabled && $this->trainingCourseAllowsFacilitatorRole()) {
@@ -441,6 +445,11 @@ abstract class RegistrationsPage extends Component
     private function trainingCourseAllowsFacilitatorRole(): bool
     {
         return (int) ($this->training->course?->execution ?? -1) === 0;
+    }
+
+    public function trainingCourseIsAccreditable(): bool
+    {
+        return (bool) ($this->training->course?->is_accreditable ?? false);
     }
 
     private function assignFacilitatorRole(int $userId): void

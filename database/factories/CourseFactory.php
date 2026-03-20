@@ -22,6 +22,7 @@ class CourseFactory extends Factory
             'type' => fake()->randomElement(['Basico', 'Avancado', 'Especial']),
             'initials' => strtoupper(fake()->lexify('??')),
             'name' => fake()->words(3, true),
+            'is_accreditable' => false,
             'slogan' => fake()->sentence(),
             'learnMoreLink' => fake()->url(),
             'certificate' => fake()->randomElement(['Sim', 'Não']),

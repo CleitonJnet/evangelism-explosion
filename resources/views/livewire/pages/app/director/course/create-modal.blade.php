@@ -80,6 +80,19 @@
                                 width_basic="180" :options="$executionOptions" required />
                             <x-src.form.select name="min_stp_sessions" wire:model.live="min_stp_sessions"
                                 label="Sessões mínimas STP" width_basic="180" :options="$stpSessionOptions" />
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" style="flex: 1 0 220px">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <div class="text-sm font-semibold text-slate-900">{{ __('Curso credenciável') }}</div>
+                                        <div class="text-xs text-slate-500">{{ __('Permite credenciar alunos neste curso.') }}</div>
+                                    </div>
+                                    <flux:switch wire:model.live="is_accreditable" />
+                                </div>
+
+                                @error('is_accreditable')
+                                    <p class="mt-2 text-xs font-semibold text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                             <x-src.form.input name="price" wire:model.live="price" label="Preço" type="text"
                                 width_basic="160" inputmode="decimal" autocomplete="off"
                                 oninput="this.value = this.value.replace(/[^0-9,.-]/g, '')" />

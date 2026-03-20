@@ -35,6 +35,7 @@ it('separates leadership and implementation courses on ministry details page', f
         'ministry_id' => $ministry->id,
         'execution' => 0,
         'order' => 1,
+        'is_accreditable' => true,
         'type' => 'Liderança',
         'name' => 'Clínica de Líderes',
         'price' => 120,
@@ -75,6 +76,7 @@ it('separates leadership and implementation courses on ministry details page', f
         ->assertSee('Facilitadores credenciados')
         ->assertSee('Clínica de Líderes')
         ->assertSee('EE na Igreja Local')
+        ->assertSee('Credenciável')
         ->assertSee('R$ 120,00')
         ->assertSee('R$ 80,00');
 });

@@ -91,6 +91,76 @@ it('renders the registrations page grouped by church', function () {
     $response->assertSeeText('Novo inscrito');
 });
 
+it('shows the accreditation column only for accreditable courses', function (): void {
+    $teacher = createTeacher();
+    $church = Church::factory()->create();
+
+    $accreditableCourse = Course::factory()->create([
+        'is_accreditable' => true,
+    ]);
+    $nonAccreditableCourse = Course::factory()->create([
+        'is_accreditable' => false,
+    ]);
+
+    $accreditableTraining = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $accreditableCourse->id,
+    ]);
+    $nonAccreditableTraining = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $nonAccreditableCourse->id,
+    ]);
+
+    $student = User::factory()->create(['church_id' => $church->id]);
+
+    $accreditableTraining->students()->attach($student->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+    $nonAccreditableTraining->students()->attach($student->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.registrations', $accreditableTraining))
+        ->assertOk()
+        ->assertSee('wire:change="toggleAccredited('.$student->id.', $event.target.checked)"', false);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.trainings.registrations', $nonAccreditableTraining))
+        ->assertOk()
+        ->assertDontSee('wire:change="toggleAccredited('.$student->id.', $event.target.checked)"', false);
+});
+
+it('does not update accreditation when the course is not accreditable', function (): void {
+    $teacher = createTeacher();
+    $church = Church::factory()->create();
+    $course = Course::factory()->create([
+        'is_accreditable' => false,
+    ]);
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $course->id,
+    ]);
+
+    $student = User::factory()->create(['church_id' => $church->id]);
+
+    $training->students()->attach($student->id, [
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training])
+        ->call('toggleAccredited', $student->id, true);
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $student->id,
+        'accredited' => 0,
+    ]);
+});
+
 it('updates participant statuses on the training pivot', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
@@ -101,6 +171,7 @@ it('updates participant statuses on the training pivot', function () {
     ]);
     $leaderCourse = Course::factory()->create([
         'execution' => 0,
+        'is_accreditable' => true,
         'ministry_id' => $ministry->id,
     ]);
     $implementationCourseOne = Course::factory()->create([
@@ -179,6 +250,7 @@ it('does not assign facilitator role when accrediting in non-leader course', fun
     ]);
     $regularCourse = Course::factory()->create([
         'execution' => 1,
+        'is_accreditable' => true,
         'ministry_id' => $ministry->id,
     ]);
     $implementationCourse = Course::factory()->create([

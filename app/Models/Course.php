@@ -14,7 +14,7 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order', 'execution', 'min_stp_sessions', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color', 'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id'];
+    protected $fillable = ['order', 'execution', 'min_stp_sessions', 'is_accreditable', 'type', 'initials', 'name', 'slogan', 'learnMoreLink', 'certificate', 'color', 'price', 'description', 'targetAudience', 'knowhow', 'logo', 'banner', 'ministry_id'];
 
     /**
      * @return array<string, string>
@@ -24,7 +24,13 @@ class Course extends Model
         return [
             'execution' => 'integer',
             'min_stp_sessions' => 'integer',
+            'is_accreditable' => 'boolean',
         ];
+    }
+
+    public function isAccreditable(): bool
+    {
+        return (bool) $this->is_accreditable;
     }
 
     public function isLeadershipCourse(): bool

@@ -63,11 +63,13 @@
             <div class="text-xs text-slate-500">{{ __('Kits entregues') }}</div>
             <div class="text-3xl font-bold text-slate-900">{{ $totalKits }}</div>
         </article>
-        <article
-            class="rounded-2xl border border-sky-950/45 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-3 flex-auto min-w-fit">
-            <div class="text-xs text-slate-500">{{ __('Credenciados') }}</div>
-            <div class="text-3xl font-bold text-slate-900">{{ $totalAccredited }}</div>
-        </article>
+        @if ($this->trainingCourseIsAccreditable())
+            <article
+                class="rounded-2xl border border-sky-950/45 bg-linear-to-br from-slate-100 via-white to-slate-200 px-4 py-3 flex-auto min-w-fit">
+                <div class="text-xs text-slate-500">{{ __('Credenciados') }}</div>
+                <div class="text-3xl font-bold text-slate-900">{{ $totalAccredited }}</div>
+            </article>
+        @endif
     </section>
 
     <section class="mt-4 grid gap-5">
@@ -117,7 +119,9 @@
                                     <th class="px-3 py-2 w-40 text-center">
                                         {{ $this->usesManualMaterialDelivery() ? __('Entrega física') : __('Kit') }}
                                     </th>
-                                    <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
+                                    @if ($this->trainingCourseIsAccreditable())
+                                        <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
+                                    @endif
                                     <th class="px-3 py-2 w-20 text-center">{{ __('Ação') }}</th>
                                 </tr>
                             </thead>
@@ -208,21 +212,25 @@
                                                 </div>
                                             @endif
                                         </td>
-                                        <td class="px-3 py-2 align-top">
-                                            <div class="grid justify-items-center">
-                                                <x-app.switch-schedule :label="__('Cred.')" :key="'accredited-' . $registration['id']"
-                                                    :checked="$registration['accredited']"
-                                                    wire:change="toggleAccredited({{ $registration['id'] }}, $event.target.checked)"
-                                                    wire:loading.attr="disabled" wire:target="toggleAccredited" />
-                                            </div>
-                                        </td>
+                                        @if ($this->trainingCourseIsAccreditable())
+                                            <td class="px-3 py-2 align-top">
+                                                <div class="grid justify-items-center">
+                                                    <x-app.switch-schedule :label="__('Cred.')" :key="'accredited-' . $registration['id']"
+                                                        :checked="$registration['accredited']"
+                                                        wire:change="toggleAccredited({{ $registration['id'] }}, $event.target.checked)"
+                                                        wire:loading.attr="disabled" wire:target="toggleAccredited" />
+                                                </div>
+                                            </td>
+                                        @endif
                                         <td class="px-3 py-2 text-center">
-                                            <button type="button"
-                                                class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-100 cursor-pointer"
+                                            <flux:button variant="danger" size="sm" icon="trash"
+                                                icon:variant="outline"
+                                                class="cursor-pointer"
+                                                aria-label="{{ __('Remover inscrito') }}"
+                                                title="{{ __('Remover inscrito') }}"
                                                 x-on:click.prevent="if (window.confirm('{{ __('Deseja realmente remover este inscrito deste evento?') }}')) { $wire.removeRegistration({{ $registration['id'] }}) }"
                                                 wire:loading.attr="disabled" wire:target="removeRegistration">
-                                                {{ __('Remover') }}
-                                            </button>
+                                            </flux:button>
                                         </td>
                                     </tr>
                                 @endforeach

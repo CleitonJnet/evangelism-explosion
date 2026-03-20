@@ -175,7 +175,14 @@
                                         </div>
                                     </td>
                                     <td class="px-3 py-3">
-                                        <div class="font-semibold text-slate-900">{{ $course->name }}</div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <div class="font-semibold text-slate-900">{{ $course->name }}</div>
+                                            @if ($course->isAccreditable())
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
+                                                    {{ __('Credenciável') }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="text-xs text-slate-500">
                                             {{ $course->targetAudience ?: __('Público não informado') }}
                                         </div>
@@ -268,7 +275,14 @@
                                         </div>
                                     </td>
                                     <td class="px-3 py-3">
-                                        <div class="font-semibold text-slate-900">{{ $course->name }}</div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <div class="font-semibold text-slate-900">{{ $course->name }}</div>
+                                            @if ($course->isAccreditable())
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
+                                                    {{ __('Credenciável') }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="text-xs text-slate-500">
                                             {{ $course->slogan ?: __('Sem slogan cadastrado') }}
                                         </div>

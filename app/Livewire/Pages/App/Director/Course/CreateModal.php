@@ -28,6 +28,8 @@ class CreateModal extends Component
 
     public int $min_stp_sessions = 0;
 
+    public bool $is_accreditable = false;
+
     public string $type = '';
 
     public string $initials = '';
@@ -110,6 +112,7 @@ class CreateModal extends Component
                 'order' => $this->nextOrderForExecution($validated['execution']),
                 'execution' => $validated['execution'],
                 'min_stp_sessions' => $validated['min_stp_sessions'],
+                'is_accreditable' => $validated['is_accreditable'],
                 'type' => $validated['type'],
                 'initials' => $validated['initials'],
                 'name' => $validated['name'],
@@ -165,6 +168,7 @@ class CreateModal extends Component
             'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'execution' => ['required', 'integer', 'in:0,1'],
             'min_stp_sessions' => ['required', 'integer', 'in:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20'],
+            'is_accreditable' => ['boolean'],
             'type' => ['required', 'string', 'max:255'],
             'initials' => ['required', 'string', 'max:20'],
             'name' => ['required', 'string', 'max:255'],
@@ -206,6 +210,7 @@ class CreateModal extends Component
             'bannerUpload' => 'banner',
             'execution' => 'tipo de execução',
             'min_stp_sessions' => 'sessões mínimas STP',
+            'is_accreditable' => 'curso credenciável',
             'type' => 'tipo do curso',
             'initials' => 'sigla',
             'name' => 'nome do curso',
@@ -238,6 +243,7 @@ class CreateModal extends Component
 
         $this->execution = 0;
         $this->min_stp_sessions = 0;
+        $this->is_accreditable = false;
         $this->color = '#4F4F4F';
     }
 

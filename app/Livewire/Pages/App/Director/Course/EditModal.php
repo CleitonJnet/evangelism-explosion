@@ -32,6 +32,8 @@ class EditModal extends Component
 
     public int $min_stp_sessions = 0;
 
+    public bool $is_accreditable = false;
+
     public string $type = '';
 
     public string $initials = '';
@@ -127,6 +129,7 @@ class EditModal extends Component
             $course->forceFill([
                 'execution' => $validated['execution'],
                 'min_stp_sessions' => $validated['min_stp_sessions'],
+                'is_accreditable' => $validated['is_accreditable'],
                 'type' => $validated['type'],
                 'initials' => $validated['initials'],
                 'name' => $validated['name'],
@@ -180,6 +183,7 @@ class EditModal extends Component
             'bannerUpload' => ['nullable', 'image', 'max:5120'],
             'execution' => ['required', 'integer', 'in:0,1'],
             'min_stp_sessions' => ['required', 'integer', 'in:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20'],
+            'is_accreditable' => ['boolean'],
             'type' => ['required', 'string', 'max:255'],
             'initials' => ['required', 'string', 'max:20'],
             'name' => ['required', 'string', 'max:255'],
@@ -221,6 +225,7 @@ class EditModal extends Component
             'bannerUpload' => 'banner',
             'execution' => 'tipo de execução',
             'min_stp_sessions' => 'sessões mínimas STP',
+            'is_accreditable' => 'curso credenciável',
             'type' => 'tipo do curso',
             'initials' => 'sigla',
             'name' => 'nome do curso',
@@ -242,6 +247,7 @@ class EditModal extends Component
         $this->currentBannerPath = $course->banner;
         $this->execution = (int) $course->execution;
         $this->min_stp_sessions = (int) $course->min_stp_sessions;
+        $this->is_accreditable = (bool) $course->is_accreditable;
         $this->type = (string) $course->type;
         $this->initials = (string) $course->initials;
         $this->name = (string) $course->name;
