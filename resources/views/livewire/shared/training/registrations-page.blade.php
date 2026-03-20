@@ -7,16 +7,14 @@
     <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e entrega de kit com poucos cliques.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
-                class="!bg-sky-900 !text-slate-100 !border-sky-700 hover:!bg-sky-800" />
+                class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
             @if ($this->contextComponent('createParticipantRegistrationModal') && ($capabilities['canEdit'] ?? false))
-                <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus"
-                    :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
+                <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus" :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
                     x-on:click.prevent="$dispatch('open-create-participant-registration-modal', { trainingId: {{ $training->id }} })"
                     class="!bg-emerald-100 !text-emerald-900 !border-emerald-300 hover:!bg-emerald-200" />
             @endif
             @if ($this->usesManualMaterialDelivery())
-                <x-src.toolbar.button href="#" :label="__('Entrega manual')" icon="box"
-                    :tooltip="__('Registrar saída física de material para este treinamento')"
+                <x-src.toolbar.button href="#" :label="__('Entrega manual')" icon="box" :tooltip="__('Registrar saída física de material para este treinamento')"
                     x-on:click.prevent="$dispatch('open-training-material-delivery-modal', { trainingId: {{ $training->id }} })"
                     class="!bg-amber-100 !text-amber-900 !border-amber-300 hover:!bg-amber-200" />
             @endif
@@ -304,12 +302,12 @@
         </div>
     </flux:modal>
 
-    @livewire($this->contextComponent('churchTempReviewModal'), ['training' => $training], key('church-temp-review-modal-'.$training->id.'-'.$this->contextRoute('show')))
-    @livewire($this->contextComponent('approveChurchTempModal'), ['training' => $training], key('approve-church-temp-modal-'.$training->id.'-'.$this->contextRoute('show')))
+    @livewire($this->contextComponent('churchTempReviewModal'), ['training' => $training], key('church-temp-review-modal-' . $training->id . '-' . $this->contextRoute('show')))
+    @livewire($this->contextComponent('approveChurchTempModal'), ['training' => $training], key('approve-church-temp-modal-' . $training->id . '-' . $this->contextRoute('show')))
     @if ($this->contextComponent('deliverMaterialModal'))
-        @livewire($this->contextComponent('deliverMaterialModal'), ['trainingId' => $training->id], key('deliver-material-modal-'.$training->id))
+        @livewire($this->contextComponent('deliverMaterialModal'), ['trainingId' => $training->id], key('deliver-material-modal-' . $training->id))
     @endif
     @if ($this->contextComponent('createParticipantRegistrationModal'))
-        @livewire($this->contextComponent('createParticipantRegistrationModal'), ['trainingId' => $training->id], key('create-participant-registration-modal-'.$training->id))
+        @livewire($this->contextComponent('createParticipantRegistrationModal'), ['trainingId' => $training->id], key('create-participant-registration-modal-' . $training->id))
     @endif
 </div>

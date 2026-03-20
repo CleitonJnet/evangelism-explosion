@@ -15,7 +15,7 @@
             class="size-4 [[data-flux-sidebar-item]:hover_&]:text-current!" />
     @endif
 
-    <div class="relative flex-1 truncate text-sm font-medium">
+    <div class="relative flex-1 truncate text-sm font-medium pr-4">
         {{-- <span class="text-lg">&#10174;</span> --}}
         {{ __($label) }}
         <div style="text-shadow: 0 0 1px #000000"
