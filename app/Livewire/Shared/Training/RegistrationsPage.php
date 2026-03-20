@@ -9,14 +9,17 @@ use App\Models\Training;
 use App\Models\User;
 use App\Services\Metrics\TrainingRegistrationMetricsService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 abstract class RegistrationsPage extends Component
 {
     use AuthorizesRequests;
     use InteractsWithTrainingContext;
+    use WithFileUploads;
 
     public Training $training;
 
@@ -37,6 +40,10 @@ abstract class RegistrationsPage extends Component
     public bool $selectedHasPaymentReceipt = false;
 
     public bool $selectedPaymentConfirmed = false;
+
+    public bool $showPaymentReadyHint = false;
+
+    public mixed $paymentReceiptUpload = null;
 
     /**
      * @var array<int, array{
@@ -109,6 +116,69 @@ abstract class RegistrationsPage extends Component
         }
     }
 
+    public function uploadSelectedPaymentReceipt(): void
+    {
+        if ($this->busy || ! $this->selectedRegistrationId) {
+            return;
+        }
+
+        $this->authorize('update', $this->training);
+
+        $this->validate([
+            'paymentReceiptUpload' => [
+                'required',
+                'file',
+                'mimes:webp,jpeg,png,pdf',
+                'mimetypes:image/jpeg,image/png,image/webp,application/pdf',
+                'max:5120',
+            ],
+        ], [], [
+            'paymentReceiptUpload' => __('comprovante de pagamento'),
+        ]);
+
+        $this->busy = true;
+
+        try {
+            $student = $this->training->students->firstWhere('id', $this->selectedRegistrationId);
+
+            if (! $student) {
+                $this->closeReceiptModal();
+
+                return;
+            }
+
+            $existingReceipt = is_string($student->pivot?->payment_receipt)
+                ? trim($student->pivot->payment_receipt)
+                : '';
+
+            $path = $this->paymentReceiptUpload->store("training-receipts/{$this->training->id}", 'public');
+
+            $this->training->students()->updateExistingPivot($student->id, [
+                'payment_receipt' => $path,
+            ]);
+
+            if ($existingReceipt !== '' && $existingReceipt !== $path && Storage::disk('public')->exists($existingReceipt)) {
+                Storage::disk('public')->delete($existingReceipt);
+            }
+
+            $this->reset('paymentReceiptUpload');
+            $this->refreshRegistrations();
+            $this->showPaymentReadyHint = true;
+            $this->dispatch('toast', type: 'success', message: 'Comprovante enviado com sucesso.');
+        } finally {
+            $this->busy = false;
+        }
+    }
+
+    public function clearSelectedPaymentReceiptUpload(): void
+    {
+        if (! $this->paymentReceiptUpload) {
+            return;
+        }
+
+        $this->reset('paymentReceiptUpload');
+    }
+
     public function toggleAccredited(int $userId, bool $enabled): void
     {
         $this->updateEnrollment($userId, ['accredited' => $enabled]);
@@ -138,8 +208,18 @@ abstract class RegistrationsPage extends Component
         $this->busy = true;
 
         try {
-            if (! $this->training->students->contains('id', $userId)) {
+            $student = $this->training->students->firstWhere('id', $userId);
+
+            if (! $student) {
                 return;
+            }
+
+            $paymentReceiptPath = is_string($student->pivot?->payment_receipt)
+                ? trim($student->pivot->payment_receipt)
+                : '';
+
+            if ($paymentReceiptPath !== '' && Storage::disk('public')->exists($paymentReceiptPath)) {
+                Storage::disk('public')->delete($paymentReceiptPath);
             }
 
             $this->training->students()->detach($userId);
@@ -210,7 +290,10 @@ abstract class RegistrationsPage extends Component
         $this->selectedPaymentReceiptIsPdf = $registration['payment_receipt_is_pdf'];
         $this->selectedHasPaymentReceipt = $registration['has_payment_receipt'];
         $this->selectedPaymentConfirmed = $registration['payment_confirmed'];
+        $this->showPaymentReadyHint = false;
         $this->resetErrorBag('paymentConfirmation');
+        $this->resetErrorBag('paymentReceiptUpload');
+        $this->paymentReceiptUpload = null;
         $this->showReceiptModal = true;
     }
 
@@ -224,7 +307,10 @@ abstract class RegistrationsPage extends Component
         $this->selectedPaymentReceiptIsPdf = false;
         $this->selectedHasPaymentReceipt = false;
         $this->selectedPaymentConfirmed = false;
+        $this->showPaymentReadyHint = false;
+        $this->paymentReceiptUpload = null;
         $this->resetErrorBag('paymentConfirmation');
+        $this->resetErrorBag('paymentReceiptUpload');
     }
 
     /**

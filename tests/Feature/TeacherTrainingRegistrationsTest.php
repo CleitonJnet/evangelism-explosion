@@ -10,6 +10,8 @@ use App\Models\Role;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -239,9 +241,10 @@ it('does not confirm payment when receipt file is missing', function () {
     ]);
 });
 
-it('removes a participant from the training registrations', function () {
+it('allows the teacher to upload a payment receipt for the student and confirm payment', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
+    Storage::fake('public');
 
     $training = Training::factory()->create([
         'teacher_id' => $teacher->id,
@@ -249,7 +252,53 @@ it('removes a participant from the training registrations', function () {
     ]);
     $student = User::factory()->create(['church_id' => $church->id]);
 
-    $training->students()->attach($student->id, ['accredited' => 0, 'kit' => 0, 'payment' => 0]);
+    $training->students()->attach($student->id, [
+        'payment_receipt' => null,
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training])
+        ->call('openReceiptModal', $student->id)
+        ->set('paymentReceiptUpload', UploadedFile::fake()->image('comprovante.png'))
+        ->call('uploadSelectedPaymentReceipt')
+        ->call('togglePayment', $student->id, true)
+        ->assertHasNoErrors(['paymentReceiptUpload', 'paymentConfirmation']);
+
+    $training->refresh();
+    $enrollment = $training->students()->where('users.id', $student->id)->first();
+    $storedReceiptPath = $enrollment?->pivot?->payment_receipt;
+
+    expect($storedReceiptPath)->not->toBeNull();
+    expect(Storage::disk('public')->exists((string) $storedReceiptPath))->toBeTrue();
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $student->id,
+        'payment' => 1,
+    ]);
+});
+
+it('removes a participant from the training registrations', function () {
+    $teacher = createTeacher();
+    $church = Church::factory()->create();
+    Storage::fake('public');
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+    ]);
+    $student = User::factory()->create(['church_id' => $church->id]);
+    Storage::disk('public')->put('training-receipts/remove/comprovante.webp', 'fake-image-content');
+
+    $training->students()->attach($student->id, [
+        'payment_receipt' => 'training-receipts/remove/comprovante.webp',
+        'accredited' => 0,
+        'kit' => 0,
+        'payment' => 0,
+    ]);
 
     Livewire::actingAs($teacher)
         ->test(Registrations::class, ['training' => $training])
@@ -259,6 +308,8 @@ it('removes a participant from the training registrations', function () {
         'training_id' => $training->id,
         'user_id' => $student->id,
     ]);
+
+    expect(Storage::disk('public')->exists('training-receipts/remove/comprovante.webp'))->toBeFalse();
 });
 
 it('marks registration groups with pending or missing church as issues', function () {
@@ -470,7 +521,7 @@ it('allows a teacher to register a new student with the default password and off
     expect($participant?->church_id)->toBe($church->id);
     expect($participant?->church_temp_id)->toBeNull();
     expect($participant?->must_change_password)->toBeTrue();
-    expect(\Illuminate\Support\Facades\Hash::check('Master_01', (string) $participant?->getAuthPassword()))->toBeTrue();
+    expect(Hash::check('Master_01', (string) $participant?->getAuthPassword()))->toBeTrue();
 
     $this->assertDatabaseHas('training_user', [
         'training_id' => $training->id,
