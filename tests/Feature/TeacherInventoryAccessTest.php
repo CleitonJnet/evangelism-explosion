@@ -1,9 +1,13 @@
 <?php
 
+use App\Livewire\Pages\App\Teacher\Inventory\Index;
+use App\Livewire\Pages\App\Teacher\Inventory\View;
 use App\Models\Inventory;
 use App\Models\Material;
+use App\Models\MaterialComponent;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Inventory\StockMovementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -33,6 +37,15 @@ it('lists only inventories delegated to the authenticated teacher', function ():
     ]);
 
     Inventory::query()->create([
+        'name' => 'Estoque Auxiliar do Professor Responsável',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+        'city' => 'Valinhos',
+        'state' => 'SP',
+    ]);
+
+    Inventory::query()->create([
         'name' => 'Estoque de Outro Professor',
         'kind' => 'teacher',
         'user_id' => $otherTeacher->id,
@@ -46,7 +59,23 @@ it('lists only inventories delegated to the authenticated teacher', function ():
     $response->assertSeeText('Meu estoque');
     $response->assertSeeText('Rotina operacional delegada');
     $response->assertSeeText('Campinas / SP');
+    $response->assertSeeText('Estoque Auxiliar do Professor Responsável');
     $response->assertDontSeeText('Estoque de Outro Professor');
+});
+
+it('redirects the teacher directly to inventory details when only one delegated inventory exists', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Unico do Professor',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($teacher)
+        ->get(route('app.teacher.inventory.index'))
+        ->assertRedirect(route('app.teacher.inventory.show', ['inventory' => $inventory]));
 });
 
 it('filters teacher inventories by responsible name, city, uf and full state name', function (): void {
@@ -72,7 +101,7 @@ it('filters teacher inventories by responsible name, city, uf and full state nam
     ]);
 
     Livewire::actingAs($teacher)
-        ->test(\App\Livewire\Pages\App\Teacher\Inventory\Index::class)
+        ->test(Index::class)
         ->set('search', 'Elias')
         ->assertSee('Estoque Interior')
         ->assertSee('Estoque Litoral')
@@ -184,7 +213,7 @@ it('allows a teacher to delete the delegated inventory from the details page', f
     ]);
 
     Livewire::actingAs($teacher)
-        ->test(\App\Livewire\Pages\App\Teacher\Inventory\View::class, ['inventory' => $inventory])
+        ->test(View::class, ['inventory' => $inventory])
         ->call('openDeleteModal')
         ->assertSet('showDeleteModal', true)
         ->call('deleteInventory')
@@ -205,10 +234,10 @@ it('blocks teacher inventory deletion from the details page when stock movements
 
     $material = Material::query()->create(['name' => 'Material auditado professor']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 1, $teacher);
+    app(StockMovementService::class)->addStock($inventory, $material, 1, $teacher);
 
     Livewire::actingAs($teacher)
-        ->test(\App\Livewire\Pages\App\Teacher\Inventory\View::class, ['inventory' => $inventory])
+        ->test(View::class, ['inventory' => $inventory])
         ->call('openDeleteModal')
         ->assertSet('showDeleteModal', true)
         ->assertSet(
@@ -341,12 +370,12 @@ it('shows composite items dynamically when the teacher has all required transfer
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 2,
     ]);
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $badge->id,
         'quantity' => 1,
@@ -458,7 +487,7 @@ it('opens the teacher material modal with exit only for a dynamically available 
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 2,
@@ -507,12 +536,12 @@ it('does not show composite items for the teacher when required components were 
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 1,
     ]);
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $badge->id,
         'quantity' => 1,
@@ -551,7 +580,7 @@ it('lists dynamically available composite items in the teacher stock action moda
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 2,
@@ -602,12 +631,12 @@ it('allows a teacher to register exit for a dynamically available composite item
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 2,
     ]);
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $badge->id,
         'quantity' => 1,
@@ -659,7 +688,7 @@ it('does not list composite items in the teacher stock action modal when compone
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 10,
@@ -704,7 +733,7 @@ it('does not list dynamically available composite items for teacher entry and ad
         'is_active' => true,
     ]);
 
-    \App\Models\MaterialComponent::query()->create([
+    MaterialComponent::query()->create([
         'parent_material_id' => $kit->id,
         'component_material_id' => $manual->id,
         'quantity' => 2,
