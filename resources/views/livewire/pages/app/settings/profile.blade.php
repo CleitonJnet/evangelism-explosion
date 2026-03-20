@@ -198,6 +198,76 @@
                     {{ $this->formatValue($user->notes) }}</p>
             </div>
 
+            @if ($isManagingAnotherUser && $managedTeacherTrainings->isNotEmpty())
+                <div class="grid gap-3 rounded-2xl border border-white/10 bg-white/6 p-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-sky-100/55">{{ __('Treinamentos do professor') }}</p>
+                        <p class="mt-1 text-sm text-sky-100/65">
+                            {{ __('Abra os detalhes ou a lista de inscritos dos treinamentos em que este professor atua.') }}
+                        </p>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/20">
+                        <table class="w-full min-w-[720px] text-left text-sm text-slate-100">
+                            <thead class="bg-white/5 text-xs uppercase tracking-wide text-sky-100/65">
+                                <tr>
+                                    <th class="px-4 py-3">{{ __('Papel') }}</th>
+                                    <th class="px-4 py-3">{{ __('Treinamento') }}</th>
+                                    <th class="px-4 py-3">{{ __('Igreja sede') }}</th>
+                                    <th class="px-4 py-3">{{ __('Primeira data') }}</th>
+                                    <th class="px-4 py-3 text-center">{{ __('Inscritos') }}</th>
+                                    <th class="px-4 py-3 text-right">{{ __('Ações') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/10">
+                                @foreach ($managedTeacherTrainings as $managedTeacherTraining)
+                                    @php
+                                        $training = $managedTeacherTraining['training'];
+                                        $firstEventDate = $managedTeacherTraining['first_event_date'];
+                                    @endphp
+                                    <tr wire:key="managed-teacher-training-{{ $training->id }}"
+                                        class="odd:bg-white/[0.03] even:bg-transparent">
+                                        <td class="px-4 py-3">
+                                            <span
+                                                class="inline-flex rounded-full border border-amber-300/30 bg-amber-300/15 px-2.5 py-1 text-xs font-semibold text-amber-100">
+                                                {{ $managedTeacherTraining['assignment_label'] }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="font-semibold text-white">#{{ $training->id }}</div>
+                                            <div class="text-xs text-sky-100/70">
+                                                {{ trim((string) $training->course?->type . ' ' . (string) $training->course?->name) ?: __('Curso não informado') }}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-sky-50/90">
+                                            {{ $training->church?->name ?: __('Não informada') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sky-50/90">
+                                            {{ $firstEventDate ? \Illuminate\Support\Carbon::parse($firstEventDate)->format('d/m/Y') : __('Não informada') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center font-semibold text-white">
+                                            {{ (int) ($training->students_count ?? 0) }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex justify-end gap-2">
+                                                <a href="{{ route('app.director.training.show', $training) }}"
+                                                    class="inline-flex items-center rounded-lg border border-sky-200/25 bg-white/8 px-3 py-1.5 text-xs font-semibold text-sky-50 transition hover:bg-white/14">
+                                                    {{ __('Detalhes') }}
+                                                </a>
+                                                <a href="{{ route('app.director.training.registrations', $training) }}"
+                                                    class="inline-flex items-center rounded-lg border border-emerald-300/30 bg-emerald-300/12 px-3 py-1.5 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/18">
+                                                    {{ __('Inscrições') }}
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
         </div>
     </section>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\App\Director\Training\Registrations as DirectorRegistrations;
+use App\Livewire\Pages\App\Teacher\Training\CreateParticipantRegistrationModal;
 use App\Livewire\Pages\App\Teacher\Training\Statistics as TeacherStatistics;
 use App\Models\Role;
 use App\Models\Training;
@@ -55,6 +56,19 @@ it('renders the director registrations page through the old route with director 
     expect($component->usesManualMaterialDelivery())->toBeTrue()
         ->and($component->canToggleRegistrationKit())->toBeFalse()
         ->and($component->capabilities['canSeeSensitiveData'])->toBeTrue();
+});
+
+it('allows directors to open the participant registration modal for trainings owned by another teacher', function (): void {
+    $director = userWithTrainingRole('Director');
+    $teacher = userWithTrainingRole('Teacher');
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(CreateParticipantRegistrationModal::class, ['trainingId' => $training->id])
+        ->call('openModal', $training->id)
+        ->assertSet('showModal', true);
 });
 
 it('keeps mentor users out of teacher and director training routes even when they are assigned to the training', function (): void {

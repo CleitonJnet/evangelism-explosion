@@ -1,7 +1,10 @@
 <?php
 
 use App\Livewire\Pages\App\Settings\Profile;
+use App\Models\Church;
+use App\Models\Course;
 use App\Models\Role;
+use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -57,6 +60,49 @@ it('allows a director to open the existing profile page for another user', funct
     $response->assertDontSee('profile-delete-account-modal');
     $response->assertDontSee('profile-password-modal');
     $response->assertSee('profile-delete-managed-user');
+});
+
+it('shows director shortcuts to registrations for a managed teacher profile', function (): void {
+    $director = User::factory()->create();
+    $teacher = User::factory()->create([
+        'name' => 'Professora com Treinamentos',
+    ]);
+    $otherTeacher = User::factory()->create();
+    $church = Church::factory()->create(['name' => 'Igreja Base Perfil']);
+    $course = Course::factory()->create([
+        'name' => 'Curso de Liderança',
+        'type' => 'EE',
+    ]);
+
+    $directorRole = Role::query()->firstOrCreate(['name' => 'Director']);
+    $teacherRole = Role::query()->firstOrCreate(['name' => 'Teacher']);
+
+    $director->roles()->syncWithoutDetaching([$directorRole->id]);
+    $teacher->roles()->syncWithoutDetaching([$teacherRole->id]);
+
+    $ledTraining = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+        'course_id' => $course->id,
+    ]);
+    $assistedTraining = Training::factory()->create([
+        'teacher_id' => $otherTeacher->id,
+        'church_id' => $church->id,
+        'course_id' => $course->id,
+    ]);
+    $assistedTraining->assistantTeachers()->attach($teacher->id);
+
+    $response = $this
+        ->actingAs($director)
+        ->get(route('app.profile.show', $teacher));
+
+    $response->assertOk();
+    $response->assertSeeText('Treinamentos do professor');
+    $response->assertSeeText('Professora com Treinamentos');
+    $response->assertSee(route('app.director.training.show', $ledTraining), false);
+    $response->assertSee(route('app.director.training.registrations', $ledTraining), false);
+    $response->assertSee(route('app.director.training.show', $assistedTraining), false);
+    $response->assertSee(route('app.director.training.registrations', $assistedTraining), false);
 });
 
 it('requires the director password to delete another user from the existing profile page', function (): void {

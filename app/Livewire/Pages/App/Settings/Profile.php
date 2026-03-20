@@ -4,8 +4,11 @@ namespace App\Livewire\Pages\App\Settings;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Models\Training;
 use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -395,13 +398,72 @@ class Profile extends Component
     public function render(): View
     {
         return view('livewire.pages.app.settings.profile')
+            ->with([
+                'managedTeacherTrainings' => $this->managedTeacherTrainings(),
+            ])
             ->layout('components.layouts.app', [
                 'title' => $this->user->name ?: __('Perfil do usuário'),
             ]);
     }
 
     /**
-     * @return array<string, array<int, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>>
+     * @return Collection<int, array{assignment_label: string, training: Training, first_event_date: ?string}>
+     */
+    private function managedTeacherTrainings(): Collection
+    {
+        if (! $this->isManagingAnotherUser || ! $this->user->hasRole('Teacher')) {
+            return collect();
+        }
+
+        $relationshipLoader = fn ($query) => $query
+            ->with([
+                'course:id,name,type',
+                'church:id,name',
+                'eventDates:id,training_id,date,start_time',
+            ])
+            ->withCount('students');
+
+        $ledTrainings = $relationshipLoader($this->user->ledTrainings())
+            ->get()
+            ->map(fn (Training $training): array => [
+                'assignment_label' => __('Titular'),
+                'training' => $training,
+                'first_event_date' => $training->eventDates
+                    ->sortBy(fn ($eventDate) => sprintf(
+                        '%s %s',
+                        (string) ($eventDate->date ?? ''),
+                        (string) ($eventDate->start_time ?? ''),
+                    ))
+                    ->first()?->date,
+            ]);
+
+        $assistedTrainings = $relationshipLoader($this->user->assistedTrainings())
+            ->get()
+            ->map(fn (Training $training): array => [
+                'assignment_label' => __('Auxiliar'),
+                'training' => $training,
+                'first_event_date' => $training->eventDates
+                    ->sortBy(fn ($eventDate) => sprintf(
+                        '%s %s',
+                        (string) ($eventDate->date ?? ''),
+                        (string) ($eventDate->start_time ?? ''),
+                    ))
+                    ->first()?->date,
+            ]);
+
+        return $ledTrainings
+            ->concat($assistedTrainings)
+            ->sortBy([
+                fn (array $item): int => $item['first_event_date'] === null ? 1 : 0,
+                fn (array $item): string => $item['first_event_date'] ?? '',
+                fn (array $item): int => $item['training']->id,
+            ])
+            ->reverse()
+            ->values();
+    }
+
+    /**
+     * @return array<string, array<int, ValidationRule|array<mixed>|string>>
      */
     protected function personalRules(): array
     {

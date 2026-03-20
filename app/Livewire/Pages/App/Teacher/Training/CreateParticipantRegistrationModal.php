@@ -108,6 +108,10 @@ class CreateParticipantRegistrationModal extends Component
 
     private function authorizeTraining(Training $training): void
     {
+        if (Gate::allows('update', $training)) {
+            return;
+        }
+
         Gate::authorize('updateTeacherContext', $training);
     }
 
