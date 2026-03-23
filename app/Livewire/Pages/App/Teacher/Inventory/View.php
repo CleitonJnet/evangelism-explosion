@@ -168,44 +168,26 @@ class View extends Component
         $compositeBalances = $this->appendComposableQuantity($compositeBalances, $inventory->id);
 
         $lowStockItems = DB::table('materials')
-            ->leftJoin('inventory_material', function ($join) use ($inventory): void {
+            ->join('inventory_material', function ($join) use ($inventory): void {
                 $join
                     ->on('inventory_material.material_id', '=', 'materials.id')
                     ->where('inventory_material.inventory_id', '=', $inventory->id);
             })
-            ->where(function ($query) use ($availableCompositeIds): void {
-                $query
-                    ->where(function ($simpleQuery): void {
-                        $simpleQuery
-                            ->where('materials.type', 'simple')
-                            ->whereNotNull('inventory_material.inventory_id')
-                            ->where('inventory_material.minimum_stock', '>', 0);
-                    });
-
-                if ($availableCompositeIds !== []) {
-                    $query->orWhere(function ($compositeQuery) use ($availableCompositeIds): void {
-                        $compositeQuery
-                            ->where('materials.type', 'composite')
-                            ->where('materials.minimum_stock', '>', 0)
-                            ->whereIn('materials.id', $availableCompositeIds);
-                    });
-                }
-            })
+            ->where('materials.type', 'simple')
+            ->where('inventory_material.minimum_stock', '>', 0)
             ->select([
                 'materials.id',
                 'materials.name',
                 'materials.type',
                 DB::raw('COALESCE(inventory_material.current_quantity, 0) as current_quantity'),
-                DB::raw("CASE WHEN materials.type = 'simple' THEN COALESCE(inventory_material.minimum_stock, 0) ELSE materials.minimum_stock END as minimum_stock"),
+                DB::raw('COALESCE(inventory_material.minimum_stock, 0) as minimum_stock'),
             ])
             ->orderBy('materials.name')
             ->get();
 
-        $lowStockItems = $this->appendComposableQuantityToCollection($lowStockItems, $inventory->id)
+        $lowStockItems = collect($lowStockItems)
             ->map(function (object $item): object {
-                $item->available_alert_quantity = $item->type === 'composite'
-                    ? (int) ($item->composable_quantity ?? 0)
-                    : (int) $item->current_quantity;
+                $item->available_alert_quantity = (int) $item->current_quantity;
 
                 return $item;
             })

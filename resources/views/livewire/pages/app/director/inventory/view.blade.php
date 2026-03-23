@@ -174,8 +174,6 @@
                                     <th class="w-40 px-4 py-3 text-center">{{ __('Preço') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Componentes') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Pode compor') }}</th>
-                                    <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
-                                    <th class="w-44 px-4 py-3 text-center">{{ __('Alerta') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white">
@@ -205,26 +203,10 @@
                                         <td class="px-4 py-3 text-center font-semibold text-sky-800">
                                             {{ __('Até :quantity', ['quantity' => (int) $balance->composable_quantity]) }}
                                         </td>
-                                        <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
-                                        <td class="px-4 py-3 text-center">
-                                            @if ((int) $balance->composable_quantity === 0)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
-                                                    {{ __('Saldo zerado') }}
-                                                </span>
-                                            @elseif ($balance->minimum_stock > 0 && $balance->composable_quantity < $balance->minimum_stock)
-                                                <span
-                                                    class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
-                                                    {{ __('Abaixo do mínimo') }}
-                                                </span>
-                                            @else
-                                                <span class="inline-block max-w-full truncate text-slate-400">-</span>
-                                            @endif
-                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum produto composto encontrado') }}

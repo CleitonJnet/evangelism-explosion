@@ -39,12 +39,12 @@ trait InteractsWithTrainingContext
 
     public function usesManualMaterialDelivery(): bool
     {
-        return $this->isDirectorContext();
+        return false;
     }
 
     public function canToggleRegistrationKit(): bool
     {
-        return ! $this->usesManualMaterialDelivery() && ($this->capabilities['canEdit'] ?? false);
+        return (bool) ($this->capabilities['canEdit'] ?? false);
     }
 
     protected function canReviewStpApproaches(Training $training): bool

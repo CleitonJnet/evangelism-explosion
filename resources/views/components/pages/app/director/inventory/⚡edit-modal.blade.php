@@ -13,8 +13,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component
-{
+new class extends Component {
     use WithFileUploads;
 
     public int $materialId;
@@ -122,29 +121,27 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'entry_quantity' => ['required', 'integer', 'min:1'],
-                'entry_notes' => ['nullable', 'string', 'max:2000'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-            ], [
-                'entry_quantity' => 'quantidade de entrada',
-                'entry_notes' => 'observação',
-            ]);
+            $validated = $this->validate(
+                [
+                    'entry_quantity' => ['required', 'integer', 'min:1'],
+                    'entry_notes' => ['nullable', 'string', 'max:2000'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                ],
+                [
+                    'entry_quantity' => 'quantidade de entrada',
+                    'entry_notes' => 'observação',
+                ],
+            );
 
             $inventory = Inventory::query()->findOrFail($this->inventoryId);
             $material = Material::query()->findOrFail($this->materialId);
 
-            app(StockMovementService::class)->addStock(
-                $inventory,
-                $material,
-                (int) $validated['entry_quantity'],
-                Auth::user(),
-                notes: $validated['entry_notes'] ?? null,
-            );
+            app(StockMovementService::class)->addStock($inventory, $material, (int) $validated['entry_quantity'], Auth::user(), notes: $validated['entry_notes'] ?? null);
 
             $this->dispatch('director-inventory-stock-updated', inventoryId: $inventory->id);
             $this->dispatch('toast', type: 'success', message: __('Entrada manual registrada com sucesso.'));
@@ -169,46 +166,37 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'exit_quantity' => ['required', 'integer', 'min:1'],
-                'exit_notes' => ['nullable', 'string', 'max:2000'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-            ], [
-                'exit_quantity' => 'quantidade de saída',
-                'exit_notes' => 'observação',
-            ]);
+            $validated = $this->validate(
+                [
+                    'exit_quantity' => ['required', 'integer', 'min:1'],
+                    'exit_notes' => ['nullable', 'string', 'max:2000'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                ],
+                [
+                    'exit_quantity' => 'quantidade de saída',
+                    'exit_notes' => 'observação',
+                ],
+            );
 
             $inventory = Inventory::query()->findOrFail($this->inventoryId);
             $material = Material::query()->findOrFail($this->materialId);
             $service = app(StockMovementService::class);
 
             if ($material->isComposite()) {
-                $service->removeCompositeMaterial(
-                    $inventory,
-                    $material,
-                    (int) $validated['exit_quantity'],
-                    Auth::user(),
-                    notes: $validated['exit_notes'] ?? null,
-                    allowDynamicComposition: true,
-                );
+                $service->removeCompositeMaterial($inventory, $material, (int) $validated['exit_quantity'], Auth::user(), notes: $validated['exit_notes'] ?? null, allowDynamicComposition: true);
             } else {
-                $service->removeStock(
-                    $inventory,
-                    $material,
-                    (int) $validated['exit_quantity'],
-                    Auth::user(),
-                    notes: $validated['exit_notes'] ?? null,
-                );
+                $service->removeStock($inventory, $material, (int) $validated['exit_quantity'], Auth::user(), notes: $validated['exit_notes'] ?? null);
             }
 
             $this->dispatch('director-inventory-stock-updated', inventoryId: $inventory->id);
             $this->dispatch('toast', type: 'success', message: __('Saída manual registrada com sucesso.'));
             $this->closeModal();
-        } catch (InsufficientStockException|InvalidCompositeMaterialException $exception) {
+        } catch (InsufficientStockException | InvalidCompositeMaterialException $exception) {
             $this->addError('exit_quantity', $exception->getMessage());
             $this->dispatch('toast', type: 'error', message: $exception->getMessage());
         } finally {
@@ -231,29 +219,27 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'adjustment_target_quantity' => ['required', 'integer', 'min:0'],
-                'adjustment_notes' => ['nullable', 'string', 'max:2000'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-            ], [
-                'adjustment_target_quantity' => 'saldo alvo',
-                'adjustment_notes' => 'observação',
-            ]);
+            $validated = $this->validate(
+                [
+                    'adjustment_target_quantity' => ['required', 'integer', 'min:0'],
+                    'adjustment_notes' => ['nullable', 'string', 'max:2000'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                ],
+                [
+                    'adjustment_target_quantity' => 'saldo alvo',
+                    'adjustment_notes' => 'observação',
+                ],
+            );
 
             $inventory = Inventory::query()->findOrFail($this->inventoryId);
             $material = Material::query()->findOrFail($this->materialId);
 
-            app(StockMovementService::class)->adjustStock(
-                $inventory,
-                $material,
-                (int) $validated['adjustment_target_quantity'],
-                Auth::user(),
-                notes: $validated['adjustment_notes'] ?? null,
-            );
+            app(StockMovementService::class)->adjustStock($inventory, $material, (int) $validated['adjustment_target_quantity'], Auth::user(), notes: $validated['adjustment_notes'] ?? null);
 
             $this->dispatch('director-inventory-stock-updated', inventoryId: $inventory->id);
             $this->dispatch('toast', type: 'success', message: __('Ajuste de saldo aplicado com sucesso.'));
@@ -278,29 +264,27 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'loss_quantity' => ['required', 'integer', 'min:1'],
-                'loss_notes' => ['nullable', 'string', 'max:2000'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-            ], [
-                'loss_quantity' => 'quantidade perdida',
-                'loss_notes' => 'observação',
-            ]);
+            $validated = $this->validate(
+                [
+                    'loss_quantity' => ['required', 'integer', 'min:1'],
+                    'loss_notes' => ['nullable', 'string', 'max:2000'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                ],
+                [
+                    'loss_quantity' => 'quantidade perdida',
+                    'loss_notes' => 'observação',
+                ],
+            );
 
             $inventory = Inventory::query()->findOrFail($this->inventoryId);
             $material = Material::query()->findOrFail($this->materialId);
 
-            app(StockMovementService::class)->registerLoss(
-                $inventory,
-                $material,
-                (int) $validated['loss_quantity'],
-                Auth::user(),
-                notes: $validated['loss_notes'] ?? null,
-            );
+            app(StockMovementService::class)->registerLoss($inventory, $material, (int) $validated['loss_quantity'], Auth::user(), notes: $validated['loss_notes'] ?? null);
 
             $this->dispatch('director-inventory-stock-updated', inventoryId: $inventory->id);
             $this->dispatch('toast', type: 'success', message: __('Perda/avaria registrada com sucesso.'));
@@ -328,34 +312,31 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'transfer_destination_inventory_id' => ['required', 'integer', 'exists:inventories,id', 'different:inventoryId'],
-                'transfer_quantity' => ['required', 'integer', 'min:1'],
-                'transfer_notes' => ['nullable', 'string', 'max:2000'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-                'different' => 'Escolha um estoque de destino diferente do estoque atual.',
-            ], [
-                'transfer_destination_inventory_id' => 'estoque de destino',
-                'transfer_quantity' => 'quantidade',
-                'transfer_notes' => 'observação',
-            ]);
+            $validated = $this->validate(
+                [
+                    'transfer_destination_inventory_id' => ['required', 'integer', 'exists:inventories,id', 'different:inventoryId'],
+                    'transfer_quantity' => ['required', 'integer', 'min:1'],
+                    'transfer_notes' => ['nullable', 'string', 'max:2000'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                    'different' => 'Escolha um estoque de destino diferente do estoque atual.',
+                ],
+                [
+                    'transfer_destination_inventory_id' => 'estoque de destino',
+                    'transfer_quantity' => 'quantidade',
+                    'transfer_notes' => 'observação',
+                ],
+            );
 
             $sourceInventory = Inventory::query()->findOrFail($this->inventoryId);
             $destinationInventory = Inventory::query()->findOrFail((int) $validated['transfer_destination_inventory_id']);
             $material = Material::query()->findOrFail($this->materialId);
 
-            app(StockMovementService::class)->transferStock(
-                $sourceInventory,
-                $destinationInventory,
-                $material,
-                (int) $validated['transfer_quantity'],
-                Auth::user(),
-                notes: $validated['transfer_notes'] ?? null,
-            );
+            app(StockMovementService::class)->transferStock($sourceInventory, $destinationInventory, $material, (int) $validated['transfer_quantity'], Auth::user(), notes: $validated['transfer_notes'] ?? null);
 
             $this->dispatch('director-inventory-stock-updated', inventoryId: $sourceInventory->id);
             $this->dispatch('director-inventory-stock-updated', inventoryId: $destinationInventory->id);
@@ -381,30 +362,34 @@ new class extends Component
         $this->busy = true;
 
         try {
-            $validated = $this->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'price' => ['nullable', 'string', 'max:20', 'regex:/^-?\d+(?:[,.]\d{0,2})?$/'],
-                'minimum_stock' => ['required', 'integer', 'min:0'],
-                'description' => ['nullable', 'string', 'max:2000'],
-                'photoUpload' => ['nullable', 'image', 'max:5120'],
-                'selectedCourseIds' => ['array'],
-                'selectedCourseIds.*' => ['integer', 'exists:courses,id'],
-            ], [
-                'required' => 'O campo :attribute é obrigatório.',
-                'in' => 'O valor informado para :attribute é inválido.',
-                'integer' => 'O campo :attribute deve ser um número inteiro.',
-                'min' => 'O campo :attribute deve ser no mínimo :min.',
-                'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
-                'image' => 'O campo :attribute deve ser uma imagem válida.',
-                'price.regex' => 'O campo preço deve conter apenas números e separador decimal.',
-            ], [
-                'name' => 'nome',
-                'price' => 'preço',
-                'minimum_stock' => 'estoque mínimo',
-                'description' => 'descrição',
-                'photoUpload' => 'foto',
-                'selectedCourseIds' => 'cursos',
-            ]);
+            $validated = $this->validate(
+                [
+                    'name' => ['required', 'string', 'max:255'],
+                    'price' => ['nullable', 'string', 'max:20', 'regex:/^-?\d+(?:[,.]\d{0,2})?$/'],
+                    'minimum_stock' => ['required', 'integer', 'min:0'],
+                    'description' => ['nullable', 'string', 'max:2000'],
+                    'photoUpload' => ['nullable', 'image', 'max:5120'],
+                    'selectedCourseIds' => ['array'],
+                    'selectedCourseIds.*' => ['integer', 'exists:courses,id'],
+                ],
+                [
+                    'required' => 'O campo :attribute é obrigatório.',
+                    'in' => 'O valor informado para :attribute é inválido.',
+                    'integer' => 'O campo :attribute deve ser um número inteiro.',
+                    'min' => 'O campo :attribute deve ser no mínimo :min.',
+                    'max' => 'O campo :attribute não pode ter mais de :max caracteres.',
+                    'image' => 'O campo :attribute deve ser uma imagem válida.',
+                    'price.regex' => 'O campo preço deve conter apenas números e separador decimal.',
+                ],
+                [
+                    'name' => 'nome',
+                    'price' => 'preço',
+                    'minimum_stock' => 'estoque mínimo',
+                    'description' => 'descrição',
+                    'photoUpload' => 'foto',
+                    'selectedCourseIds' => 'cursos',
+                ],
+            );
 
             $material = Material::query()->findOrFail($this->materialId);
             $photoPath = $this->currentPhotoPath;
@@ -412,31 +397,25 @@ new class extends Component
             if ($this->photoUpload instanceof UploadedFile) {
                 $storedPhotoPath = $this->photoUpload->store('material-photos', 'public');
 
-                if ($photoPath && ! str_starts_with($photoPath, 'http') && Storage::disk('public')->exists($photoPath)) {
+                if ($photoPath && !str_starts_with($photoPath, 'http') && Storage::disk('public')->exists($photoPath)) {
                     Storage::disk('public')->delete($photoPath);
                 }
 
                 $photoPath = $storedPhotoPath;
             }
 
-            $material->forceFill([
-                'name' => $validated['name'],
-                'photo' => $photoPath,
-                'price' => $validated['price'] ?? '0',
-                'minimum_stock' => $validated['minimum_stock'],
-                'description' => $validated['description'] ?? null,
-            ])->save();
+            $material
+                ->forceFill([
+                    'name' => $validated['name'],
+                    'photo' => $photoPath,
+                    'price' => $validated['price'] ?? '0',
+                    'minimum_stock' => $validated['minimum_stock'],
+                    'description' => $validated['description'] ?? null,
+                ])
+                ->save();
             $material->courses()->sync($validated['selectedCourseIds'] ?? []);
 
-            $this->dispatch(
-                'director-material-updated',
-                materialId: $material->id,
-                type: $material->type,
-                isActive: $material->is_active,
-                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
-                inventoryId: $this->inventoryId,
-                hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory(),
-            );
+            $this->dispatch('director-material-updated', materialId: $material->id, type: $material->type, isActive: $material->is_active, hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(), inventoryId: $this->inventoryId, hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory());
             $this->dispatch('toast', type: 'success', message: __('Material atualizado com sucesso.'));
             $this->closeModal();
         } finally {
@@ -454,27 +433,15 @@ new class extends Component
 
         try {
             $material = Material::query()->findOrFail($this->materialId);
-            $material->forceFill([
-                'is_active' => ! $material->is_active,
-                'status' => $material->is_active ? 'inactive' : 'active',
-            ])->save();
+            $material
+                ->forceFill([
+                    'is_active' => !$material->is_active,
+                    'status' => $material->is_active ? 'inactive' : 'active',
+                ])
+                ->save();
 
-            $this->dispatch(
-                'director-material-updated',
-                materialId: $material->id,
-                type: $material->type,
-                isActive: $material->is_active,
-                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
-                inventoryId: $this->inventoryId,
-                hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory(),
-            );
-            $this->dispatch(
-                'toast',
-                type: 'success',
-                message: $material->is_active
-                    ? __('Material reativado com sucesso.')
-                    : __('Material inativado com sucesso.'),
-            );
+            $this->dispatch('director-material-updated', materialId: $material->id, type: $material->type, isActive: $material->is_active, hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(), inventoryId: $this->inventoryId, hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory());
+            $this->dispatch('toast', type: 'success', message: $material->is_active ? __('Material reativado com sucesso.') : __('Material inativado com sucesso.'));
 
             $activeTab = $this->activeTab;
 
@@ -512,7 +479,7 @@ new class extends Component
                 $this->dispatch('toast', type: 'error', message: __('Este material não pode ser excluído permanentemente.'));
 
                 foreach ($blockers as $index => $blocker) {
-                    $this->addError('delete_blocker_'.$index, $blocker);
+                    $this->addError('delete_blocker_' . $index, $blocker);
                 }
 
                 $this->confirmingPermanentDelete = false;
@@ -528,14 +495,7 @@ new class extends Component
 
             $material->delete();
 
-            $this->dispatch(
-                'director-material-deleted',
-                materialId: $this->materialId,
-                type: $material->type,
-                hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(),
-                inventoryId: $this->inventoryId,
-                hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory(),
-            );
+            $this->dispatch('director-material-deleted', materialId: $this->materialId, type: $material->type, hasActiveSimpleMaterials: $this->hasActiveSimpleMaterials(), inventoryId: $this->inventoryId, hasActiveSimpleMaterialsInInventory: $this->hasActiveSimpleMaterialsInInventory());
             $this->dispatch('toast', type: 'success', message: __('Material excluído permanentemente.'));
             $this->showModal = false;
             $this->confirmingPermanentDelete = false;
@@ -553,7 +513,7 @@ new class extends Component
     public function ministries(): array
     {
         return Ministry::query()
-            ->with(['courses' => fn ($query) => $query->orderBy('order')->orderBy('id')])
+            ->with(['courses' => fn($query) => $query->orderBy('order')->orderBy('id')])
             ->orderBy('name')
             ->get()
             ->all();
@@ -597,7 +557,10 @@ new class extends Component
                         'label' => __('Implementação'),
                         'courses' => $courses->where('execution', 1)->values(),
                     ],
-                ])->filter(fn (array $group): bool => $group['courses']->isNotEmpty())->values()->all();
+                ])
+                    ->filter(fn(array $group): bool => $group['courses']->isNotEmpty())
+                    ->values()
+                    ->all();
 
                 return [
                     'id' => (int) $ministry->id,
@@ -623,13 +586,11 @@ new class extends Component
             ->orderBy('name')
             ->get()
             ->map(function (Inventory $inventory): array {
-                $suffix = $inventory->kind === 'teacher'
-                    ? ' - '.($inventory->responsibleUser?->name ?: __('Sem professor'))
-                    : ' - '.__('Central');
+                $suffix = $inventory->kind === 'teacher' ? ' - ' . ($inventory->responsibleUser?->name ?: __('Sem professor')) : ' - ' . __('Central');
 
                 return [
                     'value' => $inventory->id,
-                    'label' => $inventory->name.$suffix,
+                    'label' => $inventory->name . $suffix,
                 ];
             })
             ->all();
@@ -637,12 +598,8 @@ new class extends Component
 
     private function fillForm(bool $resetTab = true): void
     {
-        $material = Material::query()
-            ->with('courses:id')
-            ->findOrFail($this->materialId);
-        $currentInventoryQuantity = $this->inventoryId !== null
-            ? Inventory::query()->find($this->inventoryId)?->currentQuantityFor($material)
-            : 0;
+        $material = Material::query()->with('courses:id')->findOrFail($this->materialId);
+        $currentInventoryQuantity = $this->inventoryId !== null ? Inventory::query()->find($this->inventoryId)?->currentQuantityFor($material) : 0;
 
         $this->name = (string) $material->name;
         $this->type = (string) ($material->type ?: 'simple');
@@ -652,7 +609,7 @@ new class extends Component
         $this->price = $material->price !== null ? (string) $material->price : null;
         $this->minimum_stock = (int) $material->minimum_stock;
         $this->description = $material->description;
-        $this->selectedCourseIds = $material->courses->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->selectedCourseIds = $material->courses->pluck('id')->map(fn($id) => (int) $id)->all();
         $this->confirmingPermanentDelete = false;
 
         if ($resetTab) {
@@ -675,10 +632,7 @@ new class extends Component
 
     private function hasActiveSimpleMaterials(): bool
     {
-        return Material::query()
-            ->where('type', 'simple')
-            ->where('is_active', true)
-            ->exists();
+        return Material::query()->where('type', 'simple')->where('is_active', true)->exists();
     }
 
     private function hasActiveSimpleMaterialsInInventory(): bool
@@ -687,9 +641,7 @@ new class extends Component
             return $this->hasActiveSimpleMaterials();
         }
 
-        return Inventory::query()
-            ->find($this->inventoryId)
-            ?->hasActiveSimpleMaterialsWithStock() ?? false;
+        return Inventory::query()->find($this->inventoryId)?->hasActiveSimpleMaterialsWithStock() ?? false;
     }
 
     /**
@@ -736,8 +688,7 @@ new class extends Component
     <flux:modal name="director-material-edit-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!">
         @php
             $headerCourses = collect($this->ministries())
-                ->flatMap->courses
-                ->whereIn('id', $selectedCourseIds)
+                ->flatMap->courses->whereIn('id', $selectedCourseIds)
                 ->values();
 
             $badgeTextColor = static function (?string $hexColor): string {
@@ -751,7 +702,7 @@ new class extends Component
 
                 if (strlen($normalized) === 3) {
                     $normalized = collect(str_split($normalized))
-                        ->map(fn (string $char): string => $char . $char)
+                        ->map(fn(string $char): string => $char . $char)
                         ->implode('');
                 }
 
@@ -759,7 +710,7 @@ new class extends Component
                 $green = hexdec(substr($normalized, 2, 2));
                 $blue = hexdec(substr($normalized, 4, 2));
 
-                $luminance = (($red * 299) + ($green * 587) + ($blue * 114)) / 1000;
+                $luminance = ($red * 299 + $green * 587 + $blue * 114) / 1000;
 
                 return $luminance > 150 ? '#0f172a' : '#f8fafc';
             };
@@ -791,8 +742,7 @@ new class extends Component
                                 @forelse ($headerCourses as $course)
                                     @php($courseTooltip = $course->type ? $course->type . ': ' . $course->name : $course->name)
                                     <span class="rounded-full px-3 py-1 text-xs font-semibold"
-                                        title="{{ $courseTooltip }}"
-                                        aria-label="{{ $courseTooltip }}"
+                                        title="{{ $courseTooltip }}" aria-label="{{ $courseTooltip }}"
                                         style="background-color: {{ $badgeBackground($course->color) }}; color: {{ $badgeTextColor($course->color) }};">
                                         {{ $course->initials ?: $course->name }}
                                     </span>
@@ -844,6 +794,12 @@ new class extends Component
                                     {{ __('Transferir') }}
                                 </button>
                             @endif
+                            @if (in_array('composition', $this->availableTabs(), true))
+                                <button type="button" wire:click="selectTab('composition')"
+                                    class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'composition' ? 'rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-amber-100 hover:bg-amber-50/60 hover:text-amber-800' }}">
+                                    {{ __('Composição') }}
+                                </button>
+                            @endif
                             <button type="button" wire:click="selectTab('edit')"
                                 class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'edit' ? 'rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-indigo-100 hover:bg-indigo-50/60 hover:text-indigo-800' }}">
                                 {{ __('Editar produto') }}
@@ -852,7 +808,53 @@ new class extends Component
                     </div>
                 @endif
 
-                @if ($activeTab === 'entry')
+                @if ($activeTab === 'composition')
+                    <section class="space-y-4">
+                        <div>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Itens do produto composto') }}</h4>
+                            <p class="text-sm text-slate-600">
+                                {{ __('Confira abaixo os itens simples que compõem este produto e a quantidade atualmente disponível neste estoque.') }}
+                            </p>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-amber-200 bg-white">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-amber-100 text-xs uppercase text-amber-900">
+                                    <tr>
+                                        <th class="px-4 py-3">{{ __('Item') }}</th>
+                                        <th class="w-40 px-4 py-3 text-center">{{ __('Qtd. no composto') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($compositionItems as $component)
+                                        <tr class="border-t border-amber-100 odd:bg-white even:bg-amber-50/40">
+                                            <td class="px-4 py-3 font-medium text-slate-900">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <span>{{ $component['name'] }}</span>
+                                                    @if (!$component['is_active'])
+                                                        <span
+                                                            class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                            {{ __('Inativo') }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-center font-semibold text-slate-700">
+                                                {{ $component['quantity'] }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2" class="px-4 py-5 text-center text-sm text-slate-500">
+                                                {{ __('Este produto composto ainda não possui itens vinculados.') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                @elseif ($activeTab === 'entry')
                     <section class="space-y-5">
                         <div>
                             <h4 class="text-base font-semibold text-sky-950">{{ __('Entrada manual do produto') }}</h4>
@@ -863,7 +865,8 @@ new class extends Component
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
                             <x-src.form.input name="director-material-entry-quantity" wire:model.live="entry_quantity"
-                                label="Quantidade de entrada" type="number" width_basic="180" min="1" required />
+                                label="Quantidade de entrada" type="number" width_basic="180" min="1"
+                                required />
                             <x-src.form.textarea name="director-material-entry-notes" wire:model.live="entry_notes"
                                 label="Observação" rows="4" />
                         </div>
@@ -887,7 +890,8 @@ new class extends Component
                 @elseif ($activeTab === 'adjustment')
                     <section class="space-y-5">
                         <div>
-                            <h4 class="text-base font-semibold text-sky-950">{{ __('Ajuste de saldo do produto') }}</h4>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Ajuste de saldo do produto') }}
+                            </h4>
                             <p class="text-sm text-slate-600">
                                 {{ __('Defina o saldo final consolidado deste produto no estoque atual.') }}
                             </p>
@@ -904,7 +908,8 @@ new class extends Component
                 @elseif ($activeTab === 'loss')
                     <section class="space-y-5">
                         <div>
-                            <h4 class="text-base font-semibold text-sky-950">{{ __('Registrar perda ou avaria') }}</h4>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Registrar perda ou avaria') }}
+                            </h4>
                             <p class="text-sm text-slate-600">
                                 {{ __('Use esta guia para registrar perdas, danos ou baixas não recuperáveis deste produto.') }}
                             </p>
@@ -912,7 +917,8 @@ new class extends Component
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
                             <x-src.form.input name="director-material-loss-quantity" wire:model.live="loss_quantity"
-                                label="Quantidade perdida" type="number" width_basic="180" min="1" required />
+                                label="Quantidade perdida" type="number" width_basic="180" min="1"
+                                required />
                             <x-src.form.textarea name="director-material-loss-notes" wire:model.live="loss_notes"
                                 label="Observação" rows="4" />
                         </div>
@@ -928,12 +934,13 @@ new class extends Component
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
                             <x-src.form.select name="director-material-transfer-destination"
-                                wire:model.live="transfer_destination_inventory_id" label="Estoque de destino" width_basic="320"
-                                :options="$this->destinationOptions()" required />
-                            <x-src.form.input name="director-material-transfer-quantity" wire:model.live="transfer_quantity"
-                                label="Quantidade" type="number" width_basic="180" min="1" required />
-                            <x-src.form.textarea name="director-material-transfer-notes" wire:model.live="transfer_notes"
-                                label="Observação" rows="4" />
+                                wire:model.live="transfer_destination_inventory_id" label="Estoque de destino"
+                                width_basic="320" :options="$this->destinationOptions()" required />
+                            <x-src.form.input name="director-material-transfer-quantity"
+                                wire:model.live="transfer_quantity" label="Quantidade" type="number"
+                                width_basic="180" min="1" required />
+                            <x-src.form.textarea name="director-material-transfer-notes"
+                                wire:model.live="transfer_notes" label="Observação" rows="4" />
                         </div>
                     </section>
                 @else
@@ -971,22 +978,24 @@ new class extends Component
 
                         <section class="space-y-5">
                             <div class="flex flex-wrap gap-x-4 gap-y-8">
-                                <x-src.form.input name="director-material-edit-name" wire:model.live="name" label="Nome"
-                                    type="text" width_basic="320" required />
-                                <x-src.form.input name="director-material-edit-price" wire:model.live="price" label="Preço"
-                                    type="text" width_basic="180" inputmode="decimal" autocomplete="off"
-                                    oninput="this.value = this.value.replace(/[^0-9,.-]/g, '')" />
-                                <x-src.form.input name="director-material-edit-minimum-stock" wire:model.live="minimum_stock"
-                                    label="Estoque mínimo" type="number" width_basic="180" min="0" required />
-                                <x-src.form.textarea name="director-material-edit-description" wire:model.live="description"
-                                    label="Descrição" rows="4" />
+                                <x-src.form.input name="director-material-edit-name" wire:model.live="name"
+                                    label="Nome" type="text" width_basic="320" required />
+                                <x-src.form.input name="director-material-edit-price" wire:model.live="price"
+                                    label="Preço" type="text" width_basic="180" inputmode="decimal"
+                                    autocomplete="off" oninput="this.value = this.value.replace(/[^0-9,.-]/g, '')" />
+                                <x-src.form.input name="director-material-edit-minimum-stock"
+                                    wire:model.live="minimum_stock" label="Estoque mínimo" type="number"
+                                    width_basic="180" min="0" required />
+                                <x-src.form.textarea name="director-material-edit-description"
+                                    wire:model.live="description" label="Descrição" rows="4" />
                             </div>
                         </section>
 
                         @if ($type === 'composite')
                             <section class="space-y-5">
                                 <div>
-                                    <h4 class="text-base font-semibold text-sky-950">{{ __('Gerenciar composição') }}</h4>
+                                    <h4 class="text-base font-semibold text-sky-950">{{ __('Gerenciar composição') }}
+                                    </h4>
                                     <p class="text-sm text-slate-600">
                                         {{ __('Defina quais itens simples fazem parte deste produto composto e ajuste a quantidade de cada componente.') }}
                                     </p>
@@ -1034,16 +1043,19 @@ new class extends Component
                                             @foreach ($ministry['groups'] as $group)
                                                 <div class="space-y-3">
                                                     @if ($group['label'] !== null)
-                                                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        <div
+                                                            class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                                             {{ $group['label'] }}
                                                         </div>
                                                     @endif
 
                                                     <div class="grid gap-3 md:grid-cols-2">
                                                         @forelse ($group['courses'] as $course)
-                                                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
+                                                            <label
+                                                                class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
                                                                 <input type="checkbox" value="{{ $course->id }}"
-                                                                    wire:model.live="selectedCourseIds" class="mt-1 rounded border-slate-300">
+                                                                    wire:model.live="selectedCourseIds"
+                                                                    class="mt-1 rounded border-slate-300">
                                                                 <div class="space-y-1">
                                                                     <div class="font-semibold text-slate-900">
                                                                         {{ $course->type ? $course->type . ': ' : '' }}{{ $course->name }}
@@ -1054,12 +1066,13 @@ new class extends Component
                                                                 </div>
                                                             </label>
                                                         @empty
-                                                            <div class="text-sm text-slate-500">{{ __('Nenhum curso neste ministério.') }}</div>
+                                                            <div class="text-sm text-slate-500">
+                                                                {{ __('Nenhum curso neste ministério.') }}</div>
                                                         @endforelse
                                                     </div>
                                                 </div>
 
-                                                @if (! $loop->last)
+                                                @if (!$loop->last)
                                                     <div class="border-t border-slate-200"></div>
                                                 @endif
                                             @endforeach
@@ -1086,14 +1099,14 @@ new class extends Component
                             </div>
 
                             <div class="flex flex-wrap gap-3">
-                                <x-src.btn-silver type="button" wire:click="toggleActive" wire:loading.attr="disabled"
-                                    wire:target="toggleActive,deletePermanently,save">
+                                <x-src.btn-silver type="button" wire:click="toggleActive"
+                                    wire:loading.attr="disabled" wire:target="toggleActive,deletePermanently,save">
                                     {{ $material->is_active ? __('Inativar material') : __('Reativar material') }}
                                 </x-src.btn-silver>
 
-                                @if (! $confirmingPermanentDelete)
+                                @if (!$confirmingPermanentDelete)
                                     <button type="button" wire:click="confirmPermanentDelete"
-                                        @disabled(! $canDeletePermanently) wire:loading.attr="disabled"
+                                        @disabled(!$canDeletePermanently) wire:loading.attr="disabled"
                                         wire:target="toggleActive,deletePermanently,save"
                                         class="{{ $canDeletePermanently
                                             ? 'inline-flex items-center rounded-xl border border-rose-300 bg-white px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-60'
@@ -1101,13 +1114,13 @@ new class extends Component
                                         {{ __('Excluir permanentemente') }}
                                     </button>
                                 @else
-                                    <button type="button" wire:click="deletePermanently" wire:loading.attr="disabled"
-                                        wire:target="deletePermanently"
+                                    <button type="button" wire:click="deletePermanently"
+                                        wire:loading.attr="disabled" wire:target="deletePermanently"
                                         class="inline-flex items-center rounded-xl border border-rose-400 bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60">
                                         {{ __('Confirmar exclusão') }}
                                     </button>
-                                    <button type="button" wire:click="cancelPermanentDelete" wire:loading.attr="disabled"
-                                        wire:target="deletePermanently"
+                                    <button type="button" wire:click="cancelPermanentDelete"
+                                        wire:loading.attr="disabled" wire:target="deletePermanently"
                                         class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
                                         {{ __('Cancelar exclusão') }}
                                     </button>
@@ -1127,7 +1140,8 @@ new class extends Component
                                 </ul>
                             </div>
                         @else
-                            <div class="mt-4 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm text-emerald-800">
+                            <div
+                                class="mt-4 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm text-emerald-800">
                                 {{ __('Este material ainda não possui uso operacional e pode ser excluído permanentemente, se necessário.') }}
                             </div>
                         @endif

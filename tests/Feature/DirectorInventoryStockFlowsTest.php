@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialComponent;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Inventory\StockMovementService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -150,7 +151,7 @@ it('blocks inventory deletion when it already has stock movements', function ():
     $inventory = Inventory::query()->create(['name' => 'Estoque auditado', 'kind' => 'central']);
     $material = Material::query()->create(['name' => 'Manual auditado']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 3, $director);
+    app(StockMovementService::class)->addStock($inventory, $material, 3, $director);
 
     Livewire::actingAs($director)
         ->test(InventoryIndex::class)
@@ -185,7 +186,7 @@ it('blocks inventory deletion from the details page when it already has stock mo
     $inventory = Inventory::query()->create(['name' => 'Estoque auditado detalhes', 'kind' => 'central']);
     $material = Material::query()->create(['name' => 'Manual auditado detalhes']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 2, $director);
+    app(StockMovementService::class)->addStock($inventory, $material, 2, $director);
 
     Livewire::actingAs($director)
         ->test(InventoryView::class, ['inventory' => $inventory])
@@ -257,8 +258,8 @@ it('registers composite stock exit and consumes its components', function (): vo
         'quantity' => 2,
     ]);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $kit, 5, $director);
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $manual, 20, $director);
+    app(StockMovementService::class)->addStock($inventory, $kit, 5, $director);
+    app(StockMovementService::class)->addStock($inventory, $manual, 20, $director);
 
     Livewire::actingAs($director)
         ->test('pages.app.director.inventory.stock-action-modal', ['inventoryId' => $inventory->id])
@@ -277,7 +278,7 @@ it('registers adjustment and loss', function (): void {
     $inventory = Inventory::query()->create(['name' => 'Central', 'kind' => 'central']);
     $material = Material::query()->create(['name' => 'Crachá']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 10, $director);
+    app(StockMovementService::class)->addStock($inventory, $material, 10, $director);
 
     Livewire::actingAs($director)
         ->test('pages.app.director.inventory.stock-action-modal', ['inventoryId' => $inventory->id])
@@ -306,7 +307,7 @@ it('transfers stock between inventories', function (): void {
     $destination = Inventory::query()->create(['name' => 'Professor', 'kind' => 'teacher']);
     $material = Material::query()->create(['name' => 'Pasta']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($source, $material, 8, $director);
+    app(StockMovementService::class)->addStock($source, $material, 8, $director);
 
     Livewire::actingAs($director)
         ->test('pages.app.director.inventory.transfer-modal', ['inventoryId' => $source->id])
@@ -328,7 +329,7 @@ it('transfers stock from the product modal transfer tab', function (): void {
     $destination = Inventory::query()->create(['name' => 'Professor', 'kind' => 'teacher']);
     $material = Material::query()->create(['name' => 'Caderno']);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($source, $material, 6, $director);
+    app(StockMovementService::class)->addStock($source, $material, 6, $director);
 
     Livewire::actingAs($director)
         ->test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id, 'inventoryId' => $source->id])
@@ -357,7 +358,7 @@ it('shows coherent balances and movement history on the inventory detail page', 
         'photo' => 'material-photos/livro-base.webp',
     ]);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $material, 5, $director, notes: 'Saldo inicial');
+    app(StockMovementService::class)->addStock($inventory, $material, 5, $director, notes: 'Saldo inicial');
 
     Livewire::actingAs($director)
         ->test(View::class, ['inventory' => $inventory])
@@ -392,8 +393,8 @@ it('shows how many composite items can still be assembled from simple stock', fu
         'quantity' => 1,
     ]);
 
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $booklet, 7, $director);
-    app(\App\Services\Inventory\StockMovementService::class)->addStock($inventory, $badge, 5, $director);
+    app(StockMovementService::class)->addStock($inventory, $booklet, 7, $director);
+    app(StockMovementService::class)->addStock($inventory, $badge, 5, $director);
 
     Livewire::actingAs($director)
         ->test(View::class, ['inventory' => $inventory])
@@ -401,7 +402,7 @@ it('shows how many composite items can still be assembled from simple stock', fu
         ->assertSee('Kit do aluno')
         ->assertSee('Até 3')
         ->assertSee('Pode compor: 3 / Mínimo: 4')
-        ->assertSee('Abaixo do mínimo');
+        ->assertDontSee('Abaixo do mínimo');
 });
 
 it('shows simple and composite products even before any stock entry', function (): void {

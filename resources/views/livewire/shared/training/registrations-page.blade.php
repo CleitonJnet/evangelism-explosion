@@ -4,7 +4,7 @@
         $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
     @endphp
 
-    <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e entrega de kit com poucos cliques.')" justify="justify-between">
+    <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e marcação de kit sem gerar baixa automática no estoque.')" justify="justify-between">
         <div class="flex flex-wrap gap-2 items-center">
             <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
                 class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
@@ -12,11 +12,6 @@
                 <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus" :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
                     x-on:click.prevent="$dispatch('open-create-participant-registration-modal', { trainingId: {{ $training->id }} })"
                     class="!bg-emerald-100 !text-emerald-900 !border-emerald-300 hover:!bg-emerald-200" />
-            @endif
-            @if ($this->usesManualMaterialDelivery())
-                <x-src.toolbar.button href="#" :label="__('Entrega manual')" icon="box" :tooltip="__('Registrar saída física de material para este treinamento')"
-                    x-on:click.prevent="$dispatch('open-training-material-delivery-modal', { trainingId: {{ $training->id }} })"
-                    class="!bg-amber-100 !text-amber-900 !border-amber-300 hover:!bg-amber-200" />
             @endif
         </div>
 
@@ -31,11 +26,9 @@
         </div>
     </x-src.toolbar.nav>
 
-    @if ($this->usesManualMaterialDelivery())
-        <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-            {{ __('Pagamento continua sendo controle financeiro. A entrega física de kit/material agora deve ser registrada pelo fluxo de estoque para gerar baixa real e histórico auditável.') }}
-        </div>
-    @endif
+    <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+        {{ __('A marcação de kit nesta lista é apenas informativa. A baixa real do estoque deve ser registrada manualmente pelo professor no estoque pessoal do evento.') }}
+    </div>
 
     <section class="flex gap-4 flex-wrap">
         <article
@@ -116,9 +109,7 @@
                                     <th class="px-3 py-2">{{ __('Nome') }}</th>
                                     <th class="px-3 py-2">{{ __('Contato') }}</th>
                                     <th class="px-3 py-2 w-44 text-center">{{ __('Comprovante') }}</th>
-                                    <th class="px-3 py-2 w-40 text-center">
-                                        {{ $this->usesManualMaterialDelivery() ? __('Entrega física') : __('Kit') }}
-                                    </th>
+                                    <th class="px-3 py-2 w-40 text-center">{{ __('Kit') }}</th>
                                     @if ($this->trainingCourseIsAccreditable())
                                         <th class="px-3 py-2 w-32 text-center">{{ __('Credenciado') }}</th>
                                     @endif
@@ -190,27 +181,12 @@
                                             </div>
                                         </td>
                                         <td class="px-3 py-2 align-top">
-                                            @if ($this->canToggleRegistrationKit())
-                                                <div class="grid justify-items-center">
-                                                    <x-app.switch-schedule :label="__('Kit')" :key="'kit-' . $registration['id']"
-                                                        :checked="$registration['kit']"
-                                                        wire:change="toggleKit({{ $registration['id'] }}, $event.target.checked)"
-                                                        wire:loading.attr="disabled" wire:target="toggleKit" />
-                                                </div>
-                                            @else
-                                                <div class="grid justify-items-center gap-2">
-                                                    <span
-                                                        class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold {{ $registration['kit'] ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' }}">
-                                                        {{ $registration['kit'] ? __('Kit entregue') : __('Sem kit entregue') }}
-                                                    </span>
-
-                                                    <button type="button"
-                                                        class="inline-flex items-center justify-center rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-100"
-                                                        x-on:click.prevent="$dispatch('open-training-material-delivery-modal', { trainingId: {{ $training->id }}, participantId: {{ $registration['id'] }} })">
-                                                        {{ __('Registrar entrega') }}
-                                                    </button>
-                                                </div>
-                                            @endif
+                                            <div class="grid justify-items-center">
+                                                <x-app.switch-schedule :label="__('Kit')" :key="'kit-' . $registration['id']"
+                                                    :checked="$registration['kit']"
+                                                    wire:change="toggleKit({{ $registration['id'] }}, $event.target.checked)"
+                                                    wire:loading.attr="disabled" wire:target="toggleKit" />
+                                            </div>
                                         </td>
                                         @if ($this->trainingCourseIsAccreditable())
                                             <td class="px-3 py-2 align-top">

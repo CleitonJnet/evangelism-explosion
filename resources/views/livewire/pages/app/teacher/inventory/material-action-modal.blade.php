@@ -12,7 +12,7 @@
 
                 if (strlen($normalized) === 3) {
                     $normalized = collect(str_split($normalized))
-                        ->map(fn (string $char): string => $char . $char)
+                        ->map(fn(string $char): string => $char . $char)
                         ->implode('');
                 }
 
@@ -20,7 +20,7 @@
                 $green = hexdec(substr($normalized, 2, 2));
                 $blue = hexdec(substr($normalized, 4, 2));
 
-                $luminance = (($red * 299) + ($green * 587) + ($blue * 114)) / 1000;
+                $luminance = ($red * 299 + $green * 587 + $blue * 114) / 1000;
 
                 return $luminance > 150 ? '#0f172a' : '#f8fafc';
             };
@@ -41,7 +41,7 @@
                     <div class="space-y-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <h3 class="text-lg font-semibold">{{ $material->name ?: __('Produto sem nome') }}</h3>
-                            @if (! $material->is_active)
+                            @if (!$material->is_active)
                                 <span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
                                     {{ __('Inativo') }}
                                 </span>
@@ -52,8 +52,7 @@
                                 @forelse ($material->courses as $course)
                                     @php($courseTooltip = $course->type ? $course->type . ': ' . $course->name : $course->name)
                                     <span class="rounded-full px-3 py-1 text-xs font-semibold"
-                                        title="{{ $courseTooltip }}"
-                                        aria-label="{{ $courseTooltip }}"
+                                        title="{{ $courseTooltip }}" aria-label="{{ $courseTooltip }}"
                                         style="background-color: {{ $badgeBackground($course->color) }}; color: {{ $badgeTextColor($course->color) }};">
                                         {{ $course->initials ?: $course->name }}
                                     </span>
@@ -72,7 +71,8 @@
                         <div class="mt-2 text-sm text-sky-100/80">
                             {{ __('Estoque delegado: :inventory', ['inventory' => $inventory->name]) }}
                         </div>
-                        <div class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-sky-50">
+                        <div
+                            class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-sky-50">
                             @if ($material->isComposite())
                                 {{ __('Pode compor: :quantity', ['quantity' => $composableQuantity]) }}
                             @else
@@ -111,11 +111,63 @@
                                     {{ __('Perda') }}
                                 </button>
                             @endif
+                            @if (in_array('composition', $availableTabs, true))
+                                <button type="button" wire:click="selectTab('composition')"
+                                    class="min-w-36 whitespace-nowrap md:flex-1 {{ $activeTab === 'composition' ? 'rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-sm' : 'rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:border-amber-100 hover:bg-amber-50/60 hover:text-amber-800' }}">
+                                    {{ __('Composição') }}
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @endif
 
-                @if ($activeTab === 'entry')
+                @if ($activeTab === 'composition')
+                    <section class="space-y-4">
+                        <div>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Itens do produto composto') }}</h4>
+                            <p class="text-sm text-slate-600">
+                                {{ __('Confira abaixo os itens simples que compõem este produto e o saldo atual disponível no estoque delegado.') }}
+                            </p>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-amber-200 bg-white">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-amber-100 text-xs uppercase text-amber-900">
+                                    <tr>
+                                        <th class="px-4 py-3">{{ __('Item') }}</th>
+                                        <th class="w-40 px-4 py-3 text-center">{{ __('Qtd. no composto') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($compositionItems as $component)
+                                        <tr class="border-t border-amber-100 odd:bg-white even:bg-amber-50/40">
+                                            <td class="px-4 py-3 font-medium text-slate-900">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <span>{{ $component['name'] }}</span>
+                                                    @if (!$component['is_active'])
+                                                        <span
+                                                            class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                            {{ __('Inativo') }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-center font-semibold text-slate-700">
+                                                {{ $component['quantity'] }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2" class="px-4 py-5 text-center text-sm text-slate-500">
+                                                {{ __('Este produto composto ainda não possui itens vinculados.') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                @elseif ($activeTab === 'entry')
                     <section class="space-y-5">
                         <div>
                             <h4 class="text-base font-semibold text-sky-950">{{ __('Entrada manual do produto') }}</h4>
@@ -125,10 +177,11 @@
                         </div>
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
-                            <x-src.form.input name="teacher-material-entry-quantity-{{ $material->id }}" wire:model.live="entry_quantity"
-                                label="Quantidade de entrada" type="number" width_basic="180" min="1" required />
-                            <x-src.form.textarea name="teacher-material-entry-notes-{{ $material->id }}" wire:model.live="entry_notes"
-                                label="Observação" rows="4" />
+                            <x-src.form.input name="teacher-material-entry-quantity-{{ $material->id }}"
+                                wire:model.live="entry_quantity" label="Quantidade de entrada" type="number"
+                                width_basic="180" min="1" required />
+                            <x-src.form.textarea name="teacher-material-entry-notes-{{ $material->id }}"
+                                wire:model.live="entry_notes" label="Observação" rows="4" />
                         </div>
                     </section>
                 @elseif ($activeTab === 'exit')
@@ -141,16 +194,18 @@
                         </div>
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
-                            <x-src.form.input name="teacher-material-exit-quantity-{{ $material->id }}" wire:model.live="exit_quantity"
-                                label="Quantidade de saída" type="number" width_basic="180" min="1" autofocus required />
-                            <x-src.form.textarea name="teacher-material-exit-notes-{{ $material->id }}" wire:model.live="exit_notes"
-                                label="Observação" rows="4" />
+                            <x-src.form.input name="teacher-material-exit-quantity-{{ $material->id }}"
+                                wire:model.live="exit_quantity" label="Quantidade de saída" type="number"
+                                width_basic="180" min="1" autofocus required />
+                            <x-src.form.textarea name="teacher-material-exit-notes-{{ $material->id }}"
+                                wire:model.live="exit_notes" label="Observação" rows="4" />
                         </div>
                     </section>
                 @elseif ($activeTab === 'adjustment')
                     <section class="space-y-5">
                         <div>
-                            <h4 class="text-base font-semibold text-sky-950">{{ __('Ajuste de saldo do produto') }}</h4>
+                            <h4 class="text-base font-semibold text-sky-950">{{ __('Ajuste de saldo do produto') }}
+                            </h4>
                             <p class="text-sm text-slate-600">
                                 {{ __('Defina o saldo final consolidado deste produto no estoque atual.') }}
                             </p>
@@ -174,10 +229,11 @@
                         </div>
 
                         <div class="flex flex-wrap gap-x-4 gap-y-8">
-                            <x-src.form.input name="teacher-material-loss-quantity-{{ $material->id }}" wire:model.live="loss_quantity"
-                                label="Quantidade perdida" type="number" width_basic="180" min="1" required />
-                            <x-src.form.textarea name="teacher-material-loss-notes-{{ $material->id }}" wire:model.live="loss_notes"
-                                label="Observação" rows="4" />
+                            <x-src.form.input name="teacher-material-loss-quantity-{{ $material->id }}"
+                                wire:model.live="loss_quantity" label="Quantidade perdida" type="number"
+                                width_basic="180" min="1" required />
+                            <x-src.form.textarea name="teacher-material-loss-notes-{{ $material->id }}"
+                                wire:model.live="loss_notes" label="Observação" rows="4" />
                         </div>
                     </section>
                 @endif

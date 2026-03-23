@@ -112,7 +112,7 @@
         <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
             <div class="border-b border-amber-200 pb-3">
                 <h3 class="text-lg font-semibold text-amber-900">{{ __('Alertas de estoque mínimo') }}</h3>
-                <p class="text-sm text-amber-800">{{ __('Materiais com saldo abaixo do mínimo configurado ou com saldo zerado.') }}</p>
+                <p class="text-sm text-amber-800">{{ __('Itens simples com saldo abaixo do mínimo configurado ou com saldo zerado.') }}</p>
             </div>
 
             <div class="mt-4 flex flex-wrap gap-3">
@@ -120,11 +120,7 @@
                     <div class="rounded-xl border px-4 py-3 text-sm {{ (int) $alertItem->available_alert_quantity === 0 ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-white text-amber-900' }}">
                         <span class="font-semibold">{{ $alertItem->name }}</span>
                         <span class="block text-xs opacity-80">
-                            @if ($alertItem->type === 'composite')
-                                {{ __('Pode compor: :current / Mínimo: :minimum', ['current' => $alertItem->available_alert_quantity, 'minimum' => $alertItem->minimum_stock]) }}
-                            @else
-                                {{ __('Saldo: :current / Mínimo: :minimum', ['current' => $alertItem->available_alert_quantity, 'minimum' => $alertItem->minimum_stock]) }}
-                            @endif
+                            {{ __('Saldo: :current / Mínimo: :minimum', ['current' => $alertItem->available_alert_quantity, 'minimum' => $alertItem->minimum_stock]) }}
                         </span>
                         @if ((int) $alertItem->available_alert_quantity === 0)
                             <span class="mt-2 inline-block rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
@@ -170,8 +166,6 @@
                                     <th class="w-40 px-4 py-3 text-center">{{ __('Preço') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Componentes') }}</th>
                                     <th class="w-36 px-4 py-3 text-center">{{ __('Pode compor') }}</th>
-                                    <th class="w-36 px-4 py-3 text-center">{{ __('Mínimo') }}</th>
-                                    <th class="w-44 px-4 py-3 text-center">{{ __('Alerta') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white">
@@ -200,24 +194,10 @@
                                         <td class="px-4 py-3 text-center font-semibold text-sky-800">
                                             {{ __('Até :quantity', ['quantity' => (int) $balance->composable_quantity]) }}
                                         </td>
-                                        <td class="px-4 py-3 text-center">{{ $balance->minimum_stock }}</td>
-                                        <td class="px-4 py-3 text-center">
-                                            @if ((int) $balance->composable_quantity === 0)
-                                                <span class="inline-block max-w-full truncate rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800">
-                                                    {{ __('Saldo zerado') }}
-                                                </span>
-                                            @elseif ($balance->minimum_stock > 0 && $balance->composable_quantity < $balance->minimum_stock)
-                                                <span class="inline-block max-w-full truncate rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
-                                                    {{ __('Abaixo do mínimo') }}
-                                                </span>
-                                            @else
-                                                <span class="inline-block max-w-full truncate text-slate-400">-</span>
-                                            @endif
-                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
                                             <div class="mx-auto max-w-sm space-y-2">
                                                 <div class="text-base font-semibold text-slate-700">
                                                     {{ __('Nenhum produto composto encontrado') }}

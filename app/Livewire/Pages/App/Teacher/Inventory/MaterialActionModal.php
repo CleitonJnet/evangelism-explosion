@@ -6,6 +6,7 @@ use App\Exceptions\Inventory\InsufficientStockException;
 use App\Exceptions\Inventory\InvalidCompositeMaterialException;
 use App\Models\Inventory;
 use App\Models\Material;
+use App\Models\MaterialComponent;
 use App\Services\Inventory\StockMovementService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
@@ -256,6 +257,7 @@ class MaterialActionModal extends Component
             'material' => $material,
             'currentQuantity' => $currentQuantity,
             'composableQuantity' => $composableQuantity,
+            'compositionItems' => $this->compositionItems($inventory, $material),
             'availableTabs' => $this->availableTabs(),
         ]);
     }
@@ -294,10 +296,10 @@ class MaterialActionModal extends Component
             ->exists();
 
         if ($hasDirectInventoryRow) {
-            return ['entry', 'exit', 'loss'];
+            return ['entry', 'exit', 'loss', 'composition'];
         }
 
-        return ['exit'];
+        return ['exit', 'composition'];
     }
 
     private function resolveAllowedTab(?string $requestedTab = null): string
@@ -348,6 +350,38 @@ class MaterialActionModal extends Component
         return (int) floor($components->min(function (object $component) use ($inventory): float {
             return $inventory->currentQuantityFor((int) $component->component_material_id) / max((int) $component->quantity, 1);
         }));
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: int,
+     *     name: string,
+     *     quantity: int,
+     *     current_quantity: int,
+     *     is_active: bool
+     * }>
+     */
+    private function compositionItems(Inventory $inventory, Material $material): array
+    {
+        if (! $material->isComposite()) {
+            return [];
+        }
+
+        return $material->components()
+            ->with('componentMaterial:id,name,is_active')
+            ->get()
+            ->map(function (MaterialComponent $component) use ($inventory): array {
+                $componentMaterial = $component->componentMaterial;
+
+                return [
+                    'id' => (int) $component->component_material_id,
+                    'name' => (string) ($componentMaterial?->name ?: __('Item não encontrado')),
+                    'quantity' => (int) $component->quantity,
+                    'current_quantity' => $inventory->currentQuantityFor((int) $component->component_material_id),
+                    'is_active' => (bool) ($componentMaterial?->is_active ?? false),
+                ];
+            })
+            ->all();
     }
 
     private function validationMessages(): array

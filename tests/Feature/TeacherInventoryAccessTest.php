@@ -512,6 +512,49 @@ it('shows a red zero-balance alert for teacher inventory items with zero stock',
     $response->assertSeeText('Saldo zerado');
 });
 
+it('does not show composite minimum alerts on the teacher inventory indicators', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Delegado',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $simpleMaterial = Material::query()->create([
+        'name' => 'Manual do Aluno',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+    $compositeMaterial = Material::query()->create([
+        'name' => 'Kit do Aluno',
+        'type' => 'composite',
+        'is_active' => true,
+        'minimum_stock' => 4,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $compositeMaterial->id,
+        'component_material_id' => $simpleMaterial->id,
+        'quantity' => 1,
+    ]);
+
+    $inventory->materials()->attach($simpleMaterial->id, [
+        'received_items' => 3,
+        'current_quantity' => 3,
+        'lost_items' => 0,
+        'minimum_stock' => 0,
+    ]);
+
+    $response = $this->actingAs($teacher)->get(route('app.teacher.inventory.show', ['inventory' => $inventory]));
+
+    $response->assertOk();
+    $response->assertSeeText('Kit do Aluno');
+    $response->assertSeeText('Até 3');
+    $response->assertDontSeeText('Pode compor: 3 / Mínimo: 4');
+});
+
 it('shows composite items dynamically when the teacher has all required transferred components', function (): void {
     $teacher = createTeacherForInventoryAccessTest();
 
@@ -676,6 +719,52 @@ it('opens the teacher material modal with exit only for a dynamically available 
         ->assertDontSee('Ajuste')
         ->assertDontSee('Perda')
         ->assertDontSee('Editar produto');
+});
+
+it('shows the component table inside the teacher composite material modal', function (): void {
+    $teacher = createTeacherForInventoryAccessTest();
+
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Delegado',
+        'kind' => 'teacher',
+        'user_id' => $teacher->id,
+        'is_active' => true,
+    ]);
+
+    $manual = Material::query()->create([
+        'name' => 'Manual Transferido',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    $kit = Material::query()->create([
+        'name' => 'Kit Dinâmico',
+        'type' => 'composite',
+        'is_active' => true,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $kit->id,
+        'component_material_id' => $manual->id,
+        'quantity' => 2,
+    ]);
+
+    $inventory->materials()->attach($manual->id, [
+        'received_items' => 6,
+        'current_quantity' => 6,
+        'lost_items' => 0,
+    ]);
+
+    Livewire::actingAs($teacher)
+        ->test('pages.app.teacher.inventory.material-action-modal', ['materialId' => $kit->id, 'inventoryId' => $inventory->id])
+        ->call('openModal', $kit->id, 'exit')
+        ->assertSee('Composição')
+        ->assertDontSee('Itens do produto composto')
+        ->call('selectTab', 'composition')
+        ->assertSee('Itens do produto composto')
+        ->assertSee('Manual Transferido')
+        ->assertSee('Qtd. no composto')
+        ->assertDontSee('Saldo atual');
 });
 
 it('does not show composite items for the teacher when required components were not transferred', function (): void {

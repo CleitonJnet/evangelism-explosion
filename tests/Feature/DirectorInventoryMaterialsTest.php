@@ -356,6 +356,46 @@ it('shows composition management inside the edit tab for composite materials', f
         ->assertSee('Composição do produto composto');
 });
 
+it('shows the component table inside the composite material modal', function (): void {
+    $inventory = Inventory::query()->create([
+        'name' => 'Estoque Central',
+        'kind' => 'central',
+    ]);
+
+    $material = Material::query()->create([
+        'name' => 'Kit missionario',
+        'type' => 'composite',
+    ]);
+
+    $manual = Material::query()->create([
+        'name' => 'Manual do aluno',
+        'type' => 'simple',
+        'is_active' => true,
+    ]);
+
+    MaterialComponent::query()->create([
+        'parent_material_id' => $material->id,
+        'component_material_id' => $manual->id,
+        'quantity' => 3,
+    ]);
+
+    $inventory->materials()->attach($manual->id, [
+        'received_items' => 9,
+        'current_quantity' => 9,
+        'lost_items' => 0,
+    ]);
+
+    Livewire::test('pages.app.director.inventory.material-edit-modal', ['materialId' => $material->id, 'inventoryId' => $inventory->id])
+        ->call('openModal', $material->id, 'exit')
+        ->assertSee('Composição')
+        ->assertDontSee('Itens do produto composto')
+        ->call('selectTab', 'composition')
+        ->assertSee('Itens do produto composto')
+        ->assertSee('Manual do aluno')
+        ->assertSee('Qtd. no composto')
+        ->assertDontSee('Saldo atual');
+});
+
 it('shows exit and edit tabs for composite materials in the stock modal', function (): void {
     $material = Material::query()->create([
         'name' => 'Kit missionario',

@@ -46,16 +46,38 @@ it('renders the director registrations page through the old route with director 
     $this->actingAs($director)
         ->get(route('app.director.training.registrations', $training))
         ->assertOk()
-        ->assertSee('Entrega manual')
-        ->assertSee('Gerenciamento de inscrições');
+        ->assertSee('Gerenciamento de inscrições')
+        ->assertDontSee('Entrega manual');
 
     $component = Livewire::actingAs($director)
         ->test(DirectorRegistrations::class, ['training' => $training])
         ->instance();
 
-    expect($component->usesManualMaterialDelivery())->toBeTrue()
-        ->and($component->canToggleRegistrationKit())->toBeFalse()
+    expect($component->usesManualMaterialDelivery())->toBeFalse()
+        ->and($component->canToggleRegistrationKit())->toBeTrue()
         ->and($component->capabilities['canSeeSensitiveData'])->toBeTrue();
+});
+
+it('allows the director to mark kit delivery from the registrations list without using stock delivery flow', function (): void {
+    $director = userWithTrainingRole('Director');
+    $training = Training::factory()->create();
+    $participant = User::factory()->create();
+
+    $training->students()->attach($participant->id, [
+        'kit' => 0,
+        'payment' => 0,
+        'accredited' => 0,
+    ]);
+
+    Livewire::actingAs($director)
+        ->test(DirectorRegistrations::class, ['training' => $training])
+        ->call('toggleKit', $participant->id, true);
+
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $participant->id,
+        'kit' => 1,
+    ]);
 });
 
 it('allows directors to open the participant registration modal for trainings owned by another teacher', function (): void {

@@ -4,11 +4,14 @@ namespace App\Livewire\Pages\App\Director\Inventory;
 
 use App\Exceptions\Inventory\InsufficientStockException;
 use App\Exceptions\Inventory\InvalidCompositeMaterialException;
+use App\Models\Course;
 use App\Models\Inventory;
 use App\Models\Material;
+use App\Models\MaterialComponent;
 use App\Models\Ministry;
 use App\Services\Inventory\StockMovementService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -482,7 +485,16 @@ class MaterialEditModal extends Component
 
     public function render(): View
     {
-        return view('livewire.pages.app.director.inventory.material-edit-modal');
+        $material = Material::query()->find($this->materialId);
+        $inventory = $this->inventoryId !== null
+            ? Inventory::query()->find($this->inventoryId)
+            : null;
+
+        return view('livewire.pages.app.director.inventory.material-edit-modal', [
+            'compositionItems' => $material instanceof Material
+                ? $this->compositionItems($material, $inventory)
+                : [],
+        ]);
     }
 
     /**
@@ -503,7 +515,7 @@ class MaterialEditModal extends Component
      *     name: string,
      *     groups: array<int, array{
      *         label: string|null,
-     *         courses: \Illuminate\Support\Collection<int, \App\Models\Course>
+     *         courses: Collection<int, Course>
      *     }>
      * }>
      */
@@ -577,7 +589,7 @@ class MaterialEditModal extends Component
     public function availableTabs(): array
     {
         if ($this->type === 'composite') {
-            return $this->inventoryId === null ? ['edit'] : ['exit', 'edit'];
+            return $this->inventoryId === null ? ['composition', 'edit'] : ['exit', 'composition', 'edit'];
         }
 
         return ['entry', 'exit', 'adjustment', 'loss', 'transfer', 'edit'];
@@ -679,5 +691,37 @@ class MaterialEditModal extends Component
         }
 
         return $availableTabs[0];
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: int,
+     *     name: string,
+     *     quantity: int,
+     *     current_quantity: int|null,
+     *     is_active: bool
+     * }>
+     */
+    private function compositionItems(Material $material, ?Inventory $inventory): array
+    {
+        if (! $material->isComposite()) {
+            return [];
+        }
+
+        return $material->components()
+            ->with('componentMaterial:id,name,is_active')
+            ->get()
+            ->map(function (MaterialComponent $component) use ($inventory): array {
+                $componentMaterial = $component->componentMaterial;
+
+                return [
+                    'id' => (int) $component->component_material_id,
+                    'name' => (string) ($componentMaterial?->name ?: __('Item não encontrado')),
+                    'quantity' => (int) $component->quantity,
+                    'current_quantity' => $inventory?->currentQuantityFor((int) $component->component_material_id),
+                    'is_active' => (bool) ($componentMaterial?->is_active ?? false),
+                ];
+            })
+            ->all();
     }
 }
