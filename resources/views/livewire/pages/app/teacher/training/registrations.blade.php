@@ -5,7 +5,7 @@
     @endphp
 
     <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e entrega de kit com poucos cliques.')" justify="justify-between">
-        <div class="flex flex-wrap gap-2 items-center">
+        <div class="flex gap-2 items-center">
             <x-src.toolbar.button :href="route('app.teacher.trainings.show', $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
                 class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
         </div>

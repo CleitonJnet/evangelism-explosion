@@ -5,15 +5,13 @@
     @endphp
 
     <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e marcação de kit sem gerar baixa automática no estoque.')" justify="justify-between">
-        <div class="flex flex-wrap gap-2 items-center">
-            <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
-                class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
-            @if ($this->contextComponent('createParticipantRegistrationModal') && ($capabilities['canEdit'] ?? false))
-                <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus" :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
-                    x-on:click.prevent="$dispatch('open-create-participant-registration-modal', { trainingId: {{ $training->id }} })"
-                    class="!bg-emerald-100 !text-emerald-900 !border-emerald-300 hover:!bg-emerald-200" />
-            @endif
-        </div>
+        <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
+            class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
+        @if ($this->contextComponent('createParticipantRegistrationModal') && ($capabilities['canEdit'] ?? false))
+            <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus" :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
+                x-on:click.prevent="$dispatch('open-create-participant-registration-modal', { trainingId: {{ $training->id }} })"
+                class="!bg-emerald-100 !text-emerald-900 !border-emerald-300 hover:!bg-emerald-200" />
+        @endif
 
         <div class="flex items-center gap-2 min-w-72 w-full max-w-md">
             <label for="registrations-search" class="sr-only">
