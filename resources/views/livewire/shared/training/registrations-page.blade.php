@@ -1,5 +1,5 @@
 <div wire:loading.class="pointer-events-none"
-    wire:target="togglePayment,toggleAccredited,toggleKit,removeRegistration,openReceiptModal,uploadSelectedPaymentReceipt,clearSelectedPaymentReceiptUpload">
+    wire:target="togglePayment,toggleAccredited,toggleKit,removeRegistration,openReceiptModal,uploadSelectedPaymentReceipt,clearSelectedPaymentReceiptUpload,openChurchReceiptModal,uploadChurchPaymentReceipt,clearChurchPaymentReceiptUpload">
     @php
         $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
     @endphp
@@ -25,10 +25,6 @@
                 autofocus wire:model.live.debounce.350ms="search">
         </div>
     </x-src.toolbar.nav>
-
-    <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-        {{ __('A marcação de kit nesta lista é apenas informativa. A baixa real do estoque deve ser registrada manualmente pelo professor no estoque pessoal do evento.') }}
-    </div>
 
     <section class="flex gap-4 flex-wrap">
         <article
@@ -63,7 +59,12 @@
                 <div class="text-3xl font-bold text-slate-900">{{ $totalAccredited }}</div>
             </article>
         @endif
+
     </section>
+
+    <div class="my-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+        {{ __('A marcação de kit nesta lista é apenas informativa. A baixa real do estoque deve ser registrada manualmente pelo professor no estoque pessoal do evento.') }}
+    </div>
 
     <section class="mt-4 grid gap-5">
         @if ($pendingChurchTempsCount > 0)
@@ -94,10 +95,20 @@
                         <p class="text-xs text-slate-500">{{ $churchGroup['summary'] }}</p>
                     </div>
 
-                    <button type="button"
-                        class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 cursor-pointer"
-                        x-on:click="open = !open"
-                        x-text="open ? '{{ __('Ocultar lista') }}' : '{{ __('Exibir lista') }}'"></button>
+                    <div class="flex flex-wrap items-center gap-2">
+                        @if (($capabilities['canEdit'] ?? false) && $churchGroup['church_name'] !== 'No church')
+                            <button type="button"
+                                class="inline-flex items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 cursor-pointer"
+                                wire:click="openChurchReceiptModal('{{ $churchGroup['key'] }}')">
+                                {{ __('Comprovante da igreja') }}
+                            </button>
+                        @endif
+
+                        <button type="button"
+                            class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 cursor-pointer"
+                            x-on:click="open = !open"
+                            x-text="open ? '{{ __('Ocultar lista') }}' : '{{ __('Exibir lista') }}'"></button>
+                    </div>
                 </header>
 
                 <div x-show="open" class="overflow-hidden rounded-b-2xl">
@@ -200,8 +211,7 @@
                                         @endif
                                         <td class="px-3 py-2 text-center">
                                             <flux:button variant="danger" size="sm" icon="trash"
-                                                icon:variant="outline"
-                                                class="cursor-pointer"
+                                                icon:variant="outline" class="cursor-pointer"
                                                 aria-label="{{ __('Remover inscrito') }}"
                                                 title="{{ __('Remover inscrito') }}"
                                                 x-on:click.prevent="if (window.confirm('{{ __('Deseja realmente remover este inscrito deste evento?') }}')) { $wire.removeRegistration({{ $registration['id'] }}) }"
@@ -445,6 +455,172 @@
                 <div class="flex justify-end gap-3">
                     <x-src.btn-silver type="button" wire:click="closeReceiptModal" wire:loading.attr="disabled"
                         wire:target="uploadSelectedPaymentReceipt,paymentReceiptUpload,togglePayment">
+                        {{ __('Fechar') }}
+                    </x-src.btn-silver>
+                </div>
+            </footer>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="training-church-payment-receipt-modal" wire:model="showChurchReceiptModal"
+        class="max-w-4xl w-full bg-sky-950! p-0!">
+        <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
+            <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
+                <h3 class="text-lg font-semibold">{{ __('Comprovante de pagamento') }}</h3>
+                <div class="mt-3 rounded-xl border border-sky-700 bg-sky-900/80 px-4 py-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-sky-200/90">
+                        {{ __('Igreja selecionada') }}
+                    </div>
+                    <p class="mt-1 text-xl font-bold leading-tight text-white">
+                        {{ $selectedChurchGroupName }}
+                    </p>
+                    <p class="mt-2 text-xs text-sky-100/85">
+                        {{ trans_choice(':count inscrito receberá uma cópia deste comprovante.|:count inscritos receberão uma cópia deste comprovante.', count($selectedChurchRegistrationIds), ['count' => count($selectedChurchRegistrationIds)]) }}
+                    </p>
+                </div>
+            </header>
+
+            <div class="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-6">
+                <div class="space-y-4">
+                    @php
+                        $selectedChurchReceiptName = null;
+                        $selectedChurchReceiptIsImage = false;
+                        $selectedChurchReceiptIsPdf = false;
+
+                        if ($churchPaymentReceiptUpload) {
+                            $selectedChurchReceiptExtension = strtolower(
+                                (string) $churchPaymentReceiptUpload->getClientOriginalExtension(),
+                            );
+                            $selectedChurchReceiptName = (string) $churchPaymentReceiptUpload->getClientOriginalName();
+                            $selectedChurchReceiptIsImage = in_array(
+                                $selectedChurchReceiptExtension,
+                                ['webp', 'jpeg', 'png'],
+                                true,
+                            );
+                            $selectedChurchReceiptIsPdf = $selectedChurchReceiptExtension === 'pdf';
+                        }
+                    @endphp
+
+                    <div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
+                        <section
+                            class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700">
+                            <form wire:submit="uploadChurchPaymentReceipt" class="flex flex-col gap-4">
+                                <div class="flex flex-wrap items-start justify-between gap-3">
+                                    <div class="text-xs font-semibold uppercase text-neutral-500">
+                                        {{ __('Passo 1: comprovante da igreja') }}
+                                    </div>
+                                </div>
+
+                                <input id="training-church-payment-receipt-upload" type="file"
+                                    wire:model="churchPaymentReceiptUpload" accept=".webp,.jpeg,.png,.pdf"
+                                    class="hidden" />
+
+                                @error('churchPaymentReceiptUpload')
+                                    <div class="text-xs text-red-600">{{ $message }}</div>
+                                @enderror
+
+                                @if ($churchPaymentReceiptUpload)
+                                    <label for="training-church-payment-receipt-upload"
+                                        class="cursor-pointer rounded-xl border border-neutral-200 bg-white p-3">
+                                        <div class="mb-2 text-xs font-semibold uppercase text-neutral-500">
+                                            {{ __('Arquivo selecionado') }}
+                                        </div>
+
+                                        @if ($selectedChurchReceiptIsImage)
+                                            <img src="{{ $churchPaymentReceiptUpload->temporaryUrl() }}"
+                                                alt="{{ __('Pré-visualização do comprovante') }}"
+                                                class="h-auto max-h-80 w-full rounded-lg border border-neutral-200 object-contain" />
+                                        @elseif ($selectedChurchReceiptIsPdf)
+                                            <div
+                                                class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                                <div
+                                                    class="flex h-14 w-14 items-center justify-center rounded-lg border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700">
+                                                    PDF
+                                                </div>
+                                                <div class="text-xs font-medium text-slate-700">
+                                                    {{ $selectedChurchReceiptName }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </label>
+                                @else
+                                    <label for="training-church-payment-receipt-upload"
+                                        class="group relative block cursor-pointer overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                                        <img src="{{ asset('images/paymentPIX.webp') }}"
+                                            alt="{{ __('Clique aqui para enviar o comprovante da igreja') }}"
+                                            class="h-auto max-h-72 w-full object-contain transition duration-300 group-hover:scale-[1.01]" />
+                                        <div
+                                            class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/55 via-black/25 to-transparent p-4 text-center text-sm font-semibold text-white">
+                                            {{ __('Clique aqui para enviar o comprovante da igreja') }}
+                                        </div>
+                                    </label>
+                                @endif
+
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <flux:button variant="primary" type="submit" wire:loading.attr="disabled"
+                                        wire:target="uploadChurchPaymentReceipt,churchPaymentReceiptUpload"
+                                        :disabled="!$churchPaymentReceiptUpload">
+                                        {{ __('Replicar comprovante') }}
+                                    </flux:button>
+
+                                    @if ($churchPaymentReceiptUpload)
+                                        <x-src.btn-silver label="Remover arquivo selecionado"
+                                            wire:click="clearChurchPaymentReceiptUpload" class="py-1.5! text-xs" />
+                                    @endif
+                                </div>
+                            </form>
+                        </section>
+
+                        <aside class="space-y-4">
+                            @if ($showChurchPaymentReadyHint)
+                                <div
+                                    class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                                    <div class="text-xs font-semibold uppercase text-emerald-700">
+                                        {{ __('Comprovante replicado') }}
+                                    </div>
+                                    <p class="mt-1 font-medium">
+                                        {{ __('Todos os inscritos desta igreja receberam uma cópia do comprovante.') }}
+                                    </p>
+                                </div>
+                            @else
+                                <div
+                                    class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                                    <div class="text-xs font-semibold uppercase text-amber-700">
+                                        {{ __('Replicação por igreja') }}
+                                    </div>
+                                    <p class="mt-1">
+                                        {{ __('Use este envio para aplicar o mesmo comprovante a todos os inscritos deste grupo, sem alterar a modal individual de cada aluno.') }}
+                                    </p>
+                                </div>
+                            @endif
+
+                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="text-xs font-semibold uppercase text-slate-500">
+                                    {{ __('Passo 2: revisar replicação') }}
+                                </div>
+                                <div class="mt-2 text-sm text-slate-700">
+                                    {{ __('Depois de salvar, cada inscrição continua podendo ser aberta individualmente para confirmar o pagamento normalmente.') }}
+                                </div>
+
+                                <div class="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                                    <div class="text-sm font-semibold text-slate-900">
+                                        {{ __('Inscritos afetados') }}
+                                    </div>
+                                    <div class="mt-1 text-xs text-slate-500">
+                                        {{ trans_choice(':count inscrição será atualizada com este comprovante.|:count inscrições serão atualizadas com este comprovante.', count($selectedChurchRegistrationIds), ['count' => count($selectedChurchRegistrationIds)]) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="sticky bottom-0 z-20 border-t border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
+                <div class="flex justify-end gap-3">
+                    <x-src.btn-silver type="button" wire:click="closeChurchReceiptModal"
+                        wire:loading.attr="disabled"
+                        wire:target="uploadChurchPaymentReceipt,churchPaymentReceiptUpload">
                         {{ __('Fechar') }}
                     </x-src.btn-silver>
                 </div>

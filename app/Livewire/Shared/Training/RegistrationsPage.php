@@ -27,9 +27,20 @@ abstract class RegistrationsPage extends Component
 
     public bool $showReceiptModal = false;
 
+    public bool $showChurchReceiptModal = false;
+
     public ?int $selectedRegistrationId = null;
 
     public string $selectedRegistrationName = '';
+
+    public ?string $selectedChurchGroupKey = null;
+
+    public string $selectedChurchGroupName = '';
+
+    /**
+     * @var array<int, int>
+     */
+    public array $selectedChurchRegistrationIds = [];
 
     public ?string $selectedPaymentReceiptUrl = null;
 
@@ -43,7 +54,11 @@ abstract class RegistrationsPage extends Component
 
     public bool $showPaymentReadyHint = false;
 
+    public bool $showChurchPaymentReadyHint = false;
+
     public mixed $paymentReceiptUpload = null;
+
+    public mixed $churchPaymentReceiptUpload = null;
 
     /**
      * @var array<int, array{
@@ -177,6 +192,114 @@ abstract class RegistrationsPage extends Component
         }
 
         $this->reset('paymentReceiptUpload');
+    }
+
+    public function openChurchReceiptModal(string $churchGroupKey): void
+    {
+        $churchGroup = collect($this->churchGroups)->firstWhere('key', $churchGroupKey);
+
+        if (! is_array($churchGroup)) {
+            return;
+        }
+
+        $this->selectedChurchGroupKey = $churchGroupKey;
+        $this->selectedChurchGroupName = (string) ($churchGroup['church_name'] ?? '');
+        $this->selectedChurchRegistrationIds = collect($churchGroup['registrations'] ?? [])
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
+        $this->showChurchPaymentReadyHint = false;
+        $this->resetErrorBag('churchPaymentReceiptUpload');
+        $this->churchPaymentReceiptUpload = null;
+        $this->showChurchReceiptModal = true;
+    }
+
+    public function closeChurchReceiptModal(): void
+    {
+        $this->showChurchReceiptModal = false;
+        $this->selectedChurchGroupKey = null;
+        $this->selectedChurchGroupName = '';
+        $this->selectedChurchRegistrationIds = [];
+        $this->showChurchPaymentReadyHint = false;
+        $this->churchPaymentReceiptUpload = null;
+        $this->resetErrorBag('churchPaymentReceiptUpload');
+    }
+
+    public function uploadChurchPaymentReceipt(): void
+    {
+        if ($this->busy || ! $this->selectedChurchGroupKey || $this->selectedChurchRegistrationIds === []) {
+            return;
+        }
+
+        $this->authorize('update', $this->training);
+
+        $this->validate([
+            'churchPaymentReceiptUpload' => [
+                'required',
+                'file',
+                'mimes:webp,jpeg,png,pdf',
+                'mimetypes:image/jpeg,image/png,image/webp,application/pdf',
+                'max:5120',
+            ],
+        ], [], [
+            'churchPaymentReceiptUpload' => __('comprovante de pagamento da igreja'),
+        ]);
+
+        $this->busy = true;
+
+        try {
+            $students = $this->training->students
+                ->whereIn('id', $this->selectedChurchRegistrationIds)
+                ->values();
+
+            if ($students->isEmpty()) {
+                $this->closeChurchReceiptModal();
+
+                return;
+            }
+
+            $uploadedFile = $this->churchPaymentReceiptUpload;
+            $extension = strtolower((string) $uploadedFile->getClientOriginalExtension());
+            $basePath = "training-receipts/{$this->training->id}";
+
+            foreach ($students as $student) {
+                $existingReceipt = is_string($student->pivot?->payment_receipt)
+                    ? trim($student->pivot->payment_receipt)
+                    : '';
+
+                $path = $uploadedFile->storeAs(
+                    $basePath,
+                    sprintf('church-group-%s-student-%d-%s.%s', $this->selectedChurchGroupKey, $student->id, str()->uuid(), $extension),
+                    'public',
+                );
+
+                $this->training->students()->updateExistingPivot($student->id, [
+                    'payment_receipt' => $path,
+                    'payment' => true,
+                ]);
+
+                if ($existingReceipt !== '' && $existingReceipt !== $path && Storage::disk('public')->exists($existingReceipt)) {
+                    Storage::disk('public')->delete($existingReceipt);
+                }
+            }
+
+            $this->reset('churchPaymentReceiptUpload');
+            $this->refreshRegistrations();
+            $this->showChurchPaymentReadyHint = true;
+            $this->dispatch('toast', type: 'success', message: 'Comprovante replicado e pagamentos confirmados para os inscritos da igreja com sucesso.');
+        } finally {
+            $this->busy = false;
+        }
+    }
+
+    public function clearChurchPaymentReceiptUpload(): void
+    {
+        if (! $this->churchPaymentReceiptUpload) {
+            return;
+        }
+
+        $this->reset('churchPaymentReceiptUpload');
     }
 
     public function toggleAccredited(int $userId, bool $enabled): void
@@ -369,6 +492,10 @@ abstract class RegistrationsPage extends Component
         if ($this->showReceiptModal && $this->selectedRegistrationId) {
             $this->syncSelectedRegistration($this->selectedRegistrationId);
         }
+
+        if ($this->showChurchReceiptModal && $this->selectedChurchGroupKey) {
+            $this->syncSelectedChurchGroup($this->selectedChurchGroupKey);
+        }
     }
 
     /**
@@ -430,6 +557,24 @@ abstract class RegistrationsPage extends Component
         $this->selectedPaymentReceiptIsPdf = $registration['payment_receipt_is_pdf'];
         $this->selectedHasPaymentReceipt = $registration['has_payment_receipt'];
         $this->selectedPaymentConfirmed = $registration['payment_confirmed'];
+    }
+
+    private function syncSelectedChurchGroup(string $churchGroupKey): void
+    {
+        $churchGroup = collect($this->churchGroups)->firstWhere('key', $churchGroupKey);
+
+        if (! is_array($churchGroup)) {
+            $this->closeChurchReceiptModal();
+
+            return;
+        }
+
+        $this->selectedChurchGroupName = (string) ($churchGroup['church_name'] ?? '');
+        $this->selectedChurchRegistrationIds = collect($churchGroup['registrations'] ?? [])
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
     }
 
     private function resolveChurchLabel(User $student): string

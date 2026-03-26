@@ -353,6 +353,111 @@ it('allows the teacher to upload a payment receipt for the student and confirm p
     ]);
 });
 
+it('allows the teacher to replicate a church payment receipt to all registrations in the same church', function (): void {
+    $teacher = createTeacher();
+    $church = Church::factory()->create(['name' => 'Igreja Alfa']);
+    $otherChurch = Church::factory()->create(['name' => 'Igreja Beta']);
+    Storage::fake('public');
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+    ]);
+
+    $studentOne = User::factory()->create(['church_id' => $church->id]);
+    $studentTwo = User::factory()->create(['church_id' => $church->id]);
+    $studentOtherChurch = User::factory()->create(['church_id' => $otherChurch->id]);
+
+    $training->students()->attach($studentOne->id, ['payment' => 0, 'kit' => 0, 'accredited' => 0]);
+    $training->students()->attach($studentTwo->id, ['payment' => 0, 'kit' => 0, 'accredited' => 0]);
+    $training->students()->attach($studentOtherChurch->id, ['payment' => 0, 'kit' => 0, 'accredited' => 0]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training]);
+
+    $churchGroupKey = collect($component->get('churchGroups'))
+        ->firstWhere('church_name', 'Igreja Alfa')['key'];
+
+    $component
+        ->call('openChurchReceiptModal', $churchGroupKey)
+        ->assertSet('selectedChurchGroupName', 'Igreja Alfa')
+        ->set('churchPaymentReceiptUpload', UploadedFile::fake()->image('comprovante-igreja.png'))
+        ->call('uploadChurchPaymentReceipt')
+        ->assertHasNoErrors(['churchPaymentReceiptUpload']);
+
+    $studentOneReceipt = $training->fresh()->students()->where('users.id', $studentOne->id)->first()?->pivot?->payment_receipt;
+    $studentTwoReceipt = $training->fresh()->students()->where('users.id', $studentTwo->id)->first()?->pivot?->payment_receipt;
+    $otherStudentReceipt = $training->fresh()->students()->where('users.id', $studentOtherChurch->id)->first()?->pivot?->payment_receipt;
+    $studentOnePayment = $training->fresh()->students()->where('users.id', $studentOne->id)->first()?->pivot?->payment;
+    $studentTwoPayment = $training->fresh()->students()->where('users.id', $studentTwo->id)->first()?->pivot?->payment;
+    $otherStudentPayment = $training->fresh()->students()->where('users.id', $studentOtherChurch->id)->first()?->pivot?->payment;
+
+    expect($studentOneReceipt)->not->toBeNull();
+    expect($studentTwoReceipt)->not->toBeNull();
+    expect($studentOneReceipt)->not->toBe($studentTwoReceipt);
+    expect(Storage::disk('public')->exists((string) $studentOneReceipt))->toBeTrue();
+    expect(Storage::disk('public')->exists((string) $studentTwoReceipt))->toBeTrue();
+    expect($otherStudentReceipt)->toBeNull();
+    expect($studentOnePayment)->toBe(1);
+    expect($studentTwoPayment)->toBe(1);
+    expect($otherStudentPayment)->toBe(0);
+});
+
+it('replaces previous church receipts when replicating a new receipt to the same church group', function (): void {
+    $teacher = createTeacher();
+    $church = Church::factory()->create(['name' => 'Igreja Alfa']);
+    Storage::fake('public');
+
+    $training = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'church_id' => $church->id,
+    ]);
+
+    $studentOne = User::factory()->create(['church_id' => $church->id]);
+    $studentTwo = User::factory()->create(['church_id' => $church->id]);
+
+    Storage::disk('public')->put('training-receipts/existing/student-one.webp', 'old-one');
+    Storage::disk('public')->put('training-receipts/existing/student-two.webp', 'old-two');
+
+    $training->students()->attach($studentOne->id, [
+        'payment_receipt' => 'training-receipts/existing/student-one.webp',
+        'payment' => 0,
+        'kit' => 0,
+        'accredited' => 0,
+    ]);
+    $training->students()->attach($studentTwo->id, [
+        'payment_receipt' => 'training-receipts/existing/student-two.webp',
+        'payment' => 0,
+        'kit' => 0,
+        'accredited' => 0,
+    ]);
+
+    $component = Livewire::actingAs($teacher)
+        ->test(Registrations::class, ['training' => $training]);
+
+    $churchGroupKey = collect($component->get('churchGroups'))
+        ->firstWhere('church_name', 'Igreja Alfa')['key'];
+
+    $component
+        ->call('openChurchReceiptModal', $churchGroupKey)
+        ->set('churchPaymentReceiptUpload', UploadedFile::fake()->create('novo-comprovante.pdf', 100, 'application/pdf'))
+        ->call('uploadChurchPaymentReceipt')
+        ->assertHasNoErrors(['churchPaymentReceiptUpload']);
+
+    expect(Storage::disk('public')->exists('training-receipts/existing/student-one.webp'))->toBeFalse();
+    expect(Storage::disk('public')->exists('training-receipts/existing/student-two.webp'))->toBeFalse();
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $studentOne->id,
+        'payment' => 1,
+    ]);
+    $this->assertDatabaseHas('training_user', [
+        'training_id' => $training->id,
+        'user_id' => $studentTwo->id,
+        'payment' => 1,
+    ]);
+});
+
 it('removes a participant from the training registrations', function () {
     $teacher = createTeacher();
     $church = Church::factory()->create();
