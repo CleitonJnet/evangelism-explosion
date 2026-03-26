@@ -87,7 +87,7 @@
         $hasAnyRole = auth()->user()->roles()->exists();
     @endphp
 
-    <div class="min-h-screen ee-app-bg px-6 py-12">
+    <div class="min-h-screen ee-app-bg px-3 py-8 sm:px-4 sm:py-10 md:px-5 md:py-12 lg:px-6">
         <div class="mx-auto flex w-full max-w-6xl flex-col gap-10">
             <section
                 class="relative overflow-hidden rounded-3xl bg-sky-950 px-6 py-8 text-slate-100 shadow-xl sm:px-8 lg:px-10 lg:py-10">
@@ -118,7 +118,7 @@
                             @endif
 
                             <p class="max-w-2xl text-base leading-7 text-sky-100/85">
-                                {{ __('Escolha abaixo como deseja acessar o sistema. Apenas funções autorizadas ficam disponíveis para entrar agora.') }}
+                                {{ __('Escolha abaixo como deseja acessar o sistema.') }}
                             </p>
                         </div>
                     </div>

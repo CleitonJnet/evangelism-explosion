@@ -5,10 +5,13 @@
  * - Livewire-friendly (re-inits on SPA navigations)
  */
 export function initHeader() {
+    initWebsiteHeader();
+    initAppMobileHeader();
+}
+
+function initWebsiteHeader() {
     const header = document.getElementById("main-header");
     if (!header) return;
-
-    // Prevent duplicate bindings (for this header)
     if (header.dataset.navInit === "1") return;
     header.dataset.navInit = "1";
 
@@ -21,16 +24,12 @@ export function initHeader() {
     const iconHamburger = document.getElementById("icon-hamburger");
     const iconClose = document.getElementById("icon-close");
 
-    // State
     let open = false;
     let hiddenOnScroll = false;
-
-    // Scroll tracking
     let lastY = window.scrollY || 0;
 
-    // Opacities
-    let topBarAlpha = 0.15;
-    let mainBarBg = 0.2;
+    const topBarAlpha = 0.15;
+    const mainBarBg = 0.2;
 
     function setScrolledClasses(isScrolled) {
         const shadowOn = "shadow-[0_10px_30px_rgba(0,0,0,.25)]";
@@ -50,19 +49,17 @@ export function initHeader() {
 
         setScrolledClasses(scrolled);
 
-        // 0..200px
         const t = Math.min(1, y / 200);
-
         const topAlpha = topBarAlpha + t * 0.85;
         const mainAlpha = mainBarBg + t * 1;
 
-        if (topBar)
+        if (topBar) {
             topBar.style.backgroundColor = `rgba(5, 47, 74,${topAlpha})`;
-        if (mainBar)
-            mainBar.style.backgroundColor = `rgba(5, 47, 74,${mainAlpha})`;
+        }
 
-        // if (topBar) topBar.style.backgroundColor = `rgba(0,0,0,${topAlpha})`;
-        // if (mainBar) mainBar.style.backgroundColor = `rgba(0,0,0,${mainAlpha})`;
+        if (mainBar) {
+            mainBar.style.backgroundColor = `rgba(5, 47, 74,${mainAlpha})`;
+        }
     }
 
     function renderHeaderPosition() {
@@ -77,16 +74,20 @@ export function initHeader() {
         mobileMenu.classList.toggle("hidden", !open);
         mobileMenu.classList.toggle("flex", open);
 
-        if (iconHamburger) iconHamburger.classList.toggle("hidden", open);
-        if (iconClose) iconClose.classList.toggle("hidden", !open);
+        if (iconHamburger) {
+            iconHamburger.classList.toggle("hidden", open);
+        }
 
-        // lock scroll when menu is open
+        if (iconClose) {
+            iconClose.classList.toggle("hidden", !open);
+        }
+
         document.documentElement.classList.toggle("overflow-hidden", open);
         document.body.classList.toggle("overflow-hidden", open);
 
-        // a11y
-        if (menuBtn)
+        if (menuBtn) {
             menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
     }
 
     function openMenu() {
@@ -103,7 +104,6 @@ export function initHeader() {
         open ? closeMenu() : openMenu();
     }
 
-    // Click menu button
     if (menuBtn) {
         menuBtn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -111,7 +111,6 @@ export function initHeader() {
         });
     }
 
-    // Click outside (mobile menu)
     document.addEventListener("click", (e) => {
         if (!open) return;
         if (!mobileMenu || !menuBtn) return;
@@ -122,34 +121,42 @@ export function initHeader() {
         const clickedInsideMenu = mobileMenu.contains(target);
         const clickedButton = menuBtn.contains(target);
 
-        if (!clickedInsideMenu && !clickedButton) closeMenu();
+        if (!clickedInsideMenu && !clickedButton) {
+            closeMenu();
+        }
     });
 
-    // ESC closes menu
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && open) closeMenu();
+        if (e.key === "Escape" && open) {
+            closeMenu();
+        }
     });
 
-    // Close on link click (use .js-close-menu)
     document.querySelectorAll(".js-close-menu").forEach((el) => {
         if (el.dataset.navCloseInit === "1") return;
         el.dataset.navCloseInit = "1";
         el.addEventListener("click", () => {
-            if (open) closeMenu();
+            if (open) {
+                closeMenu();
+            }
         });
     });
 
-    // Scroll behavior (hide on down, show on up)
     function onScroll() {
         const y = window.scrollY || 0;
         const delta = y - lastY;
 
         applyOpacity(y);
 
-        const TH = 8;
+        const threshold = 8;
         if (!open) {
-            if (delta > TH && y > 80) hiddenOnScroll = true;
-            if (delta < -TH) hiddenOnScroll = false;
+            if (delta > threshold && y > 80) {
+                hiddenOnScroll = true;
+            }
+
+            if (delta < -threshold) {
+                hiddenOnScroll = false;
+            }
         } else {
             hiddenOnScroll = false;
         }
@@ -160,8 +167,67 @@ export function initHeader() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    // Init
     applyOpacity(lastY);
     renderHeaderPosition();
     renderMenu();
+}
+
+function initAppMobileHeader() {
+    const header = document.getElementById("app-mobile-header");
+    if (!header) return;
+    if (header.dataset.navInit === "1") return;
+    header.dataset.navInit = "1";
+
+    const floatingButton = document.getElementById("app-mobile-sidebar-fab");
+    let lastY = window.scrollY || 0;
+    let hiddenOnScroll = false;
+    let accumulatedDelta = 0;
+    let ticking = false;
+
+    function renderHeaderPosition() {
+        header.classList.toggle("is-hidden", hiddenOnScroll);
+
+        if (floatingButton) {
+            floatingButton.classList.toggle("is-header-hidden", hiddenOnScroll);
+        }
+    }
+
+    function updateFromScroll() {
+        const y = window.scrollY || 0;
+        const delta = y - lastY;
+        const directionChanged =
+            (delta > 0 && accumulatedDelta < 0) || (delta < 0 && accumulatedDelta > 0);
+
+        if (directionChanged) {
+            accumulatedDelta = 0;
+        }
+
+        accumulatedDelta += delta;
+
+        if (accumulatedDelta > 18 && y > 96) {
+            hiddenOnScroll = true;
+            accumulatedDelta = 0;
+        }
+
+        if (accumulatedDelta < -14 || y <= 24) {
+            hiddenOnScroll = false;
+            accumulatedDelta = 0;
+        }
+
+        renderHeaderPosition();
+        lastY = y;
+        ticking = false;
+    }
+
+    function onScroll() {
+        if (ticking) {
+            return;
+        }
+
+        ticking = true;
+        window.requestAnimationFrame(updateFromScroll);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    renderHeaderPosition();
 }
