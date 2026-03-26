@@ -1,6 +1,6 @@
 <div>
-    <flux:modal name="create-participant-registration-modal" wire:model="showModal" class="max-w-4xl w-full p-0!">
-        <div>
+    <flux:modal name="create-participant-registration-modal" wire:model="showModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
+        <div class="flex max-h-[calc(100vh-4px)] flex-col overflow-hidden">
             <header class="border-b border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">
                 <h3 class="text-lg font-semibold">{{ __('Novo inscrito no evento') }}</h3>
                 <p class="text-sm opacity-80">
@@ -8,7 +8,7 @@
                 </p>
             </header>
 
-            <div class="space-y-6 px-6 py-6">
+            <div class="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
                 <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                     <div class="font-semibold">{{ __('Entrada excepcional no evento') }}</div>
                     <div class="mt-1">
@@ -141,7 +141,7 @@
                 @endif
             </div>
 
-            <div class="flex justify-between gap-2 border-t border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">
+            <div class="shrink-0 flex justify-between gap-2 border-t border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">
                 <x-src.btn-silver type="button" wire:click="closeModal">
                     {{ __('Cancelar') }}
                 </x-src.btn-silver>

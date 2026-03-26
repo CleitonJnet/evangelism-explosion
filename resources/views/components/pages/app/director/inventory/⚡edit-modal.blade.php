@@ -685,7 +685,7 @@ new class extends Component {
 ?>
 
 <div>
-    <flux:modal name="director-material-edit-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!">
+    <flux:modal name="director-material-edit-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         @php
             $headerCourses = collect($this->ministries())
                 ->flatMap->courses->whereIn('id', $selectedCourseIds)

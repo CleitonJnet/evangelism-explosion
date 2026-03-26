@@ -96,7 +96,7 @@
         </div>
     </section>
 
-    <flux:modal name="director-edit-testimonial-modal" wire:model="showEditModal" class="max-w-4xl w-full">
+    <flux:modal name="director-edit-testimonial-modal" wire:model="showEditModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Editar testemunho') }}</flux:heading>

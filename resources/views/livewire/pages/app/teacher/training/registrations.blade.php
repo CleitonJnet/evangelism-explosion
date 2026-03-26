@@ -10,7 +10,7 @@
                 class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
         </div>
 
-        <div class="flex items-center gap-2 min-w-72 w-full max-w-md">
+        <div class="flex items-center gap-2 min-w-72 w-full max-w-md ml-auto">
             <label for="registrations-search" class="sr-only">
                 {{ __('Buscar inscrito, igreja/região ou e-mail') }}
             </label>

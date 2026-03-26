@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="edit-event-dates-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! text-white! p-0!">
+    <flux:modal name="edit-event-dates-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-950! text-white! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-8 py-4">
                 <div class="text-lg font-semibold text-white">{{ __('Datas do treinamento') }}</div>

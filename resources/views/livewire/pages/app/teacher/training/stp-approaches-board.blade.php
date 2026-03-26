@@ -109,7 +109,7 @@
         @endif
     </div>
 
-    <flux:modal name="stp-approach-report" wire:model="showModal" class="max-w-6xl w-full bg-slate-100! p-0!">
+    <flux:modal name="stp-approach-report" wire:model="showModal" class="max-w-6xl w-[calc(100%-4px)] mx-auto bg-slate-100! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         @if ($editingApproachId !== null && $editingApproach)
             <div class="relative flex max-h-[90vh] flex-col" x-data="{ showSavedMessage: false, savedMessage: '', hideTimer: null }"
                 x-on:approach-draft-saved.window="

@@ -182,7 +182,7 @@
         </form>
     </flux:modal>
 
-    <flux:modal name="church-profile-photo-modal" wire:model="showPhotoModal" class="max-w-4xl w-full bg-sky-950! p-0!"
+    <flux:modal name="church-profile-photo-modal" wire:model="showPhotoModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden"
         @close="closePhotoModal">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
@@ -306,7 +306,7 @@
         </form>
     </flux:modal>
 
-    <flux:modal name="church-profile-church-modal" wire:model="showChurchModal" class="max-w-4xl w-full bg-sky-950! p-0!"
+    <flux:modal name="church-profile-church-modal" wire:model="showChurchModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden"
         @close="closeChurchModal">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">

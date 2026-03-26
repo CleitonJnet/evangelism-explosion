@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="teacher-edit-church-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!"
+    <flux:modal name="teacher-edit-church-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden"
         data-church-modal-root>
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">

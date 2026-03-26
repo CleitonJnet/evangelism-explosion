@@ -4,16 +4,17 @@
         $genericReceiptThumbnail = asset('images/svg/qr-code-icon.svg');
     @endphp
 
-    <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e marcação de kit sem gerar baixa automática no estoque.')" justify="justify-between">
+    <x-src.toolbar.nav :title="__('Gerenciamento de inscrições')" :description="__('Atualize comprovante, credenciamento e marcação de kit sem gerar baixa automática no estoque.')">
         <x-src.toolbar.button :href="route($this->contextRoute('show'), $training)" :label="__('Detalhes do Evento')" icon="eye" :tooltip="__('Voltar para o treinamento')"
             class="bg-sky-900! text-slate-100! border-sky-700! hover:bg-sky-800!" />
+
         @if ($this->contextComponent('createParticipantRegistrationModal') && ($capabilities['canEdit'] ?? false))
             <x-src.toolbar.button href="#" :label="__('Novo inscrito')" icon="plus" :tooltip="__('Abrir o fluxo de acesso e inscrição do evento para registrar um aluno')"
                 x-on:click.prevent="$dispatch('open-create-participant-registration-modal', { trainingId: {{ $training->id }} })"
                 class="!bg-emerald-100 !text-emerald-900 !border-emerald-300 hover:!bg-emerald-200" />
         @endif
 
-        <div class="flex items-center gap-2 min-w-72 w-full max-w-md">
+        <div class="flex items-center gap-2 min-w-72 w-full max-w-md ml-auto">
             <label for="registrations-search" class="sr-only">
                 {{ __('Buscar inscrito, igreja/região ou e-mail') }}
             </label>
@@ -235,7 +236,7 @@
     </section>
 
     <flux:modal name="training-payment-receipt-modal" wire:model="showReceiptModal"
-        class="max-w-4xl w-full bg-sky-950! p-0!">
+        class="max-w-4xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <h3 class="text-lg font-semibold">{{ __('Comprovante de pagamento') }}</h3>
@@ -461,7 +462,7 @@
     </flux:modal>
 
     <flux:modal name="training-church-payment-receipt-modal" wire:model="showChurchReceiptModal"
-        class="max-w-4xl w-full bg-sky-950! p-0!">
+        class="max-w-4xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <header class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4 text-sky-50">
                 <h3 class="text-lg font-semibold">{{ __('Comprovante de pagamento') }}</h3>

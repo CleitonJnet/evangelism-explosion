@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="teacher-inventory-edit-modal" wire:model="showModal" class="max-w-5xl w-full bg-sky-950! p-0!">
+    <flux:modal name="teacher-inventory-edit-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex h-[min(90vh,52rem)] flex-col overflow-hidden rounded-2xl">
             @php
                 $isActive = $status === 'active';

@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="edit-event-banner-modal" wire:model="showModal" class="max-w-4xl w-full bg-sky-950! p-0!">
+    <flux:modal name="edit-event-banner-modal" wire:model="showModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
                 <flux:heading size="lg"><span class="text-white!">{{ __('Banner do evento') }}</span></flux:heading>

@@ -1,7 +1,7 @@
 <div>
-    <flux:modal name="edit-event-church-modal" wire:model="showModal" class="max-w-6xl w-full bg-sky-950! p-0!">
-        <div class="space-y-4">
-            <div class="px-6 pt-4">
+    <flux:modal name="edit-event-church-modal" wire:model="showModal" class="max-w-6xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
+        <div class="flex max-h-[calc(100vh-4px)] flex-col overflow-hidden">
+            <div class="shrink-0 px-6 pt-4">
                 <flux:heading size="lg"><span class="text-white!">{{ __('Igreja sede e endereço do evento') }}</span>
                 </flux:heading>
                 <flux:subheading>
@@ -11,7 +11,7 @@
                 </flux:subheading>
             </div>
 
-            <div class="max-h-[calc(100vh-220px)] space-y-6 overflow-y-auto bg-white/95 px-6 py-4">
+            <div class="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white/95 px-6 py-4">
                 <div class="flex flex-wrap gap-4">
                     <div class="basis-120 flex-auto">
                         <img src="{{ asset(path: 'images/banner-create-training-base.webp') }}"
@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3 px-6 pb-4">
+            <div class="shrink-0 flex justify-end gap-3 px-6 pb-4 pt-4">
                 <x-src.btn-silver type="button" wire:click="closeModal" wire:loading.attr="disabled"
                     wire:target="save">
                     {{ __('Fechar') }}

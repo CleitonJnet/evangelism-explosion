@@ -4,7 +4,7 @@
             wire:click.prevent="openModal" />
     @endteleport
 
-    <flux:modal name="director-create-testimonial-modal" wire:model="showModal" class="max-w-4xl w-full">
+    <flux:modal name="director-create-testimonial-modal" wire:model="showModal" class="max-w-4xl w-[calc(100%-4px)] mx-auto">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Novo testemunho') }}</flux:heading>

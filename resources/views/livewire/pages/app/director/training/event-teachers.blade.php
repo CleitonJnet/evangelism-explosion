@@ -108,7 +108,7 @@
     </div>
 
     <flux:modal name="manage-training-teachers-modal" wire:model="showModal"
-        class="max-w-5xl w-full bg-sky-900! p-0! max-h-[calc(100vh-50px)]! overflow-hidden">
+        class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-900! p-0! max-h-[calc(100vh-4px)]! overflow-hidden max-h-[calc(100vh-50px)]! overflow-hidden">
         <form class="flex max-h-[calc(100vh-50px)] flex-col overflow-hidden" wire:submit="requestSave">
             <div class="shrink-0 border-b border-sky-700 px-6 py-4">
                 <flux:heading size="lg"><span class="text-white">{{ __('Professores do treinamento') }}</span>

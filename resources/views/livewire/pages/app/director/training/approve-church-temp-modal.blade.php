@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="approve-church-temp-modal" wire:model="showModal" class="max-w-5xl w-full p-0!">
+    <flux:modal name="approve-church-temp-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div>
             <header
                 class="border-b border-sky-950/20 bg-linear-to-br from-sky-950 via-sky-900 to-sky-950 px-6 py-4 text-sky-50">

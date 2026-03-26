@@ -271,7 +271,7 @@
         </div>
     </section>
 
-    <flux:modal name="teacher-all-users-modal" wire:model="showAllUsersModal" class="max-w-[92vw] w-full bg-sky-950! p-0!">
+    <flux:modal name="teacher-all-users-modal" wire:model="showAllUsersModal" class="max-w-[92vw] w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
                 <flux:heading size="lg"><span class="text-white!">{{ __('Perfis cadastrados no sistema') }}</span></flux:heading>
@@ -552,7 +552,7 @@
         </div>
     </section>
 
-    <flux:modal name="teacher-unlinked-user-modal" wire:model="showUnlinkedUserModal" class="max-w-5xl w-full bg-sky-950! p-0!">
+    <flux:modal name="teacher-unlinked-user-modal" wire:model="showUnlinkedUserModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto bg-sky-950! p-0! max-h-[calc(100vh-4px)]! overflow-hidden">
         <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl">
             <div class="sticky top-0 z-20 border-b border-sky-800 bg-sky-950 px-6 py-4">
                 <flux:heading size="lg"><span class="text-white!">{{ __('Detalhes do participante sem igreja') }}</span></flux:heading>

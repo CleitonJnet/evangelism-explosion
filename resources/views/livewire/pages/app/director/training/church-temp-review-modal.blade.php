@@ -1,5 +1,5 @@
 <div>
-    <flux:modal name="church-temp-review-modal" wire:model="showModal" class="max-w-5xl w-full">
+    <flux:modal name="church-temp-review-modal" wire:model="showModal" class="max-w-5xl w-[calc(100%-4px)] mx-auto">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Validação de igrejas pendentes') }}</flux:heading>
