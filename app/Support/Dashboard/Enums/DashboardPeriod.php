@@ -52,15 +52,39 @@ enum DashboardPeriod: string
     public function range(?CarbonImmutable $reference = null): array
     {
         $reference ??= CarbonImmutable::now();
-        $end = $reference->endOfMonth();
-        $start = $end
-            ->subMonths($this->months() - 1)
-            ->startOfMonth();
+
+        [$start, $end] = match ($this) {
+            self::Quarter => $this->quarterRange($reference),
+            self::Semester => $this->semesterRange($reference),
+            self::Year => [$reference->startOfYear(), $reference->endOfYear()],
+        };
 
         return [
             'start' => $start,
             'end' => $end,
         ];
+    }
+
+    /**
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     */
+    private function quarterRange(CarbonImmutable $reference): array
+    {
+        $startMonth = ((int) floor(($reference->month - 1) / 3) * 3) + 1;
+        $start = $reference->startOfYear()->month($startMonth)->startOfMonth();
+
+        return [$start, $start->addMonths(2)->endOfMonth()];
+    }
+
+    /**
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     */
+    private function semesterRange(CarbonImmutable $reference): array
+    {
+        $startMonth = $reference->month <= 6 ? 1 : 7;
+        $start = $reference->startOfYear()->month($startMonth)->startOfMonth();
+
+        return [$start, $start->addMonths(5)->endOfMonth()];
     }
 
     /**

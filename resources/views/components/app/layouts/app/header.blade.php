@@ -6,10 +6,37 @@
 </head>
 
 <body class="min-h-screen bg-[color:var(--ee-app-bg)] text-[color:var(--ee-app-text)]">
+    @php
+        $currentRoleKey = match (true) {
+            request()->routeIs('app.board.*') => 'board',
+            request()->routeIs('app.director.*') => 'director',
+            request()->routeIs('app.teacher.*') => 'teacher',
+            request()->routeIs('app.facilitator.*') => 'facilitator',
+            request()->routeIs('app.fieldworker.*') => 'fieldworker',
+            request()->routeIs('app.mentor.*') => 'mentor',
+            request()->routeIs('app.student.*') => 'student',
+            default => null,
+        };
+
+        $roleHomeRoutes = [
+            'board' => 'app.board.dashboard',
+            'director' => 'app.director.dashboard',
+            'teacher' => 'app.teacher.dashboard',
+            'facilitator' => 'app.facilitator.dashboard',
+            'fieldworker' => 'app.fieldworker.dashboard',
+            'mentor' => 'app.mentor.dashboard',
+            'student' => 'app.student.dashboard',
+        ];
+
+        $currentRoleHomeRoute = $currentRoleKey && isset($roleHomeRoutes[$currentRoleKey])
+            ? route($roleHomeRoutes[$currentRoleKey])
+            : route('app.start');
+    @endphp
+
     <flux:header container class="border-b border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)]">
         <flux:sidebar.toggle class="lg:hidden mr-2" icon="bars-2" inset="left" />
 
-        <x-app.app-logo href="{{ route('app.start') }}" wire:navigate />
+        <x-app.app-logo href="{{ $currentRoleHomeRoute }}" wire:navigate />
 
         <flux:navbar class="-mb-px max-lg:hidden">
             <flux:navbar.item icon="layout-grid" :href="route('app.start')" :current="request()->routeIs('dashboard')"
@@ -42,7 +69,7 @@
     <flux:sidebar collapsible="mobile" sticky
         class="lg:hidden border-e border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)]">
         <flux:sidebar.header>
-            <x-app.app-logo :sidebar="true" href="{{ route('app.start') }}" wire:navigate />
+            <x-app.app-logo :sidebar="true" href="{{ $currentRoleHomeRoute }}" wire:navigate />
             <flux:sidebar.collapse
                 class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
         </flux:sidebar.header>

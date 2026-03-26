@@ -46,7 +46,14 @@ it('uses the annual period by default on teacher dashboard', function (): void {
         'course_id' => $course->id,
         'status' => TrainingStatus::Scheduled,
     ]);
-    moveTrainingIntoDate($training, now()->addDays(10));
+    moveTrainingIntoDate($training, now()->startOfYear()->addDays(10));
+
+    $previousYearTraining = Training::factory()->create([
+        'teacher_id' => $teacher->id,
+        'course_id' => createDashboardCourse('Painel Ano Anterior')->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveTrainingIntoDate($previousYearTraining, now()->subYear()->startOfYear()->addDays(10));
 
     $response = $this
         ->actingAs($teacher)
@@ -54,7 +61,12 @@ it('uses the annual period by default on teacher dashboard', function (): void {
 
     $response->assertOk();
     $response->assertSee('Período atual: Anual');
-    $response->assertSee('Painel Anual');
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    expect(collect($dashboard['kpis'])->firstWhere('key', 'trainings_in_period')['value'])->toBe(1)
+        ->and($dashboard['rangeLabel'])->toContain(now()->startOfYear()->translatedFormat('d/m/Y'))
+        ->and($dashboard['rangeLabel'])->toContain(now()->endOfYear()->translatedFormat('d/m/Y'));
 });
 
 it('shows only owned and assisted trainings on teacher dashboard', function (): void {
@@ -90,9 +102,14 @@ it('shows only owned and assisted trainings on teacher dashboard', function (): 
         ->get(route('app.teacher.dashboard'));
 
     $response->assertOk();
-    $response->assertSee('Treinamento Titular');
-    $response->assertSee('Treinamento Auxiliar');
-    $response->assertDontSee('Treinamento Oculto');
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $visibleLabels = collect($dashboard['operational']['nextTrainings'])->pluck('label');
+
+    expect($visibleLabels)->toContain('Workshop - Treinamento Titular')
+        ->and($visibleLabels)->toContain('Workshop - Treinamento Auxiliar')
+        ->and($visibleLabels)->not->toContain('Workshop - Treinamento Oculto');
 });
 
 it('renders the main kpis plus stp and discipleship blocks on teacher dashboard', function (): void {
@@ -160,19 +177,16 @@ it('renders the main kpis plus stp and discipleship blocks on teacher dashboard'
 
     $response->assertOk();
     $response->assertSee('Treinamentos no período');
-    $response->assertSee('Treinamentos futuros');
     $response->assertSee('Treinamentos concluídos');
-    $response->assertSee('Inscritos');
-    $response->assertSee('Pagantes');
     $response->assertSee('Pendências de programação');
     $response->assertSee('Pendências de validação/igreja');
     $response->assertSee('Sessões STP previstas');
     $response->assertSee('Sessões de discipulado previstas');
-    $response->assertSee('Impacto evangelístico');
-    $response->assertSee('Discipulado paralelo');
-    $response->assertSee('Dashboard Operacional');
-    $response->assertSee('Como ler: Inscrições por período');
-    $response->assertSee('Como ler: Situação financeira');
+    $response->assertSee('Resultados STP');
+    $response->assertSee('Continuidade do cuidado');
+    $response->assertSee('Dashboard do Professor');
+    $response->assertSee('Inscrições por período');
+    $response->assertSee('Situação financeira');
 });
 
 it('applies the custom date range filter on teacher dashboard within the teacher scope', function (): void {

@@ -16,28 +16,42 @@
             'mentor' => __('Mentor'),
             'student' => __('Aluno'),
         ];
+
+        $currentRoleKey = match (true) {
+            request()->routeIs('app.board.*') => 'board',
+            request()->routeIs('app.director.*') => 'director',
+            request()->routeIs('app.teacher.*') => 'teacher',
+            request()->routeIs('app.facilitator.*') => 'facilitator',
+            request()->routeIs('app.fieldworker.*') => 'fieldworker',
+            request()->routeIs('app.mentor.*') => 'mentor',
+            request()->routeIs('app.student.*') => 'student',
+            default => null,
+        };
+
+        $roleHomeRoutes = [
+            'board' => 'app.board.dashboard',
+            'director' => 'app.director.dashboard',
+            'teacher' => 'app.teacher.dashboard',
+            'facilitator' => 'app.facilitator.dashboard',
+            'fieldworker' => 'app.fieldworker.dashboard',
+            'mentor' => 'app.mentor.dashboard',
+            'student' => 'app.student.dashboard',
+        ];
+
+        $currentRoleHomeRoute = $currentRoleKey && isset($roleHomeRoutes[$currentRoleKey])
+            ? route($roleHomeRoutes[$currentRoleKey])
+            : route('app.start');
     @endphp
 
     <flux:sidebar sticky collapsible="mobile" class="border-e border-sky-900/60 bg-sky-950 text-slate-100 z-9999!">
         <flux:sidebar.header>
-            <x-app.app-logo :sidebar="true" href="{{ route('app.start') }}" wire:navigate />
+            <x-app.app-logo :sidebar="true" href="{{ $currentRoleHomeRoute }}" wire:navigate />
         </flux:sidebar.header>
 
         <x-src.line-theme />
 
         <flux:sidebar.nav>
             @php
-                $currentRoleKey = match (true) {
-                    request()->routeIs('app.board.*') => 'board',
-                    request()->routeIs('app.director.*') => 'director',
-                    request()->routeIs('app.teacher.*') => 'teacher',
-                    request()->routeIs('app.facilitator.*') => 'facilitator',
-                    request()->routeIs('app.fieldworker.*') => 'fieldworker',
-                    request()->routeIs('app.mentor.*') => 'mentor',
-                    request()->routeIs('app.student.*') => 'student',
-                    default => null,
-                };
-
                 $roleMenus = [
                     'board' => 'app.menu-roles.board',
                     'director' => 'app.menu-roles.director',
@@ -66,7 +80,7 @@
         <flux:header id="app-mobile-header"
             class="ee-mobile-header px-0! border-b border-amber-400/35 bg-sky-950 text-slate-100 shadow-[0_18px_40px_-28px_rgba(2,6,23,0.9)]">
             <div class="flex w-full items-center justify-between gap-3 px-3 py-2 sm:px-4 md:px-5">
-                <a href="{{ route('app.start') }}" wire:navigate class="flex min-w-0 items-center gap-3">
+                <a href="{{ $currentRoleHomeRoute }}" wire:navigate class="flex min-w-0 items-center gap-3">
                     <img src="{{ asset('images/logo/ee-white.webp') }}" class="h-9 w-auto nav-iconshadow"
                         alt="{{ __('Evangelismo Explosivo') }}">
 
@@ -130,9 +144,9 @@
         </flux:header>
 
         <div id="app-mobile-sidebar-fab"
-            class="ee-mobile-sidebar-fab pointer-events-none fixed left-3 top-[4.4rem] z-[70] sm:left-4 md:left-5">
+            class="ee-mobile-sidebar-fab pointer-events-none fixed left-0 top-[4.4rem] z-[70]">
             <div
-                class="ee-mobile-menu-wrap pointer-events-auto flex h-10 w-11 items-center justify-center rounded-xl bg-linear-to-br from-[#f1d57a] via-[#c7a840] to-[#8a7424] text-slate-50 shadow-[0_18px_34px_-20px_rgba(2,6,23,0.9)] ring-1 ring-white/30">
+                class="ee-mobile-menu-wrap pointer-events-auto flex h-12 w-10 items-center justify-center rounded-e-xl bg-linear-to-br from-[#f1d57a] via-[#c7a840] to-[#8a7424] text-slate-50 shadow-[0_18px_34px_-20px_rgba(2,6,23,0.9)] ring-1 ring-white/30">
                 <flux:sidebar.collapse class="text-white [&_svg]:text-white" />
             </div>
         </div>

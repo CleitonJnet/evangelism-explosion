@@ -53,7 +53,16 @@ it('uses the annual period by default on director dashboard', function (): void 
         'course_id' => $course->id,
         'status' => TrainingStatus::Scheduled,
     ]);
-    moveDirectorTrainingIntoDate($training, now()->addDays(10));
+    moveDirectorTrainingIntoDate($training, now()->startOfYear()->addDays(10));
+
+    $previousYearTraining = Training::factory()->create([
+        'course_id' => Course::factory()->create([
+            'name' => 'Curso Nacional Ano Anterior',
+            'execution' => 0,
+        ])->id,
+        'status' => TrainingStatus::Scheduled,
+    ]);
+    moveDirectorTrainingIntoDate($previousYearTraining, now()->subYear()->startOfYear()->addDays(10));
 
     $response = $this
         ->actingAs($director)
@@ -61,7 +70,14 @@ it('uses the annual period by default on director dashboard', function (): void 
 
     $response->assertOk();
     $response->assertSee('Período atual: Anual');
-    $response->assertSee('Curso Nacional');
+
+    /** @var array<string, mixed> $dashboard */
+    $dashboard = $response->viewData('dashboard');
+    $trainingsKpi = collect($dashboard['kpis'])->firstWhere('key', 'trainings');
+
+    expect($trainingsKpi['value'])->toBe(1)
+        ->and($dashboard['rangeLabel'])->toContain(now()->startOfYear()->translatedFormat('d/m/Y'))
+        ->and($dashboard['rangeLabel'])->toContain(now()->endOfYear()->translatedFormat('d/m/Y'));
 });
 
 it('loads the national kpis and leadership teachers list', function (): void {

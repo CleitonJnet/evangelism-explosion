@@ -10,8 +10,6 @@
         $filters = $dashboard['filters'] ?? ['startDate' => null, 'endDate' => null, 'usingCustomRange' => false];
 
         $heroPrimary = $kpis->firstWhere('key', 'trainings_in_period');
-        $heroSecondary = $kpis->whereIn('key', ['future_trainings', 'registrations', 'paid_students'])->values();
-
         $workflowKpis = $kpis->whereIn('key', ['completed_trainings', 'schedule_pendencies'])->values();
 
         $sessionKpis = $kpis
@@ -251,6 +249,10 @@
 
                         <div class="flex flex-wrap items-center gap-3 text-sm">
                             <span
+                                class="flex flex-auto basis-28 items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 font-medium text-sky-700">
+                                Escopo pessoal de atuação
+                            </span>
+                            <span
                                 class="flex flex-auto basis-28 items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
                                 Período atual: {{ $dashboard['periodLabel'] }}
                             </span>
@@ -258,13 +260,10 @@
                                 class="flex flex-auto basis-28 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700 whitespace-nowrap">
                                 Janela: {{ $dashboard['rangeLabel'] }}
                             </span>
-                            <span
-                                class="flex flex-auto basis-28 items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 font-medium text-sky-700">
-                                Escopo pessoal de atuação
-                            </span>
                         </div>
 
-                        <article class="flex flex-col gap-5 rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:flex-row xl:items-start xl:gap-6">
+                        <article
+                            class="flex flex-col gap-5 rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:flex-row xl:items-start xl:gap-6">
                             <div class="flex-auto">
                                 @if ($heroPrimary)
                                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -287,22 +286,6 @@
                                     @endforeach
                                 </div>
 
-                                @if ($heroSecondary->isNotEmpty())
-                                    <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                                        @foreach ($heroSecondary as $kpi)
-                                            <article
-                                                class="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-3">
-                                                <p
-                                                    class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                                    {{ $kpi['label'] }}
-                                                </p>
-                                                <p class="mt-2 text-2xl font-semibold text-slate-950">
-                                                    {{ number_format((float) $kpi['value'], 0, ',', '.') }}
-                                                </p>
-                                            </article>
-                                        @endforeach
-                                    </div>
-                                @endif
 
                             </div>
 
@@ -347,7 +330,8 @@
                         </article>
                     </div>
 
-                    <aside class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-3 lg:grid-cols-1">
+                    <aside
+                        class="grid gap-3 rounded-[1.7rem] border border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-3 lg:grid-cols-1">
                         <div>
                             <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Radar de
                                 execução
@@ -386,7 +370,8 @@
                 </div>
             </section>
 
-            <section id="teacher-dashboard-operation" class="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.15fr_1.15fr_0.8fr]">
+            <section id="teacher-dashboard-operation"
+                class="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.15fr_1.15fr_0.8fr]">
                 <article
                     class="rounded-[1.7rem] border border-sky-200 bg-[linear-gradient(135deg,rgba(240,249,255,0.96),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.55)]">
                     <div
@@ -430,7 +415,8 @@
                     <div
                         class="flex flex-col gap-2 border-b border-orange-200/80 pb-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">Impacto evangelístico</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">Impacto
+                                evangelístico</p>
                             <h2 class="mt-1 text-lg font-semibold text-slate-950">Resultados STP</h2>
                         </div>
                         <p class="text-sm leading-5 text-slate-600">Resumo da prática e dos retornos do período.</p>
@@ -466,7 +452,8 @@
                     <article
                         class="rounded-[1.7rem] border border-cyan-200 bg-[linear-gradient(180deg,rgba(236,254,255,0.92),rgba(255,255,255,1))] p-5 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.45)]">
                         <div class="border-b border-cyan-200/80 pb-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Discipulado paralelo</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Discipulado
+                                paralelo</p>
                             <h2 class="mt-1 text-lg font-semibold text-slate-950">Continuidade do cuidado</h2>
                         </div>
 

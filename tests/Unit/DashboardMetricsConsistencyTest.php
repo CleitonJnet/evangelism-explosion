@@ -73,9 +73,11 @@ it('keeps teacher dashboard metrics aligned with the training overview service f
 
     $overview = app(TrainingOverviewMetricsService::class)->build($training->fresh());
     $dashboard = app(TeacherDashboardService::class)->build($teacher->fresh(), DashboardPeriod::Year);
+    $financialChart = collect($dashboard['charts'])->firstWhere('id', 'teacher-financial-status');
 
-    expect(collect($dashboard['kpis'])->firstWhere('key', 'registrations')['value'])->toBe($overview['totalRegistrations'])
-        ->and(collect($dashboard['kpis'])->firstWhere('key', 'paid_students')['value'])->toBe($overview['paidStudentsCount'])
+    expect(collect($dashboard['kpis'])->firstWhere('key', 'registrations'))->toBeNull()
+        ->and(collect($dashboard['kpis'])->firstWhere('key', 'paid_students'))->toBeNull()
+        ->and($financialChart['datasets'][0]['data'][0])->toBe($overview['paidStudentsCount'])
         ->and(collect($dashboard['evangelisticImpact'])->firstWhere('key', 'decisions')['value'])->toBe($overview['totalDecisions'])
         ->and(collect($dashboard['evangelisticImpact'])->firstWhere('key', 'scheduled_visits')['value'])->toBe($overview['resumoStp']['visita_agendada']);
 });

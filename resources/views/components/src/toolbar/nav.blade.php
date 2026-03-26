@@ -269,7 +269,7 @@
 @endphp
 
 <section
-    class="shadow-sm mb-4 w-full sticky top-0 z-40 rounded-b-2xl max-w-full overflow-hidden border-x border-b border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200">
+    class="shadow-sm lg:mb-4 w-full fixed lg:sticky bottom-0 lg:top-0 left-0 inset-x-0 z-40 lg:rounded-b-2xl max-w-full overflow-hidden border-x border-b border-amber-300/20 bg-sky-950 lg:bg-linear-to-br lg:from-white lg:via-slate-50 lg:to-slate-200">
     <div {{ $attributes->class('toolbar-scroll w-full overflow-x-auto overflow-y-hidden') }}>
         <div
             class="toolbar-scroll-track flex min-w-max items-center gap-1.5 px-5 py-3 text-sm text-slate-700 {{ $justify }}">

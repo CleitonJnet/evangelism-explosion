@@ -1,11 +1,4 @@
-@props([
-    'createRoute',
-    'filterValue' => null,
-    'groups',
-    'role',
-    'statusKey',
-    'statuses',
-])
+@props(['createRoute', 'filterValue' => null, 'groups', 'role', 'statusKey', 'statuses'])
 
 <div>
     @php
@@ -20,7 +13,7 @@
 
             if (strlen($normalized) === 3) {
                 $normalized = collect(str_split($normalized))
-                    ->map(fn (string $char): string => $char . $char)
+                    ->map(fn(string $char): string => $char . $char)
                     ->implode('');
             }
 
@@ -41,9 +34,9 @@
             [$red, $green, $blue] = $rgb;
             $ratio = max(0, min(1, $mixWithWhite));
 
-            $lightenedRed = (int) round($red + ((255 - $red) * $ratio));
-            $lightenedGreen = (int) round($green + ((255 - $green) * $ratio));
-            $lightenedBlue = (int) round($blue + ((255 - $blue) * $ratio));
+            $lightenedRed = (int) round($red + (255 - $red) * $ratio);
+            $lightenedGreen = (int) round($green + (255 - $green) * $ratio);
+            $lightenedBlue = (int) round($blue + (255 - $blue) * $ratio);
 
             return sprintf('#%02X%02X%02X', $lightenedRed, $lightenedGreen, $lightenedBlue);
         };
@@ -58,11 +51,7 @@
             $backgroundColor = $lightenHexColor($hexColor, 0.82) ?? '#FFFFFF';
             $borderColor = $lightenHexColor($hexColor, 0.68) ?? '#E2E8F0';
 
-            return sprintf(
-                'background-color: %s; border-color: %s;',
-                $backgroundColor,
-                $borderColor,
-            );
+            return sprintf('background-color: %s; border-color: %s;', $backgroundColor, $borderColor);
         };
 
         $currentStatus = collect($statuses)->firstWhere('key', $statusKey);
@@ -77,21 +66,20 @@
         $displayGroups = $groups
             ->map(function ($group) {
                 $validCourses = $group['courses']
-                    ->filter(fn ($courseGroup) => ($courseGroup['course']?->id) !== null)
+                    ->filter(fn($courseGroup) => $courseGroup['course']?->id !== null)
                     ->values();
 
-                return [
-                    ...$group,
-                    'courses' => $validCourses,
-                ];
+                return [...$group, 'courses' => $validCourses];
             })
-            ->filter(fn ($group) => $group['courses']->isNotEmpty())
+            ->filter(fn($group) => $group['courses']->isNotEmpty())
             ->values();
-        $totalEvents = $displayGroups->sum(fn ($group) => $group['courses']->sum(fn ($courseGroup) => $courseGroup['items']->count()));
+        $totalEvents = $displayGroups->sum(
+            fn($group) => $group['courses']->sum(fn($courseGroup) => $courseGroup['items']->count()),
+        );
         $indexedCourses = $displayGroups
-            ->flatMap(fn ($group) => $group['courses'])
-            ->map(fn ($courseGroup) => $courseGroup['course'])
-            ->filter(fn ($course) => $course !== null && $course->id !== null)
+            ->flatMap(fn($group) => $group['courses'])
+            ->map(fn($courseGroup) => $courseGroup['course'])
+            ->filter(fn($course) => $course !== null && $course->id !== null)
             ->unique('id')
             ->values();
     @endphp
@@ -147,7 +135,7 @@
             <x-src.toolbar.training-filter :action="request()->url()" :value="$filterValue" />
         </div>
 
-        <div class="flex min-w-max items-center justify-end gap-2">
+        <div class="hidden lg:flex min-w-max items-center justify-end gap-2">
             @if ($indexedCourses->isNotEmpty())
                 @foreach ($indexedCourses as $course)
                     @php
@@ -183,7 +171,8 @@
                         <h3 class="text-lg font-semibold text-slate-900" style="font-family: 'Cinzel', serif;">
                             {{ $ministryName }}
                         </h3>
-                        <span class="inline-flex items-center rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
+                        <span
+                            class="inline-flex items-center rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
                             {{ __('Cursos:') }} {{ $group['courses']->count() }}
                         </span>
                     </div>
@@ -197,11 +186,14 @@
                                 $courseId = $course?->id ?? 'curso';
                             @endphp
 
-                            <div id="course-{{ $courseId }}" class="rounded-xl border border-slate-200/70 bg-white/70 p-3 sm:p-4">
+                            <div id="course-{{ $courseId }}"
+                                class="rounded-xl border border-slate-200/70 bg-white/70 p-3 sm:p-4">
                                 <h4 class="mb-3 flex items-center justify-between gap-1.5 border-b border-slate-200/80 pb-2 text-lg text-slate-900"
                                     style="font-family: 'Cinzel', serif;">
-                                    <span>{{ $courseType }}: <span class="font-semibold">{{ $courseName }}</span></span>
-                                    <span class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
+                                    <span>{{ $courseType }}: <span
+                                            class="font-semibold">{{ $courseName }}</span></span>
+                                    <span
+                                        class="ml-2 inline-flex items-center rounded bg-amber-100 px-2.5 py-0.5 text-xs text-amber-800">
                                         {{ __('Eventos:') }} {{ $courseGroup['items']->count() }}
                                     </span>
                                 </h4>

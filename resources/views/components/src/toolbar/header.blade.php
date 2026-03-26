@@ -271,7 +271,7 @@
 @endphp
 
 <section
-    class="rounded-t-2xl border border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200 px-5 py-2 shadow-sm w-full z-0">
+    class="rounded-2xl lg:rounded-b-none border mb-4 lg:mb-0 border-amber-300/20 bg-linear-to-br from-white via-slate-50 to-slate-200 px-5 py-2 shadow-sm w-full z-0">
     @if ($breadcrumb && $breadcrumbItems !== [])
         <nav class="flex flex-wrap items-center gap-2 text-xs py-2 text-amber-700/50" aria-label="{{ __('Breadcrumb') }}">
             @foreach ($breadcrumbItems as $item)

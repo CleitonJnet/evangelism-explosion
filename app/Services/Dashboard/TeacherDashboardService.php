@@ -156,9 +156,6 @@ class TeacherDashboardService
      */
     private function buildKpis(Collection $trainings, Collection $approachesByTraining, CarbonImmutable $today): array
     {
-        $futureTrainings = $trainings
-            ->filter(fn (Training $training): bool => $this->firstEventDate($training)?->greaterThanOrEqualTo($today) ?? false);
-
         $completedTrainings = $trainings
             ->filter(fn (Training $training): bool => $training->status === TrainingStatus::Completed);
 
@@ -189,10 +186,7 @@ class TeacherDashboardService
 
         return [
             $this->kpi('trainings_in_period', 'Treinamentos no período', $trainings->count(), 'Base filtrada pelo período selecionado'),
-            $this->kpi('future_trainings', 'Treinamentos futuros', $futureTrainings->count(), 'Agenda operacional ainda à frente'),
             $this->kpi('completed_trainings', 'Treinamentos concluídos', $completedTrainings->count(), 'Concluídos dentro da janela'),
-            $this->kpi('registrations', 'Inscritos', $trainings->sum('students_count'), 'Volume total de participantes'),
-            $this->kpi('paid_students', 'Pagantes', $trainings->sum(fn (Training $training): int => $this->financeMetrics->build($training)['paidStudentsCount']), 'Inscrições com pagamento confirmado'),
             $this->kpi('schedule_pendencies', 'Pendências de programação', $pendingProgramming->count(), 'Treinamentos com agenda incompleta ou inconsistente'),
             $this->kpi('church_pendencies', 'Pendências de validação/igreja', $pendingValidation, 'Inscrições com igreja ausente ou em validação'),
             $this->kpi('stp_sessions_planned', 'Sessões STP previstas', $stpPlanned, 'Carga prática planejada'),
