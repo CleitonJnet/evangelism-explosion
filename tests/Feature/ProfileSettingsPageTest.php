@@ -57,6 +57,7 @@ it('allows a director to open the existing profile page for another user', funct
     $response->assertOk();
     $response->assertSee('Perfil do Usuário');
     $response->assertSee('Professor Perfil Existente');
+    $response->assertSee('Professor');
     $response->assertDontSee('profile-delete-account-modal');
     $response->assertDontSee('profile-password-modal');
     $response->assertSee('profile-delete-managed-user');

@@ -118,7 +118,7 @@ new class extends Component {
             <div class="mt-4 grid gap-3">
                 @foreach ($this->roles as $role)
                     <flux:checkbox wire:model.live="selectedRoleIds" value="{{ $role->id }}"
-                        wire:key="role-{{ $role->id }}" :label="$role->name"
+                        wire:key="role-{{ $role->id }}" :label="__($role->name)"
                         :disabled="$selectedUserId === null" />
                 @endforeach
             </div>

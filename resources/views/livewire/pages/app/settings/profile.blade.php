@@ -94,7 +94,7 @@
                                 <span
                                     class="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100"
                                     wire:key="role-pill-{{ $role->id }}">
-                                    {{ $role->name }}
+                                    {{ __($role->name) }}
                                 </span>
                             @endforeach
                         </div>

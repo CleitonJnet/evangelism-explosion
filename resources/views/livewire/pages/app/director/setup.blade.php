@@ -183,7 +183,7 @@ new class extends Component {
                                 <flux:checkbox wire:model.live="selectedRoleIds" value="{{ $role->id }}"
                                     :disabled="$selectedUserId === null" />
                                 <div class="space-y-1">
-                                    <span class="block text-sm font-semibold text-slate-900">{{ $role->name }}</span>
+                                    <span class="block text-sm font-semibold text-slate-900">{{ __($role->name) }}</span>
                                     <span class="block text-xs text-slate-500">
                                         {{ __('Permissão liberada para navegação e uso das rotinas vinculadas a esta função.') }}
                                     </span>

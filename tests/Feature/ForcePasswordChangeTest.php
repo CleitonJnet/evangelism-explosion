@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -36,4 +37,25 @@ it('updates password and releases access after forced password change', function
     $this->actingAs($user)
         ->get(route('app.start'))
         ->assertOk();
+});
+
+it('shows translated role labels on the start screening page', function (): void {
+    $user = User::factory()->create();
+
+    $roles = collect(['Board', 'Director', 'FieldWorker', 'Teacher', 'Facilitator', 'Mentor', 'Student'])
+        ->map(fn (string $name): int => Role::query()->firstOrCreate(['name' => $name])->id)
+        ->all();
+
+    $user->roles()->sync($roles);
+
+    $response = $this->actingAs($user)->get(route('app.start'));
+
+    $response->assertOk();
+    $response->assertSeeText('Membro do Conselho');
+    $response->assertSeeText('Diretor Nacional');
+    $response->assertSeeText('Missionário de Campo');
+    $response->assertSeeText('Professor Certificado');
+    $response->assertSeeText('Professor Local');
+    $response->assertSeeText('Mentor');
+    $response->assertSeeText('Aluno');
 });

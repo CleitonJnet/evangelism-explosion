@@ -89,90 +89,103 @@
 
     <div class="min-h-screen ee-app-bg px-6 py-12">
         <div class="mx-auto flex w-full max-w-6xl flex-col gap-10">
-            <div class="flex flex-col gap-3">
-                @if ($displayName !== '')
-                    <flux:heading size="lg" level="2">
-                        {{ __('Bem-vindo, :name!', ['name' => $displayName]) }}
-                    </flux:heading>
-                @endif
-                <flux:heading size="xl" level="1">{{ __('Escolha como deseja acessar') }}</flux:heading>
-                <flux:text class="max-w-2xl text-base text-[color:var(--ee-app-muted)]">
-                    {{ __('Selecione o perfil que você deseja usar agora. Apenas perfis autorizados ficam liberados.') }}
-                </flux:text>
-            </div>
+            <section
+                class="relative overflow-hidden rounded-3xl bg-sky-950 px-6 py-8 text-slate-100 shadow-xl sm:px-8 lg:px-10 lg:py-10">
+                <div class="pointer-events-none absolute -top-[18%] -bottom-[2%] left-0 z-0">
+                    <img src="{{ asset('images/logo/ee-white.webp') }}" alt=""
+                        class="h-[120%] w-auto max-w-none object-contain opacity-5" aria-hidden="true">
+                </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <flux:button variant="outline" :href="route('web.home')" data-test="back-to-site">
-                    {{ __('Voltar para o site') }}
-                </flux:button>
+                <div class="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="max-w-3xl space-y-4">
+                        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                            {{ __('Plataforma de Gerenciamento Ministerial') }}
+                        </p>
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <flux:button variant="outline" type="submit" data-test="logout">
-                        {{ __('Sair') }}
-                    </flux:button>
-                </form>
-            </div>
+                        <div class="space-y-3">
+                            @if ($displayName !== '')
+                                <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                                    {{ __('Bem-vindo,') }}
+                                    <span
+                                        class="bg-linear-to-r from-[#d7b34d] via-[#f4dd8a] to-[#fff4c2] bg-clip-text text-transparent [text-shadow:0_1px_10px_rgba(244,221,138,0.18)]">
+                                        {{ $displayName }}
+                                    </span>
+                                </h1>
+                            @else
+                                <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                                    {{ __('Bem-vindo à plataforma') }}
+                                </h1>
+                            @endif
+
+                            <p class="max-w-2xl text-base leading-7 text-sky-100/85">
+                                {{ __('Escolha abaixo como deseja acessar o sistema. Apenas funções autorizadas ficam disponíveis para entrar agora.') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex w-full flex-col gap-3 lg:w-auto lg:min-w-56">
+                        <x-src.btn-silver :route="route('web.home')" data-test="back-to-site">
+                            {{ __('Voltar para o site') }}
+                        </x-src.btn-silver>
+
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <x-src.btn-silver type="submit" class="w-full justify-center" data-test="logout">
+                                {{ __('Sair') }}
+                            </x-src.btn-silver>
+                        </form>
+                    </div>
+                </div>
+            </section>
 
             @if (!$hasAnyRole)
                 <flux:callout variant="warning" icon="exclamation-triangle"
                     heading="{{ __('Seu usuario ainda não possui um perfil habilitado.') }}" />
             @endif
 
-            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach ($roles as $role)
                     @php
                         $canAccess = auth()->user()->can($role['gate']);
-                        $isProgression = $role['visibility'] === 'progression';
-                        $shouldShow = $isProgression || $canAccess;
                     @endphp
 
-                    @if (!$shouldShow)
+                    @if (!$canAccess)
                         @continue
                     @endif
 
-                    <div class="flex h-full flex-col gap-6 rounded-2xl border border-[color:var(--ee-app-border)] bg-[color:var(--ee-app-surface)] p-6 shadow-sm backdrop-blur {{ $canAccess ? '' : 'opacity-75' }}"
+                    <a href="{{ route($role['route']) }}"
+                        class="group flex h-full flex-col gap-6 rounded-2xl border border-[color:var(--ee-app-border)] bg-linear-to-br from-[color:var(--ee-app-surface)] via-[color:var(--ee-app-surface)] to-sky-50/70 p-6 shadow-sm backdrop-blur transition duration-200 hover:border-sky-300 hover:from-sky-50 hover:via-white hover:to-amber-50 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-300"
                         data-test="role-card-{{ $role['key'] }}">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex flex-col gap-1">
-                                <flux:heading size="base" level="2">{{ $role['label'] }}</flux:heading>
-                                <flux:text class="text-xs text-[color:var(--ee-app-muted)]">
-                                    {{ $role['description'] }}
-                                </flux:text>
-                            </div>
-                            @can($role['gate'])
-                                <span
-                                    class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-emerald-700">
-                                    {{ __('Acesso liberado') }}
-                                </span>
-                            @else
-                                <span
-                                    class="rounded-full bg-zinc-500/10 px-3 py-1 text-xs text-nowrap font-semibold text-zinc-500">
-                                    {{ __('Sem acesso') }}
-                                </span>
-                            @endcan
-                        </div>
+                        <div class="flex flex-1 flex-col gap-3">
+                            <flux:heading size="lg" level="2"
+                                class="font-extrabold leading-tight text-slate-900 transition-colors group-hover:text-sky-900"
+                                style="font-family: 'Cinzel', serif;">
+                                {{ $role['label'] }}
+                            </flux:heading>
 
-                        <div class="flex items-center {{ $canAccess ? 'justify-end' : 'justify-between' }} gap-4">
-                            <div
-                                class="{{ $canAccess ? 'hidden' : 'flex' }} items-center gap-2 text-xs text-[color:var(--ee-app-muted)]">
-                                <flux:icon.lock-closed variant="outline" class="size-4" />
-                                <span>{{ __('Requer permissao no cadastro') }}</span>
+                            <div class="h-0.75 w-full bg-linear-to-r from-[#f1d57a] via-[#c7a840] to-[#8a7424]">
                             </div>
 
-                            @can($role['gate'])
-                                <flux:button variant="primary" :href="route($role['route'])"
-                                    data-test="role-access-{{ $role['key'] }}">
-                                    {{ __('Acessar') }}
-                                </flux:button>
-                            @else
-                                <flux:button variant="outline" disabled>
-                                    {{ __('Sem acesso') }}
-                                </flux:button>
-                            @endcan
+                            <flux:text class="text-xs text-[color:var(--ee-app-muted)]">
+                                {{ $role['description'] }}
+                            </flux:text>
                         </div>
-                    </div>
+
+                        <div
+                            class="mt-auto flex items-center justify-end gap-4 pt-2 text-sm font-semibold text-sky-800 transition group-hover:text-sky-900">
+                            <span>{{ __('Entrar') }}</span>
+                            <flux:icon.arrow-right variant="mini" class="size-4" />
+                        </div>
+                    </a>
                 @endforeach
+            </div>
+
+            <div class="mt-4">
+                <div class="h-px w-full bg-linear-to-r from-transparent via-amber-400/35 to-transparent"></div>
+                <p class="pt-6 text-center text-xs text-slate-500">
+                    © {{ date('Y') }} — {{ __('Evangelismo Explosivo Internacional no Brasil') }} ::
+                    {{ __('Todos os direitos reservados.') }}
+                </p>
             </div>
 
         </div>
