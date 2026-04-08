@@ -1,61 +1,159 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Tempo de geração: 08/04/2026 às 05:58
+-- Versão do servidor: 5.7.44-48
+-- Versão do PHP: 8.3.26
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-SET FOREIGN_KEY_CHECKS=0;
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
+--
+-- Banco de dados: `eebra780_main`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `cache`
+--
+
+CREATE TABLE `cache` (
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `cache`
+--
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('evangelism-explosion-cache-01949dddcc45488473e81a6696a63fd6', 'i:1;', 1775076960),
+('evangelism-explosion-cache-01949dddcc45488473e81a6696a63fd6:timer', 'i:1775076960;', 1775076960),
 ('evangelism-explosion-cache-02a394fcafdc30ec866335ae86aec46a', 'i:1;', 1773775744),
 ('evangelism-explosion-cache-02a394fcafdc30ec866335ae86aec46a:timer', 'i:1773775744;', 1773775744),
+('evangelism-explosion-cache-05bf3b20207994eee6478f06dd2c0e99', 'i:1;', 1774564253),
+('evangelism-explosion-cache-05bf3b20207994eee6478f06dd2c0e99:timer', 'i:1774564253;', 1774564253),
+('evangelism-explosion-cache-0693f2659498b6edfc958234f5d86f35', 'i:1;', 1774961225),
+('evangelism-explosion-cache-0693f2659498b6edfc958234f5d86f35:timer', 'i:1774961225;', 1774961225),
 ('evangelism-explosion-cache-0a3b6f8baff48e38e470c079062de383', 'i:1;', 1772598097),
 ('evangelism-explosion-cache-0a3b6f8baff48e38e470c079062de383:timer', 'i:1772598097;', 1772598097),
+('evangelism-explosion-cache-0c774d8e1e30b273143a93836f845a4d3f44a60f', 'i:1;', 1774450001),
+('evangelism-explosion-cache-0c774d8e1e30b273143a93836f845a4d3f44a60f:timer', 'i:1774450001;', 1774450001),
 ('evangelism-explosion-cache-0d35ff9464dc30b425dd82ff2c773143', 'i:1;', 1773275775),
 ('evangelism-explosion-cache-0d35ff9464dc30b425dd82ff2c773143:timer', 'i:1773275775;', 1773275775),
+('evangelism-explosion-cache-126d89a0cd44037920bd0a23ce9a57e5', 'i:1;', 1774628905),
+('evangelism-explosion-cache-126d89a0cd44037920bd0a23ce9a57e5:timer', 'i:1774628905;', 1774628905),
+('evangelism-explosion-cache-18e2c3e5617633af48682ac42fae9372', 'i:1;', 1774286383),
+('evangelism-explosion-cache-18e2c3e5617633af48682ac42fae9372:timer', 'i:1774286383;', 1774286383),
 ('evangelism-explosion-cache-1b886aeb2d89f80f0014498175b09cc5', 'i:1;', 1772895925),
 ('evangelism-explosion-cache-1b886aeb2d89f80f0014498175b09cc5:timer', 'i:1772895925;', 1772895925),
-('evangelism-explosion-cache-25293f2761d658cc70c19515861842d712751bdc', 'i:1;', 1773754842),
-('evangelism-explosion-cache-25293f2761d658cc70c19515861842d712751bdc:timer', 'i:1773754842;', 1773754842),
+('evangelism-explosion-cache-1bfa955c782c72fd283b4568c9301090', 'i:1;', 1774694170),
+('evangelism-explosion-cache-1bfa955c782c72fd283b4568c9301090:timer', 'i:1774694170;', 1774694170),
+('evangelism-explosion-cache-1f549e5e0b197446ca61795dddf9d6b8', 'i:1;', 1774567136),
+('evangelism-explosion-cache-1f549e5e0b197446ca61795dddf9d6b8:timer', 'i:1774567136;', 1774567136),
+('evangelism-explosion-cache-22285af2c3ffcf3deb2fdcca728997c7', 'i:1;', 1774320068),
+('evangelism-explosion-cache-22285af2c3ffcf3deb2fdcca728997c7:timer', 'i:1774320068;', 1774320068),
+('evangelism-explosion-cache-25293f2761d658cc70c19515861842d712751bdc', 'i:1;', 1774292774),
+('evangelism-explosion-cache-25293f2761d658cc70c19515861842d712751bdc:timer', 'i:1774292774;', 1774292774),
+('evangelism-explosion-cache-26618b3be833bdec47f89f3d4088d8c8', 'i:1;', 1774618043),
+('evangelism-explosion-cache-26618b3be833bdec47f89f3d4088d8c8:timer', 'i:1774618043;', 1774618043),
 ('evangelism-explosion-cache-286ffe399207d2922a07aa0e2e826816', 'i:1;', 1772643564),
 ('evangelism-explosion-cache-286ffe399207d2922a07aa0e2e826816:timer', 'i:1772643564;', 1772643564),
 ('evangelism-explosion-cache-2a7c78e9c0bb5231ac08cd3ee5ff4f6a', 'i:1;', 1773617368),
 ('evangelism-explosion-cache-2a7c78e9c0bb5231ac08cd3ee5ff4f6a:timer', 'i:1773617368;', 1773617368),
+('evangelism-explosion-cache-2c34a9d359960d26205faf7465a3ad85', 'i:1;', 1775480559),
+('evangelism-explosion-cache-2c34a9d359960d26205faf7465a3ad85:timer', 'i:1775480559;', 1775480559),
+('evangelism-explosion-cache-2d6a8012ed3e22f5a571f1a2cabef97d', 'i:1;', 1774292749),
+('evangelism-explosion-cache-2d6a8012ed3e22f5a571f1a2cabef97d:timer', 'i:1774292749;', 1774292749),
 ('evangelism-explosion-cache-30d992a385605cd0ff9f4c7f5b769794', 'i:1;', 1772628255),
 ('evangelism-explosion-cache-30d992a385605cd0ff9f4c7f5b769794:timer', 'i:1772628255;', 1772628255),
-('evangelism-explosion-cache-356a192b7913b04c54574d18c28d46e6395428ab', 'i:1;', 1773773395),
-('evangelism-explosion-cache-356a192b7913b04c54574d18c28d46e6395428ab:timer', 'i:1773773395;', 1773773395),
+('evangelism-explosion-cache-356a192b7913b04c54574d18c28d46e6395428ab', 'i:1;', 1774449548),
+('evangelism-explosion-cache-356a192b7913b04c54574d18c28d46e6395428ab:timer', 'i:1774449548;', 1774449548),
+('evangelism-explosion-cache-37633ef6c1ec79b08bf2dc729c13f676', 'i:1;', 1774092208),
+('evangelism-explosion-cache-37633ef6c1ec79b08bf2dc729c13f676:timer', 'i:1774092208;', 1774092208),
+('evangelism-explosion-cache-394145d778ef9dd54675fa58555da559', 'i:1;', 1774694426),
+('evangelism-explosion-cache-394145d778ef9dd54675fa58555da559:timer', 'i:1774694426;', 1774694426),
 ('evangelism-explosion-cache-3a11e2686e65ad6282d3638625524dc6', 'i:1;', 1773092736),
 ('evangelism-explosion-cache-3a11e2686e65ad6282d3638625524dc6:timer', 'i:1773092736;', 1773092736),
+('evangelism-explosion-cache-3a634d3f0a1cedfaa4714579e6bd0141', 'i:1;', 1774694444),
+('evangelism-explosion-cache-3a634d3f0a1cedfaa4714579e6bd0141:timer', 'i:1774694444;', 1774694444),
+('evangelism-explosion-cache-3a8ecc58a619e1830b301ffd0001c39f', 'i:1;', 1774719163),
+('evangelism-explosion-cache-3a8ecc58a619e1830b301ffd0001c39f:timer', 'i:1774719163;', 1774719163),
+('evangelism-explosion-cache-3ac3988ba79a98bea9ccb3c38ef31808', 'i:1;', 1774359932),
+('evangelism-explosion-cache-3ac3988ba79a98bea9ccb3c38ef31808:timer', 'i:1774359932;', 1774359932),
+('evangelism-explosion-cache-3d8ff511b2ed54cf68514f858d71d5a3', 'i:1;', 1774466880),
+('evangelism-explosion-cache-3d8ff511b2ed54cf68514f858d71d5a3:timer', 'i:1774466880;', 1774466880),
 ('evangelism-explosion-cache-468cd3cd90cacfb88de026244f4aea90', 'i:1;', 1773361462),
 ('evangelism-explosion-cache-468cd3cd90cacfb88de026244f4aea90:timer', 'i:1773361462;', 1773361462),
+('evangelism-explosion-cache-47bb3bd4af19c5171d56a3c75598669e', 'i:1;', 1774443157),
+('evangelism-explosion-cache-47bb3bd4af19c5171d56a3c75598669e:timer', 'i:1774443157;', 1774443157),
+('evangelism-explosion-cache-4ad80904f16e1886667e93dd57143371', 'i:1;', 1775083449),
+('evangelism-explosion-cache-4ad80904f16e1886667e93dd57143371:timer', 'i:1775083449;', 1775083449),
 ('evangelism-explosion-cache-4fadbd5c7dc753297a65eafc02dedb0c', 'i:1;', 1773188618),
 ('evangelism-explosion-cache-4fadbd5c7dc753297a65eafc02dedb0c:timer', 'i:1773188618;', 1773188618),
+('evangelism-explosion-cache-537cb3a1d22040ef45c1f13a9f1f72f9', 'i:1;', 1774285873),
+('evangelism-explosion-cache-537cb3a1d22040ef45c1f13a9f1f72f9:timer', 'i:1774285873;', 1774285873),
 ('evangelism-explosion-cache-559df48c78f99245e8cab1e29fc028b1', 'i:1;', 1773092859),
 ('evangelism-explosion-cache-559df48c78f99245e8cab1e29fc028b1:timer', 'i:1773092859;', 1773092859),
+('evangelism-explosion-cache-568138fb951d9f68253812af0f47cbacc3a79c42', 'i:1;', 1774449580),
+('evangelism-explosion-cache-568138fb951d9f68253812af0f47cbacc3a79c42:timer', 'i:1774449580;', 1774449580),
+('evangelism-explosion-cache-57abfc67bf2602007de170967d50af22', 'i:1;', 1774466897),
+('evangelism-explosion-cache-57abfc67bf2602007de170967d50af22:timer', 'i:1774466897;', 1774466897),
 ('evangelism-explosion-cache-593aa04e90c18c25280e06ea6fe40449', 'i:1;', 1772687457),
 ('evangelism-explosion-cache-593aa04e90c18c25280e06ea6fe40449:timer', 'i:1772687457;', 1772687457),
 ('evangelism-explosion-cache-59c1c577a1380a9058d9cf86db4e0aea6a314988', 'i:1;', 1773771898),
 ('evangelism-explosion-cache-59c1c577a1380a9058d9cf86db4e0aea6a314988:timer', 'i:1773771898;', 1773771898),
+('evangelism-explosion-cache-5b28b7c17de8022653445ee74fa46fab', 'i:1;', 1774449026),
+('evangelism-explosion-cache-5b28b7c17de8022653445ee74fa46fab:timer', 'i:1774449026;', 1774449026),
 ('evangelism-explosion-cache-5fa11a0b18a0f4f82521b152ea4ff017', 'i:2;', 1773752825),
 ('evangelism-explosion-cache-5fa11a0b18a0f4f82521b152ea4ff017:timer', 'i:1773752825;', 1773752825),
+('evangelism-explosion-cache-60445327250b9dd7b62d13ecbe027d93', 'i:1;', 1774292584),
+('evangelism-explosion-cache-60445327250b9dd7b62d13ecbe027d93:timer', 'i:1774292584;', 1774292584),
 ('evangelism-explosion-cache-62f39db890102e2eaf96847354aebeaa', 'i:1;', 1773951398),
 ('evangelism-explosion-cache-62f39db890102e2eaf96847354aebeaa:timer', 'i:1773951398;', 1773951398),
 ('evangelism-explosion-cache-65a1e407a7386e342bfe107df515b716', 'i:1;', 1773752737),
 ('evangelism-explosion-cache-65a1e407a7386e342bfe107df515b716:timer', 'i:1773752737;', 1773752737),
+('evangelism-explosion-cache-676b095db1d453d12447bd1324b0c25e', 'i:1;', 1774017347),
+('evangelism-explosion-cache-676b095db1d453d12447bd1324b0c25e:timer', 'i:1774017347;', 1774017347),
+('evangelism-explosion-cache-6798bb9351dc90b1a319701e5cf83b3a', 'i:1;', 1774024175),
+('evangelism-explosion-cache-6798bb9351dc90b1a319701e5cf83b3a:timer', 'i:1774024175;', 1774024175),
+('evangelism-explosion-cache-67ce8d0c5e39057e74e18bc7f9f22d0b', 'i:1;', 1774295001),
+('evangelism-explosion-cache-67ce8d0c5e39057e74e18bc7f9f22d0b:timer', 'i:1774295001;', 1774295001),
 ('evangelism-explosion-cache-6c836becbe4af2ae536f1ab24264cca1', 'i:1;', 1772627939),
 ('evangelism-explosion-cache-6c836becbe4af2ae536f1ab24264cca1:timer', 'i:1772627939;', 1772627939),
 ('evangelism-explosion-cache-6e6aee3d35eaf47f34bafd2b3133abf1', 'i:1;', 1772660870),
 ('evangelism-explosion-cache-6e6aee3d35eaf47f34bafd2b3133abf1:timer', 'i:1772660870;', 1772660870),
+('evangelism-explosion-cache-707004ffa0baf2c1e713f0bb17830810', 'i:1;', 1774526055),
+('evangelism-explosion-cache-707004ffa0baf2c1e713f0bb17830810:timer', 'i:1774526055;', 1774526055),
 ('evangelism-explosion-cache-721e8ff8691b0d9068d48726995ccdd6', 'i:1;', 1773462408),
 ('evangelism-explosion-cache-721e8ff8691b0d9068d48726995ccdd6:timer', 'i:1773462408;', 1773462408),
+('evangelism-explosion-cache-75556e37f216eac22635b618cd993e83', 'i:1;', 1774280341),
+('evangelism-explosion-cache-75556e37f216eac22635b618cd993e83:timer', 'i:1774280341;', 1774280341),
+('evangelism-explosion-cache-78176f56847696f0c35d15fd09a19563', 'i:1;', 1774577615),
+('evangelism-explosion-cache-78176f56847696f0c35d15fd09a19563:timer', 'i:1774577615;', 1774577615),
+('evangelism-explosion-cache-793fb87490c33b038af1310868c64bf55928478f', 'i:1;', 1775474168),
+('evangelism-explosion-cache-793fb87490c33b038af1310868c64bf55928478f:timer', 'i:1775474168;', 1775474168),
 ('evangelism-explosion-cache-7b0e39670477cab4515df897e9f3ef6f', 'i:1;', 1773753681),
 ('evangelism-explosion-cache-7b0e39670477cab4515df897e9f3ef6f:timer', 'i:1773753681;', 1773753681),
-('evangelism-explosion-cache-81e760e5918f5b977617f94a4a30b0c6', 'i:1;', 1773772155),
-('evangelism-explosion-cache-81e760e5918f5b977617f94a4a30b0c6:timer', 'i:1773772155;', 1773772155),
+('evangelism-explosion-cache-7ebe5a070379cbdfc1d64672dafc4c01', 'i:1;', 1774367360),
+('evangelism-explosion-cache-7ebe5a070379cbdfc1d64672dafc4c01:timer', 'i:1774367360;', 1774367360),
+('evangelism-explosion-cache-81e760e5918f5b977617f94a4a30b0c6', 'i:1;', 1775061835),
+('evangelism-explosion-cache-81e760e5918f5b977617f94a4a30b0c6:timer', 'i:1775061835;', 1775061835),
+('evangelism-explosion-cache-86d1216cec7f043ee9bfaf3970ebc5f7', 'i:1;', 1775606090),
+('evangelism-explosion-cache-86d1216cec7f043ee9bfaf3970ebc5f7:timer', 'i:1775606090;', 1775606090),
+('evangelism-explosion-cache-888789b8be25dc082d24658e9a7cbe2a', 'i:1;', 1774648574),
+('evangelism-explosion-cache-888789b8be25dc082d24658e9a7cbe2a:timer', 'i:1774648574;', 1774648574),
 ('evangelism-explosion-cache-8d1b2bed129a70787ddf50f4f2a2fd43', 'i:1;', 1773154626),
 ('evangelism-explosion-cache-8d1b2bed129a70787ddf50f4f2a2fd43:timer', 'i:1773154626;', 1773154626),
 ('evangelism-explosion-cache-8d1b67c93c2c85be87188d01b3a8842b', 'i:1;', 1773933201),
@@ -64,32 +162,128 @@ INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('evangelism-explosion-cache-915bc67e674bfd800233401064d56b1f:timer', 'i:1773039935;', 1773039935),
 ('evangelism-explosion-cache-929756618e724e3bd4075bf4486a24ac', 'i:1;', 1773094819),
 ('evangelism-explosion-cache-929756618e724e3bd4075bf4486a24ac:timer', 'i:1773094819;', 1773094819),
+('evangelism-explosion-cache-93302db316ca39c4d8024fbd33974131', 'i:1;', 1774116767),
+('evangelism-explosion-cache-93302db316ca39c4d8024fbd33974131:timer', 'i:1774116767;', 1774116767),
 ('evangelism-explosion-cache-9b23d519000b98e3264b8eb8285df942', 'i:1;', 1773759329),
 ('evangelism-explosion-cache-9b23d519000b98e3264b8eb8285df942:timer', 'i:1773759329;', 1773759329),
 ('evangelism-explosion-cache-9c1112597d59e043620c442b66b1d81a', 'i:1;', 1773755225),
 ('evangelism-explosion-cache-9c1112597d59e043620c442b66b1d81a:timer', 'i:1773755225;', 1773755225),
+('evangelism-explosion-cache-a12985304e249b6e9bfb5611efacdef7', 'i:1;', 1775138511),
+('evangelism-explosion-cache-a12985304e249b6e9bfb5611efacdef7:timer', 'i:1775138511;', 1775138511),
 ('evangelism-explosion-cache-a1a3b4645d983cac3e88eebeb0836150', 'i:1;', 1772859013),
 ('evangelism-explosion-cache-a1a3b4645d983cac3e88eebeb0836150:timer', 'i:1772859013;', 1772859013),
-('evangelism-explosion-cache-abf749051d8b000946c71a2e216e55eeb49cf414', 'i:1;', 1772628131),
-('evangelism-explosion-cache-abf749051d8b000946c71a2e216e55eeb49cf414:timer', 'i:1772628131;', 1772628131),
+('evangelism-explosion-cache-abf749051d8b000946c71a2e216e55eeb49cf414', 'i:2;', 1774366472),
+('evangelism-explosion-cache-abf749051d8b000946c71a2e216e55eeb49cf414:timer', 'i:1774366472;', 1774366472),
+('evangelism-explosion-cache-ac824202fe8557c5a65916b76d100ad8', 'i:1;', 1774278666),
+('evangelism-explosion-cache-ac824202fe8557c5a65916b76d100ad8:timer', 'i:1774278666;', 1774278666),
+('evangelism-explosion-cache-af4f7b6246cbd11c1d9b3074fbbb032b', 'i:2;', 1774463197),
+('evangelism-explosion-cache-af4f7b6246cbd11c1d9b3074fbbb032b:timer', 'i:1774463197;', 1774463197),
+('evangelism-explosion-cache-b6a6de124564ae776d359891a4ff4df5', 'i:1;', 1775482898),
+('evangelism-explosion-cache-b6a6de124564ae776d359891a4ff4df5:timer', 'i:1775482898;', 1775482898),
 ('evangelism-explosion-cache-b796199cc7a927d27251d96bfb6971bd', 'i:1;', 1772687479),
 ('evangelism-explosion-cache-b796199cc7a927d27251d96bfb6971bd:timer', 'i:1772687479;', 1772687479),
+('evangelism-explosion-cache-bcc73823784e79c9ec02a7e239f5ba92', 'i:1;', 1774436971),
+('evangelism-explosion-cache-bcc73823784e79c9ec02a7e239f5ba92:timer', 'i:1774436971;', 1774436971),
+('evangelism-explosion-cache-bdc75b58e01e0d62e6c8bc43ff45c7a5', 'i:1;', 1774888811),
+('evangelism-explosion-cache-bdc75b58e01e0d62e6c8bc43ff45c7a5:timer', 'i:1774888811;', 1774888811),
 ('evangelism-explosion-cache-brasilino@eebrasil.org|2804:3d28:45:1a4e:710f:958c:ee76:74e7', 'i:1;', 1773617368),
 ('evangelism-explosion-cache-brasilino@eebrasil.org|2804:3d28:45:1a4e:710f:958c:ee76:74e7:timer', 'i:1773617368;', 1773617368),
+('evangelism-explosion-cache-brasilino@eebrasil.org|2804:3d28:45:9c53:3c62:90ba:efba:4c66', 'i:1;', 1774466880),
+('evangelism-explosion-cache-brasilino@eebrasil.org|2804:3d28:45:9c53:3c62:90ba:efba:4c66:timer', 'i:1774466880;', 1774466880),
 ('evangelism-explosion-cache-c67e1d8fc4887a7f09bacf051615c98b', 'i:1;', 1772631277),
 ('evangelism-explosion-cache-c67e1d8fc4887a7f09bacf051615c98b:timer', 'i:1772631277;', 1772631277),
 ('evangelism-explosion-cache-da256c1a65d2ed608066986bd442c4fb', 'i:1;', 1773867082),
 ('evangelism-explosion-cache-da256c1a65d2ed608066986bd442c4fb:timer', 'i:1773867082;', 1773867082),
+('evangelism-explosion-cache-da4b9237bacccdf19c0760cab7aec4a8359010b0', 'i:3;', 1775607387),
+('evangelism-explosion-cache-da4b9237bacccdf19c0760cab7aec4a8359010b0:timer', 'i:1775607387;', 1775607387),
 ('evangelism-explosion-cache-dee90341e84ad4de39fb5e2a33e97f7b', 'i:1;', 1773617391),
 ('evangelism-explosion-cache-dee90341e84ad4de39fb5e2a33e97f7b:timer', 'i:1773617391;', 1773617391),
+('evangelism-explosion-cache-df290ed43e67db82c7ea0bb5796bc46d', 'i:1;', 1775605869),
+('evangelism-explosion-cache-df290ed43e67db82c7ea0bb5796bc46d:timer', 'i:1775605869;', 1775605869),
+('evangelism-explosion-cache-e900fc18b8f231c981cad521e4eb03f8', 'i:1;', 1775060381),
+('evangelism-explosion-cache-e900fc18b8f231c981cad521e4eb03f8:timer', 'i:1775060381;', 1775060381),
 ('evangelism-explosion-cache-ebe968dc59d6b70f4cf70c9091f97101', 'i:1;', 1772633038),
 ('evangelism-explosion-cache-ebe968dc59d6b70f4cf70c9091f97101:timer', 'i:1772633038;', 1772633038),
 ('evangelism-explosion-cache-ef8b1fa376838d30a64d2b9fdf7b44af', 'i:1;', 1772903039),
 ('evangelism-explosion-cache-ef8b1fa376838d30a64d2b9fdf7b44af:timer', 'i:1772903039;', 1772903039),
+('evangelism-explosion-cache-f08784ee95018306d6911106e5e17227', 'i:1;', 1775351803),
+('evangelism-explosion-cache-f08784ee95018306d6911106e5e17227:timer', 'i:1775351803;', 1775351803),
 ('evangelism-explosion-cache-fd1bc25816d7c4307043f93d71db4b58', 'i:1;', 1773874874),
 ('evangelism-explosion-cache-fd1bc25816d7c4307043f93d71db4b58:timer', 'i:1773874874;', 1773874874),
 ('evangelism-explosion-cache-filemon@eebrasil.org.br|2804:3d28:45:c2:85c7:eab8:aea3:8291', 'i:1;', 1772628255),
-('evangelism-explosion-cache-filemon@eebrasil.org.br|2804:3d28:45:c2:85c7:eab8:aea3:8291:timer', 'i:1772628255;', 1772628255);
+('evangelism-explosion-cache-filemon@eebrasil.org.br|2804:3d28:45:c2:85c7:eab8:aea3:8291:timer', 'i:1772628255;', 1772628255),
+('evangelism-explosion-cache-jailton@eebrasil.org.br|2804:14d:2a73:51ce:51dd:d7ab:7de8:d76f', 'i:2;', 1774463197),
+('evangelism-explosion-cache-jailton@eebrasil.org.br|2804:14d:2a73:51ce:51dd:d7ab:7de8:d76f:timer', 'i:1774463197;', 1774463197),
+('evangelism-explosion-cache-jailton@eebrasil.org.br|45.173.156.96', 'i:1;', 1774694426),
+('evangelism-explosion-cache-jailton@eebrasil.org.br|45.173.156.96:timer', 'i:1774694426;', 1774694426);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `cache_locks`
+--
+
+CREATE TABLE `cache_locks` (
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `categories`
+--
+
+CREATE TABLE `categories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `category_material`
+--
+
+CREATE TABLE `category_material` (
+  `category_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `material_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `churches`
+--
+
+CREATE TABLE `churches` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pastor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `churches`
+--
 
 INSERT INTO `churches` (`id`, `name`, `pastor`, `email`, `phone`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `contact`, `contact_phone`, `contact_email`, `notes`, `logo`, `created_at`, `updated_at`) VALUES
 (1, 'Primeira Igreja Batista no Ingá', 'Edimar Guimarães Pereira', 'secretaria@pibinga.org.br', '2126211268', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', 'RJ', '24210-445', 'Brasilino Pires', '21978735943', 'secretaria@pibinga.org', NULL, NULL, '2022-06-11 19:55:57', '2023-08-05 18:47:13'),
@@ -442,7 +636,34 @@ INSERT INTO `churches` (`id`, `name`, `pastor`, `email`, `phone`, `street`, `num
 (354, 'Primeira Igreja Batista em Rondonópolis', 'André Moura de Souza Leão', 'andreleao92@hotmail.com', '6699972585', 'Rua Poxoréo', '705', NULL, 'Centro', 'Rondonópolis', 'MT', '78700060', NULL, NULL, NULL, NULL, NULL, '2026-03-17 23:11:51', '2026-03-17 23:11:51'),
 (355, 'Igreja Batista Fonte Viva', 'Pr. Rubens', 'ib.fonteviva.cba@gmail.com', NULL, 'Rua F', 'S/N', NULL, 'Jardim Brasil', 'Cuiabá', 'MT', '78058618', NULL, NULL, NULL, NULL, NULL, '2026-03-17 23:32:10', '2026-03-17 23:32:10'),
 (356, 'Assembleia de Deus Jesus Está no Comando', 'Marcelo Borges', NULL, NULL, 'Av. Lídio Magalhães', '767', NULL, 'Jardim Primavera', 'Rondonópolis', 'MT', '78725339', NULL, NULL, NULL, NULL, NULL, '2026-03-17 23:44:13', '2026-03-17 23:44:13'),
-(357, 'Catedral da Vitória', 'Valdemar Santana', NULL, NULL, 'Av. Presidente Kennedy', '1617', NULL, 'Centro', 'Rondonópolis', 'MT', '78700300', NULL, NULL, NULL, NULL, NULL, '2026-03-17 23:50:24', '2026-03-17 23:50:24');
+(357, 'Catedral da Vitória', 'Valdemar Santana', NULL, NULL, 'Av. Presidente Kennedy', '1617', NULL, 'Centro', 'Rondonópolis', 'MT', '78700300', NULL, NULL, NULL, NULL, NULL, '2026-03-17 23:50:24', '2026-03-17 23:50:24'),
+(358, 'Igreja Bíblica em Campo Grande', 'John Harmon Jr', 'ibcg2025@gmail.com', '67920015761', 'Rua João Maiolino', '64', '', 'Universitário', 'Campo Grande', 'MS', '79063540', 'John Harmon', '67920015761', 'ibcg2025@gmail.com', NULL, NULL, '2026-03-25 18:05:32', '2026-03-25 18:05:32'),
+(359, 'Primeira Igreja Batista em Ibiporã', 'Wallisson William', 'pibiibipora@gmail.com', '4332584153', 'Avenida Engenheiro Francisco Beltrão', '205', NULL, 'Centro', 'Ibiporã', 'PR', '86200000', NULL, NULL, NULL, NULL, NULL, '2026-03-26 03:57:15', '2026-03-26 03:57:15'),
+(360, 'Igreja Presbiteriana do Tarumã', 'Rev. Thiago Mattos de Lara', 'secretaria@iptaruma.org.br', '4132632580', 'Rua Raul Joaquim Quadros Gomes', '420', NULL, 'Tarumã', 'Curitiba', 'PR', '82530290', NULL, NULL, NULL, NULL, NULL, '2026-03-26 00:29:50', '2026-03-26 00:29:50'),
+(361, 'Igreja Batista em Jardim Colonial', 'Pr. Maurício Palma', 'IBJ.Colonial@gmail.com', '(11) 29621113', 'Avenida Francisco Taques', '341', NULL, 'Parque Colonial', 'São Paulo', 'SP', '03968070', NULL, NULL, NULL, NULL, NULL, '2026-03-26 00:29:50', '2026-03-26 00:29:50'),
+(362, 'Igreja de Nova Vida do Estado do Pará', NULL, 'contab_novavidabelem.pa@hotmail.com', '(91) 98166-6868', 'Passarela Eládio Lima, Av. Almirante Barroso', NULL, NULL, 'Marco', 'Belém', 'PA', '66630505', NULL, NULL, NULL, NULL, NULL, '2026-03-26 00:29:50', '2026-03-26 00:29:50'),
+(363, 'Igreja Batista Missionária da Amazônia', 'Flávio Ernesto de Carvalho', NULL, '9132281213', 'Rua Deodoro de Mendonça', '385', NULL, 'São Brás', 'Belém', 'PA', '66090150', NULL, NULL, NULL, NULL, NULL, '2026-03-26 00:29:50', '2026-03-26 00:29:50'),
+(364, 'Igreja Batista Central em Jardim Catarina', 'Francisco Mauro dos Santos', 'ibcjc.sg@gmail.com', '2127247529', 'Rua Diamantes', '260', NULL, 'Jardim Catarina', 'São Gonçalo', 'RJ', '24466260', NULL, NULL, NULL, NULL, NULL, '2026-03-26 00:29:50', '2026-03-26 00:29:50'),
+(365, 'Terceira Igreja Presbiteriana de Bom Jesus do Itabapoana', 'Kayo Rodrigues Ferreira', NULL, '28999085238', 'Homero Vieira Seródio', '86', NULL, 'Pimentel Marques', 'Bom Jesus do Itabapoana', 'RJ', '28360000', NULL, NULL, NULL, NULL, NULL, '2026-03-28 03:43:25', '2026-03-28 03:43:25'),
+(366, 'Segunda Igreja Presbiteriana de Bom Jesus do Itabapoana', 'Enis Lopes do Amaral', NULL, NULL, 'Itaperuna', '171', NULL, 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28360000', NULL, NULL, NULL, NULL, NULL, '2026-03-28 03:49:41', '2026-03-28 03:49:41'),
+(367, 'Igreja Presbiteriana de Rosal', 'Luiz Eduardo', NULL, NULL, 'Dário Chavier de Almeida', '00', NULL, 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28360000', NULL, NULL, NULL, NULL, NULL, '2026-03-28 03:54:22', '2026-03-28 03:54:22'),
+(368, 'Primeira Igreja Batista em Jurujuba', 'Milton Duarte', 'prmiltonduarte@gmail.com', '2127146322', 'Avenida Carlos Ermelindo Marins', '62', '', 'Jurujuba', 'Niterói', 'RJ', '24370195', 'Milton Duarte', '21998284309', 'prmiltonduarte@gmail.com', NULL, NULL, '2026-04-05 00:10:21', '2026-04-05 04:23:36'),
+(369, 'Primeira Igreja Batista no Vale das Pedrinhas', 'Pr. Antônio Carlos Queiroz de Carvalho', 'secretaria@pibdovale.com.br', '2126336082', 'Rua Roque Pereira das Neves', '104', NULL, 'Vale das Pedrinhas', 'Guapimirim', 'RJ', '25940785', NULL, NULL, NULL, NULL, NULL, '2026-04-06 16:42:46', '2026-04-06 16:42:46');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `church_missionary`
+--
+
+CREATE TABLE `church_missionary` (
+  `church_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `church_missionary`
+--
 
 INSERT INTO `church_missionary` (`church_id`, `user_id`) VALUES
 (352, 1),
@@ -454,18 +675,112 @@ INSERT INTO `church_missionary` (`church_id`, `user_id`) VALUES
 (275, 1),
 (342, 1),
 (60, 2),
-(60, 1198);
+(60, 1198),
+(1, 2),
+(358, 800),
+(60, 1);
 
-INSERT INTO `courses` (`id`, `order`, `execution`, `type`, `initials`, `name`, `slogan`, `targetAudience`, `learnMoreLink`, `certificate`, `color`, `description`, `knowhow`, `logo`, `banner`, `price`, `min_stp_sessions`, `created_at`, `updated_at`, `ministry_id`) VALUES
-(1, 1, 0, 'Clínica', 'e²', 'Evangelismo Eficaz', NULL, 'A Clínica de Evangelismo Eficaz é destinada a pastores, líderes e membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://www.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#bda953', 'A Clínica de Evangelismo Explosivo capacita a igreja local a viver o evangelismo como estilo de vida, fortalecendo amizades intencionais, promovendo o evangelismo pessoal, estruturando o discipulado com acompanhamento e conduzindo a um crescimento saudável, no qual cada crente é preparado para testemunhar com fidelidade bíblica e compromisso com a Grande Comissão.', NULL, 'course-logos/e8LcQj85SkarTXY8tpHGRQ4MgfmFVAan2Eq4ss7L.webp', NULL, 180.00, 3, '2026-02-26 09:09:08', '2026-03-12 21:11:34', 1),
-(2, 2, 0, 'Workshop', 'ESM', 'Evangelho Em Sua Mão', 'Fácil de aprender, agradável de compartilhar e quase impossível de esquecer', 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://www.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#2f3192', NULL, NULL, 'course-logos/O1zgRNNOjKJkE7XXUPcolKgCoPFBYmxPnFQtIXvE.webp', 'course-banners/Dh5CpMLFaPSKZ6y9kcPEL2XuL03NOw9sFtBPZijN.webp', 65.00, 0, '2026-02-26 09:09:08', '2026-03-12 21:11:05', 1),
-(3, 2, 1, 'implementation', 'e²', 'Explicar o Evangelho', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#56c6d0', NULL, NULL, 'course-logos/C1VI48lUgx1gMQuBJehzl8WdwricRQAJp9BLKNQ5.webp', NULL, 25.00, 7, '2026-02-26 09:09:08', '2026-03-12 21:11:59', 1),
-(4, 3, 1, 'implementation', 'm²', 'Mentorear para Multiplicar', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#f57314', NULL, NULL, 'course-logos/yBZ2SKGiMOltxkzIbrsAV7aOQkpP0O3p6caSilH2.webp', NULL, 20.00, 7, '2026-02-26 09:09:08', '2026-03-12 21:12:10', 1),
-(5, 4, 1, 'implementation', 'c²', 'Crescer em Cristo', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://eebrasil.org.br/ministry/everyday-evangelism', NULL, '#efce1c', NULL, NULL, 'course-logos/axZ8nX3lXTfQhjUryId9dqdGjZ50D1XcSubrO7ZM.webp', NULL, 5.00, 0, '2026-02-26 09:09:08', '2026-03-12 21:12:26', 1),
-(6, 5, 1, 'implementation', 'r²', 'Responder com a Razão', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#6bb043', NULL, NULL, 'course-logos/4ucKfnby6BYSXlxqoWqrudpTrlzYSoAPFq5tjmpl.webp', NULL, 20.00, 7, '2026-02-26 09:09:08', '2026-03-12 21:12:37', 1),
-(7, 0, 0, 'Workshop', 'EPC', 'Esperança Para Crianças', NULL, 'O Workshop Hope for Kids (EE-Kids) é destinado a professores, líderes de ministério infantil, pais e voluntários que desejam ser capacitados para apresentar o evangelho às crianças de forma bíblica, clara e adequada à sua faixa etária.', 'https://www.eebrasil.org.br/ministry/kids-ee', NULL, '#faa31a', 'O EE-Kids, por meio da ferramenta Esperança Para Crianças, capacita a igreja local a apresentar o evangelho de Cristo às crianças de forma clara, bíblica e apropriada à sua idade, envolvendo família e comunidade no processo. Com metodologia simples e fiel às Escrituras, o ministério forma líderes e voluntários para comunicar a mensagem da salvação, cultivar valores cristãos e estabelecer fundamentos de discipulado desde cedo, cooperando para o crescimento saudável da igreja. Em suma: sem atalhos, sem modismos, o bom e antigo evangelho, semeado nos corações pequenos para frutos eternos.', NULL, 'course-logos/ffxreyvVeL0akbYMZhFfbEG3OWVlHlosLEpLxjgz.webp', NULL, 50.00, 0, '2026-02-26 09:09:08', '2026-03-12 21:13:20', 2),
-(8, 1, 1, 'implementation', 'EPC', 'Esperança Para Crianças', NULL, 'O Workshop Hope for Kids (EE-Kids) é destinado a professores, líderes de ministério infantil, pais e voluntários que desejam ser capacitados para apresentar o evangelho às crianças de forma bíblica, clara e adequada à sua faixa etária.', 'https://beta.eebrasil.org.br/ministry/kids-ee', NULL, '#faa31a', NULL, NULL, 'course-logos/oCgszI7UJN11ANnvGw2CZPgkJKHlSqPbaixF1BHP.webp', NULL, 10.00, 0, '2026-02-26 09:09:08', '2026-03-12 21:13:28', 2),
-(9, 1, 1, 'Implementação', 'ESM', 'O Evangelho em Sua Mão', 'Fácil de aprender, agradável de compartilhar e quase impossível de esquecer ', NULL, NULL, NULL, '#2f3192', NULL, NULL, 'course-logos/Ccwx0dFk0XGK9yWFGUo0cjd3VgvVRoiUItX6uicF.webp', NULL, 25.00, 0, '2026-03-07 10:24:39', '2026-03-12 21:11:50', 1);
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `church_temps`
+--
+
+CREATE TABLE `church_temps` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pastor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `normalized_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resolved_church_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `resolved_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `resolved_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `church_temps`
+--
+
+INSERT INTO `church_temps` (`id`, `name`, `pastor`, `email`, `phone`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `contact`, `contact_phone`, `contact_email`, `notes`, `logo`, `created_at`, `updated_at`, `status`, `normalized_name`, `resolved_church_id`, `resolved_by`, `resolved_at`) VALUES
+(1, 'Primeira Igreja Batista no Vale das Pedrinhas', 'Pr. Antônio Carlos Queiroz de Carvalho', NULL, NULL, 'Rua Roque Pereira das Neves', '104', NULL, 'Vale das Pedrinhas', 'Guapimirim', 'RJ', '25940785', NULL, NULL, NULL, NULL, NULL, '2026-04-06 14:11:13', '2026-04-06 16:42:46', 'approved_new', 'primeira igreja batista no vale das pedrinhas', 369, 1, '2026-04-06 16:42:46');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `courses`
+--
+
+CREATE TABLE `courses` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `order` int(11) DEFAULT NULL,
+  `execution` int(11) DEFAULT '0',
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `initials` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `slogan` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `targetAudience` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `learnMoreLink` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `certificate` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `color` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '#4F4F4F',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `knowhow` text COLLATE utf8mb4_unicode_ci,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `banner` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` decimal(8,2) NOT NULL DEFAULT '0.00',
+  `min_stp_sessions` int(11) NOT NULL DEFAULT '0',
+  `is_accreditable` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `ministry_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `courses`
+--
+
+INSERT INTO `courses` (`id`, `order`, `execution`, `type`, `initials`, `name`, `slogan`, `targetAudience`, `learnMoreLink`, `certificate`, `color`, `description`, `knowhow`, `logo`, `banner`, `price`, `min_stp_sessions`, `is_accreditable`, `created_at`, `updated_at`, `ministry_id`) VALUES
+(1, 1, 0, 'Clínica', 'e²', 'Evangelismo Eficaz', NULL, 'A Clínica de Evangelismo Eficaz é destinada a pastores, líderes e membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://www.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#bda953', 'A Clínica de Evangelismo Explosivo capacita a igreja local a viver o evangelismo como estilo de vida, fortalecendo amizades intencionais, promovendo o evangelismo pessoal, estruturando o discipulado com acompanhamento e conduzindo a um crescimento saudável, no qual cada crente é preparado para testemunhar com fidelidade bíblica e compromisso com a Grande Comissão.', NULL, 'course-logos/e8LcQj85SkarTXY8tpHGRQ4MgfmFVAan2Eq4ss7L.webp', NULL, 180.00, 3, 0, '2026-02-26 09:09:08', '2026-03-12 21:11:34', 1),
+(2, 2, 0, 'Workshop', 'ESM', 'Evangelho Em Sua Mão', 'Fácil de aprender, agradável de compartilhar e quase impossível de esquecer', 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://www.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#2f3192', NULL, NULL, 'course-logos/O1zgRNNOjKJkE7XXUPcolKgCoPFBYmxPnFQtIXvE.webp', 'course-banners/Dh5CpMLFaPSKZ6y9kcPEL2XuL03NOw9sFtBPZijN.webp', 65.00, 0, 0, '2026-02-26 09:09:08', '2026-03-12 21:11:05', 1),
+(3, 2, 1, 'implementation', 'e²', 'Explicar o Evangelho', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#56c6d0', NULL, NULL, 'course-logos/C1VI48lUgx1gMQuBJehzl8WdwricRQAJp9BLKNQ5.webp', NULL, 25.00, 7, 0, '2026-02-26 09:09:08', '2026-03-12 21:11:59', 1),
+(4, 3, 1, 'implementation', 'm²', 'Mentorear para Multiplicar', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#f57314', NULL, NULL, 'course-logos/yBZ2SKGiMOltxkzIbrsAV7aOQkpP0O3p6caSilH2.webp', NULL, 20.00, 7, 0, '2026-02-26 09:09:08', '2026-03-12 21:12:10', 1),
+(5, 4, 1, 'implementation', 'c²', 'Crescer em Cristo', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://eebrasil.org.br/ministry/everyday-evangelism', NULL, '#efce1c', NULL, NULL, 'course-logos/axZ8nX3lXTfQhjUryId9dqdGjZ50D1XcSubrO7ZM.webp', NULL, 5.00, 0, 0, '2026-02-26 09:09:08', '2026-03-12 21:12:26', 1),
+(6, 5, 1, 'implementation', 'r²', 'Responder com a Razão', NULL, 'A Implementação do Evangelismo Eficaz é destinada a membros da igreja local que desejam ser treinados para viver e compartilhar o evangelho de forma bíblica, intencional e multiplicadora no dia a dia.', 'https://beta.eebrasil.org.br/ministry/everyday-evangelism', NULL, '#6bb043', NULL, NULL, 'course-logos/4ucKfnby6BYSXlxqoWqrudpTrlzYSoAPFq5tjmpl.webp', NULL, 20.00, 7, 0, '2026-02-26 09:09:08', '2026-03-12 21:12:37', 1),
+(7, 0, 0, 'Workshop', 'EPC', 'Esperança Para Crianças', NULL, 'O Workshop Hope for Kids (EE-Kids) é destinado a professores, líderes de ministério infantil, pais e voluntários que desejam ser capacitados para apresentar o evangelho às crianças de forma bíblica, clara e adequada à sua faixa etária.', 'https://www.eebrasil.org.br/ministry/kids-ee', NULL, '#faa31a', 'O EE-Kids, por meio da ferramenta Esperança Para Crianças, capacita a igreja local a apresentar o evangelho de Cristo às crianças de forma clara, bíblica e apropriada à sua idade, envolvendo família e comunidade no processo. Com metodologia simples e fiel às Escrituras, o ministério forma líderes e voluntários para comunicar a mensagem da salvação, cultivar valores cristãos e estabelecer fundamentos de discipulado desde cedo, cooperando para o crescimento saudável da igreja. Em suma: sem atalhos, sem modismos, o bom e antigo evangelho, semeado nos corações pequenos para frutos eternos.', NULL, 'course-logos/ffxreyvVeL0akbYMZhFfbEG3OWVlHlosLEpLxjgz.webp', NULL, 50.00, 3, 1, '2026-02-26 09:09:08', '2026-03-23 19:14:43', 2),
+(8, 1, 1, 'implementation', 'EPC', 'Esperança Para Crianças', NULL, 'O Workshop Hope for Kids (EE-Kids) é destinado a professores, líderes de ministério infantil, pais e voluntários que desejam ser capacitados para apresentar o evangelho às crianças de forma bíblica, clara e adequada à sua faixa etária.', 'https://beta.eebrasil.org.br/ministry/kids-ee', NULL, '#faa31a', NULL, NULL, 'course-logos/oCgszI7UJN11ANnvGw2CZPgkJKHlSqPbaixF1BHP.webp', NULL, 10.00, 12, 0, '2026-02-26 09:09:08', '2026-03-23 19:15:00', 2),
+(9, 1, 1, 'Implementação', 'ESM', 'O Evangelho em Sua Mão', 'Fácil de aprender, agradável de compartilhar e quase impossível de esquecer ', NULL, NULL, NULL, '#2f3192', NULL, NULL, 'course-logos/Ccwx0dFk0XGK9yWFGUo0cjd3VgvVRoiUItX6uicF.webp', NULL, 25.00, 0, 0, '2026-03-07 10:24:39', '2026-03-12 21:11:50', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `course_material`
+--
+
+CREATE TABLE `course_material` (
+  `course_id` bigint(20) UNSIGNED NOT NULL,
+  `material_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `course_material`
+--
 
 INSERT INTO `course_material` (`course_id`, `material_id`, `created_at`, `updated_at`) VALUES
 (1, 1, '2026-03-12 06:54:46', '2026-03-12 06:54:46'),
@@ -505,9 +820,42 @@ INSERT INTO `course_material` (`course_id`, `material_id`, `created_at`, `update
 (9, 15, '2026-03-12 07:18:21', '2026-03-12 07:18:21'),
 (9, 18, '2026-03-12 07:31:45', '2026-03-12 07:31:45');
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `course_study_material`
+--
+
+CREATE TABLE `course_study_material` (
+  `course_id` bigint(20) UNSIGNED NOT NULL,
+  `material_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `course_study_material`
+--
+
 INSERT INTO `course_study_material` (`course_id`, `material_id`, `created_at`, `updated_at`) VALUES
 (1, 12, '2026-03-12 07:29:36', '2026-03-12 07:29:36'),
 (2, 14, '2026-03-12 07:49:44', '2026-03-12 07:49:44');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `course_user`
+--
+
+CREATE TABLE `course_user` (
+  `course_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `course_user`
+--
 
 INSERT INTO `course_user` (`course_id`, `user_id`, `status`) VALUES
 (1, 1, 1),
@@ -534,6 +882,26 @@ INSERT INTO `course_user` (`course_id`, `user_id`, `status`) VALUES
 (6, 1529, 1),
 (9, 1529, 1);
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `event_dates`
+--
+
+CREATE TABLE `event_dates` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `date` date NOT NULL,
+  `start_time` time DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `event_dates`
+--
+
 INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`, `created_at`, `updated_at`) VALUES
 (1, 11, '2022-11-19', NULL, NULL, '2022-10-06 17:33:34', '2022-11-19 17:49:53'),
 (2, 12, '2022-09-03', NULL, NULL, '2022-10-06 17:46:10', '2022-10-06 17:46:10'),
@@ -541,7 +909,6 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (4, 14, '2023-02-04', NULL, NULL, '2022-10-07 17:51:15', '2023-09-07 07:32:31'),
 (5, 16, '2022-09-09', NULL, NULL, '2022-10-11 10:13:39', '2022-10-11 10:13:39'),
 (6, 17, '2022-01-29', NULL, NULL, '2022-10-12 14:46:28', '2022-10-12 14:46:28'),
-(7, 18, '2023-03-17', NULL, NULL, '2022-10-21 12:34:36', '2023-05-12 07:07:12'),
 (8, 19, '2022-11-18', NULL, NULL, '2022-11-19 17:47:54', '2022-11-22 06:15:45'),
 (9, 20, '2023-02-25', NULL, NULL, '2023-01-24 03:51:37', '2023-05-04 06:51:19'),
 (10, 21, '2023-04-29', NULL, NULL, '2023-01-24 04:37:22', '2023-06-28 04:23:30'),
@@ -552,17 +919,11 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (17, 28, '2023-03-24', NULL, NULL, '2023-03-11 18:39:02', '2023-03-29 12:50:35'),
 (18, 29, '2023-05-05', NULL, NULL, '2023-03-11 18:43:00', '2023-05-17 08:57:14'),
 (19, 30, '2023-05-19', NULL, NULL, '2023-03-11 18:56:53', '2023-05-31 05:22:47'),
-(20, 31, '2023-04-08', NULL, NULL, '2023-03-14 08:04:14', '2023-05-04 08:03:46'),
 (21, 32, '2023-03-25', NULL, NULL, '2023-03-14 08:09:18', '2023-03-29 06:06:12'),
 (22, 33, '2023-05-19', NULL, NULL, '2023-03-14 08:22:22', '2023-05-30 07:59:15'),
 (23, 34, '2023-05-13', NULL, NULL, '2023-03-24 04:35:15', '2023-05-16 05:07:55'),
 (24, 35, '2023-06-03', NULL, NULL, '2023-03-24 04:57:35', '2023-06-15 03:08:01'),
-(25, 36, '2023-03-26', NULL, NULL, '2023-03-28 16:50:50', '2023-03-28 17:21:30'),
-(26, 37, '2023-03-26', NULL, NULL, '2023-03-28 16:55:05', '2023-03-28 17:23:48'),
 (27, 38, '2023-02-25', NULL, NULL, '2023-03-28 17:12:06', '2023-03-28 17:12:06'),
-(28, 39, '2023-03-17', NULL, NULL, '2023-03-28 17:17:59', '2023-03-28 17:17:59'),
-(29, 40, '2023-03-01', NULL, NULL, '2023-03-29 05:16:28', '2023-03-29 05:16:28'),
-(30, 41, '2023-03-01', NULL, NULL, '2023-03-29 05:17:17', '2023-03-29 05:17:17'),
 (31, 42, '2023-08-17', NULL, NULL, '2023-04-18 14:06:16', '2023-08-01 16:34:28'),
 (32, 44, '2023-05-20', NULL, NULL, '2023-04-19 03:29:38', '2023-05-25 05:04:16'),
 (33, 45, '2022-04-30', NULL, NULL, '2023-05-01 10:38:17', '2023-05-01 10:38:17'),
@@ -614,7 +975,6 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (79, 93, '2020-12-09', NULL, NULL, '2023-05-03 15:36:54', '2023-05-03 15:36:54'),
 (80, 94, '2020-12-15', NULL, NULL, '2023-05-03 15:38:29', '2023-05-03 15:38:29'),
 (81, 95, '2020-12-16', NULL, NULL, '2023-05-03 15:40:04', '2023-05-03 15:40:04'),
-(82, 99, '2023-09-29', NULL, NULL, '2023-05-09 01:05:48', '2023-05-09 01:05:48'),
 (83, 100, '2019-01-29', NULL, NULL, '2023-05-11 07:05:29', '2023-05-11 07:05:29'),
 (84, 101, '2019-02-13', NULL, NULL, '2023-05-11 07:15:26', '2023-05-11 07:15:26'),
 (85, 102, '2019-02-15', NULL, NULL, '2023-05-11 07:27:05', '2023-05-11 07:27:05'),
@@ -695,7 +1055,6 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (160, 181, '2023-08-18', NULL, NULL, '2023-09-08 08:04:22', '2023-09-09 16:18:24'),
 (161, 182, '2023-10-22', NULL, NULL, '2023-09-09 09:48:50', '2023-12-17 13:23:57'),
 (162, 183, '2023-10-14', NULL, NULL, '2023-09-10 11:24:39', '2023-12-19 08:17:35'),
-(163, 185, '2023-11-27', NULL, NULL, '2023-09-10 13:10:28', '2023-11-05 07:42:22'),
 (164, 186, '2023-10-16', NULL, NULL, '2023-09-10 16:16:10', '2023-12-14 08:41:34'),
 (165, 187, '2023-10-26', NULL, NULL, '2023-09-10 16:17:56', '2023-12-14 08:41:20'),
 (166, 188, '2024-08-05', NULL, NULL, '2023-10-21 05:18:32', '2024-08-22 04:43:56'),
@@ -725,15 +1084,11 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (190, 215, '2024-10-18', NULL, NULL, '2024-08-15 13:25:01', '2024-10-23 07:52:04'),
 (191, 216, '2024-10-18', NULL, NULL, '2024-08-15 13:42:03', '2024-10-31 13:30:28'),
 (192, 217, '2024-12-07', NULL, NULL, '2024-08-17 08:26:49', '2024-10-09 12:04:34'),
-(193, 218, '2024-11-30', NULL, NULL, '2024-08-21 11:33:06', '2024-11-29 11:03:44'),
-(194, 219, '2024-11-29', NULL, NULL, '2024-08-21 11:37:39', '2024-11-29 11:02:33'),
 (195, 220, '2024-10-26', NULL, NULL, '2024-08-22 09:23:31', '2024-10-29 12:04:37'),
 (196, 221, '2024-10-04', NULL, NULL, '2024-08-31 11:29:24', '2024-10-31 13:21:19'),
 (197, 222, '2024-10-05', NULL, NULL, '2024-08-31 11:32:35', '2024-10-09 12:06:58'),
 (198, 223, '2024-10-19', NULL, NULL, '2024-09-25 15:01:09', '2024-10-29 14:24:55'),
 (199, 224, '2024-11-09', NULL, NULL, '2024-10-04 13:39:24', '2024-11-14 13:48:36'),
-(200, 225, '2024-10-08', NULL, NULL, '2024-10-09 10:19:23', '2024-10-09 10:19:23'),
-(201, 226, '2024-10-08', NULL, NULL, '2024-10-09 10:19:32', '2024-10-09 10:19:32'),
 (202, 227, '2024-10-08', NULL, NULL, '2024-10-09 10:22:08', '2024-10-09 10:22:08'),
 (203, 228, '2024-10-08', NULL, NULL, '2024-10-09 10:22:12', '2024-10-09 10:22:12'),
 (204, 229, '2024-10-08', NULL, NULL, '2024-10-09 10:22:50', '2024-10-09 10:22:50'),
@@ -813,15 +1168,12 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (280, 314, '2025-11-29', NULL, NULL, '2025-10-14 09:24:27', '2025-11-15 08:05:01'),
 (282, 316, '2026-01-12', NULL, NULL, '2025-11-06 05:58:50', '2026-02-11 13:25:00'),
 (283, 317, '2026-01-12', NULL, NULL, '2025-11-06 06:03:13', '2025-11-06 06:05:37'),
-(284, 318, '2026-02-04', NULL, NULL, '2025-11-06 06:03:14', '2026-02-10 11:40:10'),
 (285, 319, '2025-11-11', NULL, NULL, '2025-11-19 13:49:51', '2025-11-19 13:49:51'),
 (286, 320, '2026-03-06', NULL, NULL, '2025-12-23 09:02:47', '2026-02-21 03:36:01'),
 (287, 321, '2026-05-16', NULL, NULL, '2026-01-24 05:52:08', '2026-01-24 07:44:08'),
 (288, 322, '2026-05-15', NULL, NULL, '2026-01-24 05:55:02', '2026-01-24 07:51:33'),
 (289, 323, '2026-02-28', NULL, NULL, '2026-01-29 13:54:13', '2026-02-11 13:22:50'),
 (291, 325, '2026-02-02', NULL, NULL, '2026-02-10 11:39:11', '2026-02-10 11:39:11'),
-(296, 330, '2026-03-06', NULL, NULL, '2026-02-21 12:23:00', '2026-02-21 12:27:05'),
-(297, 331, '2026-03-06', NULL, NULL, '2026-02-21 12:24:51', '2026-02-21 12:24:51'),
 (298, 328, '2026-04-17', '18:30:00', '21:30:00', '2026-02-26 09:28:00', '2026-02-26 09:28:00'),
 (299, 328, '2026-04-18', '08:30:00', '21:30:00', '2026-02-26 09:28:00', '2026-02-26 09:28:00'),
 (300, 328, '2026-04-19', '08:30:00', '18:00:00', '2026-02-26 09:28:00', '2026-02-26 09:28:00'),
@@ -830,38 +1182,277 @@ INSERT INTO `event_dates` (`id`, `training_id`, `date`, `start_time`, `end_time`
 (303, 310, '2026-10-25', '08:30:00', '18:00:00', '2026-03-02 23:08:28', '2026-03-02 23:08:28'),
 (305, 327, '2026-03-07', '08:30:00', '17:00:00', '2026-03-02 23:32:37', '2026-03-02 23:32:37'),
 (306, 324, '2026-03-14', '08:30:00', '17:00:00', '2026-03-03 02:34:02', '2026-03-03 02:34:02'),
-(307, 326, '2026-04-18', '08:30:00', '17:00:00', '2026-03-03 02:42:04', '2026-03-03 02:42:04'),
 (309, 311, '2026-10-23', '08:30:00', '17:00:00', '2026-03-03 02:52:04', '2026-03-03 02:52:04'),
 (310, 332, '2026-04-17', '18:30:00', '21:30:00', '2026-03-12 03:45:03', '2026-03-12 03:45:03'),
 (311, 332, '2026-04-18', '08:30:00', '11:20:00', '2026-03-12 03:45:03', '2026-03-12 03:45:03'),
 (312, 315, '2026-04-10', '08:30:00', '21:50:00', '2026-03-16 02:30:46', '2026-03-16 02:30:46'),
 (313, 315, '2026-04-11', '07:30:00', '11:50:00', '2026-03-16 02:30:46', '2026-03-16 02:30:46'),
-(314, 333, '2026-03-27', '18:30:00', '21:30:00', '2026-03-17 20:18:29', '2026-03-17 20:38:18'),
-(315, 333, '2026-03-28', '08:30:00', '21:30:00', '2026-03-17 20:18:29', '2026-03-17 20:18:29'),
-(316, 333, '2026-03-29', '08:30:00', '18:00:00', '2026-03-17 20:18:29', '2026-03-17 21:04:43'),
 (317, 334, '2026-03-27', '11:30:00', '21:30:00', '2026-03-17 20:33:22', '2026-03-17 20:33:22'),
-(318, 334, '2026-03-28', '08:30:00', '11:45:00', '2026-03-17 20:33:22', '2026-03-17 20:33:22');
+(318, 334, '2026-03-28', '08:30:00', '11:45:00', '2026-03-17 20:33:22', '2026-03-17 20:33:22'),
+(319, 318, '2026-02-02', '19:00:00', '22:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(320, 318, '2026-02-03', '19:00:00', '22:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(321, 318, '2026-02-04', '19:00:00', '22:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(322, 318, '2026-02-05', '19:00:00', '22:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(323, 318, '2026-02-06', '19:00:00', '22:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(324, 318, '2026-02-07', '09:00:00', '17:00:00', '2026-03-23 18:14:08', '2026-03-23 18:14:08'),
+(325, 335, '2026-05-31', '18:30:00', '21:30:00', '2026-03-25 18:57:53', '2026-03-25 18:57:53'),
+(326, 335, '2026-06-01', '08:30:00', '21:30:00', '2026-03-25 18:57:53', '2026-03-25 18:57:53'),
+(327, 335, '2026-06-02', '08:30:00', '18:00:00', '2026-03-25 18:57:53', '2026-03-25 18:57:53'),
+(328, 333, '2026-03-27', '19:00:00', '22:15:00', '2026-03-28 02:58:32', '2026-03-28 02:58:32'),
+(329, 333, '2026-03-28', '07:30:00', '21:15:00', '2026-03-28 02:58:32', '2026-03-28 03:03:40'),
+(330, 333, '2026-03-29', '07:30:00', '19:00:00', '2026-03-28 02:58:32', '2026-03-28 02:58:32'),
+(331, 336, '2026-06-27', '09:00:00', '17:30:00', '2026-04-05 00:40:33', '2026-04-05 00:40:33');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `failed_jobs`
+--
+
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `helps`
+--
+
+CREATE TABLE `helps` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `fullname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subject` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message` tinytext COLLATE utf8mb4_unicode_ci,
+  `attachment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `host_churches`
+--
+
+CREATE TABLE `host_churches` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `church_id` bigint(20) UNSIGNED NOT NULL,
+  `since_date` date DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `host_church_admins`
+--
+
+CREATE TABLE `host_church_admins` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `host_church_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `certified_at` date DEFAULT NULL,
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `inventories`
+--
+
+CREATE TABLE `inventories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kind` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'teacher',
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `inventories`
+--
 
 INSERT INTO `inventories` (`id`, `name`, `kind`, `phone`, `email`, `user_id`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `notes`, `is_active`, `created_at`, `updated_at`) VALUES
 (1, 'Escritório', 'central', '11976423666', 'eebrasil@eebrasil.org.br', NULL, 'Rua Fábia', '229', 'Cj 01', 'Vila Romana', 'São Paulo', 'SP', '05.051-050', NULL, 1, '2026-03-09 09:57:44', '2026-03-12 06:45:24'),
 (2, 'Niterói - Cleiton dos Santos', 'teacher', '21972765535', 'csilva@eeworks.org', 1, 'Rua Albino Pereira', '35', NULL, 'São Francisco', 'Niterói', 'RJ', '24.365-170', NULL, 1, '2026-03-12 07:38:49', '2026-03-12 07:38:49'),
 (3, 'Niterói - Jailton Barreto', 'teacher', '21 99104-6211', 'jailtonbarreto@eeworks.org', 2, 'Rua Tiradentes', '103', NULL, 'Ingá', 'Niterói', 'RJ', '24.210-510', NULL, 1, '2026-03-12 07:40:32', '2026-03-12 07:40:32'),
-(4, 'Cleverson Rodrigues', 'teacher', '66 9260-3673', 'prcleversonrodrigues@gmail.com', 358, 'Avenida Guarapuava', '1087', NULL, 'Jardim Iguassu II', 'Rondonópolis', 'MT', '78.730-398', NULL, 1, '2026-03-12 07:44:01', '2026-03-12 07:44:01');
+(4, 'Cleverson Rodrigues', 'teacher', '66 9260-3673', 'prcleversonrodrigues@gmail.com', 358, 'Avenida Guarapuava', '1087', NULL, 'Jardim Iguassu II', 'Rondonópolis', 'MT', '78.730-398', NULL, 1, '2026-03-12 07:44:01', '2026-03-12 07:44:01'),
+(5, 'Campo Grande - John Harmon Jr. ', 'teacher', '11961223145', 'jharmon@eeworks.org', 800, 'Rua Pedro de Toledo', '581', 'Casa 4', 'Vila Piratininga', 'Campo Grande', 'MS', '79.081-030', NULL, 1, '2026-03-25 18:20:08', '2026-03-25 18:20:08');
 
-INSERT INTO `inventory_material` (`material_id`, `inventory_id`, `received_items`, `current_quantity`, `lost_items`) VALUES
-(8, 1, 500, 500, 0),
-(11, 1, 500, 500, 0),
-(6, 1, 500, 500, 0),
-(7, 1, 500, 500, 0),
-(9, 1, 500, 500, 0),
-(4, 1, 500, 500, 0),
-(1, 1, 500, 500, 0),
-(2, 1, 500, 500, 0),
-(3, 1, 500, 500, 0),
-(5, 1, 500, 500, 0),
-(10, 1, 500, 500, 0),
-(15, 1, 1000, 1000, 0),
-(18, 1, 1000, 1000, 0);
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `inventory_material`
+--
+
+CREATE TABLE `inventory_material` (
+  `material_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `inventory_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `received_items` int(11) NOT NULL DEFAULT '0',
+  `current_quantity` int(11) NOT NULL DEFAULT '0',
+  `lost_items` int(11) NOT NULL DEFAULT '0',
+  `minimum_stock` int(10) UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `inventory_material`
+--
+
+INSERT INTO `inventory_material` (`material_id`, `inventory_id`, `received_items`, `current_quantity`, `lost_items`, `minimum_stock`) VALUES
+(8, 1, 1100, 800, 0, 0),
+(11, 1, 500, 500, 0, 0),
+(6, 1, 500, 500, 0, 0),
+(7, 1, 500, 500, 0, 0),
+(9, 1, 500, 500, 0, 0),
+(4, 1, 500, 500, 0, 0),
+(1, 1, 500, 500, 0, 0),
+(2, 1, 500, 0, 0, 0),
+(3, 1, 500, 500, 0, 0),
+(5, 1, 500, 500, 0, 0),
+(10, 1, 500, 500, 0, 0),
+(15, 1, 1000, 1000, 0, 0),
+(18, 1, 1000, 1000, 0, 0),
+(8, 2, 300, 300, 0, 10),
+(18, 2, 1200, 1200, 0, 10),
+(11, 2, 1000, 1000, 0, 10),
+(6, 2, 3360, 3310, 0, 10),
+(7, 2, 89, 89, 0, 10),
+(9, 2, 16, 17, 0, 10),
+(4, 2, 580, 580, 0, 10),
+(1, 2, 216, 166, 0, 10),
+(2, 2, 158, 158, 0, 10),
+(3, 2, 27, 27, 0, 10),
+(5, 2, 114, 292, 0, 10),
+(10, 2, 115, 115, 0, 10),
+(15, 2, 450, 400, 0, 10),
+(8, 3, 65, 55, 0, 10),
+(18, 3, 300, 280, 0, 20),
+(11, 3, 150, 150, 0, 50),
+(6, 3, 3755, 3585, 0, 50),
+(7, 3, 435, 425, 0, 50),
+(4, 3, 105, 95, 0, 10),
+(1, 3, 65, 45, 0, 50),
+(2, 3, 30, 20, 0, 10),
+(3, 3, 17, 7, 0, 10),
+(5, 3, 373, 363, 0, 10),
+(15, 3, 378, 328, 0, 50),
+(6, 4, 0, 0, 0, 0),
+(1, 4, 0, 0, 0, 0),
+(15, 4, 0, 0, 0, 0),
+(8, 5, 0, 0, 0, 10),
+(18, 5, 0, 0, 0, 10),
+(11, 5, 0, 0, 0, 10),
+(6, 5, 0, 0, 0, 10),
+(7, 5, 0, 0, 0, 10),
+(9, 5, 0, 0, 0, 10),
+(4, 5, 0, 0, 0, 10),
+(1, 5, 200, 200, 0, 10),
+(2, 5, 0, 0, 0, 10),
+(3, 5, 0, 0, 0, 10),
+(15, 5, 0, 0, 0, 10),
+(10, 5, 0, 0, 0, 10),
+(5, 5, 0, 0, 0, 10);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `jobs`
+--
+
+CREATE TABLE `jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint(3) UNSIGNED NOT NULL,
+  `reserved_at` int(10) UNSIGNED DEFAULT NULL,
+  `available_at` int(10) UNSIGNED NOT NULL,
+  `created_at` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `job_batches`
+--
+
+CREATE TABLE `job_batches` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_jobs` int(11) NOT NULL,
+  `pending_jobs` int(11) NOT NULL,
+  `failed_jobs` int(11) NOT NULL,
+  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `options` mediumtext COLLATE utf8mb4_unicode_ci,
+  `cancelled_at` int(11) DEFAULT NULL,
+  `created_at` int(11) NOT NULL,
+  `finished_at` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `lessonplans`
+--
+
+CREATE TABLE `lessonplans` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `section_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `course_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `day` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `time_start` time DEFAULT NULL,
+  `time_end` time DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `materials`
+--
+
+CREATE TABLE `materials` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'simple',
+  `price` decimal(8,2) NOT NULL DEFAULT '0.00',
+  `minimum_stock` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `materials`
+--
 
 INSERT INTO `materials` (`id`, `photo`, `name`, `type`, `price`, `minimum_stock`, `status`, `is_active`, `description`, `created_at`, `updated_at`) VALUES
 (1, 'material-photos/VFekPdLyodgKYADhz1rSpDRrv0vqFBOrTcLDR3hI.png', 'Manual do Aluno - Evangelho Em Sua Mão', 'simple', 20.00, 1000, 'active', 1, NULL, '2026-03-12 06:52:38', '2026-03-12 17:17:14'),
@@ -882,25 +1473,129 @@ INSERT INTO `materials` (`id`, `photo`, `name`, `type`, `price`, `minimum_stock`
 (17, 'material-photos/OHLUjquAfD2gBQzdBwlxZ8e1VXKxbmKKfiAO7dAD.jpg', 'Kit de Discipulado - Crescer em Cristo (100 revistas do c²)', 'composite', 400.00, 100, 'active', 1, NULL, '2026-03-12 07:23:17', '2026-03-12 17:19:06'),
 (18, NULL, 'Convite - Companheiros em Oração', 'simple', 1.00, 1000, 'active', 1, NULL, '2026-03-12 07:31:45', '2026-03-12 07:31:45');
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `material_components`
+--
+
+CREATE TABLE `material_components` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `parent_material_id` bigint(20) UNSIGNED NOT NULL,
+  `component_material_id` bigint(20) UNSIGNED NOT NULL,
+  `quantity` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `material_components`
+--
+
 INSERT INTO `material_components` (`id`, `parent_material_id`, `component_material_id`, `quantity`, `created_at`, `updated_at`) VALUES
-(1, 12, 8, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(2, 12, 6, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(3, 12, 7, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(4, 12, 4, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(5, 12, 1, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(6, 12, 2, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(7, 12, 3, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
-(8, 12, 5, 1, '2026-03-12 07:14:09', '2026-03-12 07:32:27'),
+(1, 12, 8, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(2, 12, 6, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(3, 12, 7, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(4, 12, 4, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(5, 12, 1, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(6, 12, 2, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(7, 12, 3, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
+(8, 12, 5, 1, '2026-03-12 07:14:09', '2026-03-21 17:01:55'),
 (9, 14, 1, 1, '2026-03-12 07:17:43', '2026-03-12 07:18:37'),
 (10, 14, 6, 1, '2026-03-12 07:17:43', '2026-03-12 07:18:37'),
 (11, 14, 15, 1, '2026-03-12 07:18:37', '2026-03-12 07:18:37'),
 (12, 16, 4, 10, '2026-03-12 07:21:33', '2026-03-12 07:21:33'),
 (13, 17, 4, 100, '2026-03-12 07:23:17', '2026-03-12 07:23:17'),
-(14, 12, 18, 2, '2026-03-12 07:31:57', '2026-03-12 07:32:27');
+(14, 12, 18, 2, '2026-03-12 07:31:57', '2026-03-21 17:01:55'),
+(15, 12, 15, 1, '2026-03-21 17:01:46', '2026-03-21 17:01:55');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `material_shipping`
+--
+
+CREATE TABLE `material_shipping` (
+  `material_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `shipping_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `material_suppliers`
+--
+
+CREATE TABLE `material_suppliers` (
+  `material_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `supplier_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `media`
+--
+
+CREATE TABLE `media` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `extension` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `path_original` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `path_thumbnail` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `path_optimized` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `mentors`
+--
+
+CREATE TABLE `mentors` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `created_by` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `mentors`
+--
 
 INSERT INTO `mentors` (`id`, `training_id`, `user_id`, `created_by`, `created_at`, `updated_at`) VALUES
 (1, 328, 1, 1, '2026-03-07 11:05:22', '2026-03-07 11:05:22'),
-(2, 328, 1198, 1, '2026-03-17 21:12:00', '2026-03-17 21:12:00');
+(2, 328, 1198, 1, '2026-03-17 21:12:00', '2026-03-17 21:12:00'),
+(3, 333, 1, 1, '2026-03-24 00:42:55', '2026-03-24 00:42:55'),
+(4, 333, 2, 1, '2026-03-24 00:43:02', '2026-03-24 00:43:02'),
+(5, 333, 1198, 1, '2026-03-24 00:43:11', '2026-03-24 00:43:11'),
+(6, 318, 2, 1, '2026-03-26 05:59:44', '2026-03-26 05:59:44'),
+(7, 318, 1198, 1, '2026-03-26 05:59:53', '2026-03-26 05:59:53'),
+(8, 318, 358, 1, '2026-03-26 06:00:03', '2026-03-26 06:00:03'),
+(9, 318, 737, 1, '2026-03-26 06:00:57', '2026-03-26 06:00:57'),
+(10, 318, 731, 1, '2026-03-26 06:01:15', '2026-03-26 06:01:15'),
+(11, 318, 1, 1, '2026-03-26 06:52:07', '2026-03-26 06:52:07');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `migrations`
+--
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '0001_01_01_000001_create_cache_table', 1),
@@ -1009,12 +1704,80 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (307, '2026_02_23_152010_create_training_finance_audits_table', 1),
 (308, '2026_02_25_172037_add_leader_to_trainings_table', 1);
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `ministries`
+--
+
+CREATE TABLE `ministries` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `initials` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `color` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '#4F4F4F',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `ministries`
+--
+
 INSERT INTO `ministries` (`id`, `initials`, `name`, `logo`, `color`, `description`, `created_at`, `updated_at`) VALUES
 (1, 'e²', 'Evangelismo Eficaz', 'ministry-logos/MqXw0TEv0kyMNrfPxQrRI4lNmvtvaoXmXkZVDHxd.webp', '#c9b457', 'O Ministério Evangelismo Eficaz tem como propósito capacitar cristãos a compartilhar o evangelho de Jesus Cristo de forma clara, bíblica e intencional no dia a dia. Por meio de treinamentos práticos e fundamentados nas Escrituras, o ministério promove uma vida de testemunho fiel, preparando a igreja para cumprir a Grande Comissão com convicção, amor e simplicidade.', '2026-02-26 09:09:08', '2026-03-12 21:11:17'),
 (2, 'ee-kids', 'EE-Kids', 'ministry-logos/LLsTeLvYWF8fNriiFhoVijsQQzFvdZN0hsFeEJea.webp', '#faa31a', 'O EE-Kids é o ministério voltado à evangelização de crianças, ensinando desde cedo as verdades fundamentais do evangelho de forma didática, bíblica e adequada à faixa etária. Seu objetivo é auxiliar pais, educadores e igrejas na formação espiritual das crianças, cultivando uma fé sólida e um coração disposto a conhecer e seguir a Cristo.', '2026-02-26 09:09:08', '2026-03-12 21:13:11');
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `password_reset_tokens`
+--
+
 INSERT INTO `password_reset_tokens` (`email`, `token`, `created_at`) VALUES
 ('pr.filemon@hotmail.com', '$2y$12$kEnXW45dZePPN2Qtsihf1udGR8ZLYRGHbuw2O.I/ick3LsgtsmusC', '2026-03-17 20:21:44');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `receipts`
+--
+
+CREATE TABLE `receipts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `roles`
+--
 
 INSERT INTO `roles` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (1, 'Board', '2026-02-26 09:09:08', '2026-02-26 09:09:08'),
@@ -1024,6 +1787,22 @@ INSERT INTO `roles` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (5, 'Facilitator', '2026-02-26 09:09:08', '2026-02-26 09:09:08'),
 (6, 'Mentor', '2026-02-26 09:09:08', '2026-02-26 09:09:08'),
 (7, 'Student', '2026-02-26 09:09:08', '2026-02-26 09:09:08');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `role_user`
+--
+
+CREATE TABLE `role_user` (
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `role_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `status` tinyint(3) UNSIGNED DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `role_user`
+--
 
 INSERT INTO `role_user` (`user_id`, `role_id`, `status`) VALUES
 (1, 1, 1),
@@ -1054,7 +1833,6 @@ INSERT INTO `role_user` (`user_id`, `role_id`, `status`) VALUES
 (1530, 7, 1),
 (26, 1, 1),
 (1531, 7, 1),
-(1532, 7, 1),
 (1198, 6, 1),
 (1534, 7, 1),
 (1535, 7, 1),
@@ -1090,7 +1868,100 @@ INSERT INTO `role_user` (`user_id`, `role_id`, `status`) VALUES
 (1564, 7, 1),
 (1565, 7, 1),
 (1566, 7, 1),
-(1567, 7, 1);
+(1567, 7, 1),
+(2, 2, 1),
+(1568, 7, 1),
+(1569, 7, 1),
+(1570, 7, 1),
+(1571, 7, 1),
+(1572, 7, 1),
+(1573, 7, 1),
+(1574, 7, 1),
+(1575, 7, 1),
+(1576, 7, 1),
+(1577, 7, 1),
+(1578, 7, 1),
+(1579, 7, 1),
+(1580, 7, 1),
+(1581, 7, 1),
+(1582, 7, 1),
+(1583, 7, 1),
+(1584, 7, 1),
+(1585, 7, 1),
+(1586, 7, 1),
+(1587, 7, 1),
+(1588, 7, 1),
+(1589, 7, 1),
+(1590, 7, 1),
+(1591, 7, 1),
+(1592, 7, 1),
+(1593, 7, 1),
+(1594, 7, 1),
+(1595, 7, 1),
+(1596, 7, 1),
+(1597, 7, 1),
+(2, 6, 1),
+(1598, 7, 1),
+(1599, 7, 1),
+(1600, 7, 1),
+(1601, 7, 1),
+(1603, 7, 1),
+(1605, 7, 1),
+(1606, 7, 1),
+(1607, 7, 1),
+(1608, 7, 1),
+(1609, 7, 1),
+(1610, 7, 1),
+(358, 6, 1),
+(737, 6, 1),
+(731, 6, 1),
+(1611, 7, 1),
+(1604, 7, 1),
+(1612, 7, 1),
+(1613, 7, 1),
+(1614, 7, 1),
+(1615, 7, 1),
+(1616, 7, 1),
+(1617, 7, 1),
+(1618, 7, 1),
+(1619, 7, 1),
+(1620, 7, 1),
+(1621, 7, 1),
+(1622, 7, 1),
+(1623, 7, 1),
+(1624, 7, 1),
+(1625, 7, 1),
+(1626, 7, 1),
+(1627, 7, 1),
+(1628, 7, 1),
+(1629, 7, 1),
+(1630, 7, 1),
+(1631, 7, 1),
+(1632, 7, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `sections`
+--
+
+CREATE TABLE `sections` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `banner` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `order` int(11) DEFAULT NULL,
+  `duration` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `devotional` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `knowhow` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `course_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `sections`
+--
 
 INSERT INTO `sections` (`id`, `name`, `banner`, `order`, `duration`, `devotional`, `description`, `knowhow`, `created_at`, `updated_at`, `course_id`) VALUES
 (1, 'Por Que Estamos Aqui? Por que é tão difícil compartilhar nossa fé com os outros?', 'section-banners/UXkKKSysePa5jQefI9CBabbTY6UWmwXFeWiAoUhf.png', 1, '35', NULL, 'Esta unidade estabelece o propósito do workshop: recuperar o senso de chamado para compartilhar a fé e formar discípulos, não apenas convertidos. Trabalha motivações, expectativas e fundamentos bíblicos para que o evangelismo volte a ser um estilo de vida, como na igreja primitiva.', NULL, NULL, '2026-03-08 00:24:10', 1),
@@ -1199,6 +2070,25 @@ INSERT INTO `sections` (`id`, `name`, `banner`, `order`, `duration`, `devotional
 (104, 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 'section-banners/LK3SHXCsperNTughlMMnc3VbqxyEbRSnS9tIX8Zx.png', 8, '20', NULL, 'Apresenta princípios para estruturar um ministério permanente de evangelismo e discipulado na igreja local, integrando treinamento, prática e acompanhamento espiritual.', NULL, '2026-03-07 22:42:31', '2026-03-07 22:42:31', 9),
 (105, 'Encerramento: Juntos na Colheita do Senhor', 'section-banners/KcTHBs5GLCIqC7UXSo6QBpwvTDbP91G8IFVnwAP1.png', 9, '30', NULL, 'Sessão final que reforça o compromisso com a missão, chamando os participantes a permanecerem ativos na colheita espiritual, unidos em oração, ação e visão de multiplicação.', NULL, '2026-03-07 22:43:12', '2026-03-07 22:43:12', 9);
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `sessions`
+--
+
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
 ('AxahsLni6fchPzoH9aScwm6mIBSLtyj7IMtlXbyU', NULL, '46.246.126.191', 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2956.83 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidnVVaTBZSFg4dUpmMHE1d09YTUlFR3YzbzM0ajhiQnFFaUNXemNGdCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjk6Imh0dHBzOi8vZWVicmFzaWwub3JnLmJyL2xvZ2luIjtzOjU6InJvdXRlIjtzOjU6ImxvZ2luIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1772853136),
 ('eClZOgakl7SwfX3r2RYXJqrCfuHFsLq1ggcTYX85', NULL, '178.156.190.34', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoibTRhcnhlYm9ZUkhhRmFJTXB5WFNta3RmRmNHSlY5QjNiZHRjZTBMZSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjM6Imh0dHBzOi8vZWVicmFzaWwub3JnLmJyIjtzOjU6InJvdXRlIjtzOjg6IndlYi5ob21lIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1772850402),
@@ -1206,6 +2096,56 @@ INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, 
 ('MQmYt4cwLBBbTDOzjKjzYEPGJq13RQcJu5unxSug', 1, '2804:3d28:45:be14:55ce:8b:f640:626e', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiMUdVbkRwaVpFcm9yTnB6OXJ5OHR1Z294RG9rd0VRYUZWbjFlNlhRayI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHBzOi8vd3d3LmVlYnJhc2lsLm9yZy5iciI7czo1OiJyb3V0ZSI7czo4OiJ3ZWIuaG9tZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo3OiJ0b29sYmFyIjthOjI6e3M6MTU6Imxhc3Rfcm91dGVfbmFtZSI7czoyNzoiYXBwLmRpcmVjdG9yLm1pbmlzdHJ5LmluZGV4IjtzOjg6Imxhc3RfdXJsIjtzOjQ1OiJodHRwczovL3d3dy5lZWJyYXNpbC5vcmcuYnIvZGlyZWN0b3IvbWluaXN0cnkiO319', 1772855845),
 ('XrdGrKl1Aww41Spc9iD4d0zuxacLzgTLOKuhPQv2', NULL, '31.220.98.151', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiNFJLb1Zxa2pSVmpJaFJVVkducTdqVlhPNE1YWm1MUzl6UXpka3lMWSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjM6Imh0dHBzOi8vZWVicmFzaWwub3JnLmJyIjtzOjU6InJvdXRlIjtzOjg6IndlYi5ob21lIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1772854041),
 ('ZfkJR8iJcbNEkyQQvpaR1C1SiHJ7ADGaMbByG7Wg', NULL, '46.246.126.191', 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2833.52 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTGNtTFBpYnV1T3dDMENNM2hoa1BpTnhHTW9EVEVxb3kxQUpNZVJqYyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjk6Imh0dHBzOi8vZWVicmFzaWwub3JnLmJyL2xvZ2luIjtzOjU6InJvdXRlIjtzOjU6ImxvZ2luIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1772849239);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `shippings`
+--
+
+CREATE TABLE `shippings` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `stock_movements`
+--
+
+CREATE TABLE `stock_movements` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `inventory_id` bigint(20) UNSIGNED NOT NULL,
+  `material_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `training_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `movement_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `quantity` int(10) UNSIGNED NOT NULL,
+  `balance_after` int(11) DEFAULT NULL,
+  `batch_uuid` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `reference_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `stock_movements`
+--
 
 INSERT INTO `stock_movements` (`id`, `inventory_id`, `material_id`, `user_id`, `training_id`, `movement_type`, `quantity`, `balance_after`, `batch_uuid`, `notes`, `reference_type`, `reference_id`, `created_at`, `updated_at`) VALUES
 (1, 1, 8, 1, NULL, 'entry', 500, 500, 'bd171987-a52d-4538-8bbe-9ca6b874795b', NULL, NULL, NULL, '2026-03-12 07:10:46', '2026-03-12 07:10:46'),
@@ -1220,19 +2160,297 @@ INSERT INTO `stock_movements` (`id`, `inventory_id`, `material_id`, `user_id`, `
 (10, 1, 5, 1, NULL, 'entry', 500, 500, '4ff2dfd4-da8c-492e-baac-8f6aa7e123b6', NULL, NULL, NULL, '2026-03-12 07:11:41', '2026-03-12 07:11:41'),
 (11, 1, 10, 1, NULL, 'entry', 500, 500, '8f0913e8-8655-47bf-987d-fba08a2a7764', NULL, NULL, NULL, '2026-03-12 07:11:52', '2026-03-12 07:11:52'),
 (12, 1, 15, 1, NULL, 'entry', 1000, 1000, 'dc122859-8ca9-492e-a4c9-71afefd37823', NULL, NULL, NULL, '2026-03-12 07:19:13', '2026-03-12 07:19:13'),
-(13, 1, 18, 1, NULL, 'entry', 1000, 1000, 'a7ac2be6-3a73-488f-8e04-b75fdedbeb08', NULL, NULL, NULL, '2026-03-12 07:37:11', '2026-03-12 07:37:11');
+(13, 1, 18, 1, NULL, 'entry', 1000, 1000, 'a7ac2be6-3a73-488f-8e04-b75fdedbeb08', NULL, NULL, NULL, '2026-03-12 07:37:11', '2026-03-12 07:37:11'),
+(14, 2, 2, 1, NULL, 'entry', 158, 158, '5172d00b-d372-485f-8adb-e333c9ed982b', NULL, NULL, NULL, '2026-03-21 06:05:24', '2026-03-21 06:05:24'),
+(15, 2, 3, 1, NULL, 'entry', 27, 27, 'cd9bd207-a461-4cf8-9d8a-153eca9d3580', NULL, NULL, NULL, '2026-03-21 06:07:19', '2026-03-21 06:07:19'),
+(16, 2, 1, 1, NULL, 'entry', 216, 216, '8449a71c-fbae-48d9-9691-8a6541f63dee', NULL, NULL, NULL, '2026-03-21 06:09:08', '2026-03-21 06:09:08'),
+(17, 2, 5, 1, NULL, 'entry', 114, 114, '369a0830-e691-45f1-ad3a-33f1e1428260', NULL, NULL, NULL, '2026-03-21 06:13:16', '2026-03-21 06:13:16'),
+(18, 2, 15, 1, NULL, 'entry', 450, 450, '86e0abdb-976f-4013-83bd-53abf29c5a9e', NULL, NULL, NULL, '2026-03-21 06:25:52', '2026-03-21 06:25:52'),
+(19, 2, 5, 1, NULL, 'adjustment', 178, 292, '69876327-a0bd-49e2-86d3-ccf065ca58b8', NULL, NULL, NULL, '2026-03-21 06:32:27', '2026-03-21 06:32:27'),
+(20, 2, 7, 1, NULL, 'entry', 89, 89, 'ed31f5eb-498a-4519-8cee-9bb8923ceec7', NULL, NULL, NULL, '2026-03-21 16:42:10', '2026-03-21 16:42:10'),
+(21, 3, 8, 2, NULL, 'entry', 65, 65, '2f0b9fe8-e44b-4746-9001-2defaea68198', NULL, NULL, NULL, '2026-03-21 23:46:50', '2026-03-21 23:46:50'),
+(22, 3, 15, 2, NULL, 'entry', 378, 378, '062e7deb-4b54-46fe-92fc-4f6347d21bea', NULL, NULL, NULL, '2026-03-21 23:47:45', '2026-03-21 23:47:45'),
+(23, 3, 5, 2, NULL, 'entry', 373, 373, '0a465328-8494-4c78-825f-b94bdd92f223', NULL, NULL, NULL, '2026-03-21 23:48:44', '2026-03-21 23:48:44'),
+(24, 3, 3, 2, NULL, 'entry', 17, 17, 'e7f12828-9503-4a1d-9f6d-518415662bc0', NULL, NULL, NULL, '2026-03-21 23:49:14', '2026-03-21 23:49:14'),
+(25, 3, 2, 2, NULL, 'entry', 30, 30, 'f3108f57-51dc-4b34-a64c-1079cd6552b0', NULL, NULL, NULL, '2026-03-21 23:49:52', '2026-03-21 23:49:52'),
+(26, 3, 1, 2, NULL, 'entry', 65, 65, '629e40bd-da41-4685-8ecf-c0f021630760', NULL, NULL, NULL, '2026-03-21 23:50:50', '2026-03-21 23:50:50'),
+(27, 3, 4, 2, NULL, 'entry', 105, 105, '78965b04-3f39-461c-9f83-f0c12be1405d', NULL, NULL, NULL, '2026-03-21 23:51:29', '2026-03-21 23:51:29'),
+(28, 3, 7, 2, NULL, 'entry', 435, 435, '820493ec-a876-405c-9f46-1d5c0985a277', NULL, NULL, NULL, '2026-03-21 23:52:47', '2026-03-21 23:52:47'),
+(29, 2, 6, 1, NULL, 'entry', 3360, 3360, 'ae55890d-2aaa-4652-8635-702bd03ae7aa', NULL, NULL, NULL, '2026-03-21 23:53:33', '2026-03-21 23:53:33'),
+(30, 3, 6, 2, NULL, 'entry', 3755, 3755, 'b2aa8e93-7188-424a-b5a0-16f9c779e646', NULL, NULL, NULL, '2026-03-21 23:54:07', '2026-03-21 23:54:07'),
+(31, 3, 11, 2, NULL, 'entry', 150, 150, '37945204-5a01-4b6f-957d-fcdedd27411c', NULL, NULL, NULL, '2026-03-21 23:54:32', '2026-03-21 23:54:32'),
+(32, 3, 18, 2, NULL, 'entry', 300, 300, 'bc91015f-8ef2-4804-a1f1-a9081d11d37c', NULL, NULL, NULL, '2026-03-21 23:55:56', '2026-03-21 23:55:56'),
+(33, 2, 8, 1, NULL, 'entry', 300, 300, 'f66dca31-499c-4ec7-a1ea-9db5f13b6300', NULL, NULL, NULL, '2026-03-22 00:05:26', '2026-03-22 00:05:26'),
+(34, 2, 11, 1, NULL, 'entry', 500, 500, 'f228fd39-fc09-4a4d-8103-aa0ef69f0642', NULL, NULL, NULL, '2026-03-22 00:16:20', '2026-03-22 00:16:20'),
+(35, 2, 18, 1, NULL, 'entry', 1200, 1200, '533ab046-7c4e-4b3a-88be-b9a5bad54143', NULL, NULL, NULL, '2026-03-22 00:17:38', '2026-03-22 00:17:38'),
+(36, 2, 11, 1, NULL, 'entry', 500, 1000, '889439a8-7377-40bc-92e6-4a40250f7a0a', NULL, NULL, NULL, '2026-03-22 00:21:49', '2026-03-22 00:21:49'),
+(37, 2, 4, 1, NULL, 'entry', 580, 580, '7555c158-0998-43af-b32e-2c9455841e86', NULL, NULL, NULL, '2026-03-22 00:42:35', '2026-03-22 00:42:35'),
+(38, 2, 10, 1, NULL, 'entry', 55, 55, '95fae341-7067-4639-b0b3-092e6cd5f92c', NULL, NULL, NULL, '2026-03-22 01:03:23', '2026-03-22 01:03:23'),
+(39, 2, 9, 1, NULL, 'entry', 16, 16, 'f6ee3795-4a8c-40ba-8a6e-59cb6198a756', NULL, NULL, NULL, '2026-03-22 01:03:49', '2026-03-22 01:03:49'),
+(40, 2, 10, 1, NULL, 'entry', 60, 115, 'dc983876-88f5-47ef-b7db-7f1395f19048', NULL, NULL, NULL, '2026-03-22 01:06:16', '2026-03-22 01:06:16'),
+(41, 2, 9, 1, NULL, 'adjustment', 1, 17, '64fef140-21d8-423a-9445-cc08816e0239', NULL, NULL, NULL, '2026-03-22 01:08:26', '2026-03-22 01:08:26'),
+(42, 5, 1, 800, NULL, 'entry', 200, 200, '4e4d2f2c-0cc6-40f2-8d60-153f7ec209e1', NULL, NULL, NULL, '2026-03-25 18:29:10', '2026-03-25 18:29:10'),
+(43, 1, 8, 1, NULL, 'entry', 600, 1100, 'f71bc6fd-eb21-4692-9931-ac29fa6d9ce4', NULL, NULL, NULL, '2026-03-25 20:15:12', '2026-03-25 20:15:12'),
+(44, 1, 8, 1, NULL, 'adjustment', 300, 800, 'c153db7e-7015-419e-9ca1-6e3231587ad8', NULL, NULL, NULL, '2026-03-25 20:16:13', '2026-03-25 20:16:13'),
+(45, 1, 2, 1, NULL, 'adjustment', 500, 0, 'a39051fc-1ef2-449f-b84d-0ad1aa730e12', NULL, NULL, NULL, '2026-03-25 20:17:22', '2026-03-25 20:17:22'),
+(46, 3, 2, 2, NULL, 'exit', 10, 20, 'd59aeb79-e45f-424d-bac0-8880e381ff64', NULL, NULL, NULL, '2026-03-26 23:56:50', '2026-03-26 23:56:50'),
+(47, 3, 3, 2, NULL, 'exit', 10, 7, 'a0d925d6-daac-4245-8565-d1344b210dc5', NULL, NULL, NULL, '2026-03-26 23:57:41', '2026-03-26 23:57:41'),
+(48, 3, 8, 2, NULL, 'exit', 10, 55, 'af61fb76-3449-4fe8-8f02-3bd74fb85121', NULL, NULL, NULL, '2026-03-26 23:59:03', '2026-03-26 23:59:03'),
+(49, 3, 18, 2, NULL, 'exit', 20, 280, 'c2995c92-c134-4293-9d44-fc5802419c0b', NULL, NULL, NULL, '2026-03-26 23:59:46', '2026-03-26 23:59:46'),
+(50, 3, 6, 2, NULL, 'exit', 170, 3585, 'd6cf960a-a600-4f86-ae8e-14ee995ed489', NULL, NULL, NULL, '2026-03-27 00:02:27', '2026-03-27 00:02:27'),
+(51, 3, 15, 2, NULL, 'exit', 50, 328, 'caa552cd-8dde-4989-8bfd-8fea59ba4815', NULL, NULL, NULL, '2026-03-27 00:03:35', '2026-03-27 00:03:35'),
+(52, 3, 5, 2, NULL, 'exit', 10, 363, '971a7953-bbda-40f8-b1a0-0595ec905510', NULL, NULL, NULL, '2026-03-27 00:07:34', '2026-03-27 00:07:34'),
+(53, 3, 7, 2, NULL, 'exit', 10, 425, '8dfe0609-bc58-4467-9388-dd1aefa4ecf4', NULL, NULL, NULL, '2026-03-27 00:10:36', '2026-03-27 00:10:36'),
+(54, 3, 4, 2, NULL, 'exit', 10, 95, '613a01a9-0da9-4511-a011-245345996148', NULL, NULL, NULL, '2026-03-27 00:17:24', '2026-03-27 00:17:24'),
+(55, 2, 14, 1, NULL, 'exit', 50, 0, 'de6d762c-5a52-411f-80d4-a910e47ddc75', NULL, NULL, NULL, '2026-03-27 07:13:01', '2026-03-27 07:13:01'),
+(56, 2, 1, 1, NULL, 'kit_component_exit', 50, 166, 'de6d762c-5a52-411f-80d4-a910e47ddc75', NULL, NULL, NULL, '2026-03-27 07:13:01', '2026-03-27 07:13:01'),
+(57, 2, 6, 1, NULL, 'kit_component_exit', 50, 3310, 'de6d762c-5a52-411f-80d4-a910e47ddc75', NULL, NULL, NULL, '2026-03-27 07:13:01', '2026-03-27 07:13:01'),
+(58, 2, 15, 1, NULL, 'kit_component_exit', 50, 400, 'de6d762c-5a52-411f-80d4-a910e47ddc75', NULL, NULL, NULL, '2026-03-27 07:13:01', '2026-03-27 07:13:01'),
+(59, 3, 1, 2, NULL, 'adjustment', 20, 45, '4b72626b-0b47-4b83-8239-ae38007224ce', NULL, NULL, NULL, '2026-03-28 15:41:14', '2026-03-28 15:41:14');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `stp_approaches`
+--
+
+CREATE TABLE `stp_approaches` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `stp_session_id` bigint(20) UNSIGNED NOT NULL,
+  `stp_team_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` int(11) NOT NULL DEFAULT '0',
+  `person_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference_point` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gospel_explained_times` smallint(5) UNSIGNED DEFAULT NULL,
+  `people_count` smallint(5) UNSIGNED DEFAULT NULL,
+  `result` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `means_growth` tinyint(1) NOT NULL DEFAULT '0',
+  `follow_up_scheduled_at` datetime DEFAULT NULL,
+  `public_q2_answer` text COLLATE utf8mb4_unicode_ci,
+  `public_lesson` text COLLATE utf8mb4_unicode_ci,
+  `created_by_user_id` bigint(20) UNSIGNED NOT NULL,
+  `reported_by_user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `reviewed_by_user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `reviewed_at` datetime DEFAULT NULL,
+  `payload` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `stp_sessions`
+--
+
+CREATE TABLE `stp_sessions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `sequence` int(11) NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `starts_at` datetime DEFAULT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `stp_sessions`
+--
+
+INSERT INTO `stp_sessions` (`id`, `training_id`, `sequence`, `label`, `starts_at`, `ends_at`, `status`, `created_at`, `updated_at`) VALUES
+(1, 318, 1, NULL, NULL, NULL, NULL, '2026-03-26 06:01:43', '2026-03-26 06:01:43'),
+(4, 318, 2, NULL, NULL, NULL, NULL, '2026-03-26 06:48:55', '2026-03-26 06:48:55'),
+(5, 318, 3, NULL, NULL, NULL, NULL, '2026-03-26 06:51:25', '2026-03-26 06:51:25');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `stp_teams`
+--
+
+CREATE TABLE `stp_teams` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `stp_session_id` bigint(20) UNSIGNED NOT NULL,
+  `mentor_user_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` int(11) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `stp_teams`
+--
+
+INSERT INTO `stp_teams` (`id`, `stp_session_id`, `mentor_user_id`, `name`, `position`, `created_at`, `updated_at`) VALUES
+(13, 1, 731, 'Equipe 01', 0, '2026-03-26 06:02:41', '2026-03-26 06:02:47'),
+(15, 1, 737, 'Equipe 03', 1, '2026-03-26 06:02:41', '2026-03-26 06:44:29'),
+(17, 1, 1198, 'Equipe 04', 2, '2026-03-26 06:47:46', '2026-03-26 06:47:46'),
+(28, 4, 358, 'Equipe 02', 0, '2026-03-26 06:50:00', '2026-03-26 06:50:04'),
+(29, 4, 1198, 'Equipe 03', 1, '2026-03-26 06:50:35', '2026-03-26 06:50:35'),
+(30, 4, 737, 'Equipe 04', 2, '2026-03-26 06:51:00', '2026-03-26 06:51:00'),
+(31, 4, 731, 'Equipe 05', 3, '2026-03-26 06:51:12', '2026-03-26 06:51:12'),
+(37, 5, 1, 'Equipe 02', 0, '2026-03-26 06:52:59', '2026-03-26 06:53:01'),
+(38, 5, 731, 'Equipe 03', 1, '2026-03-26 06:53:11', '2026-03-26 06:53:11'),
+(39, 5, 2, 'Equipe 04', 2, '2026-03-26 06:53:35', '2026-03-26 06:53:35');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `stp_team_students`
+--
+
+CREATE TABLE `stp_team_students` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `stp_team_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `position` int(11) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `stp_team_students`
+--
+
+INSERT INTO `stp_team_students` (`id`, `stp_team_id`, `user_id`, `position`, `created_at`, `updated_at`) VALUES
+(26, 13, 1610, 1, '2026-03-26 06:02:41', '2026-03-26 06:02:41'),
+(29, 15, 1603, 0, '2026-03-26 06:02:41', '2026-03-26 06:02:41'),
+(33, 13, 1611, 0, '2026-03-26 06:44:18', '2026-03-26 06:44:18'),
+(34, 15, 1605, 1, '2026-03-26 06:45:31', '2026-03-26 06:45:31'),
+(35, 17, 1604, 0, '2026-03-26 06:47:46', '2026-03-26 06:47:46'),
+(36, 17, 1608, 1, '2026-03-26 06:47:46', '2026-03-26 06:47:46'),
+(57, 28, 1606, 0, '2026-03-26 06:50:00', '2026-03-26 06:50:00'),
+(58, 28, 1610, 1, '2026-03-26 06:50:00', '2026-03-26 06:50:00'),
+(59, 28, 1611, 2, '2026-03-26 06:50:00', '2026-03-26 06:50:00'),
+(60, 29, 1609, 0, '2026-03-26 06:50:35', '2026-03-26 06:50:35'),
+(61, 29, 1601, 1, '2026-03-26 06:50:35', '2026-03-26 06:50:35'),
+(62, 30, 1603, 0, '2026-03-26 06:51:00', '2026-03-26 06:51:00'),
+(63, 30, 1608, 1, '2026-03-26 06:51:00', '2026-03-26 06:51:00'),
+(64, 30, 1604, 2, '2026-03-26 06:51:00', '2026-03-26 06:51:00'),
+(65, 31, 1601, 0, '2026-03-26 06:51:12', '2026-03-26 06:51:12'),
+(66, 31, 1605, 1, '2026-03-26 06:51:12', '2026-03-26 06:51:12'),
+(77, 37, 1610, 0, '2026-03-26 06:52:59', '2026-03-26 06:52:59'),
+(78, 37, 1608, 1, '2026-03-26 06:52:59', '2026-03-26 06:52:59'),
+(79, 38, 1611, 0, '2026-03-26 06:53:11', '2026-03-26 06:53:11'),
+(80, 38, 1601, 1, '2026-03-26 06:53:11', '2026-03-26 06:53:11'),
+(81, 39, 1609, 0, '2026-03-26 06:53:35', '2026-03-26 06:53:35'),
+(82, 39, 1605, 1, '2026-03-26 06:53:35', '2026-03-26 06:53:35');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `suppliers`
+--
+
+CREATE TABLE `suppliers` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `testimonials`
+--
+
+CREATE TABLE `testimonials` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `meta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quote` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `testimonials`
+--
 
 INSERT INTO `testimonials` (`id`, `name`, `meta`, `quote`, `photo`, `position`, `is_active`, `created_at`, `updated_at`) VALUES
 (1, 'Pr. Davidson Freitas', 'Primeira Igreja Batista em Heliópolis - BelfordRoxo, RJ', 'Louvo a Deus pelo Ministério Evangelismo Explosivo! A realização da Clínica em nossa igreja despertou muitos evangelistas que estavam limitados pela falta de um método para compartilhar sua fé. É impressionante como esse treinamento impulsiona as pessoas ao evangelismo pessoal! Elas passam a exercer o sacerdócio universal após um tempo precioso de treinamento. Que mais igrejas possam descobrir e praticar os ensinamentos através do Evangelismo Explosivo!', 'testimonials/photos/c1fca76e-4a8e-4fdf-8335-26edb88c9a0b.webp', 1, 1, '2026-02-27 13:59:09', '2026-03-12 06:09:41');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `trainings`
+--
+
+CREATE TABLE `trainings` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `banner` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `leader` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `coordinator` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `street` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gpwhatsapp` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` decimal(8,2) DEFAULT '0.00',
+  `price_church` decimal(8,2) DEFAULT '0.00',
+  `discount` decimal(8,2) DEFAULT '0.00',
+  `pix_qr_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pix_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kits` int(11) DEFAULT '0',
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `status` tinyint(4) DEFAULT '0',
+  `welcome_duration_minutes` smallint(5) UNSIGNED NOT NULL DEFAULT '30',
+  `schedule_settings` json DEFAULT NULL,
+  `schedule_attention_shown_at` timestamp NULL DEFAULT NULL,
+  `schedule_adjusted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `course_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `teacher_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `church_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `trainings`
+--
 
 INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
 (11, NULL, NULL, 'Cleiton dos Santos', '22981100097', 'ibcatarcione@gmail.com', 'Rua José Lannes', '65', NULL, 'Catarcione', 'Nova Friburgo', NULL, NULL, NULL, '22981100097', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-11-19 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista no Catarcione | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=ibcatarcione@gmail.com | CONTACT_PHONE=22981100097 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-11-19\"}', NULL, NULL, '2022-10-06 17:33:34', '2022-11-19 17:49:53', 1, 1, 101),
 (12, NULL, NULL, 'Cleiton dos Santos', '2127675377', 'ibcni@ibcni.org.br', 'Rua Antônio Nunes de Almeida', '173', NULL, 'Centro', 'Nova Iguaçú', NULL, NULL, NULL, '2127675377', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-09-03 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Central de Nova Iguaçú | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=ibcni@ibcni.org.br | CONTACT_PHONE=2127675377 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-09-03\"}', NULL, NULL, '2022-10-06 17:46:10', '2022-10-06 17:46:10', 2, 1, 115),
 (13, NULL, NULL, 'Cleiton dos Santos', '21982356086', NULL, 'Rua Santana', '1004', NULL, 'Vila Mriqui', 'Mangaratiba', NULL, NULL, NULL, '21982356086', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-10-22 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Muriqui | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_PHONE=21982356086 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-10-22\"}', NULL, NULL, '2022-10-07 17:42:26', '2022-10-21 12:07:48', 2, 1, 116),
-(14, NULL, NULL, 'Cleiton dos Santos', '22998515449', 'leonardoconstant@gmail.com', 'Maximiliano Gomes Fernandes', '69', NULL, 'Centro', 'São João da Barra', NULL, '28200000', NULL, '22998515449', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-02-04 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de São João da Barra | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=leonardoconstant@gmail.com | CONTACT_PHONE=22998515449 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-02-04\"}', NULL, NULL, '2022-10-07 17:51:15', '2023-09-07 07:32:31', 2, 1, 36),
+(14, NULL, NULL, 'Cleiton dos Santos', '22998515449', 'leonardoconstant@gmail.com', 'Maximiliano Gomes Fernandes', '69', NULL, 'Centro', 'São João da Barra', NULL, '28200000', NULL, '22998515449', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-02-04 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de São João da Barra | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=leonardoconstant@gmail.com | CONTACT_PHONE=22998515449 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-02-04\"}', NULL, NULL, '2022-10-07 17:51:15', '2026-03-31 17:47:43', 2, 1, 36),
 (16, NULL, NULL, 'Cleiton dos Santos', '2130139909', NULL, 'Rua Joaquim Rodrigues', '49', NULL, 'Parada de Lucas', 'Rio de Janeiro', NULL, '21250420', NULL, '2192534952', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-09-09 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista de Parada de Lucas | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_PHONE=2130139909 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-09-09\"}', NULL, NULL, '2022-10-11 10:13:39', '2022-10-11 10:13:39', 1, 1, 117),
 (17, NULL, NULL, 'Jailton Barreto Rangel', '21966141917', 'saraivasandy2@gmail.com', 'Estrada do Arrastão Lote B', '4', NULL, 'Rio do Ouro', 'São Gonçalo', NULL, '24753580', NULL, '21966141917', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-01-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista em Arrastão | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=saraivasandy2@gmail.com | CONTACT_PHONE=21966141917 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-01-29\"}', NULL, NULL, '2022-10-12 14:46:28', '2022-10-12 14:46:28', 2, 2, 118),
-(18, NULL, NULL, 'Jailton Barreto Rangel', '2126887000', 'pibitaguai@gmail.com', 'Rua Nilo Peçanha', '149', NULL, 'Centro', 'Itaguaí', NULL, '23810505', NULL, '21979662513', 180.00, 15.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-17 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista de Itaguaí | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=pibitaguai@gmail.com | CONTACT_PHONE=2126887000 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-17\"}', NULL, NULL, '2022-10-21 12:34:36', '2023-05-12 07:07:12', 1, 2, 121),
 (19, NULL, NULL, 'Cleiton dos Santos', '22981100097', 'jacsonsantosarauj@gmail.com', 'Rua José Lannes', '65', NULL, 'Catarcione', 'Nova Friburgo', NULL, '28614300', NULL, '22981100097', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-11-18 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista no Catarcione | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=jacsonsantosarauj@gmail.com | CONTACT_PHONE=22981100097 | COMMENT=10 dos participantes deste treinamento realizaram tbm a clinica | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-11-18\"}', NULL, NULL, '2022-11-19 17:47:54', '2022-11-22 06:15:45', 2, 1, 101),
 (20, NULL, NULL, 'Eduardo Domingues', '11976423666', 'dudomingues@hotmail.com', 'Rua Capricórnio', '38', NULL, 'Alphaville Conde I', 'Barueri', NULL, '06473005', NULL, '11995514953', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-02-25 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana Metropolitana de Alphaville | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=11976423666 | COMMENT=11 participantesn00 pastoresn02 igrejasn02 igrejas novas | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-02-25\"}', NULL, NULL, '2023-01-24 03:51:37', '2023-05-04 06:51:19', 2, 4, 133),
 (21, NULL, NULL, 'Eduardo Domingues', '11972261336', 'dudomingues@hotmail.com', 'Rua Granada', '244', NULL, 'Mutinga', 'Osasco', NULL, '06280180', NULL, '11972261336', 65.00, 0.00, 0.00, NULL, NULL, 15, 'EVENT_DATE=2023-04-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana do Jardim Mutinga | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=11972261336 | COMMENT=Participantes: 8nPastores: 0 nIgrejas: 2nIgrejas novas: 2 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-04-29\"}', NULL, NULL, '2023-01-24 04:37:22', '2023-06-28 04:23:30', 2, 4, 134),
@@ -1243,17 +2461,11 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (28, NULL, NULL, 'Cleiton dos Santos', '2126123199', 'ibvitalbrazil@gmail.com', 'Rua José Maestro Botelho', '170', NULL, 'Santa Rosa', 'Niterói', NULL, '24230410', NULL, '2126123199', 65.00, 20.00, 15.00, NULL, NULL, 30, 'EVENT_DATE=2023-03-24 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista em Vital Brazil | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=ibvitalbrazil@gmail.com | CONTACT_PHONE=2126123199 | COMMENT=A igreja adiquiriu 30 exemplares da revista do workshop, mesmo com apenas 25 inscritos presentes no momento do evento, tendo em vista realizar um novo workshop até o final do ano. Quando irá utilizar os manuais que sobraram.  Com isso, ela deve fazer a transferencia de 1500,00 referente aos 30 kits do WESM. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-24\"}', NULL, NULL, '2023-03-11 18:39:02', '2023-03-29 12:50:35', 2, 1, 137),
 (29, NULL, NULL, 'Cleiton dos Santos', '2126211268', 'secretaria@pibinga.org.br', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 50.00, 100.00, 0.00, NULL, NULL, 50, 'EVENT_DATE=2023-05-05 | COURSE=Esperança Para Crianças | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=secretaria@pibinga.org.br | CONTACT_PHONE=2126211268 | COMMENT=Das 25 crianças que ouviram a explicação do evangelho 10 disseram sim pra Jesus, e outras 7 já eram cristãs.nDas 9 igrejas que mandaram representantes 4 eram novas. nA inscrição de duas participantes (Victoria e Lucilene), foram pagas utilizando o saldo que o Pr. Luiz Vieira tinha de crédito com EE-Brasil. Com isso, dos 1150,00 referentes destinados a EE-Brasil deduzo 300,00 do saldo do Pastor Luiz Vieira. Totalizando 850,00 para EE-Brasil. | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-05-05\"}', NULL, NULL, '2023-03-11 18:43:00', '2023-05-17 08:57:14', 7, 1, 1),
 (30, NULL, NULL, 'Cleiton dos Santos', '33984519443', NULL, 'Rua Ibituruna', '69', NULL, 'São Pedro', 'Governador Valadares', NULL, '35022030', NULL, '33984519443', 180.00, 0.00, 0.00, NULL, NULL, 12, 'EVENT_DATE=2023-05-19 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista Semear | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_PHONE=33984519443 | COMMENT=Todos os alunos deste treinamento fizeram o workshop, e pagaram os R$ 50,00 na inscrição, portanto o valor a ser transferido por inscrição para o EE é de 130,00 referenta a esta clínica, totalizando R$ 1560,00; nRecebemos uma oferta de R$ 1000 do pastor Luiz Vieira, permitindo que a igreja FAÇA O PAGAMENTO FINAL DE 560,00 para este treinamento.nnNesta Clínica 23 pessoas ouviram a explicação do Evangelho e 17 pessoas disseram sim para Jesus;nnDos 12 participantes 4 são pastores;nnDas 3 igrejas presentes todas são igrejas novas;nnGlória a Deus. | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=10', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-05-19\"}', NULL, NULL, '2023-03-11 18:56:53', '2023-05-31 05:22:47', 1, 1, 139),
-(31, NULL, NULL, 'Cleiton dos Santos', '21971270799', 'seminariobeolforroxense@gmail.com', 'Rua Maria Leopoldina', '182', NULL, 'Jardim da Prata', 'Belford Roxo', NULL, '26010370', NULL, '21971270799', 65.00, 0.00, 15.00, NULL, NULL, 50, 'EVENT_DATE=2023-04-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Seminário Teológico Batista Belforroxense | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=seminariobeolforroxense@gmail.com | CONTACT_PHONE=21971270799 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-04-08\"}', NULL, NULL, '2023-03-14 08:04:14', '2023-05-04 08:03:46', 2, 1, 140),
 (32, NULL, NULL, 'Cleverson Rodrigues', '2127220355', 'evangelismoemissoes@pibn.org.br', 'Rua Marquês do Paraná', '225', NULL, 'Centro', 'Niterói', NULL, '24030210', NULL, '21984976146', 65.00, 0.00, 15.00, NULL, NULL, 30, 'EVENT_DATE=2023-03-25 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Niterói | TEACHER=Cleverson Rodrigues | LEGACY_STATUS=3 | CONTACT_EMAIL=evangelismoemissoes@pibn.org.br | CONTACT_PHONE=2127220355 | COMMENT=A igreja adiquiriu 30 exemplares da revista do workshop, mesmo com apenas 15 inscritos neste momento, tendo em vista realizar um novo workshop até o final do ano. Quando irá utilizar os manuais que sobraram. Com isso, ela fará a transferencia de 1.500,00 referente aos 30 kits do WESM. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-25\"}', NULL, NULL, '2023-03-14 08:09:18', '2023-03-29 06:06:12', 2, 358, 38),
 (33, NULL, NULL, 'Cleiton dos Santos', '33984519443', NULL, 'Rua Ibituruna', '69', NULL, 'São Pedro', 'Governador Valadares', NULL, NULL, NULL, '33984519443', 65.00, 0.00, 15.00, NULL, NULL, 50, 'EVENT_DATE=2023-05-19 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Semear | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_PHONE=33984519443 | COMMENT=Tivemos 33 participantes no evento e a igreja depositou R$ 1650,00 referente a este treinamento.nnDos 33 participantes 4 são pastores;nnDas 3 igrejas presentes todas são igrejas novas;nnOs recibos dos pagamentos tanto da clínica como deste workshop foram enviados para o email: eebrasil@eebrasil.org.br, lembrando que houve uma oferta para esta clínica de 1000,00 depositada pelo pastor Luiz Vieira.nnGlória a Deus. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=10', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-05-19\"}', NULL, NULL, '2023-03-14 08:22:22', '2023-05-30 07:59:15', 2, 1, 139),
 (34, NULL, NULL, 'Eduardo Domingues', '11993763633', NULL, 'Rua Doutor Afonso Vergueiro', '1372', NULL, 'Vila Maria', 'São Paulo', NULL, '02116002', NULL, '11986679130', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-05-13 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Central em Vila Maria | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_PHONE=11993763633 | COMMENT=Participantes: 8nPastores: 2nIgrejas: 1nIgrejas novas: 1nnFoi depositado 650,00 (10 inscrições) contudo 8 participaram, assim foi substituído por 2 kits de e²+m², no valor de 40,00 cada (80,00). E 50,00 de oferta. | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-05-13\"}', NULL, NULL, '2023-03-24 04:35:15', '2023-05-16 05:07:55', 2, 4, 142),
 (35, NULL, NULL, 'Eduardo Domingues', '11991161312', NULL, 'Rua Doutor Zuquim', '230', NULL, 'Santana', 'São Paulo', NULL, '02035020', NULL, '11991161312', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-06-03 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana Ebenezer de São Paulo | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_PHONE=11991161312 | COMMENT=Participantes: 28nPastores: 0nIgrejas: 1nIgrejas novas: 1 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-06-03\"}', NULL, NULL, '2023-03-24 04:57:35', '2023-06-15 03:08:01', 2, 4, 143),
-(36, NULL, NULL, 'Cleiton dos Santos', '2137055362', 'pibportonovo@gmail.com', 'Rua Maria Rita', '995', NULL, 'Porto Novo', 'São Gonçalo', NULL, '24431740', NULL, '2137055362', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-26 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista em Porto Novo | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=pibportonovo@gmail.com | CONTACT_PHONE=2137055362 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-26\"}', NULL, NULL, '2023-03-28 16:50:50', '2023-03-28 17:21:30', 1, 1, 144),
-(37, NULL, NULL, 'Cleiton dos Santos', '2137055362', 'pibportonovo@gmail.com', 'Rua Maria Rita', '995', NULL, 'Porto Novo', 'São Gonçalo', NULL, '24431740', NULL, '2137055362', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-26 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Porto Novo | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=pibportonovo@gmail.com | CONTACT_PHONE=2137055362 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-26\"}', NULL, NULL, '2023-03-28 16:55:05', '2023-03-28 17:23:48', 2, 1, 144),
 (38, NULL, NULL, 'Cleiton dos Santos', '22981272625', 'ipbvnf@gmail.com', 'Rua Bahia', '25', NULL, 'Bela Vista', 'Nova Friburgo', NULL, '28623440', NULL, '22981272625', 65.00, 0.00, 15.00, NULL, NULL, 31, 'EVENT_DATE=2023-02-25 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Bela Vista | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=ipbvnf@gmail.com | CONTACT_PHONE=22981272625 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-02-25\"}', NULL, NULL, '2023-03-28 17:12:06', '2023-03-28 17:12:06', 2, 1, 130),
-(39, NULL, NULL, 'Cleiton dos Santos', '2126887000', 'pibitaguai@gmail.com', 'Rua Nilo Peçanha', '149', NULL, 'Centro', 'Itaguaí', NULL, '23810505', NULL, '21979662513', 65.00, 0.00, 15.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-17 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Itaguaí | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=pibitaguai@gmail.com | CONTACT_PHONE=2126887000 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-17\"}', NULL, NULL, '2023-03-28 17:17:59', '2023-03-28 17:17:59', 2, 1, 121),
-(40, NULL, NULL, 'Cleiton dos Santos', '22981638138', 'sibnf.nf@gmail.com', 'Rua Presidente Vargas', '60', NULL, 'Olaria', 'Nova Friburgo', NULL, '28623410', NULL, '22981638138', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-01 | COURSE=Evangelismo Eficaz | CHURCH=Segunda Igreja Batista de Nova Friburgo | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=sibnf.nf@gmail.com | CONTACT_PHONE=22981638138 | LEGACY_LESSONPLAN_ID=7 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-01\"}', NULL, NULL, '2023-03-29 05:16:28', '2023-03-29 05:16:28', 1, 1, 146),
-(41, NULL, NULL, 'Cleiton dos Santos', '22981638138', 'sibnf.nf@gmail.com', 'Rua Presidente Vargas', '60', NULL, 'Olaria', 'Nova Friburgo', NULL, '28623410', NULL, '22981638138', 65.00, 0.00, 15.00, NULL, NULL, 0, 'EVENT_DATE=2023-03-01 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista de Nova Friburgo | TEACHER=Cleiton dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=sibnf.nf@gmail.com | CONTACT_PHONE=22981638138 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-03-01\"}', NULL, NULL, '2023-03-29 05:17:17', '2023-03-29 05:17:17', 2, 1, 146),
 (42, NULL, NULL, 'Eduardo Domingues', '11963397648', 'eduardodomingues@eebrasil.org.br', 'Rua José Manoel da Conceição', '2', NULL, 'Vila Primavera', 'Jandira', NULL, '03389000', NULL, '11993076560', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-08-17 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana José Manoel da Conceição | TEACHER=Eduardo Domingues | LEGACY_STATUS=4 | CONTACT_EMAIL=eduardodomingues@eebrasil.org.br | CONTACT_PHONE=11963397648 | COMMENT=Participantes: nPastores: nIgrejas: nIgrejas novas: | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-17\"}', NULL, NULL, '2023-04-18 14:06:16', '2023-08-01 16:34:28', 2, 4, 136),
 (44, NULL, NULL, 'Eduardo Domingues', '11945644987', NULL, 'Rua Doutor Henrique Viscardi', '1235', NULL, 'Vila Henrique', 'Salto', NULL, '13321280', NULL, '11945644987', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-05-20 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Salto | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_PHONE=11945644987 | COMMENT=Participantes: 28nPastores: 02nIgrejas: 02nIgrejas novas: 02 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-05-20\"}', NULL, NULL, '2023-04-19 03:29:38', '2023-05-25 05:04:16', 2, 4, 148),
 (45, NULL, NULL, 'Jailton Barreto Rangel', '21987972093', 'cbrbatista1809@gmail.com', 'Rua Rachel de Queiroz', '322', NULL, 'Raphaville', 'Maricá', NULL, NULL, NULL, '21987972093', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2022-04-30 | COURSE=Evangelho Em Sua Mão | CHURCH=Congregação Batista em Raphaville | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=cbrbatista1809@gmail.com | CONTACT_PHONE=21987972093 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2022-04-30\"}', NULL, NULL, '2023-05-01 10:38:17', '2023-05-01 10:38:17', 2, 2, 152),
@@ -1296,17 +2508,16 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (84, NULL, NULL, 'Cleiton dos Santos', '1140716093', NULL, 'Avenida Piraporinha', '422', NULL, 'Vila Nogueira', 'Diadema', NULL, '09942200', NULL, '1140716093', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-03-14 | COURSE=Esperança Para Crianças | CHURCH=Primeira Igreja Presbiteriana Independente de Diadema | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_PHONE=1140716093 | COMMENT=ATUAL PROFESSOR: José Maria de Carvalho | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-03-14\"}', NULL, NULL, '2023-05-03 12:45:25', '2023-05-03 12:45:25', 7, 1, 166),
 (85, NULL, NULL, 'Cleiton dos Santos', '21982235749', 'pibjgoficial@gmail.com', 'Rua Péricles', '1', NULL, 'Jardim Glaucia', 'Belford Roxo', NULL, '26195140', NULL, '21982235749', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-03-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista em Jardim Gláucia | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=pibjgoficial@gmail.com | CONTACT_PHONE=21982235749 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-03-15\"}', NULL, NULL, '2023-05-03 12:49:25', '2023-05-03 12:49:25', 2, 1, 99),
 (86, NULL, NULL, 'Cleiton dos Santos', '2127220355', 'evangelismoemissoes@pibn.org.br', 'Rua Marquês do Paraná', '225', NULL, 'Centro', 'Niterói', NULL, '24030210', NULL, '21984976146', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-08-11 | COURSE=Esperança Para Crianças | CHURCH=Primeira Igreja Batista de Niterói | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=evangelismoemissoes@pibn.org.br | CONTACT_PHONE=2127220355 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-08-11\"}', NULL, NULL, '2023-05-03 13:13:44', '2023-05-03 13:13:44', 7, 1, 38),
-(87, NULL, NULL, 'Jailton Barreto Rangel', '2126241075', 'primeiraigrejabatistadobarreto@gmail.com', 'Rua Guimarães Júnior', '58', NULL, 'Barreto', 'Niterói', NULL, '24110305', NULL, '2126241075', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-09-10 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista no Barreto | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=primeiraigrejabatistadobarreto@gmail.com | CONTACT_PHONE=2126241075 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-09-10\"}', NULL, NULL, '2023-05-03 13:20:12', '2023-05-03 13:20:12', 2, 2, 25);
-INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
+(87, NULL, NULL, 'Jailton Barreto Rangel', '2126241075', 'primeiraigrejabatistadobarreto@gmail.com', 'Rua Guimarães Júnior', '58', NULL, 'Barreto', 'Niterói', NULL, '24110305', NULL, '2126241075', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-09-10 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista no Barreto | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=primeiraigrejabatistadobarreto@gmail.com | CONTACT_PHONE=2126241075 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-09-10\"}', NULL, NULL, '2023-05-03 13:20:12', '2023-05-03 13:20:12', 2, 2, 25),
 (88, NULL, NULL, 'Cleiton dos Santos', '2127220355', 'evangelismoemissoes@pibn.org.br', 'Rua Marquês do Paraná', '225', NULL, 'Centro', 'Niterói', NULL, '24030210', NULL, '21984976146', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-10-13 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Niterói | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=evangelismoemissoes@pibn.org.br | CONTACT_PHONE=2127220355 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-10-13\"}', NULL, NULL, '2023-05-03 13:35:18', '2023-05-03 13:35:18', 2, 1, 38),
 (89, NULL, NULL, 'Cleiton dos Santos', '2127220355', 'evangelismoemissoes@pibn.org.br', 'Rua Marquês do Paraná', '225', NULL, 'Centro', 'Niterói', NULL, '24030210', NULL, '21984976146', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-10-14 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista de Niterói | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=evangelismoemissoes@pibn.org.br | CONTACT_PHONE=2127220355 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-10-14\"}', NULL, NULL, '2023-05-03 13:50:20', '2023-05-03 13:50:20', 1, 1, 38),
 (90, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-10-17 | COURSE=Evangelho Em Sua Mão | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21991046211 | COMMENT=Local do treinamento: Itaperuna-Camposntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-10-17\"}', NULL, NULL, '2023-05-03 13:54:39', '2023-05-03 13:54:39', 2, 2, 10),
 (91, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-11-18 | COURSE=Evangelismo Eficaz | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21991046211 | COMMENT=Local do treinamento: Itaperuna-Camposntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-11-18\"}', NULL, NULL, '2023-05-03 13:56:46', '2023-05-03 13:56:46', 1, 2, 10),
 (92, NULL, NULL, 'Cleiton dos Santos', '219276725535', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-12-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=219276725535 | COMMENT=Local: Teresópolisntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-12-08\"}', NULL, NULL, '2023-05-03 15:34:19', '2023-05-03 15:34:19', 2, 1, 10),
 (93, NULL, NULL, 'Cleiton dos Santos', '21972785535', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-12-09 | COURSE=Evangelismo Eficaz | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21972785535 | COMMENT=Local: Teresópolisntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-12-09\"}', NULL, NULL, '2023-05-03 15:36:54', '2023-05-03 15:36:54', 1, 1, 10),
-(94, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-12-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21991046211 | COMMENT=Local do treinamento: Rio das Ostrasntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-12-15\"}', NULL, NULL, '2023-05-03 15:38:29', '2023-05-03 15:38:29', 2, 2, 10),
+(94, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-12-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21991046211 | COMMENT=Local do treinamento: Rio das Ostrasntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-12-15\"}', NULL, NULL, '2023-05-03 15:38:29', '2023-05-03 15:38:29', 2, 2, 10);
+INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
 (95, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'danielcunta@batistafluminense.org.br', 'Rua Visconde de Moraes', '231', NULL, 'Ingá', 'Niterói', NULL, '24210145', NULL, '2126201515', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2020-12-16 | COURSE=Evangelismo Eficaz | CHURCH=Departamento de Evangelismo e Missões | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=danielcunta@batistafluminense.org.br | CONTACT_PHONE=21991046211 | COMMENT=Local do treinamento: Rio das Ostrasntelefone é do professor | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2020-12-16\"}', NULL, NULL, '2023-05-03 15:40:04', '2023-05-03 15:40:04', 1, 2, 10),
-(99, NULL, NULL, 'Maria de Fátima Alves Rodrigues dos Santos', '11', 'igrejapresbiterianacity@gmail.com', 'Rua Caçapava', '45', NULL, 'City Bussocaba', 'Osasco', NULL, '06056310', NULL, '11', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-09-29 | COURSE=Esperança Para Crianças | CHURCH=Igreja Prebiteriana City Bussocaba | TEACHER=Maria de Fátima Alves Rodrigues dos Santos | LEGACY_STATUS=1 | CONTACT_EMAIL=igrejapresbiterianacity@gmail.com | CONTACT_PHONE=11 | LEGACY_LESSONPLAN_ID=3 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-09-29\"}', NULL, NULL, '2023-05-09 01:05:48', '2023-05-09 01:05:48', 7, 640, 175),
 (100, NULL, NULL, 'Paulo de Tárcio Gonçalves de Passos', '6384741437', NULL, 'Rua Governador Valadares', '629', NULL, 'Centro', 'Patrocínio', NULL, '38740058', NULL, '6384741437', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2019-01-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Instituto Bíblico Eduardo Lane-CPO | TEACHER=Paulo de Tárcio Gonçalves de Passos | LEGACY_STATUS=3 | CONTACT_PHONE=6384741437 | COMMENT=*telefone é do professor | LEGACY_ZONE_ID=10', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2019-01-29\"}', NULL, NULL, '2023-05-11 07:05:29', '2023-05-11 07:05:29', 2, 827, 161),
 (101, NULL, NULL, 'Paulo de Tárcio Gonçalves de Passos', '6384741437', 'ibnipb@gmail.com', 'Rua Doutor Celso Galvão', '600', NULL, 'Heliópolis', 'Garanhuns', NULL, '55296120', NULL, '6384741437', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2019-02-13 | COURSE=Evangelho Em Sua Mão | CHURCH=Instituto Bíblico do Norte | TEACHER=Paulo de Tárcio Gonçalves de Passos | LEGACY_STATUS=3 | CONTACT_EMAIL=ibnipb@gmail.com | CONTACT_PHONE=6384741437 | COMMENT=*telefone é do professor | LEGACY_ZONE_ID=15', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2019-02-13\"}', NULL, NULL, '2023-05-11 07:15:26', '2023-05-11 07:15:26', 2, 827, 178),
 (102, NULL, NULL, 'José Maria de Carvalho', '13974103800', 'presbiterianadebarcelona@hotmail.com', 'Av. Campos', '116', NULL, 'Barcelona', 'Serra', NULL, '29164084', NULL, '13974103800', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2019-02-15 | COURSE=Esperança Para Crianças | CHURCH=Igreja Presbiteriana de Barcelona | TEACHER=José Maria de Carvalho | LEGACY_STATUS=3 | CONTACT_EMAIL=presbiterianadebarcelona@hotmail.com | CONTACT_PHONE=13974103800 | COMMENT=*telefone é do professor | LEGACY_ZONE_ID=7', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2019-02-15\"}', NULL, NULL, '2023-05-11 07:27:05', '2023-05-11 07:27:05', 7, 633, 179),
@@ -1370,14 +2581,14 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (161, NULL, NULL, 'Eduardo Domingues', '9288024371', 'dudomingues@hotmail.com', 'Rua Primeiro de Maio', '528', NULL, 'Santo Agostinho', 'Manaus', NULL, '69036580', NULL, '9288024371', 65.00, 0.00, 15.00, NULL, NULL, 0, 'EVENT_DATE=2023-08-26 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana Manaim | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=9288024371 | COMMENT=Participantes: 45;nPastores: 01;nIgrejas: 04;nIgrejas novas: 04.nnRelatório Financeiro:nWorkshop 45x50,00= 2.250,00n | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=3', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-26\"}', NULL, NULL, '2023-06-02 05:06:33', '2023-09-09 16:19:20', 2, 4, 212),
 (162, NULL, NULL, 'Cleiton dos Santos', '21964311551', 'oracaosibi@gmail.com', 'Avenida Papa João XXIII', '36', NULL, 'Ampliação', 'Itaboraí', NULL, '24808064', NULL, '21964311551', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-07-01 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista de Itaboraí | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=oracaosibi@gmail.com | CONTACT_PHONE=21964311551 | COMMENT=Este evento iria ser cancelado, pois não havia um grupo de irmãos suficientes para executar o treinamento. Contudo a pedido do pastor da igreja foi solicitado executar o treinamento para 3 pessoas. Concordei, mas deixei um novo evento marcado para os dias 15 a 17 de setembro onde realizaremos um Clínica de EE. Esta igreja é nova em Evangelismo Explosivo. e teve 2 pastores representantes. O recibo de depósito do pagamento dessas duas inscrições foi depositado por mim na conta de EE-Brasil e o respectivo comprovante remetido por email para eebrasil@eebrasil.org.br. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-07-01\"}', NULL, NULL, '2023-06-09 07:50:43', '2023-07-06 05:26:45', 2, 1, 86),
 (164, NULL, NULL, 'Eduardo Domingues', '27998169922', 'ee.internacionalbr@gmail.com', 'Rua Vinte e Três de Maio', '00', NULL, 'Centro', 'Conceição da Barra', NULL, '29960000', NULL, '27998169922', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-09-14 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Renovada Ministério Luz para as Nações | TEACHER=Eduardo Domingues | LEGACY_STATUS=4 | CONTACT_EMAIL=ee.internacionalbr@gmail.com | CONTACT_PHONE=27998169922 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=7', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-09-14\"}', NULL, NULL, '2023-06-15 17:02:56', '2023-08-01 16:36:17', 2, 4, 213),
-(165, NULL, NULL, 'Cleiton dos Santos', '6132345377', 'marcoasfarias@gmail.com', 'SRES', 'SN', 'Quadra 10, Área Especial 01', 'Cruzeiro Velho', 'Brasília', NULL, '70645610', NULL, '67981349890', 180.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-11 | COURSE=Evangelismo Eficaz | CHURCH=Segunda Igreja Batista do Plano Piloto | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=marcoasfarias@gmail.com | CONTACT_PHONE=6132345377 | COMMENT=Treinamento realizado com os pastores: Cleverson Rodrigues e Weben Miranda.nO pagamento foi realizado mediante PIX na conta do ministério e o comprovante foi remetido para o email: eebrasil@eebrasil.org.br.nDetalhes financeiros:n | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=27', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-11\"}', NULL, NULL, '2023-07-01 04:23:31', '2023-09-06 10:46:34', 1, 1, 214);
-INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
+(165, NULL, NULL, 'Cleiton dos Santos', '6132345377', 'marcoasfarias@gmail.com', 'SRES', 'SN', 'Quadra 10, Área Especial 01', 'Cruzeiro Velho', 'Brasília', NULL, '70645610', NULL, '67981349890', 180.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-11 | COURSE=Evangelismo Eficaz | CHURCH=Segunda Igreja Batista do Plano Piloto | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=marcoasfarias@gmail.com | CONTACT_PHONE=6132345377 | COMMENT=Treinamento realizado com os pastores: Cleverson Rodrigues e Weben Miranda.nO pagamento foi realizado mediante PIX na conta do ministério e o comprovante foi remetido para o email: eebrasil@eebrasil.org.br.nDetalhes financeiros:n | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=27', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-11\"}', NULL, NULL, '2023-07-01 04:23:31', '2023-09-06 10:46:34', 1, 1, 214),
 (166, NULL, NULL, 'Cleiton dos Santos', '6132345377', 'marcoasfarias@gmail.com', 'SRES', 'SN', 'Quadra 10, Área Especial 01', 'Cruzeiro Velho', 'Brasília', NULL, '70645610', NULL, '67981349890', 65.00, 0.00, 15.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-11 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista do Plano Piloto | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=marcoasfarias@gmail.com | CONTACT_PHONE=6132345377 | COMMENT=Participantes: 35;nPastores: 05;nIgrejas: 1;nIgrejas Novas: 1;nOuviram o evangelho: 00;nAceitaram a Cristo: 00.nnFinanceiro:n35 * 50,00 = 1.750,00 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=27', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-11\"}', NULL, NULL, '2023-07-01 04:24:09', '2023-10-05 05:36:29', 2, 1, 214),
 (168, NULL, NULL, 'Cleiton dos Santos', '21964311551', 'oracaosibi@gmail.com', 'Avenida Papa João XXIII', '36', NULL, 'Ampliação', 'Itaboraí', NULL, '24808064', NULL, '21964311551', 65.00, 0.00, 15.00, NULL, NULL, 2, 'EVENT_DATE=2023-09-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista de Itaboraí | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=oracaosibi@gmail.com | CONTACT_PHONE=21964311551 | COMMENT=Participantes: 20;nPastores: 01;nIgrejas: 2;nIgrejas Novas: 2;nOuviram o evangelho: 00;nAceitaram a Cristo: 00.nnFinanceiro:n20x65,00 = 1300,00; | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-09-15\"}', NULL, NULL, '2023-07-02 15:38:29', '2023-10-06 13:34:59', 2, 1, 86),
 (169, NULL, NULL, 'Maria de Fátima Alves Rodrigues dos Santos', '11947839082', 'esthefanyy@hotmail.com', 'Rua Alexandre Rodrigues Nogueira', '367', NULL, 'Jardim Emília', 'Embu-Guaçu', NULL, '06900360', NULL, '11947839082', 70.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-09-02 | COURSE=Esperança Para Crianças | CHURCH=Igreja Presbiteriana de Embu-Guaçu | TEACHER=Maria de Fátima Alves Rodrigues dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=esthefanyy@hotmail.com | CONTACT_PHONE=11947839082 | COMMENT=Participaram 21 alunos que pagaram o valor de R$70,00 cada um, sendo R$50,00 por aluno para o ministério, e R$20,00 para despesas do eventon12 crianças ouviram o Evangelhos todas entregaram suas vidas para Cristo. Todos alunos realizaram o pagamentos e também os materiais que será prestado conta no eebrasil@eebrasil.org.br a Igreja local teve um problema com a conta mas essa semana ainda irá realizar o valor total dos inscritos e dos materiais. | LEGACY_LESSONPLAN_ID=3 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-09-02\"}', NULL, NULL, '2023-07-05 04:16:30', '2023-12-18 08:24:34', 7, 640, 215),
 (170, NULL, NULL, 'Cleiton dos Santos', '21964277177', 'pibemnovaholanda@gmail.com', 'Rua Teixeira Ribeiro', '738', NULL, 'Bonsucesso', 'Rio de Janeiro', NULL, '21044251', NULL, '21964277177', 180.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-18 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista em Nova Holanda | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=pibemnovaholanda@gmail.com | CONTACT_PHONE=21964277177 | COMMENT=Participantes: 9;nPastores: 3;nIgrejas: 3;nIgrejas Novas: 3;nOuviram o evangelho: 38;nAceitaram a Cristo: 24.nnFinanceiro:n9x130,00 = 1170,00; | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-18\"}', NULL, NULL, '2023-07-05 04:27:16', '2023-10-05 05:29:30', 1, 1, 171),
 (171, NULL, NULL, 'Cleiton dos Santos', '21964277177', 'pibemnovaholanda@gmail.com', 'Rua Teixeira Ribeiro', '738', NULL, 'Bonsucesso', 'Rio de Janeiro', NULL, '21044251', NULL, '21964277177', 65.00, 0.00, 15.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-18 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Nova Holanda | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=pibemnovaholanda@gmail.com | CONTACT_PHONE=21964277177 | COMMENT=Participantes: 40;nPastores: 3;nIgrejas: 5;nIgrejas Novas: 5;nOuviram o evangelho: 00;nAceitaram a Cristo: 00.nnFinanceiro:n40x50,00 = 2000,00; | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-18\"}', NULL, NULL, '2023-07-05 04:29:13', '2023-10-05 05:32:34', 2, 1, 171),
-(172, NULL, NULL, 'Eduardo Domingues', '9288024371', 'dudomingues@hotmail.com', 'Rua Primeiro de Maio', 'SN', NULL, 'Santo Agostinho', 'Manaus', NULL, '69036580', NULL, '9288024371', 180.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-25 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Presbiteriana Manaim | TEACHER=Eduardo Domingues | LEGACY_STATUS=4 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=9288024371 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=3', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-25\"}', NULL, NULL, '2023-07-05 04:35:37', '2023-09-09 16:14:27', 1, 4, 212),
+(172, NULL, NULL, 'Eduardo Domingues', '9288024371', 'dudomingues@hotmail.com', 'Rua Primeiro de Maio', 'SN', NULL, 'Santo Agostinho', 'Manaus', NULL, '69036580', NULL, '9288024371', 180.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-08-25 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Presbiteriana Manaim | TEACHER=Eduardo Domingues | LEGACY_STATUS=4 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=9288024371 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=3', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-25\"}', NULL, NULL, '2023-07-05 04:35:37', '2023-09-09 16:14:27', 1, 4, 212);
+INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
 (173, NULL, NULL, 'Cleiton dos Santos', '7135084115', 'mariliamonteiroc1@gmail.com', 'Av Priscila Dutra', '703', NULL, 'Granjas Reunidas Concórdia', 'Lauro de Freitas', NULL, '42700000', NULL, '7196172859', 180.00, 0.00, 0.00, NULL, NULL, 1, 'EVENT_DATE=2024-02-16 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista Tabernáculo de Deus | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=mariliamonteiroc1@gmail.com | CONTACT_PHONE=7135084115 | COMMENT=Foi suspensa a clínica marcada para 18  a 20 de Novembro de 2023.  Data provisório só para não esquecer, 29 de Fevereiro de 2024. | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=5', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-02-16\"}', NULL, NULL, '2023-07-05 05:52:08', '2024-08-22 05:03:55', 1, 1, 216),
 (174, NULL, NULL, 'Cleiton dos Santos', '22992343090', 'pibmj2000@gmail.com', 'Rua da Harmonia', 'SN', NULL, 'Maria Joaquina', 'Búzios', NULL, '28921991', NULL, '22998944089', 65.00, 0.00, 15.00, NULL, NULL, 2, 'EVENT_DATE=2023-12-16 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Maria Joaquina | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=pibmj2000@gmail.com | CONTACT_PHONE=22992343090 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-12-16\"}', NULL, NULL, '2023-07-05 06:19:30', '2023-10-21 12:18:12', 2, 1, 217),
 (175, NULL, NULL, 'Cleiton dos Santos', '24999115892', 'prais10lan@gmail.com', 'Rua Venezuela', '152', NULL, 'Vila Americana', 'Volta Redonda', NULL, '27212150', NULL, '24999115892', 65.00, 0.00, 0.00, NULL, NULL, 2, 'EVENT_DATE=2023-07-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Vila Americana | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=prais10lan@gmail.com | CONTACT_PHONE=24999115892 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-07-29\"}', NULL, NULL, '2023-07-06 09:35:38', '2023-08-14 01:24:23', 2, 1, 218),
@@ -1388,7 +2599,6 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (181, NULL, NULL, 'Eduardo Domingues', '07588645113', 'dudomingues@hotmail.com', 'Tv. Bandeirantes', '47', NULL, 'Bahia Velha', 'Rio Branco', NULL, '69904300', NULL, '07588645113', 130.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-08-18 | COURSE=Evangelismo Eficaz | CHURCH=Presbitério do Acre - PRAC | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_EMAIL=dudomingues@hotmail.com | CONTACT_PHONE=07588645113 | COMMENT=Participantes: 02;nPastores: 01;nOuviram o Evangelho: 07;nAceitaram a Cristo: 0.nnnRelatório Financeiro:nClínica 2x130,00=   260,00.n | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=1', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-08-18\"}', NULL, NULL, '2023-09-08 08:04:22', '2023-09-09 16:18:24', 1, 4, 234),
 (182, NULL, NULL, 'José Maria de Carvalho', '13974103800', 'tiozema@gmail.com', 'Rua Teodoro Sampaio', '232', NULL, 'Ribeiropolis', 'Praia Grande', NULL, '11714200', NULL, '13996317945', 50.00, 0.00, 0.00, NULL, NULL, 20, 'EVENT_DATE=2023-10-22 | COURSE=Esperança Para Crianças | CHURCH=Igreja Batista Curva do S | TEACHER=José Maria de Carvalho | LEGACY_STATUS=3 | CONTACT_EMAIL=tiozema@gmail.com | CONTACT_PHONE=13974103800 | COMMENT=Realizamos o Worshop EPC com 10 pessoas e 01 criança de 06 anos que acompanhou sua irmã. A pratica será realizada no dia 29/10/23, já com inicio da implementação. Tivemos a participação de 03 igreja, as quais afirmaram que irião fazer a implementação e também realizar u Workshop EPC. A pratica foi realizada com a abertura da implementação na Igreja em questão com a particpação de 25 crianças, sendo que 20 crinaças já participam da igreja e as outras 05 foram convidadas, mas não responderam ao chamado de Cristo, porém gostaram e ficaram de continuar no curso. Vale destacar que foi importante a participação de alguns pais. Deixei na igreja 16 revista do aluno que será pago através de pix ao Escritório do EE, a quantia de R$80,00. | LEGACY_LESSONPLAN_ID=3 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-10-22\"}', NULL, NULL, '2023-09-09 09:48:50', '2023-12-17 13:23:57', 7, 633, 235),
 (183, NULL, NULL, 'Cleiton dos Santos', '21984095066', 'csilva@eeworks.org', 'R. Bulhões Marcial', '11', NULL, 'Cordovil', 'Rio de Janeiro', NULL, '21250371', NULL, '21984095066', 70.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-10-14 | COURSE=Esperança Para Crianças | CHURCH=OnG Instituto de Ações Multiplicadoras | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21984095066 | COMMENT=Alunos: 12;nIgrejas: 6;nIgrejas novas: 5nCrianças que ouviram o Evangelho: 21;nDecisões: 10; | LEGACY_LESSONPLAN_ID=3 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-10-14\"}', NULL, NULL, '2023-09-10 11:24:39', '2023-12-19 08:17:35', 7, 1, 236),
-(185, NULL, NULL, 'Jailton Barreto Rangel', '21991046211', 'jailtonbarreto@eeworks.org', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-11-27 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=jailtonbarreto@eeworks.org | CONTACT_PHONE=21991046211 | COMMENT=Esta clínica completa com o workshop ESM será totalmente ON-LINE, iniciando com o workshop no dia 25 de março de 2024, sempre à noite das 19 às 21:50, sendo no sábado dia 30 de março de 2024 será das 9 às 16:30. As vagas são limitadas e daremos preferência para pastores, líderes e igreja FORA do eixo Rio-São Paulo. Será necessário cobrar o frete dos materiais a serem enviados pelo correios. | LEGACY_LESSONPLAN_ID=10 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-11-27\"}', NULL, NULL, '2023-09-10 13:10:28', '2023-11-05 07:42:22', 1, 2, 1),
 (186, NULL, NULL, 'Cleiton dos Santos', '21980972333', 'csilva@eeworks.org', 'Av. Marquês do Paraná', '229', NULL, 'Centro', 'Niterói', NULL, '24030210', NULL, '21984976146', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-10-16 | COURSE=Evangelismo Eficaz | CHURCH=Seminário Teológico Batista de Niterói | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21980972333 | COMMENT=8 alunos; 4 igreja; 4 igreja nova; 0 pastores.n14 pessoas ouviram o evangelho; tivemos 11 decisões. | LEGACY_LESSONPLAN_ID=10 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-10-16\"}', NULL, NULL, '2023-09-10 16:16:10', '2023-12-14 08:41:34', 1, 1, 230),
 (187, NULL, NULL, 'Cleiton dos Santos', '22981321224', 'familiaigrejabatistacidadenova@gmail.com', 'Avenida Deputado - R. Luís Fernando Linhares', '75', NULL, 'Cidade Nova', 'Itaperuna', NULL, '28300000', NULL, '22981321224', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2023-10-26 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista em Cidade Nova | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=familiaigrejabatistacidadenova@gmail.com | CONTACT_PHONE=22981321224 | COMMENT=4 alunos; 2 igreja; 2 igreja nova; 2 pastores.n10 pessoas ouviram o evangelho; tivemos 8 decisões. | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2023-10-26\"}', NULL, NULL, '2023-09-10 16:17:56', '2023-12-14 08:41:20', 1, 1, 231),
 (188, NULL, NULL, 'Cleiton dos Santos', '2126211268', 'secretaria@pibinga.org.br', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-08-05 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=secretaria@pibinga.org.br | CONTACT_PHONE=2126211268 | COMMENT=A PIB INGÁ à que agradecemos, nos oferecerá a base para este workshop e clínica que serão on-lines | LEGACY_LESSONPLAN_ID=6 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-08-05\"}', NULL, NULL, '2023-10-21 05:18:32', '2024-08-22 04:43:56', 2, 1, 1),
@@ -1418,20 +2628,15 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (215, NULL, NULL, 'Jailton Barreto Rangel', '7791585907', 'valdelibaliza@hotmail.com', 'Avenida Guanabara', '1000', NULL, 'Bairro São Francisco', 'Guanambi', NULL, '46430000', NULL, '7791585907', 65.00, 0.00, 15.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-18 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Guanambi | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=valdelibaliza@hotmail.com | CONTACT_PHONE=7791585907 | COMMENT=O Workshop ESM foi realizado como primeira parte da Clínica. Tivemos 13 participantes. Além desses participantes os pastores Valdeli e esposa Luzilene, bem com o pastor Amilton da igreja hospedeira também deram todo o apoio e atuaram como mentores. O pastor Valdeli deu todas as aulas dos esboços e acompanhou as demais aulas que foram dadas por mim, estando assim preparado para ministrar o WORKSHOP ESM doravante. O total de material vendido foi 1.920,00, sendo R$1.720,00 das inscrições e mais R$200,00 de material de apoio. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=5', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-18\"}', NULL, NULL, '2024-08-15 13:25:01', '2024-10-23 07:52:04', 2, 2, 289),
 (216, NULL, NULL, 'Jailton Barreto Rangel', '557791585907', 'valdelibaliza@hotmail.com', 'Avenida Guanabara', '1000', NULL, 'Bairro São Francisco', 'Guanambi', NULL, '46430000', NULL, '7791585907', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-18 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Presbiteriana de Guanambi | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=valdelibaliza@hotmail.com | CONTACT_PHONE=557791585907 | COMMENT=Workshop ESM com 13 participantes, sendo de 5 igrejas. 4 novas. A Clínica contou com 04 líderes sendo dois pastores e 3 Igrejas novas. Cada aluno da clínica participou de três visitas marcadas. 16 pessoas ouviram a explicação do evangelho e 11 receberam o presente da vida eterna. Participaram da clínica igrejas de quatro cidades próximas. Poderá haver pedidos destas igrejas para futuros treinamentos. | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=5', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-18\"}', NULL, NULL, '2024-08-15 13:42:03', '2024-10-31 13:30:28', 1, 2, 288),
 (217, NULL, NULL, 'Jailton Barreto Rangel', '2126887000', 'pibitaguai@gmail.com', 'Rua Nilo Peçanha', '149', NULL, 'Centro', 'Itaguaí', NULL, '23810505', NULL, '2126887000', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-12-07 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Itaguaí | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=pibitaguai@gmail.com | CONTACT_PHONE=2126887000 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-12-07\"}', NULL, NULL, '2024-08-17 08:26:49', '2024-10-09 12:04:34', 2, 2, 290),
-(218, NULL, NULL, 'Jailton Barreto Rangel', '1144110843', 'ieca.secretaria@gmail.com', 'Rua São Vicente de Paula', '374', NULL, 'Centro', 'Atibaia', NULL, '12940550', NULL, '11970707901', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-11-30 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Evangélica Congregacional Atibaiense | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=ieca.secretaria@gmail.com | CONTACT_PHONE=1144110843 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-11-30\"}', NULL, NULL, '2024-08-21 11:33:06', '2024-11-29 11:03:44', 2, 2, 182),
-(219, NULL, NULL, 'Jailton Barreto Rangel', '1144110843', 'ieca.secretaria@gmail.com', 'Rua São Vicente de Paula', '374', NULL, 'Centro', 'Atibaia', NULL, '12940550', NULL, '11970707901', 150.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-11-29 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Evangélica Congregacional Atibaiense | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=ieca.secretaria@gmail.com | CONTACT_PHONE=1144110843 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-11-29\"}', NULL, NULL, '2024-08-21 11:37:39', '2024-11-29 11:02:33', 1, 2, 182),
 (220, NULL, NULL, 'Jailton Barreto Rangel', '2126492056', 'nononon@nononon.com.br', 'Avenida Governador Roberto Silveira', 's/n', NULL, 'Campo do Prado', 'Cachoeiras de Macacu', NULL, '28680000', NULL, '21982690846', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-26 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Cachoeiras de Macacu | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=3 | CONTACT_EMAIL=nononon@nononon.com.br | CONTACT_PHONE=2126492056 | COMMENT=Relatório: Adquiridos 100 inscrições no valor de 40,00 reais cada uma. Total depositado na Conta de EEBrasil = R$ 4.000,00 pelo PIX DIA 22/10/2024, anexado o comprovante no Email. Cerca de 19 inscritos não compareceram, estes receberão o manual e o pastor passará para eles os complementos do esboço e eles estarão aptos para participarem de outro workshop quando for possível. TODOS SÃO MEMBROS DA PRIMEIRA IGREJA BATISTA DE CACHOEIRAS DE MACACU -  01  IGREJA NOVA PARA EE. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-26\"}', NULL, NULL, '2024-08-22 09:23:31', '2024-10-29 12:04:37', 2, 2, 291),
 (221, NULL, NULL, 'Jailton Barreto Rangel', '21997877290', 'nononon@nonon.com.br', 'nonononon,', 'nonono', 'nononon', 'Colubandê', 'São Gonçalo', NULL, '89797996', NULL, '997877290', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-04 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Centenário de Colubandê | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=nononon@nonon.com.br | CONTACT_PHONE=21997877290 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-04\"}', NULL, NULL, '2024-08-31 11:29:24', '2024-10-31 13:21:19', 2, 2, 292),
 (222, NULL, NULL, 'Jailton Barreto Rangel', '21997877290', 'nononon@nonon.com.br', 'nonononon,', 'nonono', 'nononon', 'Colubandê', 'São Gonçalo', NULL, '89797996', NULL, '997877290', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-05 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista Centenário de Colubandê | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=nononon@nonon.com.br | CONTACT_PHONE=21997877290 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-05\"}', NULL, NULL, '2024-08-31 11:32:35', '2024-10-09 12:06:58', 1, 2, 292),
 (223, NULL, NULL, 'Filemon Teófilo Silva', '6192380375', 'pr.filemon@hotmail.com', 'QNM 3 Conjunto B', 'Lote 3', NULL, 'Ceilândia Sul', 'Brasília', NULL, '72215032', NULL, '6192380375', 65.00, 0.00, 15.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-19 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja de Nova Vida de Ceilândia | TEACHER=Filemon Teófilo Silva | LEGACY_STATUS=3 | CONTACT_EMAIL=pr.filemon@hotmail.com | CONTACT_PHONE=6192380375 | COMMENT=Igreja de Nova Vida de Ceilândia – DF em 19/10/2024n50 Kits adquiridos + 11 que sobraram do WESM anterior= total 61 nDepositado pelo PIX para EE Brasil no dia 15/10/2024 ..... 1.591,60  nFoi descontado 40% R$ 1.000,00  incentivo para o professor voluntário : Pr.  Filemon n3 pastores;   3 igrejas , sendo 2 novas.n | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=27', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-19\"}', NULL, NULL, '2024-09-25 15:01:09', '2024-10-29 14:24:55', 2, 178, 81),
 (224, NULL, NULL, 'Jose Carlos Ribeiro', '31971354738', 'ipbitaunamg@gmail.com', 'Av Getulio Vargas', '1401', NULL, 'Centro', 'Itaúna', NULL, '35580037', NULL, '31971354738', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-11-09 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Itaúna | TEACHER=Jose Carlos Ribeiro | LEGACY_STATUS=3 | CONTACT_EMAIL=ipbitaunamg@gmail.com | CONTACT_PHONE=31971354738 | COMMENT=Realizado no dia 9 de Novembro de 2024 um workshop EPC na Igreja Presbiteriana de Itaúna em Minas Gerais pelo prof. Rev. José Carlos Ribeiro. Apurou 960,00 para EE Brasil (60% do total). 32 participantes a 50 reais cada. Foi total de 1600,00. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=10', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-11-09\"}', NULL, NULL, '2024-10-04 13:39:24', '2024-11-14 13:48:36', 2, 1187, 293),
-(225, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', NULL, '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=1 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:19:23', '2024-10-09 10:19:23', 2, 800, 296),
-(226, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', NULL, '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=1 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:19:32', '2024-10-09 10:19:32', 2, 800, 296),
 (227, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:22:08', '2026-03-12 06:24:24', 2, 800, 296),
 (228, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:22:12', '2026-03-12 06:24:32', 2, 800, 296),
 (229, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:22:50', '2026-03-12 06:24:47', 2, 800, 296),
-(230, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:23:21', '2026-03-12 06:24:54', 2, 800, 296);
-INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
+(230, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:23:21', '2026-03-12 06:24:54', 2, 800, 296),
 (231, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:23:22', '2026-03-12 06:25:00', 2, 800, 296),
 (232, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:23:54', '2026-03-12 06:25:07', 2, 800, 296),
 (233, NULL, NULL, 'John Carlos Harmon Junior', '11961223145', 'jharmon@eeworks.org', 'Avenida Joana D\'Arc', '707', NULL, 'Pioneiros', 'Campo Grande', NULL, '79070170', 'https://forms.gle/ymntpDd1EbeNsc998', '11961223145', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2024-10-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Janelas do Céu | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=2 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=11961223145 | COMMENT=Esse evento é promovido pelo Instituto Bíblico de Evangelização de Araçatuba, com apoio e ferramenta do Evangelismo Explosivo Internacional no Brasil | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2024-10-08\"}', NULL, NULL, '2024-10-09 10:24:49', '2026-03-12 06:25:25', 2, 800, 296),
@@ -1442,7 +2647,8 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (238, NULL, NULL, 'Jailton Barreto Rangel', '21967349359', 'revgabrielst@gmail.com', 'Rua Réia', '145', NULL, 'Parque do Carmo', 'Duque de Caxias', NULL, '25041110', NULL, '21967349359', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-14 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana do Parque do Carmo | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=revgabrielst@gmail.com | CONTACT_PHONE=21967349359 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-14\"}', NULL, NULL, '2024-10-10 09:42:51', '2025-01-03 15:17:41', 2, 2, 299),
 (239, NULL, NULL, 'Jailton Barreto Rangel', '21967349359', 'revgabrielst@gmail.com', 'Rua Réia', '145', NULL, 'Parque do Carmo', 'Duque de Caxias', NULL, '25041110', NULL, '21967349359', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-14 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Presbiteriana do Parque do Carmo | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=revgabrielst@gmail.com | CONTACT_PHONE=21967349359 | LEGACY_LESSONPLAN_ID=7 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-14\"}', NULL, NULL, '2024-10-10 09:45:43', '2025-01-03 08:27:47', 1, 2, 299),
 (240, NULL, NULL, 'Jose Carlos Ribeiro', '3184522955', 'nonono@gmai.com', 'Rua Santa Alexandrina', '831', NULL, 'Araguaia', 'Belo Horizonte', NULL, '30620170', NULL, '3184522955', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Décima Igreja Presbiteriana de Belo Horizonte | TEACHER=Jose Carlos Ribeiro | LEGACY_STATUS=4 | CONTACT_EMAIL=nonono@gmai.com | CONTACT_PHONE=3184522955 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=10', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-08\"}', NULL, NULL, '2024-11-02 09:55:51', '2025-02-05 13:46:54', 2, 1187, 300),
-(241, NULL, NULL, 'Jose Carlos Ribeiro', '37998574051', 'ipbpiui@gmail.com', 'Rua Ramiro Júlio Ferreira', '192', NULL, 'Centro', 'Piumhi', NULL, '37925000', NULL, '3799416961', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-22 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Piunhi | TEACHER=Jose Carlos Ribeiro | LEGACY_STATUS=4 | CONTACT_EMAIL=ipbpiui@gmail.com | CONTACT_PHONE=37998574051 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=10', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-22\"}', NULL, NULL, '2024-11-02 10:00:30', '2025-09-23 11:06:37', 2, 1187, 286),
+(241, NULL, NULL, 'Jose Carlos Ribeiro', '37998574051', 'ipbpiui@gmail.com', 'Rua Ramiro Júlio Ferreira', '192', NULL, 'Centro', 'Piumhi', NULL, '37925000', NULL, '3799416961', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-22 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Piunhi | TEACHER=Jose Carlos Ribeiro | LEGACY_STATUS=4 | CONTACT_EMAIL=ipbpiui@gmail.com | CONTACT_PHONE=37998574051 | LEGACY_LESSONPLAN_ID=1 | LEGACY_ZONE_ID=10', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-22\"}', NULL, NULL, '2024-11-02 10:00:30', '2025-09-23 11:06:37', 2, 1187, 286);
+INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
 (242, NULL, NULL, 'Jose Carlos Ribeiro', '31994137069', 'ivaiassis@hotmail.com', 'Rua Flor de Vidro', '370', NULL, 'Jardim Alvorada', 'Belo Horizonte', NULL, '30810330', NULL, '31993201353', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-04-11 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Comunidade Kerigma | TEACHER=Jose Carlos Ribeiro | LEGACY_STATUS=4 | CONTACT_EMAIL=ivaiassis@hotmail.com | CONTACT_PHONE=31994137069 | COMMENT=Inscrições com Jane  31 993201353 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=10', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-04-11\"}', NULL, NULL, '2024-11-02 10:07:21', '2025-07-29 07:39:00', 1, 1187, 285),
 (243, NULL, NULL, 'Aparecido Thomaz da Silva', '6730414444', 'esouraria@1b.org.br', 'Rua treze de maio', '2647', NULL, 'centro', 'Campo Grande', NULL, '79002351', NULL, '6730414444', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista de Campo Grande | TEACHER=Aparecido Thomaz da Silva | LEGACY_STATUS=4 | CONTACT_EMAIL=esouraria@1b.org.br | CONTACT_PHONE=6730414444 | COMMENT=Voltaremos a ter uma reunião,para reagendamento | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=11', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-15\"}', NULL, NULL, '2024-11-05 05:40:30', '2025-02-06 02:09:33', 2, 1197, 302),
 (245, NULL, NULL, 'Brasilino Pires', '21987049563', 'deylson@gmail.com', 'Rua Artur de Souza', '109', NULL, 'Fragoso', 'Magé', NULL, '25935000', NULL, '21987049563', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-02-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Assembleia de Deus IHWH em Fragoso | TEACHER=Brasilino Pires | LEGACY_STATUS=3 | CONTACT_EMAIL=deylson@gmail.com | CONTACT_PHONE=21987049563 | COMMENT=Neste treinamento o pastor depositou na conta do EE-Brasil o valor referente a 65 reais por pessoa inscrita no treinamento, acrescido das despesas que os professores tiveram. totalizando 1800,00. A quantia referente as despesas do missionário já foi reembolsada. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-02-15\"}', NULL, NULL, '2024-11-08 03:59:07', '2025-03-02 07:54:29', 2, 1198, 303),
@@ -1488,8 +2694,7 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (293, NULL, NULL, 'Aparecido Thomaz da Silva', '67992812862', 'prapibm@gmail.com', 'Av Zulmira Borba', '951', NULL, 'Nova Lima', 'Campo Grande', NULL, '79017043', NULL, '67998873727', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-10-10 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Água Viva | TEACHER=Aparecido Thomaz da Silva | LEGACY_STATUS=4 | CONTACT_EMAIL=prapibm@gmail.com | CONTACT_PHONE=67992812862 | COMMENT=Desde vários anos atrás, começamos a relacionar com pastores e igrejas do Estado do Mato Grosso do Sul, quando o Cleiton, e o Pr Cleverson. mesmo antes quando ainda nem sabia que voltaria para o seu Estado de nascimento, já estiveram lá fazendo treinamento. Também capacitamos o pastor Aparecido para ministrar workshops ESM e com a ida do pastor John Harmon, que cuida do escritório de EE Brasil, então foi alinhavada essa clínica com o workshop na I.BATISTA ÁGUA VIVA, entretanto por qualquer razão, talvez de calendário, essa clínica é cancelada, hoje, dia 29/09/2025. Acabo de receber do pastor Paulo Martins uma mensagem cancelando-a. É uma pena. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=11', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-10-10\"}', NULL, NULL, '2025-04-15 04:24:43', '2025-09-30 09:38:44', 2, 1197, 301),
 (294, NULL, NULL, 'Cleiton dos Santos', '2732524524', 'pibjacaraipe@hotmail.com', 'Rua Tupã', '1521', NULL, 'Jardim Atlântico', 'Serra', NULL, '29175177', NULL, '2732524524', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-04-11 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista em Jacaraípe | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=pibjacaraipe@hotmail.com | CONTACT_PHONE=2732524524 | COMMENT=Total de participantes: 9;nTotal de pastores: 1;nTotal de igrejas: 1;nTotal de igrejas novas: 1;n22 pessoas ouviram a explicações do Evangelho;n14 pessoas decidiram-se a Jesus. | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=7', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-04-11\"}', NULL, NULL, '2025-05-21 05:22:12', '2025-05-21 05:22:12', 1, 1, 332),
 (295, NULL, NULL, 'Brasilino Pires', '2732524524', 'pibjacaraipe@hotmail.com', 'Rua Tupã', '1521', NULL, 'Jardim Atlântico', 'Serra', NULL, '29175177', NULL, '2732524524', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-04-11 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Jacaraípe | TEACHER=Brasilino Pires | LEGACY_STATUS=3 | CONTACT_EMAIL=pibjacaraipe@hotmail.com | CONTACT_PHONE=2732524524 | COMMENT=Total de participantes: 25;nTotal de pastores: 1;nTotal de igrejas: 1;nTotal de igrejas novas: 1; | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=7', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-04-11\"}', NULL, NULL, '2025-05-21 05:25:55', '2025-05-21 05:25:55', 2, 1198, 332),
-(296, NULL, NULL, 'Brasilino Pires', '21989393732', 'azaza@gmail.com', 'Rua Zumbi dos Palmares', 'Qd 70 Lt 22', NULL, 'Barroco', 'Maricá', NULL, '24942395', NULL, '21989393732', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-08-23 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Oceânica de Itaipuaçú | TEACHER=Brasilino Pires | LEGACY_STATUS=3 | CONTACT_EMAIL=azaza@gmail.com | CONTACT_PHONE=21989393732 | COMMENT=Confirmado o WESM hoje 24/5/25. Realizado no dia 23 de Agosto de 2025, como 26 participantes.  Cleiton cooperou com o Pr Brasilino e ambos realizaram esse workshop ESM. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-08-23\"}', NULL, NULL, '2025-05-25 07:28:32', '2025-09-02 09:27:25', 2, 1198, 221);
-INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
+(296, NULL, NULL, 'Brasilino Pires', '21989393732', 'azaza@gmail.com', 'Rua Zumbi dos Palmares', 'Qd 70 Lt 22', NULL, 'Barroco', 'Maricá', NULL, '24942395', NULL, '21989393732', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-08-23 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Oceânica de Itaipuaçú | TEACHER=Brasilino Pires | LEGACY_STATUS=3 | CONTACT_EMAIL=azaza@gmail.com | CONTACT_PHONE=21989393732 | COMMENT=Confirmado o WESM hoje 24/5/25. Realizado no dia 23 de Agosto de 2025, como 26 participantes.  Cleiton cooperou com o Pr Brasilino e ambos realizaram esse workshop ESM. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-08-23\"}', NULL, NULL, '2025-05-25 07:28:32', '2025-09-02 09:27:25', 2, 1198, 221),
 (297, NULL, NULL, 'Cleiton dos Santos', '2133913962', 'pibva@pibva.com.br', 'Av. Capitão Cruz', '851', '15 km', 'Vista Alegre', 'Rio de Janeiro', NULL, '21250520', NULL, '21991935783', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-08-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Vista Alegre | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=pibva@pibva.com.br | CONTACT_PHONE=2133913962 | COMMENT=Número de participantes: 40 pessoas;nSendo 5 pastores;n2 igrejas novas | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-08-15\"}', NULL, NULL, '2025-06-07 09:14:01', '2025-09-05 03:25:29', 2, 1, 327),
 (298, NULL, NULL, 'Filemon Teófilo Silva', '62991737122', 'adericoasilva@gmail.com', 'Avenida Crunnel', '323', NULL, 'Abadiânia', 'Abadiânia', NULL, '72340000', NULL, '62991737122', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-03-08 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana de Abadiânia | TEACHER=Filemon Teófilo Silva | LEGACY_STATUS=3 | CONTACT_EMAIL=adericoasilva@gmail.com | CONTACT_PHONE=62991737122 | COMMENT=Foi só um WORKSHOP ESM. Professores Filemon e Weben. O horário foi especial das 14 às 21 horas, com intervalo de 1 hora para lanche e comunhão.  14 PARTICIPANTES, sendo 02 pastores; e   2 (duas) igrejas novas para EE. O pagamento foi feito pela Igreja Presbiteriana via PIX na chave do EE BRASIL no Bradesco. Informações prestadas pelo Pr; FILEMON. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=8', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-03-08\"}', NULL, NULL, '2025-06-07 10:24:36', '2025-06-07 10:24:36', 2, 178, 316),
 (299, NULL, NULL, 'Eduardo Domingues', '3492875101', 'nnonono@gmail.com', 'Rua São Pedro', '1239', NULL, 'São Geraldo', 'Uberaba', NULL, '38031120', NULL, '3492875101', 65.00, 42.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-06-21 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Ministério Deus Forte | TEACHER=Eduardo Domingues | LEGACY_STATUS=3 | CONTACT_EMAIL=nnonono@gmail.com | CONTACT_PHONE=3492875101 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=10', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-06-21\"}', NULL, NULL, '2025-06-27 15:14:47', '2025-06-27 15:14:47', 2, 4, 325),
@@ -1500,7 +2705,8 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (304, NULL, NULL, 'John Carlos Harmon Junior', '18991027528', 'jharmon@eeworks.org', 'Rua Paraiso', '1738', NULL, 'Boa Vista', 'Araçatuba', NULL, '16047160', NULL, '18991027528', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-08-18 | COURSE=Evangelho Em Sua Mão | CHURCH=Instituto Bíblico de Evangelização | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=3 | CONTACT_EMAIL=jharmon@eeworks.org | CONTACT_PHONE=18991027528 | COMMENT=Tivemos o nosso módulo de Evangelismo no Instituto, dos dias 18-21/08, usamos a ferramenta de workshop para o treinamento... tivemos a participação de 30 pessoas, 2 pastores e 3 igrejas... Já são um grupo das igrejas que trabalhamos nesses últimos meses... | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-08-18\"}', NULL, NULL, '2025-08-28 06:46:52', '2025-08-28 06:46:52', 2, 800, 298),
 (305, NULL, NULL, 'Cleverson Rodrigues', '66997233603', 'nno@gmail.com', 'Rua Itatinga', '524', NULL, 'Santa Luzia', 'Jaciara', NULL, '78820000', NULL, '66999529871', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-10-25 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista de Jaciara | TEACHER=Cleverson Rodrigues | LEGACY_STATUS=3 | CONTACT_EMAIL=nno@gmail.com | CONTACT_PHONE=66997233603 | COMMENT=OBS.: Esse Workshop ESM foi marcado pelo pastor Cleverson Rodrigues e será realizado no dia 25/10 no horário das 13h às 20horas. Igrejas de PIB DE DOM AQUINO, SEGUNDA DE JACIARA E PIB DE JUCIMERA, sendo apenas uma nova. 16 líderes se inscreveram e foi realizado. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=12', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-10-25\"}', NULL, NULL, '2025-09-11 12:41:16', '2025-11-06 05:42:11', 2, 358, 338),
 (306, NULL, NULL, 'Alexandre M.S. de Souza', '11981053531', 'fabioricrocha@gmail.com', 'Alameda Canuto de Pito', '276', NULL, 'Parque Petrópolis', 'Mairiporã', NULL, '076000000', NULL, '11981053531', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-11-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Amar | TEACHER=Alexandre M.S. de Souza | LEGACY_STATUS=4 | CONTACT_EMAIL=fabioricrocha@gmail.com | CONTACT_PHONE=11981053531 | COMMENT=Pastor Alexandre deverá fazer esse workshop é perto da casa dele. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=25', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-11-29\"}', NULL, NULL, '2025-09-17 05:00:48', '2025-10-30 09:26:43', 2, 801, 339),
-(307, NULL, NULL, 'John Carlos Harmon Junior', '6781150734', 'dodod@gmail.com', 'Rua Clovis Cersósimo de Souza', '3740', NULL, 'Vila Barros', 'Dourados', NULL, '79831090', NULL, '6781150734', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-07 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana do Brasil da Vila Barros em Dourados | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=4 | CONTACT_EMAIL=dodod@gmail.com | CONTACT_PHONE=6781150734 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=11', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-07\"}', NULL, NULL, '2025-09-17 05:37:41', '2025-12-17 04:36:11', 2, 800, 340),
+(307, NULL, NULL, 'John Carlos Harmon Junior', '6781150734', 'dodod@gmail.com', 'Rua Clovis Cersósimo de Souza', '3740', NULL, 'Vila Barros', 'Dourados', NULL, '79831090', NULL, '6781150734', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-07 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana do Brasil da Vila Barros em Dourados | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=4 | CONTACT_EMAIL=dodod@gmail.com | CONTACT_PHONE=6781150734 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=11', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-07\"}', NULL, NULL, '2025-09-17 05:37:41', '2025-12-17 04:36:11', 2, 800, 340);
+INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `url`, `gpwhatsapp`, `price`, `price_church`, `discount`, `pix_qr_code`, `pix_key`, `kits`, `notes`, `status`, `welcome_duration_minutes`, `schedule_settings`, `schedule_attention_shown_at`, `schedule_adjusted_at`, `created_at`, `updated_at`, `course_id`, `teacher_id`, `church_id`) VALUES
 (308, NULL, NULL, 'Cleiton dos Santos', '22998391201', 'secretariapibjardimesperanca@gmail.com', 'Rua Antônio Macedo de Castro', '015', NULL, 'Jardim Esperança', 'Cabo Frio', NULL, '28920009', NULL, '22998391201', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-03-21 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista em Jardim Esperança | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=secretariapibjardimesperanca@gmail.com | CONTACT_PHONE=22998391201 | COMMENT=Clínica marcada pelo pastor Brasilino | LEGACY_LESSONPLAN_ID=7 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-03-21\"}', NULL, NULL, '2025-09-19 11:09:02', '2026-02-06 05:16:20', 1, 1, 341),
 (309, NULL, NULL, 'Brasilino Pires', '22998391201', 'secretariapibjardimesperanca@gmail.com', 'Rua Antônio Macedo de Castro', '015', NULL, 'Jardim Esperança', 'Cabo Frio', NULL, '28920009', NULL, '22998391201', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-04-11 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista em Jardim Esperança | TEACHER=Brasilino Pires | LEGACY_STATUS=1 | CONTACT_EMAIL=secretariapibjardimesperanca@gmail.com | CONTACT_PHONE=22998391201 | COMMENT=Este workshop está sendo marcado pelo pastor  Brasilino | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-04-11\"}', NULL, NULL, '2025-09-19 11:12:10', '2026-02-06 05:35:26', 2, 1198, 341),
 (310, NULL, 'Neemias Lima', 'Cleiton dos Santos', '2226433969', 'igrejadobraga@gmail.com', 'Rua Omar Fontoura', '117', NULL, 'Braga', 'Cabo Frio', 'RJ', '28.908-110', NULL, '22992252268', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-10-24 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista no Braga | TEACHER=Cleiton dos Santos | LEGACY_STATUS=2 | CONTACT_EMAIL=igrejadobraga@gmail.com | CONTACT_PHONE=2226433969 | COMMENT=Esta Clínica foi marcada pelo pastor Brasilino. 23,24 e 25 de outubro de 2026 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-10-23\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-10-24\": {\"lunch\": true, \"snack\": true, \"dinner\": true, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-10-25\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-02-27 06:34:11', '2026-03-02 23:10:00', '2025-09-19 11:32:55', '2026-03-02 23:42:32', 1, 1, 342),
@@ -1508,41 +2714,137 @@ INSERT INTO `trainings` (`id`, `banner`, `leader`, `coordinator`, `phone`, `emai
 (312, NULL, NULL, 'Cleiton dos Santos', '2126211268', 'secretaria@pibinga.org.br', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-11-28 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=secretaria@pibinga.org.br | CONTACT_PHONE=2126211268 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-11-28\"}', NULL, NULL, '2025-09-23 09:21:47', '2025-09-30 09:46:20', 1, 1, 1),
 (313, NULL, NULL, 'Alexandre M.S. de Souza', '11998635146', 'psicologia.ser@gmail.com', 'Rua Lago da Mangueira', '100', NULL, 'Jardim do Lago', 'São Bernardo do Campo', NULL, '09840620', NULL, '11998635146', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-28 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista no Jardim do Lago | TEACHER=Alexandre M.S. de Souza | LEGACY_STATUS=1 | CONTACT_EMAIL=psicologia.ser@gmail.com | CONTACT_PHONE=11998635146 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-28\"}', NULL, NULL, '2025-10-07 10:20:20', '2025-10-07 10:20:20', 2, 801, 343),
 (314, NULL, NULL, 'Cleiton dos Santos', '2226440775', 'sibcabofrio@gmail.com', 'Rua Elpídio Barbosa Guimarães', '59', NULL, 'Jardim Caiçara', 'Cabo Frio', NULL, '28910010', NULL, '2226440775', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-11-29 | COURSE=Evangelho Em Sua Mão | CHURCH=Segunda Igreja Batista em Cabo Frio | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=sibcabofrio@gmail.com | CONTACT_PHONE=2226440775 | COMMENT=Esse workshop ESM está sendo marcado pelo Pr Brasilino. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-11-29\"}', NULL, NULL, '2025-10-14 09:24:27', '2025-11-15 08:05:01', 2, 1, 31),
-(315, NULL, 'Neemias Lima', 'Brasilino Pires', '2226433969', 'batistadobraga@hotmail.com', 'Rua Omar Fontoura', '117', NULL, 'Braga', 'Cabo Frio', 'RJ', '28.908-110', NULL, '22992252268', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-04-10 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista no Braga | TEACHER=Brasilino Pires | LEGACY_STATUS=2 | CONTACT_EMAIL=batistadobraga@hotmail.com | CONTACT_PHONE=2226433969 | COMMENT=Esse workshop foi conseguido pelo pr Brasilino. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-04-10\": {\"lunch\": true, \"snack\": true, \"dinner\": true, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-04-11\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-03 02:49:55', '2026-03-03 02:50:09', '2025-10-29 10:27:52', '2026-03-16 02:30:57', 2, 1198, 342),
+(315, NULL, 'Neemias Lima', 'Brasilino Pires', '2226433969', 'batistadobraga@hotmail.com', 'Rua Omar Fontoura', '117', NULL, 'Braga', 'Cabo Frio', 'RJ', '28.908-110', NULL, '22992252268', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-04-10 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista no Braga | TEACHER=Brasilino Pires | LEGACY_STATUS=2 | CONTACT_EMAIL=batistadobraga@hotmail.com | CONTACT_PHONE=2226433969 | COMMENT=Esse workshop foi conseguido pelo pr Brasilino. | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 2, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-04-10\": {\"lunch\": true, \"snack\": true, \"dinner\": true, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-04-11\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-03 02:49:55', '2026-03-03 02:50:09', '2025-10-29 10:27:52', '2026-03-27 01:50:23', 2, 1198, 342),
 (316, NULL, NULL, 'Jailton Barreto Rangel', '21972765535', 'csilva@eeworks.org', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-01-12 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=4 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21972765535 | COMMENT=Clínica ONLINE COM O WORKSHOP | LEGACY_LESSONPLAN_ID=6 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-01-12\"}', NULL, NULL, '2025-11-06 05:58:50', '2026-02-11 13:25:00', 2, 2, 1),
 (317, NULL, NULL, 'Cleiton dos Santos', '21972765535', 'csilva@eeworks.org', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-01-12 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21972765535 | COMMENT=Clinica ONLINE | LEGACY_LESSONPLAN_ID=10 | LEGACY_ZONE_ID=18', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-01-12\"}', NULL, NULL, '2025-11-06 06:03:13', '2025-11-06 06:05:37', 1, 1, 1),
-(318, NULL, NULL, 'Cleiton dos Santos', '21972765535', 'csilva@eeworks.org', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-04 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21972765535 | COMMENT=Clinica ONLINE e WESM dias 2 a 7 de fevereiro de 2026.    Nomes dos participantes: Alguns alunos já fizeram o Clássico e estavam participando para atualização no uso dos materiais novos. São eles: Aroldo Vieira, Pr. Ivan Alves Leão, Pr. William Teixeira, ir Rubens do Amaral Filho, Bp. Zildomar Silva de Souza e Pr. Luiz Antônio dos Santos.nOs demais são líderes que fizeram pela primeira vez: ir. Jamile Fernanda Cardoso Carneiro, Pra. Katryne de Oliveira Rodrigues, pr. Rafael Lima de Souza e ir. Eliezer de Oliveira Aleixo.nResultado da CTPs: 9 contatos abordamos  10 pessoas e destas, 9 se decidiram e 1 ficou interessada.nn | LEGACY_LESSONPLAN_ID=10 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-04\"}', NULL, NULL, '2025-11-06 06:03:14', '2026-02-10 11:40:10', 1, 1, 1),
+(318, NULL, 'Edimar Guimarães Pereira', 'Cleiton dos Santos', '21972765535', 'csilva@eeworks.org', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', 'RJ', '24.210-445', NULL, '21978735943', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-04 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=csilva@eeworks.org | CONTACT_PHONE=21972765535 | COMMENT=Clinica ONLINE e WESM dias 2 a 7 de fevereiro de 2026.    Nomes dos participantes: Alguns alunos já fizeram o Clássico e estavam participando para atualização no uso dos materiais novos. São eles: Aroldo Vieira, Pr. Ivan Alves Leão, Pr. William Teixeira, ir Rubens do Amaral Filho, Bp. Zildomar Silva de Souza e Pr. Luiz Antônio dos Santos.nOs demais são líderes que fizeram pela primeira vez: ir. Jamile Fernanda Cardoso Carneiro, Pra. Katryne de Oliveira Rodrigues, pr. Rafael Lima de Souza e ir. Eliezer de Oliveira Aleixo.nResultado da CTPs: 9 contatos abordamos  10 pessoas e destas, 9 se decidiram e 1 ficou interessada.nn | LEGACY_LESSONPLAN_ID=10 | LEGACY_ZONE_ID=18', 3, 30, '{\"overrides\": {\"2026-02-06\": {\"snack_break_suppressed\": true}}, \"day_blocks\": {\"2026-02-02\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-02-03\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-02-04\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-02-05\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-02-06\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-02-07\": {\"lunch\": true, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-23 18:13:05', '2026-03-23 18:15:28', '2025-11-06 06:03:14', '2026-03-23 18:39:37', 1, 1, 1),
 (319, NULL, NULL, 'John Carlos Harmon Junior', '18991057528', 'ibesbe@gmail.com', 'chácara Agua Azul', 'sem numero', NULL, 'Agua Azul', 'Anastácio', NULL, '0', NULL, '18991057528', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2025-11-11 | COURSE=Evangelho Em Sua Mão | CHURCH=Instituto Bíblico Cades Banéia | TEACHER=John Carlos Harmon Junior | LEGACY_STATUS=3 | CONTACT_EMAIL=ibesbe@gmail.com | CONTACT_PHONE=18991057528 | COMMENT=Fizemos um workshop Missionário com a presença de 28 pessoas, sendo 5 etnias (Kadweu, Xavante, Waurá, Terena e Suiá).  O Treinamento teve q ser bem devagar, pelo fato que muitos ali não falam bem o português, mas estavam empolgados.  Lá é um Instituto Bíblico para os indígenas, preparando para voltar para sua etnia para ministério.  Não teve custo, pelo fato que foi parceria com o IBE de Araçatuba e também usado material com pequenos defeitos.  Onde podemos abençoa-los.  Já tivemos treinamento no passado com eles 2016,2017 e 2018... | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=11', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2025-11-11\"}', NULL, NULL, '2025-11-19 13:49:51', '2025-11-19 13:49:51', 2, 800, 344),
 (320, NULL, NULL, 'Cleiton dos Santos', '67998873727', 'prapibm@gmail.com', 'Rua Queops', '98', NULL, 'Jardim Macapá', 'Campo Limpo', NULL, '79071377', NULL, '67998873727', 0.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-03-06 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Batista Nova Aliança | TEACHER=Cleiton dos Santos | LEGACY_STATUS=4 | CONTACT_EMAIL=prapibm@gmail.com | CONTACT_PHONE=67998873727 | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=11', 2, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-03-06\"}', NULL, NULL, '2025-12-23 09:02:47', '2026-02-21 03:36:01', 1, 1, 345),
 (321, NULL, NULL, 'Jailton Barreto Rangel', '19971253829', 'matecilsilvia@gmail.com', 'Avenida João Aranha', '905', NULL, 'Jardim Planalto', 'Paulínia', NULL, '13145118', NULL, '19971253829', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-05-16 | COURSE=Evangelismo Eficaz | CHURCH=Igreja Evangélica Nascidos Em Cristo | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=matecilsilvia@gmail.com | CONTACT_PHONE=19971253829 | COMMENT=Este é um cadastro provisório. Faltam alguns dados | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-05-16\"}', NULL, NULL, '2026-01-24 05:52:08', '2026-01-24 07:44:08', 1, 2, 346),
-(322, NULL, NULL, 'Alexandre M.S. de Souza', '19971253829', 'nascidosemcristopaulinia@gmail.com', 'Avenida João Aranha', '905', NULL, 'Jardim Planalto', 'Paulínia', NULL, '13145118', NULL, '19971253829', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-05-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Evangélica Nascidos Em Cristo | TEACHER=Alexandre M.S. de Souza | LEGACY_STATUS=1 | CONTACT_EMAIL=nascidosemcristopaulinia@gmail.com | CONTACT_PHONE=19971253829 | COMMENT=Este é um cadastro provisório. Faltam alguns dados. Telefones: da Igreja  19 99181 1079;  do pastor Maciel:  19 97125 3829 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=25', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-05-15\"}', NULL, NULL, '2026-01-24 05:55:02', '2026-01-24 07:51:33', 2, 801, 346),
+(322, NULL, NULL, 'Alexandre M.S. de Souza', '19971253829', 'nascidosemcristopaulinia@gmail.com', 'Avenida João Aranha', '905', NULL, 'Jardim Planalto', 'Paulínia', NULL, '13145118', NULL, '19971253829', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-05-15 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Evangélica Nascidos Em Cristo | TEACHER=Alexandre M.S. de Souza | LEGACY_STATUS=1 | CONTACT_EMAIL=nascidosemcristopaulinia@gmail.com | CONTACT_PHONE=19971253829 | COMMENT=Este é um cadastro provisório. Faltam alguns dados. Telefones: da Igreja  19 99181 1079;  do pastor Maciel:  19 97125 3829 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=25', 1, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-05-15\"}', NULL, NULL, '2026-01-24 05:55:02', '2026-04-06 18:31:54', 2, 801, 346),
 (323, NULL, NULL, 'Alexandre M.S. de Souza', '19989579442', 'ipbeliasfausto@gmail.com', 'Rua Vinte e Quatro de Fevereiro', '87', NULL, 'Centro', 'Elias Fausto', NULL, '13350000', NULL, '19981778736', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-28 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Presbiteriana do Brasil em Elias Fausto | TEACHER=Alexandre M.S. de Souza | LEGACY_STATUS=2 | CONTACT_EMAIL=ipbeliasfausto@gmail.com | CONTACT_PHONE=19989579442 | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=25', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-28\"}', NULL, NULL, '2026-01-29 13:54:13', '2026-03-12 06:25:45', 2, 801, 347),
-(324, 'training-banners/324/QmRx9wQqckMWBVKaTf5gbe8DZCAFVzbHgdyxOJN7.png', 'Edimilson Bezerra da Silva', 'Filemon Teófilo Silva', '61986030911', NULL, 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72.125-515', NULL, '61986030911', 65.00, 0.00, 0.00, NULL, NULL, 0, NULL, 3, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-14\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}}}', '2026-03-03 02:33:44', '2026-03-03 02:34:08', '2026-01-29 14:26:24', '2026-03-17 16:32:44', 2, 178, 348),
+(324, 'training-banners/324/QmRx9wQqckMWBVKaTf5gbe8DZCAFVzbHgdyxOJN7.png', 'Edimilson Bezerra da Silva', 'Filemon Teófilo Silva', '61986030911', NULL, 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72.125-515', NULL, '61986030911', 65.00, 10.00, 15.00, NULL, NULL, 0, NULL, 3, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-14\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}}}', '2026-03-03 02:33:44', '2026-03-03 02:34:08', '2026-01-29 14:26:24', '2026-03-24 00:15:24', 2, 178, 348),
 (325, NULL, NULL, 'Cleiton dos Santos', '2126211268', 'secretaria@pibinga.org.br', 'Rua Doutor Paulo Alves', '125', NULL, 'Ingá', 'Niterói', NULL, '24210445', NULL, '21978735943', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-02-02 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Batista no Ingá | TEACHER=Cleiton dos Santos | LEGACY_STATUS=3 | CONTACT_EMAIL=secretaria@pibinga.org.br | CONTACT_PHONE=2126211268 | COMMENT=Na Verdade esse foi um workshop seguido de uma clínica completa. E foi online. Tivemos a inscrição de 10 pastores e líderes de vários estados do Brasil: Rio de Janeiro, Paraná, Pará, São  Paulo e Rio Grande do Norte. Cada um inscrito pagou 180 e mais a despesa do frete. O professor do Workshop foi o seminarista Cleiton Silva. Tínhamos representadas 8 igrejas, e todas igrejas novas. | LEGACY_LESSONPLAN_ID=6 | LEGACY_ZONE_ID=18', 3, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-02-02\"}', NULL, NULL, '2026-02-10 11:39:11', '2026-02-10 11:39:11', 2, 1, 1),
-(326, 'training-banners/326/9I20AQUxOqXJm3XFc5k9un3RgyCO8PAkpoJSSlCr.png', 'Sandro Assis dos Santos', 'Sandro Assis dos Santos', '61985834181', NULL, 'Quadra  nove', 'lote 1', NULL, 'Centro', 'Santo Antônio do Descoberto', 'GO', '72.900-000', NULL, '61985834181', 65.00, 0.00, 0.00, NULL, NULL, 0, NULL, 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-04-18\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}}}', '2026-03-03 02:41:53', '2026-03-03 02:42:10', '2026-02-15 08:55:21', '2026-03-19 20:18:33', 2, 178, 349),
-(327, NULL, 'não informado', 'Cleverson Rodrigues', '6696911400', 'batistamemorialroo@gmail.com', 'Avenida Guarapuava', '1.087', NULL, 'Jardim Iguassu', 'Rondonópolis', 'MT', '78.705-680', NULL, '6696911400', 65.00, 0.00, 15.00, 'training-pix-qrcodes/327/hLIfDBNl3ZfSu4950WwWHRGGWEbFz5BtB9Wgx7NC.jpg', '23.514.583/0001-74', 0, 'EVENT_DATE=2026-03-07 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Memorial em Rondonópolis | TEACHER=Cleverson Rodrigues | LEGACY_STATUS=2 | CONTACT_EMAIL=batistamemorialroo@gmail.com | CONTACT_PHONE=6696911400 | COMMENT=O pastor Cleverson marcou, e realizará. Será na sua própria igreja. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=12', 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-07\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}}}', '2026-03-02 23:29:43', '2026-03-02 23:30:23', '2026-02-15 09:10:29', '2026-03-18 01:11:48', 2, 358, 262),
+(327, NULL, 'não informado', 'Cleverson Rodrigues', '6696911400', 'batistamemorialroo@gmail.com', 'Avenida Guarapuava', '1.087', NULL, 'Jardim Iguassu', 'Rondonópolis', 'MT', '78.705-680', NULL, '6696911400', 65.00, 0.00, 15.00, 'training-pix-qrcodes/327/hLIfDBNl3ZfSu4950WwWHRGGWEbFz5BtB9Wgx7NC.jpg', '23.514.583/0001-74', 0, 'EVENT_DATE=2026-03-07 | COURSE=Evangelho Em Sua Mão | CHURCH=Igreja Batista Memorial em Rondonópolis | TEACHER=Cleverson Rodrigues | LEGACY_STATUS=2 | CONTACT_EMAIL=batistamemorialroo@gmail.com | CONTACT_PHONE=6696911400 | COMMENT=O pastor Cleverson marcou, e realizará. Será na sua própria igreja. | LEGACY_LESSONPLAN_ID=4 | LEGACY_ZONE_ID=12', 3, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-07\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}}}', '2026-03-02 23:29:43', '2026-03-02 23:30:23', '2026-02-15 09:10:29', '2026-03-24 20:35:04', 2, 358, 262),
 (328, 'training-banners/328/TFozkFDtns5k9DbTracYegP109nXxKijgxw8FVhL.jpg', 'Ubirajara Gonçalves', 'Ubirajara Gonçalves', '21996641855', NULL, 'Rua 02', 's/n', NULL, 'Vale das Pedrinhas', 'Guapimirim', 'RJ', '25.940-050', NULL, '21996641855', 180.00, 20.00, 0.00, 'training-pix-qrcodes/328/7CeE6UvOIjlo3loNvcqFVEmkI1Ac9UbKeeROVFk0.jpg', '13801243000170', 0, NULL, 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-04-17\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-04-18\": {\"lunch\": true, \"snack\": true, \"dinner\": true, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-04-19\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-02-26 09:27:09', '2026-02-26 09:28:22', '2026-02-21 03:47:46', '2026-03-17 21:48:58', 1, 1, 351),
-(330, NULL, NULL, 'Jailton Barreto Rangel', '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', NULL, 'Centro', 'Bom Jesus do Itabapoana', NULL, '28360000', NULL, '22997748054', 180.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-03-06 | COURSE=Evangelismo Eficaz | CHURCH=Primeira Igreja Presbiteriana de Bom Jesus do Itabapoana | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=pr.valdemir@yahoo.com.br | CONTACT_PHONE=22997748054 | COMMENT=Influenciada pelo pastor Isaac Pimentel da  Batista de Bom Jesus do Itabapoana | LEGACY_LESSONPLAN_ID=2 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-03-06\"}', NULL, NULL, '2026-02-21 12:23:00', '2026-02-21 12:27:05', 1, 2, 60),
-(331, NULL, NULL, 'Jailton Barreto Rangel', '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', NULL, 'Centro', 'Bom Jesus do Itabapoana', NULL, '28360000', NULL, '22997748054', 65.00, 0.00, 0.00, NULL, NULL, 0, 'EVENT_DATE=2026-03-06 | COURSE=Evangelho Em Sua Mão | CHURCH=Primeira Igreja Presbiteriana de Bom Jesus do Itabapoana | TEACHER=Jailton Barreto Rangel | LEGACY_STATUS=1 | CONTACT_EMAIL=pr.valdemir@yahoo.com.br | CONTACT_PHONE=22997748054 | LEGACY_LESSONPLAN_ID=11 | LEGACY_ZONE_ID=18', 0, 30, '{\"legacy_source\": \"eebra780_main.trainings.date\", \"legacy_primary_event_date\": \"2026-03-06\"}', NULL, NULL, '2026-02-21 12:24:51', '2026-02-21 12:24:51', 2, 2, 60),
-(332, 'training-banners/332/0pLkQNXE3xMlAQUElZUFAE6DQ1GcI4tlbzuoPd8j.png', NULL, 'Ubirajara Gonçalves', '21996641855', '', 'Rua 02', 's/n', '', 'Vale das Pedrinhas', 'Guapimirim', 'RJ', '25.940-050', NULL, '21996641855', 65.00, 0.00, 0.00, 'training-pix-qrcodes/332/NHdgO5VL8MJIYopQlic27hC1HEGhLwWBSpr7ZPod.jpg', '13801243000170', NULL, NULL, 1, 30, '{\"overrides\": {\"2026-04-18\": {\"snack_break_suppressed\": true}}, \"day_blocks\": {\"2026-04-17\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-04-18\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-12 03:46:24', '2026-03-12 03:47:18', '2026-03-12 03:45:03', '2026-03-12 04:10:01', 2, 1, 351),
-(333, 'training-banners/333/1sPAfckW9P8ISoatbHe9CflNrsmIEKziooHodcXz.png', NULL, NULL, '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', '', 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28.360-000', NULL, NULL, 180.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-27\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-03-28\": {\"lunch\": true, \"snack\": true, \"dinner\": true, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-03-29\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-17 20:18:33', '2026-03-17 20:38:18', '2026-03-17 20:18:29', '2026-03-17 21:04:43', 1, 1, 60),
-(334, 'training-banners/334/eBDKCDDZsAMFQIxvXpF0iat8DviCdKqGhXIuJKZH.png', NULL, NULL, '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', '', 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28.360-000', NULL, NULL, 65.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 1, 30, NULL, NULL, NULL, '2026-03-17 20:33:22', '2026-03-17 20:33:22', 2, 1, 60);
+(332, 'training-banners/332/0pLkQNXE3xMlAQUElZUFAE6DQ1GcI4tlbzuoPd8j.png', NULL, 'Ubirajara Gonçalves', '21996641855', '', 'Rua 02', 's/n', '', 'Vale das Pedrinhas', 'Guapimirim', 'RJ', '25.940-050', NULL, '21996641855', 65.00, 0.00, 0.00, 'training-pix-qrcodes/332/NHdgO5VL8MJIYopQlic27hC1HEGhLwWBSpr7ZPod.jpg', '13801243000170', NULL, NULL, 1, 30, '{\"overrides\": {\"2026-04-18\": {\"snack_break_suppressed\": true}}, \"day_blocks\": {\"2026-04-17\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-04-18\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-12 03:46:24', '2026-03-12 03:47:18', '2026-03-12 03:45:03', '2026-04-05 04:26:39', 2, 1, 351),
+(333, 'training-banners/333/1sPAfckW9P8ISoatbHe9CflNrsmIEKziooHodcXz.png', NULL, NULL, '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', '', 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28.360-000', NULL, NULL, 180.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 1, 30, '{\"overrides\": [], \"day_blocks\": {\"2026-03-27\": {\"lunch\": false, \"snack\": false, \"dinner\": false, \"welcome\": true, \"breakfast\": false, \"devotional\": true}, \"2026-03-28\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}, \"2026-03-29\": {\"lunch\": true, \"snack\": true, \"dinner\": false, \"welcome\": false, \"breakfast\": false, \"devotional\": true}}}', '2026-03-17 20:18:33', '2026-03-17 20:38:18', '2026-03-17 20:18:29', '2026-03-28 02:58:32', 1, 1, 60),
+(334, 'training-banners/334/eBDKCDDZsAMFQIxvXpF0iat8DviCdKqGhXIuJKZH.png', NULL, NULL, '22997748054', 'pr.valdemir@yahoo.com.br', 'Avenida Gonçalves da Silva', '309', '', 'Centro', 'Bom Jesus do Itabapoana', 'RJ', '28.360-000', NULL, NULL, 65.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 1, 30, NULL, NULL, NULL, '2026-03-17 20:33:22', '2026-04-05 04:28:12', 2, 2, 60),
+(335, NULL, NULL, 'John Harmon', '67920015761', 'ibcg2025@gmail.com', 'Rua João Maiolino', '64', '', 'Universitário', 'Campo Grande', 'MS', '79.063-540', NULL, '67920015761', 180.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 0, 30, NULL, '2026-03-25 18:58:45', NULL, '2026-03-25 18:57:53', '2026-03-25 19:00:18', 1, 800, 358),
+(336, 'training-banners/336/z15vWZ6EcSSxllMxKkrnw6hB1TqnhvUbdz1Dmkdq.png', NULL, 'Milton Duarte', '2127146322', 'pibdejurujuba@gmail.com', 'Avenida Carlos Ermelindo Marins', '62', '', 'Jurujuba', 'Niterói', 'RJ', '24.370-195', NULL, '21998284309', 65.00, 0.00, 0.00, NULL, NULL, NULL, NULL, 1, 30, NULL, NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 2, 1198, 368);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `training_assistant_teacher`
+--
+
+CREATE TABLE `training_assistant_teacher` (
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `training_assistant_teacher`
+--
 
 INSERT INTO `training_assistant_teacher` (`training_id`, `user_id`, `created_at`, `updated_at`) VALUES
 (315, 1, '2026-03-16 19:48:23', '2026-03-16 19:48:23'),
+(318, 2, '2026-03-23 18:39:13', '2026-03-23 18:39:13'),
 (328, 1198, '2026-03-17 21:08:06', '2026-03-17 21:08:06'),
 (332, 1198, '2026-03-16 19:35:35', '2026-03-16 19:35:35'),
 (333, 2, '2026-03-17 20:19:17', '2026-03-17 20:19:17'),
 (333, 1198, '2026-03-17 20:19:17', '2026-03-17 20:19:17'),
-(334, 2, '2026-03-17 20:33:41', '2026-03-17 20:33:41'),
+(334, 1, '2026-04-08 02:51:13', '2026-04-08 02:51:13'),
 (334, 1198, '2026-03-17 20:33:41', '2026-03-17 20:33:41');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `training_finance_audits`
+--
+
+CREATE TABLE `training_finance_audits` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `changes` json NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `training_finance_audits`
+--
 
 INSERT INTO `training_finance_audits` (`id`, `training_id`, `user_id`, `changes`, `created_at`, `updated_at`) VALUES
 (1, 328, 1, '{\"price_church\": {\"after\": \"20,00\", \"before\": \"0,00\"}}', '2026-02-27 11:29:38', '2026-02-27 11:29:38'),
 (2, 327, 358, '{\"pix_key\": {\"after\": \"23.514.583/0001-74\", \"before\": null}, \"pix_qr_code\": {\"after\": \"training-pix-qrcodes/327/hLIfDBNl3ZfSu4950WwWHRGGWEbFz5BtB9Wgx7NC.jpg\", \"before\": null}}', '2026-03-04 18:41:52', '2026-03-04 18:41:52'),
 (3, 332, 1, '{\"pix_key\": {\"after\": \"13801243000170\", \"before\": null}, \"pix_qr_code\": {\"after\": \"training-pix-qrcodes/332/NHdgO5VL8MJIYopQlic27hC1HEGhLwWBSpr7ZPod.jpg\", \"before\": null}}', '2026-03-12 04:10:01', '2026-03-12 04:10:01'),
 (4, 328, 1, '{\"pix_key\": {\"after\": \"13801243000170\", \"before\": null}, \"pix_qr_code\": {\"after\": \"training-pix-qrcodes/328/7CeE6UvOIjlo3loNvcqFVEmkI1Ac9UbKeeROVFk0.jpg\", \"before\": null}}', '2026-03-12 04:10:24', '2026-03-12 04:10:24'),
-(5, 327, 358, '{\"discount\": {\"after\": \"15.00\", \"before\": \"0.00\"}}', '2026-03-18 01:11:48', '2026-03-18 01:11:48');
+(5, 327, 358, '{\"discount\": {\"after\": \"15.00\", \"before\": \"0.00\"}}', '2026-03-18 01:11:48', '2026-03-18 01:11:48'),
+(6, 324, 178, '{\"discount\": {\"after\": \"15.00\", \"before\": \"0.00\"}}', '2026-03-24 00:06:20', '2026-03-24 00:06:20'),
+(7, 324, 178, '{\"price_church\": {\"after\": \"10.00\", \"before\": \"0.00\"}}', '2026-03-24 00:06:47', '2026-03-24 00:06:47'),
+(8, 324, 178, '{\"discount\": {\"after\": null, \"before\": \"15.00\"}, \"price_church\": {\"after\": null, \"before\": \"10.00\"}}', '2026-03-24 00:07:38', '2026-03-24 00:07:38'),
+(9, 324, 178, '{\"discount\": {\"after\": \"10.00\", \"before\": null}, \"price_church\": {\"after\": \"15.00\", \"before\": null}}', '2026-03-24 00:15:09', '2026-03-24 00:15:09'),
+(10, 324, 178, '{\"discount\": {\"after\": \"15.00\", \"before\": \"10.00\"}, \"price_church\": {\"after\": \"10.00\", \"before\": \"15.00\"}}', '2026-03-24 00:15:24', '2026-03-24 00:15:24');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `training_new_churches`
+--
+
+CREATE TABLE `training_new_churches` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `church_id` bigint(20) UNSIGNED NOT NULL,
+  `source_church_temp_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `training_new_churches`
+--
+
+INSERT INTO `training_new_churches` (`id`, `training_id`, `church_id`, `source_church_temp_id`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 328, 369, 1, 1, '2026-04-06 16:42:46', '2026-04-06 16:42:46');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `training_schedule_items`
+--
+
+CREATE TABLE `training_schedule_items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED NOT NULL,
+  `section_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `date` date NOT NULL,
+  `starts_at` datetime NOT NULL,
+  `ends_at` datetime NOT NULL,
+  `type` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `planned_duration_minutes` int(10) UNSIGNED NOT NULL,
+  `suggested_duration_minutes` int(10) UNSIGNED DEFAULT NULL,
+  `min_duration_minutes` int(10) UNSIGNED DEFAULT NULL,
+  `origin` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'AUTO',
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `status` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'OK',
+  `conflict_reason` json DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `position` int(10) UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `training_schedule_items`
+--
 
 INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`, `starts_at`, `ends_at`, `type`, `title`, `planned_duration_minutes`, `suggested_duration_minutes`, `min_duration_minutes`, `origin`, `is_locked`, `status`, `conflict_reason`, `meta`, `created_at`, `updated_at`, `position`) VALUES
 (3, 328, NULL, '2026-04-17', '2026-04-17 18:30:00', '2026-04-17 18:50:00', 'WELCOME', 'Boas-vindas', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-02-26 09:28:00', '2026-02-27 05:40:16', 1),
@@ -1675,21 +2977,6 @@ INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`
 (176, 324, 40, '2026-03-14', '2026-03-14 14:55:00', '2026-03-14 15:20:00', 'SECTION', 'Unidade 7 — Desenvolvendo Amor pelos Perdidos', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:34:05', '2026-03-03 02:41:15', 12),
 (177, 324, 41, '2026-03-14', '2026-03-14 15:50:00', '2026-03-14 16:15:00', 'SECTION', 'Unidade 8 — Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:34:05', '2026-03-03 02:41:26', 14),
 (179, 324, 42, '2026-03-14', '2026-03-14 16:15:00', '2026-03-14 17:00:00', 'SECTION', 'Encerramento — Juntos na Colheita do Senhor', 45, 40, 32, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:34:05', '2026-03-03 02:41:26', 15),
-(183, 326, NULL, '2026-04-18', '2026-04-18 08:30:00', '2026-04-18 08:50:00', 'WELCOME', 'Boas-vindas', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 1),
-(184, 326, NULL, '2026-04-18', '2026-04-18 08:50:00', '2026-04-18 09:00:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 2),
-(185, 326, 34, '2026-04-18', '2026-04-18 09:00:00', '2026-04-18 09:40:00', 'SECTION', 'Unidade 1 — Por Que Estamos Aqui?', 40, 45, 36, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 3),
-(186, 326, 35, '2026-04-18', '2026-04-18 09:40:00', '2026-04-18 10:05:00', 'SECTION', 'Unidade 2 — Aprendendo a Explicação do Evangelho Em Sua Mão', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:42:04', '2026-03-03 02:43:14', 4),
-(187, 326, 36, '2026-04-18', '2026-04-18 10:30:00', '2026-04-18 11:10:00', 'SECTION', 'Unidade 3 — Vencendo o Medo de Testemunhar', 40, 40, 32, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 6),
-(188, 326, NULL, '2026-04-18', '2026-04-18 10:05:00', '2026-04-18 10:30:00', 'BREAK', 'Intervalo', 25, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 5),
-(189, 326, NULL, '2026-04-18', '2026-04-18 12:00:00', '2026-04-18 13:30:00', 'MEAL', 'Almoço', 90, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 8),
-(190, 326, 37, '2026-04-18', '2026-04-18 11:10:00', '2026-04-18 12:00:00', 'SECTION', 'Unidade 4 — Encontrando Pessoas Receptivas', 50, 50, 40, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 7),
-(191, 326, 38, '2026-04-18', '2026-04-18 13:30:00', '2026-04-18 14:05:00', 'SECTION', 'Unidade 5 — Compartilhando o Evangelho Através de Ilustrações', 35, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 9),
-(192, 326, NULL, '2026-04-18', '2026-04-18 14:05:00', '2026-04-18 14:15:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:14', 10),
-(193, 326, NULL, '2026-04-18', '2026-04-18 15:20:00', '2026-04-18 15:50:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-03 02:42:04', '2026-03-03 02:43:24', 13),
-(194, 326, 39, '2026-04-18', '2026-04-18 14:15:00', '2026-04-18 14:55:00', 'SECTION', 'Unidade 6 — Levando a Uma Decisão', 40, 40, 32, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:42:04', '2026-03-03 02:43:24', 11),
-(195, 326, 40, '2026-04-18', '2026-04-18 14:55:00', '2026-04-18 15:20:00', 'SECTION', 'Unidade 7 — Desenvolvendo Amor pelos Perdidos', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:42:04', '2026-03-03 02:43:24', 12),
-(196, 326, 41, '2026-04-18', '2026-04-18 15:50:00', '2026-04-18 16:15:00', 'SECTION', 'Unidade 8 — Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:42:04', '2026-03-03 02:43:24', 14),
-(198, 326, 42, '2026-04-18', '2026-04-18 16:15:00', '2026-04-18 17:00:00', 'SECTION', 'Encerramento — Juntos na Colheita do Senhor', 45, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-03 02:42:04', '2026-03-03 02:43:36', 15),
 (221, 311, NULL, '2026-10-23', '2026-10-23 08:30:00', '2026-10-23 08:50:00', 'WELCOME', 'Boas-vindas', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-03 02:52:04', '2026-03-03 02:52:31', 1),
 (222, 311, NULL, '2026-10-23', '2026-10-23 08:50:00', '2026-10-23 09:05:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-03 02:52:04', '2026-03-03 02:52:31', 2),
 (223, 311, 34, '2026-10-23', '2026-10-23 09:05:00', '2026-10-23 09:40:00', 'SECTION', 'Unidade 1 — Por Que Estamos Aqui?', 35, 45, 36, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-03 02:52:04', '2026-03-03 02:52:36', 3),
@@ -1739,56 +3026,6 @@ INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`
 (307, 315, NULL, '2026-04-10', '2026-04-10 19:00:00', '2026-04-10 21:50:00', 'BREAK', 'Intervalo', 170, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-16 02:30:57', '2026-03-16 02:30:57', 18),
 (308, 315, NULL, '2026-04-11', '2026-04-11 07:30:00', '2026-04-11 07:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-16 02:30:57', '2026-03-16 02:30:57', 1),
 (309, 315, NULL, '2026-04-11', '2026-04-11 07:45:00', '2026-04-11 11:50:00', 'BREAK', 'Intervalo', 245, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-16 02:30:57', '2026-03-16 02:30:57', 2),
-(310, 333, NULL, '2026-03-27', '2026-03-27 18:30:00', '2026-03-27 18:50:00', 'WELCOME', 'Boas-vindas', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-17 20:18:29', '2026-03-17 20:39:14', 1),
-(311, 333, NULL, '2026-03-27', '2026-03-27 18:50:00', '2026-03-27 19:00:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-17 20:18:29', '2026-03-17 20:39:14', 2),
-(313, 333, 1, '2026-03-27', '2026-03-27 19:00:00', '2026-03-27 19:35:00', 'SECTION', 'Por Que Estamos Aqui? Por que é tão difícil compartilhar nossa fé com os outros?', 35, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:39:26', 3),
-(314, 333, 2, '2026-03-27', '2026-03-27 19:35:00', '2026-03-27 20:00:00', 'SECTION', 'Aprendendo a Explicação do Evangelho Em Sua Mão', 25, 25, 20, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:39:43', 4),
-(315, 333, 3, '2026-03-27', '2026-03-27 20:20:00', '2026-03-27 20:55:00', 'SECTION', 'Vencendo o Medo de Testemunhar', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:39:45', 6),
-(316, 333, NULL, '2026-03-27', '2026-03-27 20:00:00', '2026-03-27 20:20:00', 'BREAK', 'Intervalo', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-17 20:18:29', '2026-03-17 20:39:43', 5),
-(317, 333, NULL, '2026-03-28', '2026-03-28 08:30:00', '2026-03-28 08:40:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 1),
-(319, 333, 4, '2026-03-27', '2026-03-27 20:55:00', '2026-03-27 21:30:00', 'SECTION', 'Encontrando Pessoas Receptivas', 35, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:40:00', 7),
-(320, 333, 5, '2026-03-28', '2026-03-28 08:40:00', '2026-03-28 09:10:00', 'SECTION', 'Compartilhando o Evangelho Através de Ilustrações', 30, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 2),
-(321, 333, 6, '2026-03-28', '2026-03-28 09:10:00', '2026-03-28 09:30:00', 'SECTION', 'Levando a Uma Decisão', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 3),
-(322, 333, NULL, '2026-03-28', '2026-03-28 09:30:00', '2026-03-28 10:00:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 4),
-(323, 333, 7, '2026-03-28', '2026-03-28 10:00:00', '2026-03-28 10:20:00', 'SECTION', 'Desenvolvendo Amor pelos Perdidos', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 5),
-(324, 333, 8, '2026-03-28', '2026-03-28 10:20:00', '2026-03-28 10:45:00', 'SECTION', 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 6),
-(325, 333, NULL, '2026-03-28', '2026-03-28 12:00:00', '2026-03-28 13:30:00', 'MEAL', 'Almoço', 90, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 11),
-(326, 333, 9, '2026-03-28', '2026-03-28 10:45:00', '2026-03-28 11:20:00', 'SECTION', 'Encerramento do Workshop ESM: Juntos na Colheita do Senhor', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 7),
-(327, 333, 10, '2026-03-28', '2026-03-28 11:30:00', '2026-03-28 11:40:00', 'SECTION', 'Orientações da Clínica de Evangelismo Explosivo', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 9),
-(328, 333, 11, '2026-03-28', '2026-03-28 11:40:00', '2026-03-28 12:00:00', 'SECTION', 'O Treinamento de e² — Evangelismo Eficaz', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 10),
-(329, 333, 12, '2026-03-28', '2026-03-28 13:30:00', '2026-03-28 14:10:00', 'SECTION', 'Elementos-Chave do Treinamento e²', 40, 40, 32, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 12);
-INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`, `starts_at`, `ends_at`, `type`, `title`, `planned_duration_minutes`, `suggested_duration_minutes`, `min_duration_minutes`, `origin`, `is_locked`, `status`, `conflict_reason`, `meta`, `created_at`, `updated_at`, `position`) VALUES
-(330, 333, NULL, '2026-03-28', '2026-03-28 11:20:00', '2026-03-28 11:30:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 8),
-(331, 333, NULL, '2026-03-28', '2026-03-28 15:20:00', '2026-03-28 15:50:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 15),
-(332, 333, 13, '2026-03-28', '2026-03-28 14:10:00', '2026-03-28 14:45:00', 'SECTION', 'O Ensino Semanal no e²', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 13),
-(333, 333, 14, '2026-03-28', '2026-03-28 14:45:00', '2026-03-28 15:20:00', 'SECTION', 'AULA: Saídas de Treinamento Prático (STP)', 35, 45, 36, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 14),
-(334, 333, 15, '2026-03-28', '2026-03-28 15:50:00', '2026-03-28 16:15:00', 'SECTION', 'Uso do Questionário de Segurança', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 16),
-(335, 333, NULL, '2026-03-28', '2026-03-28 17:15:00', '2026-03-28 17:25:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 19),
-(336, 333, 16, '2026-03-28', '2026-03-28 16:15:00', '2026-03-28 16:25:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 17),
-(337, 333, NULL, '2026-03-28', '2026-03-28 18:00:00', '2026-03-28 18:50:00', 'MEAL', 'Jantar', 50, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"dinner\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 21),
-(338, 333, 17, '2026-03-28', '2026-03-28 16:25:00', '2026-03-28 17:15:00', 'SECTION', 'PRÁTICA 1: Saídas de Treinamento Prático (STP)', 50, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 18),
-(339, 333, 18, '2026-03-28', '2026-03-28 17:25:00', '2026-03-28 18:00:00', 'SECTION', 'Relatório Público', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 20),
-(340, 333, 19, '2026-03-28', '2026-03-28 18:50:00', '2026-03-28 19:25:00', 'SECTION', 'PRÁTICA 1: Relatório Público', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:25', 22),
-(341, 333, NULL, '2026-03-28', '2026-03-28 20:25:00', '2026-03-28 20:40:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-17 20:18:29', '2026-03-17 20:53:35', 24),
-(342, 333, NULL, '2026-03-29', '2026-03-29 08:30:00', '2026-03-29 08:35:00', 'DEVOTIONAL', 'Devocional', 5, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 1),
-(344, 333, 20, '2026-03-28', '2026-03-28 19:25:00', '2026-03-28 20:25:00', 'SECTION', 'Unidade 1 — Conectando', 60, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 20:53:32', 23),
-(345, 333, 21, '2026-03-28', '2026-03-28 20:40:00', '2026-03-28 21:05:00', 'SECTION', 'Unidade 2 — O Evangelho: Graça', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-17 20:18:29', '2026-03-17 20:53:35', 25),
-(346, 333, NULL, '2026-03-29', '2026-03-29 09:35:00', '2026-03-29 10:00:00', 'BREAK', 'Intervalo', 25, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 4),
-(347, 333, 22, '2026-03-28', '2026-03-28 21:05:00', '2026-03-28 21:30:00', 'SECTION', 'Unidade 3 — O Evangelho: Homem', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-17 20:18:29', '2026-03-17 20:53:25', 26),
-(348, 333, 23, '2026-03-29', '2026-03-29 10:25:00', '2026-03-29 10:40:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)', 15, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-17 20:18:29', '2026-03-17 21:06:37', 6),
-(349, 333, NULL, '2026-03-29', '2026-03-29 12:00:00', '2026-03-29 13:10:00', 'MEAL', 'Almoço', 70, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 8),
-(350, 333, 24, '2026-03-29', '2026-03-29 10:40:00', '2026-03-29 12:00:00', 'SECTION', 'PRÁTICA 2: Saídas de Treinamento Prático (STP)', 80, 90, 72, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 7),
-(351, 333, 25, '2026-03-29', '2026-03-29 13:10:00', '2026-03-29 13:40:00', 'SECTION', 'PRÁTICA 2: Relatório Público', 30, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 9),
-(352, 333, NULL, '2026-03-29', '2026-03-29 15:35:00', '2026-03-29 15:55:00', 'MEAL', 'Lanche', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 14),
-(353, 333, 26, '2026-03-29', '2026-03-29 08:35:00', '2026-03-29 09:05:00', 'SECTION', 'Unidade 4 — Compartilhando Seu Testemunho', 30, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 2),
-(354, 333, 27, '2026-03-29', '2026-03-29 09:05:00', '2026-03-29 09:35:00', 'SECTION', 'Unidade 5 — O Evangelho: Deus e Cristo', 30, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 3),
-(355, 333, 28, '2026-03-29', '2026-03-29 10:00:00', '2026-03-29 10:25:00', 'SECTION', 'Unidade 6 — O Evangelho: Fé', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 5),
-(356, 333, NULL, '2026-03-29', '2026-03-29 14:15:00', '2026-03-29 14:25:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 11),
-(358, 333, 29, '2026-03-29', '2026-03-29 13:40:00', '2026-03-29 14:15:00', 'SECTION', 'Unidade 7 — Decisão e Acompanhamento', 35, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 10),
-(359, 333, 30, '2026-03-29', '2026-03-29 14:25:00', '2026-03-29 15:25:00', 'SECTION', 'Guia de Implementação do Ministério de Evangelismo Explosivo', 60, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 12),
-(360, 333, 31, '2026-03-29', '2026-03-29 15:25:00', '2026-03-29 15:35:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 13),
-(362, 333, 32, '2026-03-29', '2026-03-29 15:55:00', '2026-03-29 17:10:00', 'SECTION', 'PRÁTICA 3: Saídas de Treinamento Prático (STP)', 75, 80, 64, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-17 20:18:29', '2026-03-17 21:06:37', 15),
-(363, 333, 33, '2026-03-29', '2026-03-29 17:20:00', '2026-03-29 18:00:00', 'SECTION', 'PRÁTICA 3: Relatório Público', 40, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-17 20:18:29', '2026-03-17 21:06:37', 17),
 (365, 334, NULL, '2026-03-27', '2026-03-27 11:30:00', '2026-03-27 12:00:00', 'WELCOME', 'Boas-vindas', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 1),
 (366, 334, NULL, '2026-03-27', '2026-03-27 12:00:00', '2026-03-27 12:15:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 2),
 (367, 334, NULL, '2026-03-27', '2026-03-27 12:15:00', '2026-03-27 13:15:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 3),
@@ -1808,49 +3045,331 @@ INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`
 (381, 334, NULL, '2026-03-28', '2026-03-28 08:30:00', '2026-03-28 08:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 1),
 (382, 334, NULL, '2026-03-28', '2026-03-28 08:45:00', '2026-03-28 09:15:00', 'MEAL', 'Café da manhã', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"breakfast\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 2),
 (383, 334, NULL, '2026-03-28', '2026-03-28 09:15:00', '2026-03-28 11:45:00', 'BREAK', 'Intervalo', 150, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-17 20:33:23', '2026-03-17 20:33:23', 3),
-(384, 333, NULL, '2026-03-29', '2026-03-29 17:10:00', '2026-03-29 17:20:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, NULL, '2026-03-17 21:05:22', '2026-03-17 21:06:37', 16);
+(387, 318, NULL, '2026-02-02', '2026-02-02 19:00:00', '2026-02-02 19:30:00', 'WELCOME', 'Boas-vindas', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 1),
+(388, 318, NULL, '2026-02-02', '2026-02-02 19:30:00', '2026-02-02 19:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 2),
+(389, 318, 1, '2026-02-02', '2026-02-02 19:45:00', '2026-02-02 20:30:00', 'SECTION', 'Por Que Estamos Aqui? Por que é tão difícil compartilhar nossa fé com os outros?', 45, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 3),
+(390, 318, 2, '2026-02-02', '2026-02-02 20:30:00', '2026-02-02 21:00:00', 'SECTION', 'Aprendendo a Explicação do Evangelho Em Sua Mão', 30, 25, 20, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 4),
+(391, 318, 3, '2026-02-02', '2026-02-02 21:20:00', '2026-02-02 22:00:00', 'SECTION', 'Vencendo o Medo de Testemunhar', 40, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 6),
+(392, 318, NULL, '2026-02-02', '2026-02-02 21:00:00', '2026-02-02 21:20:00', 'BREAK', 'Intervalo', 20, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:15:35', 5),
+(393, 318, NULL, '2026-02-03', '2026-02-03 19:00:00', '2026-02-03 19:30:00', 'DEVOTIONAL', 'Devocional', 30, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:21:22', 1),
+(394, 318, 4, '2026-02-03', '2026-02-03 19:30:00', '2026-02-03 20:10:00', 'SECTION', 'Encontrando Pessoas Receptivas', 40, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:21:22', 2),
+(395, 318, 5, '2026-02-03', '2026-02-03 20:10:00', '2026-02-03 20:45:00', 'SECTION', 'Compartilhando o Evangelho Através de Ilustrações', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:21:22', 3),
+(396, 318, 6, '2026-02-03', '2026-02-03 21:10:00', '2026-02-03 21:35:00', 'SECTION', 'Levando a Uma Decisão', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:21:27', 5),
+(397, 318, NULL, '2026-02-03', '2026-02-03 20:45:00', '2026-02-03 21:10:00', 'BREAK', 'Intervalo', 25, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:21:27', 4),
+(398, 318, 7, '2026-02-03', '2026-02-03 21:35:00', '2026-02-03 22:00:00', 'SECTION', 'Desenvolvendo Amor pelos Perdidos', 25, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-23 18:14:08', '2026-03-23 18:21:27', 6),
+(399, 318, 8, '2026-02-04', '2026-02-04 19:20:00', '2026-02-04 19:45:00', 'SECTION', 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:37:36', 2),
+(400, 318, NULL, '2026-02-04', '2026-02-04 19:00:00', '2026-02-04 19:20:00', 'DEVOTIONAL', 'Devocional', 20, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:37:12', 1),
+(401, 318, 9, '2026-02-04', '2026-02-04 19:45:00', '2026-02-04 20:25:00', 'SECTION', 'Encerramento do Workshop ESM: Juntos na Colheita do Senhor', 40, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:37:38', 3),
+(402, 318, 10, '2026-02-04', '2026-02-04 20:25:00', '2026-02-04 20:35:00', 'SECTION', 'Orientações da Clínica de Evangelismo Explosivo', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:37:38', 4);
+INSERT INTO `training_schedule_items` (`id`, `training_id`, `section_id`, `date`, `starts_at`, `ends_at`, `type`, `title`, `planned_duration_minutes`, `suggested_duration_minutes`, `min_duration_minutes`, `origin`, `is_locked`, `status`, `conflict_reason`, `meta`, `created_at`, `updated_at`, `position`) VALUES
+(403, 318, 11, '2026-02-04', '2026-02-04 20:50:00', '2026-02-04 21:10:00', 'SECTION', 'O Treinamento de e² — Evangelismo Eficaz', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:37:38', 6),
+(404, 318, 12, '2026-02-04', '2026-02-04 21:10:00', '2026-02-04 22:00:00', 'SECTION', 'Elementos-Chave do Treinamento e²', 50, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-23 18:14:08', '2026-03-23 18:37:38', 7),
+(405, 318, NULL, '2026-02-04', '2026-02-04 20:35:00', '2026-02-04 20:50:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:37:38', 5),
+(406, 318, 13, '2026-02-06', '2026-02-06 19:30:00', '2026-02-06 20:00:00', 'SECTION', 'O Ensino Semanal no e²', 30, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:31:06', 3),
+(407, 318, NULL, '2026-02-05', '2026-02-05 19:00:00', '2026-02-05 19:10:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:29:20', 1),
+(408, 318, 14, '2026-02-05', '2026-02-05 19:10:00', '2026-02-05 19:50:00', 'SECTION', 'AULA: Saídas de Treinamento Prático (STP)', 40, 45, 36, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:29:20', 2),
+(409, 318, 15, '2026-02-06', '2026-02-06 19:10:00', '2026-02-06 19:30:00', 'SECTION', 'Uso do Questionário de Segurança', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:31:06', 2),
+(410, 318, 16, '2026-02-05', '2026-02-05 19:50:00', '2026-02-05 20:00:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:29:20', 3),
+(411, 318, NULL, '2026-02-05', '2026-02-05 20:00:00', '2026-02-05 20:10:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:29:20', 4),
+(412, 318, 17, '2026-02-05', '2026-02-05 20:10:00', '2026-02-05 20:55:00', 'SECTION', 'PRÁTICA 1: Saídas de Treinamento Prático (STP)', 45, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:29:33', 5),
+(413, 318, NULL, '2026-02-06', '2026-02-06 19:00:00', '2026-02-06 19:10:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:30:14', 1),
+(414, 318, 18, '2026-02-05', '2026-02-05 20:55:00', '2026-02-05 21:25:00', 'SECTION', 'Relatório Público', 30, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:29:40', 6),
+(415, 318, 19, '2026-02-05', '2026-02-05 21:25:00', '2026-02-05 22:00:00', 'SECTION', 'PRÁTICA 1: Relatório Público', 35, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:29:52', 7),
+(416, 318, 20, '2026-02-06', '2026-02-06 20:00:00', '2026-02-06 21:00:00', 'SECTION', 'Unidade 1 — Conectando', 60, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:31:20', 4),
+(417, 318, NULL, '2026-02-06', '2026-02-06 21:00:00', '2026-02-06 21:10:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:31:20', 5),
+(418, 318, NULL, '2026-02-07', '2026-02-07 09:00:00', '2026-02-07 09:15:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-23 18:14:08', '2026-03-23 18:35:45', 1),
+(419, 318, 21, '2026-02-06', '2026-02-06 21:10:00', '2026-02-06 21:35:00', 'SECTION', 'Unidade 2 — O Evangelho: Graça', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:31:28', 6),
+(420, 318, 22, '2026-02-06', '2026-02-06 21:35:00', '2026-02-06 22:00:00', 'SECTION', 'Unidade 3 — O Evangelho: Homem', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-23 18:14:08', '2026-03-23 18:31:20', 7),
+(421, 318, 23, '2026-02-07', '2026-02-07 09:15:00', '2026-02-07 09:25:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:35:45', 2),
+(423, 318, NULL, '2026-02-07', '2026-02-07 12:10:00', '2026-02-07 13:10:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-23 18:14:08', '2026-03-23 18:36:12', 8),
+(424, 318, 24, '2026-02-07', '2026-02-07 10:35:00', '2026-02-07 11:45:00', 'SECTION', 'PRÁTICA 2: Saídas de Treinamento Prático (STP)', 70, 90, 72, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:35:55', 6),
+(425, 318, 25, '2026-02-07', '2026-02-07 11:45:00', '2026-02-07 12:10:00', 'SECTION', 'PRÁTICA 2: Relatório Público', 25, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:36:12', 7),
+(427, 318, 26, '2026-02-07', '2026-02-07 09:25:00', '2026-02-07 09:50:00', 'SECTION', 'Unidade 4 — Compartilhando Seu Testemunho', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:35:45', 3),
+(428, 318, 27, '2026-02-07', '2026-02-07 09:50:00', '2026-02-07 10:20:00', 'SECTION', 'Unidade 5 — O Evangelho: Deus e Cristo', 30, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:35:45', 4),
+(429, 318, NULL, '2026-02-07', '2026-02-07 10:20:00', '2026-02-07 10:35:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-23 18:14:08', '2026-03-23 18:35:45', 5),
+(430, 318, 28, '2026-02-07', '2026-02-07 13:10:00', '2026-02-07 13:35:00', 'SECTION', 'Unidade 6 — O Evangelho: Fé', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:36:21', 9),
+(431, 318, 29, '2026-02-07', '2026-02-07 13:35:00', '2026-02-07 14:00:00', 'SECTION', 'Unidade 7 — Decisão e Acompanhamento', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:36:25', 10),
+(432, 318, NULL, '2026-02-07', '2026-02-07 14:00:00', '2026-02-07 14:10:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:36:29', 11),
+(433, 318, 30, '2026-02-07', '2026-02-07 14:10:00', '2026-02-07 15:10:00', 'SECTION', 'Guia de Implementação do Ministério de Evangelismo Explosivo', 60, 60, 48, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:36:29', 12),
+(434, 318, 31, '2026-02-07', '2026-02-07 15:10:00', '2026-02-07 15:20:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:38:10', 13),
+(435, 318, NULL, '2026-02-07', '2026-02-07 16:20:00', '2026-02-07 16:30:00', 'BREAK', 'Intervalo', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-23 18:14:08', '2026-03-23 18:38:11', 15),
+(436, 318, 32, '2026-02-07', '2026-02-07 15:20:00', '2026-02-07 16:20:00', 'SECTION', 'PRÁTICA 3: Saídas de Treinamento Prático (STP)', 60, 80, 64, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-23 18:14:08', '2026-03-23 18:38:10', 14),
+(437, 318, 33, '2026-02-07', '2026-02-07 16:30:00', '2026-02-07 17:00:00', 'SECTION', 'PRÁTICA 3: Relatório Público', 30, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-23 18:14:08', '2026-03-23 18:38:11', 16),
+(440, 335, NULL, '2026-05-31', '2026-05-31 18:30:00', '2026-05-31 19:00:00', 'WELCOME', 'Boas-vindas', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-25 18:57:53', '2026-03-25 18:57:53', 1),
+(441, 335, NULL, '2026-05-31', '2026-05-31 19:00:00', '2026-05-31 19:15:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-25 18:57:53', '2026-03-25 18:57:53', 2),
+(443, 335, 1, '2026-05-31', '2026-05-31 19:15:00', '2026-05-31 20:00:00', 'SECTION', 'Por Que Estamos Aqui? Por que é tão difícil compartilhar nossa fé com os outros?', 45, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 4),
+(444, 335, 2, '2026-05-31', '2026-05-31 20:00:00', '2026-05-31 20:30:00', 'SECTION', 'Aprendendo a Explicação do Evangelho Em Sua Mão', 30, 25, 20, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 5),
+(445, 335, NULL, '2026-05-31', '2026-05-31 20:30:00', '2026-05-31 21:30:00', 'BREAK', 'Intervalo', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 6),
+(446, 335, NULL, '2026-06-01', '2026-06-01 08:30:00', '2026-06-01 08:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-25 18:57:53', '2026-03-25 18:57:53', 1),
+(448, 335, 3, '2026-06-01', '2026-06-01 08:45:00', '2026-06-01 09:17:00', 'SECTION', 'Vencendo o Medo de Testemunhar', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 3),
+(449, 335, 4, '2026-06-01', '2026-06-01 09:17:00', '2026-06-01 09:54:00', 'SECTION', 'Encontrando Pessoas Receptivas', 37, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 4),
+(450, 335, 5, '2026-06-01', '2026-06-01 09:54:00', '2026-06-01 10:26:00', 'SECTION', 'Compartilhando o Evangelho Através de Ilustrações', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 5),
+(451, 335, NULL, '2026-06-01', '2026-06-01 10:26:00', '2026-06-01 10:56:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 6),
+(452, 335, 6, '2026-06-01', '2026-06-01 10:56:00', '2026-06-01 11:17:00', 'SECTION', 'Levando a Uma Decisão', 21, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 7),
+(453, 335, 7, '2026-06-01', '2026-06-01 11:17:00', '2026-06-01 11:38:00', 'SECTION', 'Desenvolvendo Amor pelos Perdidos', 21, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 8),
+(454, 335, NULL, '2026-06-01', '2026-06-01 11:38:00', '2026-06-01 12:38:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 9),
+(455, 335, 8, '2026-06-01', '2026-06-01 12:38:00', '2026-06-01 12:59:00', 'SECTION', 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 21, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 10),
+(456, 335, 9, '2026-06-01', '2026-06-01 12:59:00', '2026-06-01 13:31:00', 'SECTION', 'Encerramento do Workshop ESM: Juntos na Colheita do Senhor', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 11),
+(457, 335, 10, '2026-06-01', '2026-06-01 13:31:00', '2026-06-01 13:42:00', 'SECTION', 'Orientações da Clínica de Evangelismo Explosivo', 11, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 12),
+(458, 335, 11, '2026-06-01', '2026-06-01 13:42:00', '2026-06-01 14:03:00', 'SECTION', 'O Treinamento de e² — Evangelismo Eficaz', 21, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 13),
+(459, 335, 12, '2026-06-01', '2026-06-01 14:03:00', '2026-06-01 14:45:00', 'SECTION', 'Elementos-Chave do Treinamento e²', 42, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 14),
+(460, 335, NULL, '2026-06-01', '2026-06-01 14:45:00', '2026-06-01 15:15:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 15),
+(461, 335, 13, '2026-06-01', '2026-06-01 15:15:00', '2026-06-01 15:47:00', 'SECTION', 'O Ensino Semanal no e²', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 16),
+(462, 335, 14, '2026-06-01', '2026-06-01 15:47:00', '2026-06-01 16:35:00', 'SECTION', 'AULA: Saídas de Treinamento Prático (STP)', 48, 45, 36, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 17),
+(463, 335, 15, '2026-06-01', '2026-06-01 16:35:00', '2026-06-01 16:56:00', 'SECTION', 'Uso do Questionário de Segurança', 21, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 18),
+(464, 335, NULL, '2026-06-01', '2026-06-01 16:56:00', '2026-06-01 17:41:00', 'BREAK', 'Intervalo', 45, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 19),
+(465, 335, 16, '2026-06-01', '2026-06-01 17:41:00', '2026-06-01 17:52:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)', 11, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 20),
+(466, 335, NULL, '2026-06-01', '2026-06-01 17:52:00', '2026-06-01 18:52:00', 'MEAL', 'Jantar', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"dinner\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 21),
+(467, 335, 17, '2026-06-01', '2026-06-01 18:52:00', '2026-06-01 19:56:00', 'SECTION', 'PRÁTICA 1: Saídas de Treinamento Prático (STP)', 64, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 22),
+(468, 335, 18, '2026-06-01', '2026-06-01 19:56:00', '2026-06-01 20:28:00', 'SECTION', 'Relatório Público', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 23),
+(469, 335, 19, '2026-06-01', '2026-06-01 20:28:00', '2026-06-01 21:00:00', 'SECTION', 'PRÁTICA 1: Relatório Público', 32, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 24),
+(470, 335, NULL, '2026-06-01', '2026-06-01 21:00:00', '2026-06-01 21:30:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-25 18:57:53', '2026-03-25 18:57:53', 25),
+(471, 335, NULL, '2026-06-02', '2026-06-02 08:30:00', '2026-06-02 08:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-25 18:57:53', '2026-03-25 18:57:53', 1),
+(473, 335, 20, '2026-06-02', '2026-06-02 08:45:00', '2026-06-02 09:30:00', 'SECTION', 'Unidade 1 — Conectando', 45, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 3),
+(474, 335, 21, '2026-06-02', '2026-06-02 09:30:00', '2026-06-02 09:55:00', 'SECTION', 'Unidade 2 — O Evangelho: Graça', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 4),
+(475, 335, NULL, '2026-06-02', '2026-06-02 09:55:00', '2026-06-02 10:00:00', 'BREAK', 'Intervalo', 5, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 5),
+(476, 335, 22, '2026-06-02', '2026-06-02 10:00:00', '2026-06-02 10:25:00', 'SECTION', 'Unidade 3 — O Evangelho: Homem', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 6),
+(477, 335, 23, '2026-06-02', '2026-06-02 10:25:00', '2026-06-02 10:30:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)', 5, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 7),
+(478, 335, NULL, '2026-06-02', '2026-06-02 10:30:00', '2026-06-02 11:30:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 8),
+(479, 335, 24, '2026-06-02', '2026-06-02 11:30:00', '2026-06-02 12:40:00', 'SECTION', 'PRÁTICA 2: Saídas de Treinamento Prático (STP)', 70, 90, 72, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 9),
+(480, 335, 25, '2026-06-02', '2026-06-02 12:40:00', '2026-06-02 13:00:00', 'SECTION', 'PRÁTICA 2: Relatório Público', 20, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 10),
+(481, 335, NULL, '2026-06-02', '2026-06-02 13:00:00', '2026-06-02 13:30:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 11),
+(482, 335, 26, '2026-06-02', '2026-06-02 13:30:00', '2026-06-02 13:55:00', 'SECTION', 'Unidade 4 — Compartilhando Seu Testemunho', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 12),
+(483, 335, 27, '2026-06-02', '2026-06-02 13:55:00', '2026-06-02 14:20:00', 'SECTION', 'Unidade 5 — O Evangelho: Deus e Cristo', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 13),
+(484, 335, 28, '2026-06-02', '2026-06-02 14:20:00', '2026-06-02 14:45:00', 'SECTION', 'Unidade 6 — O Evangelho: Fé', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 14),
+(485, 335, NULL, '2026-06-02', '2026-06-02 14:45:00', '2026-06-02 14:50:00', 'BREAK', 'Intervalo', 5, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 15),
+(486, 335, 29, '2026-06-02', '2026-06-02 14:50:00', '2026-06-02 15:15:00', 'SECTION', 'Unidade 7 — Decisão e Acompanhamento', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 16),
+(487, 335, 30, '2026-06-02', '2026-06-02 15:15:00', '2026-06-02 16:00:00', 'SECTION', 'Guia de Implementação do Ministério de Evangelismo Explosivo', 45, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 17),
+(488, 335, 31, '2026-06-02', '2026-06-02 16:00:00', '2026-06-02 16:05:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)', 5, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 18),
+(489, 335, NULL, '2026-06-02', '2026-06-02 16:05:00', '2026-06-02 16:40:00', 'BREAK', 'Intervalo', 35, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-25 18:57:53', '2026-03-25 18:58:45', 19),
+(490, 335, 32, '2026-06-02', '2026-06-02 16:40:00', '2026-06-02 17:40:00', 'SECTION', 'PRÁTICA 3: Saídas de Treinamento Prático (STP)', 60, 80, 64, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 20),
+(491, 335, 33, '2026-06-02', '2026-06-02 17:40:00', '2026-06-02 18:00:00', 'SECTION', 'PRÁTICA 3: Relatório Público', 20, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-25 18:57:53', '2026-03-25 18:58:45', 21),
+(492, 333, NULL, '2026-03-27', '2026-03-27 19:00:00', '2026-03-27 20:00:00', 'WELCOME', 'Boas-vindas', 60, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-03-28 02:58:32', '2026-03-28 03:02:11', 1),
+(493, 333, NULL, '2026-03-27', '2026-03-27 20:00:00', '2026-03-27 20:10:00', 'DEVOTIONAL', 'Devocional', 10, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-28 02:58:32', '2026-03-28 03:02:11', 2),
+(494, 333, 1, '2026-03-27', '2026-03-27 20:10:00', '2026-03-27 20:50:00', 'SECTION', 'Por Que Estamos Aqui? Por que é tão difícil compartilhar nossa fé com os outros?', 40, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:02:31', 3),
+(495, 333, 2, '2026-03-27', '2026-03-27 20:50:00', '2026-03-27 21:10:00', 'SECTION', 'Aprendendo a Explicação do Evangelho Em Sua Mão', 20, 25, 20, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:02:31', 4),
+(496, 333, 3, '2026-03-27', '2026-03-27 21:25:00', '2026-03-27 22:05:00', 'SECTION', 'Vencendo o Medo de Testemunhar', 40, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:02:31', 6),
+(497, 333, NULL, '2026-03-27', '2026-03-27 21:10:00', '2026-03-27 21:25:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-28 02:58:32', '2026-03-28 03:02:31', 5),
+(498, 333, 4, '2026-03-28', '2026-03-28 08:20:00', '2026-03-28 08:45:00', 'SECTION', 'Encontrando Pessoas Receptivas', 25, 35, 28, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:02', 2),
+(499, 333, NULL, '2026-03-28', '2026-03-28 07:30:00', '2026-03-28 08:20:00', 'DEVOTIONAL', 'Devocional', 50, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:02', 1),
+(500, 333, 5, '2026-03-28', '2026-03-28 08:45:00', '2026-03-28 09:25:00', 'SECTION', 'Compartilhando o Evangelho Através de Ilustrações', 40, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:02', 3),
+(501, 333, 6, '2026-03-28', '2026-03-28 10:05:00', '2026-03-28 10:30:00', 'SECTION', 'Levando a Uma Decisão', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 5),
+(502, 333, 7, '2026-03-28', '2026-03-28 10:30:00', '2026-03-28 10:55:00', 'SECTION', 'Desenvolvendo Amor pelos Perdidos', 25, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 6),
+(503, 333, NULL, '2026-03-28', '2026-03-28 09:25:00', '2026-03-28 10:05:00', 'BREAK', 'Intervalo', 40, NULL, NULL, 'TEACHER', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 4),
+(504, 333, 8, '2026-03-28', '2026-03-28 10:55:00', '2026-03-28 11:15:00', 'SECTION', 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 7),
+(505, 333, 9, '2026-03-28', '2026-03-28 11:15:00', '2026-03-28 11:55:00', 'SECTION', 'Encerramento do Workshop ESM: Juntos na Colheita do Senhor', 40, 30, 24, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 8),
+(506, 333, 10, '2026-03-27', '2026-03-27 22:05:00', '2026-03-27 22:15:00', 'SECTION', 'Orientações da Clínica de Evangelismo Explosivo', 10, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:02:31', 7),
+(507, 333, 11, '2026-03-28', '2026-03-28 11:55:00', '2026-03-28 12:15:00', 'SECTION', 'O Treinamento de e² — Evangelismo Eficaz', 20, 20, 16, 'TEACHER', 0, 'OK', NULL, '{\"fixed_duration\": true}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 9),
+(509, 333, NULL, '2026-03-28', '2026-03-28 12:15:00', '2026-03-28 13:15:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 10),
+(510, 333, 12, '2026-03-28', '2026-03-28 13:15:00', '2026-03-28 14:05:00', 'SECTION', 'Elementos-Chave do Treinamento e²', 50, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 11),
+(511, 333, 13, '2026-03-28', '2026-03-28 14:05:00', '2026-03-28 14:41:00', 'SECTION', 'O Ensino Semanal no e²', 36, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 12),
+(512, 333, 14, '2026-03-28', '2026-03-28 14:41:00', '2026-03-28 15:34:00', 'SECTION', 'AULA: Saídas de Treinamento Prático (STP)', 53, 45, 36, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 13),
+(513, 333, NULL, '2026-03-28', '2026-03-28 15:34:00', '2026-03-28 15:39:00', 'BREAK', 'Intervalo', 5, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 14),
+(514, 333, NULL, '2026-03-28', '2026-03-28 15:39:00', '2026-03-28 16:09:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 15),
+(515, 333, 15, '2026-03-28', '2026-03-28 16:09:00', '2026-03-28 16:31:00', 'SECTION', 'Uso do Questionário de Segurança', 22, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 16),
+(516, 333, 16, '2026-03-28', '2026-03-28 16:31:00', '2026-03-28 16:43:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 1: Saídas de Treinamento Prático (STP)', 12, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 17),
+(517, 333, 17, '2026-03-28', '2026-03-28 16:43:00', '2026-03-28 17:54:00', 'SECTION', 'PRÁTICA 1: Saídas de Treinamento Prático (STP)', 71, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 18),
+(518, 333, NULL, '2026-03-28', '2026-03-28 17:54:00', '2026-03-28 18:09:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 19),
+(519, 333, 18, '2026-03-28', '2026-03-28 18:09:00', '2026-03-28 18:45:00', 'SECTION', 'Relatório Público', 36, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 20),
+(520, 333, 19, '2026-03-28', '2026-03-28 18:45:00', '2026-03-28 19:20:00', 'SECTION', 'PRÁTICA 1: Relatório Público', 35, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 21),
+(521, 333, 20, '2026-03-28', '2026-03-28 19:20:00', '2026-03-28 20:15:00', 'SECTION', 'Unidade 1 — Conectando', 55, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 22),
+(522, 333, NULL, '2026-03-28', '2026-03-28 20:15:00', '2026-03-28 20:20:00', 'BREAK', 'Intervalo', 5, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-28 02:58:32', '2026-03-28 03:10:36', 23),
+(523, 333, 21, '2026-03-28', '2026-03-28 20:20:00', '2026-03-28 20:45:00', 'SECTION', 'Unidade 2 — O Evangelho: Graça', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 24),
+(524, 333, 22, '2026-03-28', '2026-03-28 20:45:00', '2026-03-28 21:10:00', 'SECTION', 'Unidade 3 — O Evangelho: Homem', 25, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 25),
+(525, 333, 23, '2026-03-28', '2026-03-28 21:10:00', '2026-03-28 21:15:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 2: Saídas de Treinamento Prático (STP)', 5, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 03:10:36', 26),
+(526, 333, NULL, '2026-03-29', '2026-03-29 07:30:00', '2026-03-29 07:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 1),
+(527, 333, 24, '2026-03-29', '2026-03-29 07:45:00', '2026-03-29 09:15:00', 'SECTION', 'PRÁTICA 2: Saídas de Treinamento Prático (STP)', 90, 90, 72, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 2),
+(528, 333, 25, '2026-03-29', '2026-03-29 09:15:00', '2026-03-29 09:45:00', 'SECTION', 'PRÁTICA 2: Relatório Público', 30, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 3),
+(529, 333, NULL, '2026-03-29', '2026-03-29 09:45:00', '2026-03-29 10:15:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"break\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 4),
+(530, 333, 26, '2026-03-29', '2026-03-29 10:15:00', '2026-03-29 10:50:00', 'SECTION', 'Unidade 4 — Compartilhando Seu Testemunho', 35, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 5),
+(531, 333, 27, '2026-03-29', '2026-03-29 10:50:00', '2026-03-29 11:25:00', 'SECTION', 'Unidade 5 — O Evangelho: Deus e Cristo', 35, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 6),
+(532, 333, 28, '2026-03-29', '2026-03-29 11:25:00', '2026-03-29 12:00:00', 'SECTION', 'Unidade 6 — O Evangelho: Fé', 35, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 7),
+(533, 333, NULL, '2026-03-29', '2026-03-29 12:00:00', '2026-03-29 13:00:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 8),
+(534, 333, 29, '2026-03-29', '2026-03-29 13:00:00', '2026-03-29 13:35:00', 'SECTION', 'Unidade 7 — Decisão e Acompanhamento', 35, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 9),
+(535, 333, 30, '2026-03-29', '2026-03-29 13:35:00', '2026-03-29 14:35:00', 'SECTION', 'Guia de Implementação do Ministério de Evangelismo Explosivo', 60, 60, 48, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 10),
+(536, 333, 31, '2026-03-29', '2026-03-29 14:35:00', '2026-03-29 14:45:00', 'SECTION', 'ORIENTAÇÕES PARA PRÁTICA 3: Saídas de Treinamento Prático (STP)', 10, 10, 8, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 11),
+(537, 333, NULL, '2026-03-29', '2026-03-29 14:45:00', '2026-03-29 15:00:00', 'BREAK', 'Intervalo', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 12),
+(538, 333, NULL, '2026-03-29', '2026-03-29 15:00:00', '2026-03-29 15:30:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 13),
+(539, 333, 32, '2026-03-29', '2026-03-29 15:30:00', '2026-03-29 17:06:00', 'SECTION', 'PRÁTICA 3: Saídas de Treinamento Prático (STP)', 95, 80, 64, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 14),
+(540, 333, 33, '2026-03-29', '2026-03-29 17:06:00', '2026-03-29 17:42:00', 'SECTION', 'PRÁTICA 3: Relatório Público', 35, 30, 24, 'AUTO', 0, 'OK', NULL, NULL, '2026-03-28 02:58:32', '2026-03-28 02:58:32', 15),
+(541, 333, NULL, '2026-03-29', '2026-03-29 17:42:00', '2026-03-29 19:00:00', 'BREAK', 'Intervalo', 80, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-03-28 02:58:32', '2026-03-28 02:58:32', 16),
+(543, 336, NULL, '2026-06-27', '2026-06-27 09:00:00', '2026-06-27 09:30:00', 'WELCOME', 'Boas-vindas', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"welcome\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 1),
+(544, 336, NULL, '2026-06-27', '2026-06-27 09:30:00', '2026-06-27 09:45:00', 'DEVOTIONAL', 'Devocional', 15, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"devotional\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 2),
+(545, 336, 34, '2026-06-27', '2026-06-27 09:45:00', '2026-06-27 10:30:00', 'SECTION', 'Por Que Estamos Aqui?', 45, 45, 36, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 3),
+(546, 336, 35, '2026-06-27', '2026-06-27 10:30:00', '2026-06-27 10:50:00', 'SECTION', 'Aprendendo a Explicação do Evangelho Em Sua Mão', 20, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 4),
+(547, 336, 36, '2026-06-27', '2026-06-27 10:50:00', '2026-06-27 11:30:00', 'SECTION', 'Vencendo o Medo de Testemunhar', 40, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 5),
+(548, 336, NULL, '2026-06-27', '2026-06-27 11:30:00', '2026-06-27 12:00:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 6),
+(549, 336, NULL, '2026-06-27', '2026-06-27 12:00:00', '2026-06-27 13:00:00', 'MEAL', 'Almoço', 60, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"lunch\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 7),
+(550, 336, 37, '2026-06-27', '2026-06-27 13:00:00', '2026-06-27 13:53:00', 'SECTION', 'Encontrando Pessoas Receptivas', 55, 50, 40, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 8),
+(551, 336, 38, '2026-06-27', '2026-06-27 13:53:00', '2026-06-27 14:30:00', 'SECTION', 'Compartilhando o Evangelho Através de Ilustrações', 35, 35, 28, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 9),
+(552, 336, NULL, '2026-06-27', '2026-06-27 14:30:00', '2026-06-27 15:00:00', 'BREAK', 'Intervalo', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"auto_reason\": \"window_fill\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 10),
+(553, 336, NULL, '2026-06-27', '2026-06-27 15:00:00', '2026-06-27 15:30:00', 'MEAL', 'Lanche', 30, NULL, NULL, 'AUTO', 0, 'OK', NULL, '{\"anchor\": \"afternoon_snack\"}', '2026-04-05 00:40:33', '2026-04-05 00:40:33', 11),
+(554, 336, 39, '2026-06-27', '2026-06-27 15:30:00', '2026-06-27 16:10:00', 'SECTION', 'Levando a Uma Decisão', 40, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 12),
+(555, 336, 40, '2026-06-27', '2026-06-27 16:10:00', '2026-06-27 16:30:00', 'SECTION', 'Desenvolvendo Amor pelos Perdidos', 20, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 13),
+(556, 336, 41, '2026-06-27', '2026-06-27 16:30:00', '2026-06-27 16:50:00', 'SECTION', 'Desenvolvendo um Ministério Contínuo de Evangelismo e Discipulado', 20, 20, 16, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 14),
+(557, 336, 42, '2026-06-27', '2026-06-27 16:50:00', '2026-06-27 17:30:00', 'SECTION', 'Encerramento do Workshop ESM: Juntos na Colheita do Senhor', 40, 40, 32, 'AUTO', 0, 'OK', NULL, NULL, '2026-04-05 00:40:33', '2026-04-05 00:40:33', 15);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `training_user`
+--
+
+CREATE TABLE `training_user` (
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `training_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `payment_receipt` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accredited` tinyint(4) NOT NULL DEFAULT '0',
+  `kit` tinyint(4) NOT NULL DEFAULT '0',
+  `payment` tinyint(4) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `training_user`
+--
 
 INSERT INTO `training_user` (`user_id`, `training_id`, `payment_receipt`, `accredited`, `kit`, `payment`) VALUES
 (1530, 315, NULL, 0, 0, 0),
-(1534, 327, NULL, 0, 1, 0),
-(1535, 327, NULL, 0, 1, 0),
-(1536, 327, NULL, 0, 1, 0),
-(1537, 327, NULL, 0, 1, 0),
-(1538, 327, NULL, 0, 1, 0),
-(1539, 327, NULL, 0, 1, 0),
-(1540, 327, NULL, 0, 1, 0),
-(1541, 327, NULL, 0, 1, 0),
-(1542, 327, NULL, 0, 1, 0),
-(1543, 327, NULL, 0, 1, 0),
-(1114, 327, NULL, 0, 1, 0),
-(1544, 327, NULL, 0, 1, 0),
-(1545, 327, NULL, 0, 1, 0),
-(1546, 327, NULL, 0, 1, 0),
-(1547, 327, NULL, 0, 1, 0),
-(1548, 327, NULL, 0, 1, 0),
-(1549, 327, NULL, 0, 1, 0),
-(1550, 327, NULL, 0, 1, 0),
-(1551, 327, NULL, 0, 1, 0),
-(1552, 327, NULL, 0, 1, 0),
-(1553, 327, NULL, 0, 1, 0),
-(1554, 327, NULL, 0, 1, 0),
-(1555, 327, NULL, 0, 1, 0),
-(1556, 327, NULL, 0, 1, 0),
-(1557, 327, NULL, 0, 1, 0),
-(1558, 327, NULL, 0, 1, 0),
-(1559, 327, NULL, 0, 1, 0),
-(1560, 327, NULL, 0, 1, 0),
-(1561, 327, NULL, 0, 1, 0),
-(1562, 327, NULL, 0, 1, 0),
-(1563, 327, NULL, 0, 1, 0),
-(1564, 327, NULL, 0, 1, 0),
-(1565, 327, NULL, 0, 1, 0),
-(1566, 327, NULL, 0, 1, 0),
-(1567, 326, NULL, 0, 1, 0);
+(1534, 327, 'training-receipts/327/m4gQDbSpT1t7nKFrE34XOA8e9GkdgutllDvmeoG0.pdf', 0, 1, 1),
+(1535, 327, 'training-receipts/327/3FYjLYoN8HbszHektQUvRi9JAMKP2clP0Do00uVR.pdf', 0, 1, 1),
+(1536, 327, 'training-receipts/327/vL7zFs9v8wmgrcr0TBGbpz1xK4Rh5F71ezNLOW3z.pdf', 0, 1, 1),
+(1537, 327, 'training-receipts/327/k8xyP0WeodBvlomNOYX3lorw7qEjIUOSo6fSlK1h.pdf', 0, 1, 1),
+(1538, 327, 'training-receipts/327/fAVVVZc4OpUNhdEFMNFMAtOh7XxHzH3SIpA4PZ4N.pdf', 0, 1, 1),
+(1539, 327, 'training-receipts/327/DZyGHfMFtixIPVeCACwXYnT9C3aLrICKgQe4iOOB.pdf', 0, 1, 1),
+(1540, 327, 'training-receipts/327/1TLAh7Y3vtInnJdQyC3R19LMO5rbZrK0WpGCFNBd.pdf', 0, 1, 1),
+(1541, 327, 'training-receipts/327/wAPlDEnKWxDrummDJZC63mSlucaCvoGCwqBE8DEw.pdf', 0, 1, 1),
+(1542, 327, 'training-receipts/327/2y1ZbzF0TY64rGkh0ChImIrTT8VuTUEMOI3drrRR.pdf', 0, 1, 1),
+(1543, 327, 'training-receipts/327/S6R0srM06O6He4FFu6FVxGXnHwrV8UpJqo3tBgkn.pdf', 0, 1, 1),
+(1114, 327, 'training-receipts/327/w3593Uv68j31y3fp8RsHSylz1PZMODZwZU7Zx0Vi.pdf', 0, 1, 1),
+(1544, 327, 'training-receipts/327/23qDp0WyLHGEN2Dlw2wLtiVjJqhgKEblmf5HZa4g.pdf', 0, 1, 1),
+(1545, 327, 'training-receipts/327/BWOUAlM6ZNiOUiug7c1Et2nwL7VxfwXKo3LDabbl.pdf', 0, 1, 1),
+(1546, 327, 'training-receipts/327/KZPYhm5NIaPzuYrW08wH3n1QThK1ScsW5ndrywCA.pdf', 0, 1, 1),
+(1547, 327, 'training-receipts/327/57jnZKG3049A8U03XzoI0WM2GsePl6lUgzxX371a.pdf', 0, 1, 1),
+(1548, 327, 'training-receipts/327/KTlKBtyNgZReGYoC4QAJZvFmGi1PJgDUUC9NkouQ.pdf', 0, 1, 1),
+(1549, 327, 'training-receipts/327/7a2taBQB2DOSCtp5Rbj9fDQbXi2Ld53mKo4x3EtD.pdf', 0, 1, 1),
+(1550, 327, 'training-receipts/327/2TfAjoyYt5JpKrjHj8JHHk2NX6j4V39FGBbjTKJx.pdf', 0, 1, 1),
+(1551, 327, 'training-receipts/327/tombYSrr1CPvf84Yqyaa1a6BjMEINI4GTdyovygJ.pdf', 0, 1, 1),
+(1552, 327, 'training-receipts/327/Ukg85TP1PPs0NCemiCRJE3ExEmLrRBCNzBFz1v0o.pdf', 0, 1, 1),
+(1553, 327, 'training-receipts/327/6N8qhNB5fxzH33IMc6kh1pX622lsMGx91EOEC7Ub.pdf', 0, 1, 1),
+(1554, 327, 'training-receipts/327/jsfONIiwB5P5H6GKo9ZPYn60WV9Dh0PY3T1SQBqT.pdf', 0, 1, 1),
+(1555, 327, 'training-receipts/327/QWaslP80DojXJsSXhb4oCe125MZ9Nhe3bWBk8SCE.pdf', 0, 1, 1),
+(1556, 327, 'training-receipts/327/3vfpngwvaelxLNQcni90K9MPD871uaojyOQGFJaF.pdf', 0, 1, 1),
+(1557, 327, 'training-receipts/327/3zVnCv2rjpymNIDJQE1TmppXYadXz3biXUdtzGdq.pdf', 0, 1, 1),
+(1558, 327, 'training-receipts/327/zocbWWEuKsVOzct62jIgU9hQGt4v2s8ExpN4BVbO.pdf', 0, 1, 1),
+(1559, 327, 'training-receipts/327/mP2QKft7kjF801FPfULsWeIZcWOCOxiLCxucJNUe.pdf', 0, 1, 1),
+(1560, 327, 'training-receipts/327/swQ1DKbFOuIaTABIN3wNTh9jddIB6p1mQ4Rk1yXa.pdf', 0, 1, 1),
+(1561, 327, 'training-receipts/327/ZWSUMSjdagGVV5ZE4hjZZoA8O3ryLAMMYhppqOBQ.pdf', 0, 1, 1),
+(1562, 327, 'training-receipts/327/01kKG8bevayM2nhfOjKAyIgnBOf0mmUbJzjutCGX.pdf', 0, 1, 1),
+(1563, 327, 'training-receipts/327/p0CcFqfRu835BsfkDuhQjYLPfG5musjGIWIDGSJK.pdf', 0, 1, 1),
+(1564, 327, 'training-receipts/327/BvUKir7T7grrFqAmTumfZC99DEGKWJ68kjCIHHtu.pdf', 0, 1, 1),
+(1565, 327, 'training-receipts/327/Jx99Rf97fMN8Iom5YbJcMO5Dl2YSMbuGWIRPf653.pdf', 0, 1, 1),
+(1566, 327, 'training-receipts/327/SJOWpuEMpYUI5wSFq4MsRSRvcumIynqXd3yf0xMS.pdf', 0, 1, 1),
+(1568, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1568-d2d930fd-656e-459e-ba44-db57f4f96b4e.jpeg', 0, 1, 1),
+(1569, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1569-afe37b07-d012-41a3-9334-111f1d79e1f1.jpeg', 0, 1, 1),
+(1570, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1570-1ed72b55-1438-4ca2-a0e8-4edd8debc3d4.jpeg', 0, 1, 1),
+(1571, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1571-446a1a0c-d859-4ff3-b476-9bb3d52ba19e.jpeg', 0, 1, 1),
+(1572, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1572-be76ab41-a63d-4611-82e8-a89c4b0f60e3.jpeg', 0, 1, 1),
+(1573, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1573-f014c746-e2af-4481-9d29-5afda4dd6e3e.jpeg', 0, 1, 1),
+(1574, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1574-bd01abd4-9975-4b8f-9bb7-75bb0571fc6e.jpeg', 0, 1, 1),
+(1575, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1575-ae44d4d4-4e61-419a-909e-40f87f737433.jpeg', 0, 1, 1),
+(1576, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1576-a75b0f27-0472-44d5-9598-53280a49e52e.jpeg', 0, 1, 1),
+(1577, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1577-4c03ae75-0199-46b1-a0cb-f209c0db61ab.jpeg', 0, 1, 1),
+(1578, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1578-7bf64df1-a9b6-436c-87a6-f4674030bb12.jpeg', 0, 1, 1),
+(1579, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1579-3a405319-930c-426c-b326-8a6ac82b3ec8.jpeg', 0, 1, 1),
+(1580, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1580-32f95b75-dc81-4a01-ab76-c6e275c2062c.jpeg', 0, 1, 1),
+(1581, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1581-57b49853-1976-4531-8a87-c1efb20c85b8.jpeg', 0, 1, 1),
+(1582, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1582-d5abc0a7-b36b-4616-83c7-cdc561d5af8d.jpeg', 0, 1, 1),
+(1583, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1583-8467a9f1-d1fb-4ce2-823d-fc9099e8752e.jpeg', 0, 1, 1),
+(1584, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1584-cb188d81-ccb5-44d9-ab19-2c2f2a2baff5.jpeg', 0, 1, 1),
+(1585, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1585-2b9d8749-3dd4-40a9-9478-e4bf1ebf3f73.jpeg', 0, 1, 1),
+(1586, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1586-c58f495b-7c0c-4002-ace9-46fe0cb8e0b5.jpeg', 0, 1, 1),
+(1587, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1587-65c50d25-fcc8-43e6-8a3b-6abcef9c5934.jpeg', 0, 1, 1),
+(1588, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1588-b0fd7bdd-34b6-4d72-a772-73736d200880.jpeg', 0, 1, 1),
+(1589, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1589-49c54612-f9e6-4162-b8ab-73ec464fed73.jpeg', 0, 1, 1),
+(1590, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1590-b44ceb59-e529-4e5b-b178-95ad8ec0d86b.jpeg', 0, 1, 1),
+(1591, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1591-e7419155-9dbb-40d3-9f2e-f59fb2387a44.jpeg', 0, 1, 1),
+(1592, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1592-2b3a8e97-d565-4d98-8d1f-5e23c66d919c.jpeg', 0, 1, 1),
+(1593, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1593-69682310-2be1-41a4-898c-99fd3fd349a9.jpeg', 0, 1, 1),
+(1594, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1594-7c3034be-1d9b-4a82-8152-c2b600ca99d6.jpeg', 0, 1, 1),
+(1595, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1595-2b2b3ffb-4da8-40a5-8dcc-0fdd1fd0f25f.jpeg', 0, 1, 1),
+(1596, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1596-86455926-eb98-4eb3-9719-7be9956f02bc.jpeg', 0, 1, 1),
+(1597, 324, 'training-receipts/324/church-group-b9e3ab12e4d9d153de2dd89f8d6e5c58-student-1597-5c0eba3b-eede-4100-ba73-c3084b34aa8a.jpeg', 0, 1, 1),
+(1598, 328, NULL, 0, 0, 0),
+(1601, 318, NULL, 0, 1, 0),
+(1603, 318, NULL, 0, 1, 0),
+(1605, 318, NULL, 0, 1, 0),
+(1606, 318, NULL, 0, 1, 0),
+(1607, 318, NULL, 0, 1, 0),
+(1608, 318, NULL, 0, 1, 0),
+(1609, 318, NULL, 0, 1, 0),
+(1610, 318, NULL, 0, 1, 0),
+(1611, 318, NULL, 0, 0, 0),
+(1604, 318, NULL, 0, 0, 0),
+(1612, 333, 'training-receipts/333/church-group-f30de4616fa8792c923441631e8b2b82-student-1612-392299fc-ea97-4749-9e7b-c5dc15fcd44c.pdf', 0, 0, 1),
+(1613, 333, 'training-receipts/333/church-group-f77865e154aa757ffdd21707295f5175-student-1613-81f8632b-f49e-445a-9c02-18591ed3ed1f.pdf', 0, 0, 1),
+(1614, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1614-bef8463a-51c9-4150-bfaa-c80f73e203ba.pdf', 0, 0, 1),
+(1615, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1615-e8a816c2-7a71-49f7-be0d-9c6197192b12.pdf', 0, 0, 1),
+(1616, 333, 'training-receipts/333/church-group-f30de4616fa8792c923441631e8b2b82-student-1616-80ffe5d2-2f00-4aff-be0e-d36fa79cc9f8.pdf', 0, 0, 1),
+(1617, 333, 'training-receipts/333/church-group-f30de4616fa8792c923441631e8b2b82-student-1617-f6fa9e9d-129a-4b6c-ac73-ae8074cdb3c0.pdf', 0, 0, 1),
+(1618, 333, 'training-receipts/333/church-group-f30de4616fa8792c923441631e8b2b82-student-1618-b41691a9-7414-456e-9e72-cd3e9e3d8046.pdf', 0, 0, 1),
+(1619, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1619-42f9c0e1-db03-4536-bc40-f9ca1639b15e.pdf', 0, 0, 1),
+(1620, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1620-e6368ba6-8436-4ae4-8c58-6222dab12ca5.pdf', 0, 0, 1),
+(1621, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1621-b901dc48-c38d-4ada-b0d2-282c939ba1e4.pdf', 0, 0, 1),
+(1622, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1622-72db1554-4224-4e74-ab34-edd3630ee57a.pdf', 0, 0, 1),
+(1623, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1623-fa2b9f4d-1eda-4c6f-a05d-231b361d3cd7.pdf', 0, 0, 1),
+(1624, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1624-8b6cdeab-6251-42aa-9cd9-810957290cea.pdf', 0, 0, 1),
+(1625, 333, 'training-receipts/333/church-group-312b41091f4e287ef7307e4b9dd69cf8-student-1625-801285eb-9cc7-4436-913d-dd846a1dbd3e.pdf', 0, 0, 1),
+(1626, 333, 'training-receipts/333/church-group-312b41091f4e287ef7307e4b9dd69cf8-student-1626-8591918f-0aed-44ea-9ef6-545681311602.pdf', 0, 0, 1),
+(1627, 333, 'training-receipts/333/church-group-312b41091f4e287ef7307e4b9dd69cf8-student-1627-da8cf9b6-f4d4-4bae-8f72-c144753e6cac.pdf', 0, 0, 1),
+(1628, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1628-490fd6df-b241-4d23-b72e-129c23996d9e.pdf', 0, 0, 1),
+(1629, 333, 'training-receipts/333/church-group-312b41091f4e287ef7307e4b9dd69cf8-student-1629-469d52ae-eb74-48de-9e3a-063de7fb72bd.pdf', 0, 0, 1),
+(1630, 333, 'training-receipts/333/church-group-89056b0d239636480599294ea1c4172b-student-1630-ea7905bb-a10f-43a3-9ac6-4c4f6611985b.pdf', 0, 0, 1),
+(1631, 333, 'training-receipts/333/church-group-312b41091f4e287ef7307e4b9dd69cf8-student-1631-5a0f23ae-cdda-4736-84f4-e645e2e2d55b.pdf', 0, 0, 1),
+(1632, 328, 'training-receipts/328/eyrtrJKLucqO2jQg5b7g0MtsdDe1it00OvG6hLXq.jpg', 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `is_pastor` int(11) DEFAULT '0',
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `birthdate` date DEFAULT NULL,
+  `gender` tinyint(4) DEFAULT NULL,
+  `profile_photo_path` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complement` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `must_change_password` tinyint(1) NOT NULL DEFAULT '0',
+  `two_factor_secret` text COLLATE utf8mb4_unicode_ci,
+  `two_factor_recovery_codes` text COLLATE utf8mb4_unicode_ci,
+  `two_factor_confirmed_at` timestamp NULL DEFAULT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `church_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `church_temp_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `users`
+--
 
 INSERT INTO `users` (`id`, `is_pastor`, `name`, `birthdate`, `gender`, `profile_photo_path`, `phone`, `email`, `street`, `number`, `complement`, `district`, `city`, `state`, `postal_code`, `notes`, `email_verified_at`, `password`, `must_change_password`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`, `church_id`, `church_temp_id`) VALUES
 (1, 0, 'Cleiton dos Santos', '1986-08-28', 1, 'profile-photos/1/G9JiuMEA6XRhHmzEPd4OZMkyly23Z1rknYAV76gy.jpg', '2147483647', 'csilva@eeworks.org', 'Rua Albino Pereira', '35', NULL, 'São Fransisco', 'Niterói', NULL, '24365170', 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. A vitae maiores numquam cum animi, doloremque eum esse! Provident numquam quae natus velit eaque, dolorem ullam blanditiis assumenda labore quaerat! Ipsa!', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, '2026-03-13 03:33:42', 1, NULL),
-(2, 0, 'Jailton Barreto Rangel', '1949-03-06', 0, 'profile-photos/2/Ug9hpzUqIupOZVruqTA3XRWXw95jGLnRLAv1bMOR.jpg', '2147483647', 'jailtonbarreto@eeworks.org', 'Rua Tiradentes', '103', NULL, 'Ingá', 'Niterói', NULL, '24210440', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, '2026-03-13 03:31:51', 353, NULL),
+(2, 1, 'Jailton Barreto Rangel', '1949-03-06', 1, 'profile-photos/2/Ug9hpzUqIupOZVruqTA3XRWXw95jGLnRLAv1bMOR.jpg', '21991046211', 'jailtonbarreto@eeworks.org', 'Rua Tiradentes', '103', 'Apto. 1006', 'Ingá', 'Niterói', 'RJ', '24210440', 'Foi credenciado em EE em 1986 na SIB CAMPOS, pr. Joélcio Barreto. Fez CEPROC em São Paulo, Implementou na sua igreja IB22NOVEMBRO Niterói- RJ. Sua Igreja foi base de clínicas, nos anos  dos Coordenadores Joelcio, José Carlos, Foster. ', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, '2026-03-26 17:38:27', 353, NULL),
 (3, 0, 'Roberto Foster', NULL, 0, NULL, '2147483647', 'rfoster@eeworks.org', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (4, 0, 'Eduardo Domingues', '1982-01-08', 0, 'profile-photos/TElIwQWQw3sIoycxj6331WgU2tXx8KE7BKwPBwXz.jpg', '2147483647', 'eduardodomingues@eebrasil.org.br', NULL, NULL, NULL, NULL, 'São Paulo', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, '2023-01-24 02:45:03', 40, NULL),
 (5, 0, 'Mariana Chagas', '1983-08-13', 0, NULL, '2147483647', 'anairam267@hotmail.com', 'Rua Albino Pereira', '35', NULL, 'São Fransisco', 'Niterói', NULL, '24365170', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, NULL, '2022-08-12 08:53:31', 1, NULL),
@@ -1920,7 +3439,6 @@ INSERT INTO `users` (`id`, `is_pastor`, `name`, `birthdate`, `gender`, `profile_
 (71, 0, 'Carlos Alberto Esteves Duarte', NULL, NULL, NULL, NULL, 'c.duartee@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 24, NULL),
 (72, 0, 'Sillas Baptista Alves', NULL, NULL, NULL, NULL, 'sillas.baptista@hotmail.com', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 25, NULL),
 (73, 0, 'Daniel Augusto de Souza', NULL, NULL, NULL, NULL, 'luizisouza@hotmail.com', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 25, NULL),
-(74, 0, 'Jailton Barreto Rangel', '1949-03-06', 0, NULL, '21', 'jailtonbarreto@gmail.com', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2023-07-10 16:04:26', 25, NULL),
 (75, 0, 'Thadeu Martini', NULL, NULL, NULL, NULL, 'thadeu.martini@poli.ufrj.br', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 25, NULL),
 (76, 0, 'Maria Luiziara Goiana de Souza', NULL, NULL, NULL, NULL, 'luizisouza01@gmail.com', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 25, NULL),
 (77, 0, 'Bernardino Anchieta', NULL, NULL, NULL, NULL, 'bernardinoanchieta73@gmail.com', NULL, NULL, NULL, 'Barreto', 'Niterói', NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2022-06-25 01:51:01', '2022-08-12 08:53:31', 25, NULL),
@@ -2648,7 +4166,7 @@ INSERT INTO `users` (`id`, `is_pastor`, `name`, `birthdate`, `gender`, `profile_
 (797, 0, 'Maria Helena Amorim', '1944-11-09', 0, NULL, '2147483647', 'vovoairtonamorim@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-02 15:38:16', '2023-05-02 15:38:16', 134, NULL),
 (798, 0, 'Renata Cláudia Xavier dos Santos', '1970-09-14', 0, NULL, '2147483647', 're_xsa@yahoo.com.br', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-02 15:39:13', '2023-05-02 15:39:13', 134, NULL),
 (799, 0, 'Derminda de Souza Borges Reis', NULL, 0, NULL, '2147483647', 'dinhareis502404@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-02 18:13:41', '2023-05-02 18:13:41', 134, NULL),
-(800, 1, 'John Carlos Harmon Junior ', NULL, 0, 'profile-photos/800/1woGlCrr0NrtOBX7QKopBfBC5KE2hfZyZVTcmzos.png', '2147483647', 'jharmon@eeworks.org', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-04 12:04:35', '2026-03-13 03:32:07', 132, NULL),
+(800, 1, 'John Carlos Harmon Junior ', '1975-07-30', 1, 'profile-photos/800/1woGlCrr0NrtOBX7QKopBfBC5KE2hfZyZVTcmzos.png', '11961223145', 'jharmon@eeworks.org', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Sempre Avante!', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-04 12:04:35', '2026-03-25 18:06:43', 358, NULL),
 (801, 1, 'Alexandre M.S. de Souza', NULL, 0, NULL, '2147483647', 'prale@terra.com.br', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-04 12:05:20', '2023-06-27 09:24:54', 182, NULL),
 (803, 0, 'Noeme da Silva Tougeiro', '1943-07-06', 0, NULL, '2147483647', 'noemet@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-05 04:56:45', '2023-05-05 04:56:45', 1, NULL),
 (804, 0, 'Bianca Gama de Castro Alves', '1985-01-16', 0, NULL, '2197228', 'balves@predialnet.com.br', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2023-05-05 04:58:07', '2023-05-05 04:58:07', 1, NULL),
@@ -3369,7 +4887,6 @@ INSERT INTO `users` (`id`, `is_pastor`, `name`, `birthdate`, `gender`, `profile_
 (1529, 1, 'Cleiton Araujo da Silva', '1986-08-28', 1, NULL, '21972765535', 'cleiton.jnet@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$Srtng.807Gszml5gzblcReMGbOrx/yfcP6.ht0fWAuKQlqePTgA2G', 0, NULL, NULL, NULL, NULL, '2026-03-03 12:03:20', '2026-03-03 12:03:27', 1, NULL),
 (1530, 0, 'Arthur Castro', '2004-08-10', 1, NULL, '22992177997', 'arthurccastro3003@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$eQlL1wlZ5gNOrtjJE0QE3.3GiLVDbOkZ4ypR2AnUDZiwDkPdTV12i', 0, NULL, NULL, NULL, NULL, '2026-03-10 19:46:49', '2026-03-10 19:46:49', NULL, NULL),
 (1531, 1, 'Brasilino Araujo', '1957-06-10', 1, NULL, '21996150729', 'brasilino2012@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$BbEWK6brakJ1K7eoat7SYO0hjihf29UzZxLqV0yuXeQnV6PobmCSe', 0, NULL, NULL, NULL, NULL, '2026-03-16 03:18:19', '2026-03-16 03:18:47', 275, NULL),
-(1532, 1, 'Jailton Barreto Rangel', '1949-03-06', 1, NULL, '21991046211', 'jailtonbarreto@eworks.org', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$qPprEQrU7sqCIbLiOks.JOjirpxsznjHT3Bfr6H/OhfbfY1.Ljed.', 1, NULL, NULL, NULL, NULL, '2026-03-17 16:27:36', '2026-03-17 16:27:36', 353, NULL),
 (1534, 0, 'Ana Clara Marinho Rodrigues', NULL, 2, NULL, '66999150533', 'anaclaramarinhorodrigues08@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$lqpqNY/oPckX4I1ExKB3EOtMED.JNQ2uqB5h1rvHnACS5F653h4n.', 1, NULL, NULL, NULL, NULL, '2026-03-17 23:02:22', '2026-03-17 23:02:22', 262, NULL),
 (1535, 0, 'Ademir Jorge da Silva', NULL, 1, NULL, '66999322132', 'ademir04.01jorge@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$yIBqgB.FLjahx53ieJ.T6uS0KUTB.fG3tkk80oAmwpyjDWZPndkmK', 1, NULL, NULL, NULL, NULL, '2026-03-17 23:03:32', '2026-03-17 23:03:32', 262, NULL),
 (1536, 1, 'André Moura de Souza Leão', NULL, 1, NULL, '66999725857', 'andreleao92@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$Bsr6DBZ51QejpHLHhEjnpeUM8wPTI32fhV.3cl70zznjaSm2Wrk7C', 1, NULL, NULL, NULL, NULL, '2026-03-17 23:11:55', '2026-03-17 23:11:55', 354, NULL),
@@ -3403,10 +4920,930 @@ INSERT INTO `users` (`id`, `is_pastor`, `name`, `birthdate`, `gender`, `profile_
 (1564, 0, 'Thaysa Barbosa Araújo', '1992-01-08', 2, NULL, '66996021171', 'thaysabarbo@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$fDd4fRLi.uULa2CNiaMcteoRjaCpRxq7Ys7QIa8DhPHuzDg2Jo07W', 1, NULL, NULL, NULL, NULL, '2026-03-18 00:26:17', '2026-03-18 00:26:17', 262, NULL),
 (1565, 0, 'Vanessa Diolindo', '1982-12-13', 2, NULL, '66999690479', 'vanessadiolindo@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$0BMx.wDRQkwR3DTlCAYvueFrxrVwnSOpFOfPllZcvfeZoLDx/l.ie', 1, NULL, NULL, NULL, NULL, '2026-03-18 00:56:08', '2026-03-18 00:56:08', 262, NULL),
 (1566, 0, 'Tiago Neves de Brito Diolindo', '2011-11-21', 1, NULL, '66996311938', 'tnevesdebritodiolindo@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$GnFxz8H/YG1lL37vDQ.zee4nNPrWVvz7woUaiUEEqFU4..BPFviNy', 1, NULL, NULL, NULL, NULL, '2026-03-18 01:08:38', '2026-03-18 01:08:38', 262, NULL),
-(1567, 1, 'Kely Cristina Melo Nazario', '1982-06-29', 2, NULL, '61995815634', 'kellycmnazario@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$99Ceb266mCS2HJmiqqk64uGzekNT2xROD6STj53lHgvZUeTLr.Zzu', 0, NULL, NULL, NULL, NULL, '2026-03-19 20:08:31', '2026-03-19 20:08:48', 81, NULL);
+(1567, 1, 'Kely Cristina Melo Nazario', '1982-06-29', 2, NULL, '61995815634', 'kellycmnazario@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$99Ceb266mCS2HJmiqqk64uGzekNT2xROD6STj53lHgvZUeTLr.Zzu', 0, NULL, NULL, NULL, NULL, '2026-03-19 20:08:31', '2026-03-19 20:08:48', 81, NULL),
+(1568, 0, 'Luciana Inácio Amorim de Araújo', NULL, 2, NULL, '61983239981', '01.luciana.araujo@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:57:21', 348, NULL),
+(1569, 0, 'Rafaella Amorim de Araújo', NULL, 2, NULL, '61983682716', '02.rafaella.araujo@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:57:54', 348, NULL),
+(1570, 0, 'Renato Eneas Almeida de Araújo', NULL, 1, NULL, '61983246654', '03.renato.araujo@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:58:08', 348, NULL),
+(1571, 0, 'Fábio Silva Guimarães Marques', NULL, 1, NULL, '61981682169', '04.fabio.marques@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:58:19', 348, NULL),
+(1572, 0, 'Verônica Marques dos Santos Rabelo', NULL, 2, NULL, '61985069683', '05.veronica.rabelo@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:58:34', 348, NULL),
+(1573, 0, 'Valdinar Rabelo dos Santos', NULL, NULL, NULL, '61981275817', '06.valdinar.santos@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8JGu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 14:55:18', 348, NULL),
+(1574, 0, 'Jardel Pereira Lopes', NULL, 1, NULL, '61992224363', '07.jardel.lopes@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:59:17', 348, NULL),
+(1575, 0, 'Davi Miguel Santos Eliziário', NULL, 1, NULL, '61993878762', '08.davi.eliziario@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:59:29', 348, NULL),
+(1576, 0, 'Francisco Eliziário de Jesus', NULL, 1, NULL, '61993878762', '09.francisco.jesus@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 19:59:40', 348, NULL),
+(1577, 0, 'Francisco Robinson Brasilino Júnior', NULL, 1, NULL, '61982405763', '10.francisco.junior@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:00:02', 348, NULL),
+(1578, 0, 'Caio Castro da Silva', NULL, 1, NULL, '61993225411', '11.caio.silva@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:00:15', 348, NULL),
+(1579, 0, 'Paulo Victor Costa de Souza', NULL, 1, NULL, '61992563779', '12.paulo.souza@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:00:30', 348, NULL),
+(1580, 0, 'Danieli Lopes Monteiro', NULL, 2, NULL, NULL, '13.danieli.monteiro@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:00:49', 348, NULL),
+(1581, 0, 'Nassiania Pacheco Cardoso', NULL, 2, NULL, NULL, '14.nassiania.cardoso@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:01:19', 348, NULL),
+(1582, 0, 'Carlos André Marques', NULL, 1, NULL, '61999840365', '15.carlos.marques@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:01:32', 348, NULL),
+(1583, 0, 'Adaia Amaral Marques', NULL, 2, NULL, '61996445048', '16.adaia.marques@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:01:48', 348, NULL),
+(1584, 0, 'Irismar Coelho Fontes', NULL, 2, NULL, '61985103832', '17.irismar.fontes@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:02:00', 348, NULL),
+(1585, 0, 'Nicolas Castro da Silva', NULL, 1, NULL, '61993120902', '18.nicolas.silva@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:02:14', 348, NULL),
+(1586, 0, 'Marcelo da Silva Vasconcelos', NULL, 1, NULL, '61981674183', '19.marcelo.vasconcelos@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:02:25', 348, NULL),
+(1587, 0, 'Jaqueline Silva Costa Vasconcelos', NULL, 2, NULL, '61983420678', '20.jaqueline.vasconcelos@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:02:38', 348, NULL),
+(1588, 0, 'Nathalia Rodrigues de Castro', NULL, 2, NULL, '61985401495', '21.nathalia.castro@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:02:51', 348, NULL),
+(1589, 0, 'Alice Batista Martins', NULL, 2, NULL, '61995700322', '22.alice.martins@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:03:03', 348, NULL),
+(1590, 0, 'Vinícius Rodrigues Costa', NULL, 1, NULL, '61984473557', '23.vinicius.costa@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:03:17', 348, NULL),
+(1591, 0, 'Larissa Evelyn Pereira Lopes', NULL, NULL, NULL, '61991562823', '24.larissa.lopes@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 14:55:18', 348, NULL),
+(1592, 0, 'Melissa Ellen Pereira Lopes', NULL, 2, NULL, '6196016985', '25.melissa.lopes@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:03:39', 348, NULL),
+(1593, 0, 'Isaque Pereira Lopes', NULL, 1, NULL, '61999270506', '26.isaque.lopes@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:03:50', 348, NULL),
+(1594, 0, 'Rodrigo Brito Passos', NULL, 1, NULL, NULL, '27.rodrigo.passos@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:04:00', 348, NULL),
+(1595, 0, 'Marcus Vinicius Ferreira Ludovico', NULL, 1, NULL, '61996020306', '28.marcus.ludovico@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:04:14', 348, NULL),
+(1596, 0, 'Grégory de Sousa Ferreira', NULL, 1, NULL, '63995710171', '29.gregory.ferreira@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:04:28', 348, NULL),
+(1597, 0, 'Rayane Pinheiro Santos da Silva', NULL, 2, NULL, '65992333892', '30.rayane.silva@ippv.local', 'Quadra 01 Conjunto B', 'Lote 12', NULL, 'Setor M Norte', 'Taguatinga', 'DF', '72125-515', NULL, NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-23 14:55:18', '2026-03-23 20:04:42', 348, NULL),
+(1598, 1, 'Jairo Brum Paiva', '1964-09-05', 1, NULL, '21970268515', 'prjairobrum@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$ifsXgCps/.XkI3WTD0B2yulSjQpdvlcnk3oRxdx/PR/ho1EWsJ7vW', 0, NULL, NULL, NULL, NULL, '2026-03-24 00:49:10', '2026-03-24 00:49:10', NULL, NULL),
+(1599, 1, 'John Harmon', '1975-07-30', 1, NULL, '11961223145', 'harmonjl@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$1vO9v./vwGWMSUTLoq63AO0zGsTRgTkeecN0pyKUZaVRUyufANbk2', 0, NULL, NULL, NULL, NULL, '2026-03-25 19:03:33', '2026-03-25 19:03:48', 358, NULL),
+(1600, 1, 'Cleiton Araujo da Silva', '1986-08-28', 1, NULL, '21972765535', 'cleiton.jnet@gmail.com28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$f6pBuv82ibyyeFrQhqEvaeJgGYrm49dyEpHlVoaefu4HZainjhmOu', 0, NULL, NULL, NULL, NULL, '2026-03-25 19:44:40', '2026-03-25 19:44:50', 358, NULL),
+(1601, 0, 'Aroldo Vieira', NULL, 1, NULL, '21988384964', 'aroldo.vieira@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$Sb/jM7QYyjOvqmQjydVMUeF5QGQN3riGtW//A7CVV3MovTpiPlUyi', 1, NULL, NULL, NULL, NULL, '2026-03-26 03:57:24', '2026-03-26 03:57:24', 359, NULL),
+(1603, 1, 'IVAN ALVES LEÃO', NULL, 1, NULL, '61984091838', 'ivan@leaoassociados.com', 'Rua Vitório Macanhan', '94', NULL, 'Taruma', 'Curitiba', 'PR', '82530310', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 2. Pagamento: Conferir. Igreja informada: Igreja presbiteriana. Vinculado ao church_id 360 (Igreja Presbiteriana do Tarumã) por contexto.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:53:32', 360, NULL),
+(1604, 1, 'William Teixeira', NULL, 1, NULL, '8496675913', 'Williambarcateixeira@outlook.com', 'Rua Francisco moura filho', '685', NULL, 'Santa Belmira', 'Mossoró', 'Rio Grande do Norte', '49615200', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 3. Pagamento: Pago. Igreja informada: Igreja de Cristo. church_id não localizado no DB informado.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 06:47:26', 294, NULL),
+(1605, 0, 'Rubens do Amaral Filho', NULL, 1, NULL, '11986067223', 'Rubensamaralfilho48913@gmail.com', 'Rua Carlos Piva', '32', 'casa', 'Jd 3 marias .São Mateus', 'São Paulo', 'São Paulo capital', '08331-180', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 4. Pagamento: Pago. Igreja informada: Igreja Batista de Jardim Colonial. Vinculado ao church_id 361.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:54:16', 361, NULL),
+(1606, 1, 'Zildomar Silva de Souza', NULL, 1, NULL, '91981668682', 'zildoenadia@gmail.com', 'Av. Augusto Montenegro', 'km 7', 'Residencial José Homobono II, bloco 11 apartamento 101', 'Tapanã', 'Belem', 'Pará', '66823010', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 5. Pagamento: Pago. Igreja informada: IGREJA DE NOVA VIDA DO ESTADO DO PARÁ. Vinculado ao church_id 362.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:54:29', 362, NULL),
+(1607, 0, 'Jamile Fernanda Cardoso Carneiro', NULL, 2, NULL, '91982916714', 'cardosojamile88@gmail.com', 'Travessa de Breves', '1494', NULL, 'Jurunas', 'Belém', 'Pará', '66030140', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 6. Pagamento: Pago. Igreja informada: Igreja Batista Missionária da Amazônia. Vinculado ao church_id 363.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:54:42', 363, NULL),
+(1608, 0, 'Katryne de Oliveira Rodrigues', NULL, 2, NULL, '021988326816', 'katryneoliveira.rod@gmail.com', 'Rua Ouro Branco', '200', NULL, 'Jardim Catarina', 'São Gonçalo', 'Rio de Janeiro', '24715642', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 7. Pagamento: Conferir. Igreja informada: Igreja Batista Central em Jardim Catarina. Vinculado ao church_id 364.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:54:53', 364, NULL),
+(1609, 1, 'Luiz Antônio dos Santos', NULL, 1, NULL, '11998635146', 'psicologia.ser@gmail.com', 'Avenida Francisco Prestes Maia', '902', 'Sala 113', 'Centro', 'São Bernardo do Campo SP', 'Estado de São Paulo', '9970000', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 8. Pagamento: Pago. Igreja informada: Igreja Batista no Jardim do Lago. Vinculado ao church_id 343.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:55:06', 343, NULL),
+(1610, 1, 'Rafael Lima de Sousa', NULL, 1, NULL, '9183616278', 'rafaellimasousa11@gmail.com', 'Avenida Deoclércio Gurjão', '23', NULL, 'Santa Maria', 'Benevides', 'Pará', '68795000', 'Importado da inscrição Clínica Evangelismo Explosivo. Ordem: 9. Pagamento: Pago. Igreja informada: Igreja Batista Missionária da Amazônia. Vinculado ao church_id 363.', NULL, '$2y$12$WKivakBDhpy2wljX8J7Gu.cBKLoVxF82yYvofnuxitQ.bBP4uPKYi', 0, NULL, NULL, NULL, NULL, '2026-03-26 00:51:51', '2026-03-26 05:55:20', 363, NULL),
+(1611, 0, 'Eliezer de Oliveira Aleixo', NULL, 1, NULL, '91980879297', 'eliezervoz@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$PodC0wsueJbM0I3lar8t4ujzwEcyZ3DQfdU73bkzIwLIkj8tcGaZq', 1, NULL, NULL, NULL, NULL, '2026-03-26 06:43:38', '2026-03-26 06:43:38', 362, NULL),
+(1612, 0, 'Joel Gil de Oliveira', '1945-05-26', 1, NULL, '22998232546', 'pb.joelgil@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$8m.Y/GwXTYLVisPcFhcy0uJp9UL1a0GVzJa4R4.aKJlVaDD6xb7Qe', 1, NULL, NULL, NULL, NULL, '2026-03-28 03:43:35', '2026-03-28 03:43:35', 365, NULL),
+(1613, 1, 'Enis Lopes do Amaral', '1967-10-09', 1, NULL, '28999120979', 'enislopes@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$KRroDNPdCjqz1rV..Kt8D.elbiOHE6srWYyvUs/Al/gzdxaD5Wrnu', 1, NULL, NULL, NULL, NULL, '2026-03-28 03:50:14', '2026-03-28 03:50:14', 366, NULL),
+(1614, 0, 'Thiago Jacomini', '2000-09-21', 1, NULL, '22999128767', 'thiago.bjn@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$grAIy/AgwhERM8xHhRhaFOm8y08WBGk0gWScX0lh/d/7W0pWbjno.', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:01:23', '2026-03-28 04:01:23', 60, NULL),
+(1615, 0, 'Sâmeah Almeida dos Santos', '2000-03-04', 2, NULL, '28999838898', 'sameahalmeida@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$9ITk2wgpRE/t0lJ4GXXk1ukPc.fEqHr9fXKYvtuCDXYhUBOZFjEte', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:03:24', '2026-03-28 04:03:24', 60, NULL),
+(1616, 0, 'José Elias', '1957-02-22', 1, NULL, '11987678839', 'jsiblino@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$DEFBkXaXHjTOar8/ZAUUVOjvTfNjZljWxkbeERQhKXZGChtMW2jhu', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:05:33', '2026-03-28 04:05:33', 365, NULL),
+(1617, 0, 'Viviane Suiter da Silva', '1962-12-01', 2, NULL, '11959430153', 'visuiter@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$IdWYAJ8qSAjEMBb05ZkWW.kLsvhYfW4DKvoin30VmWfaPmuEzv6fy', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:07:08', '2026-03-28 04:07:08', 365, NULL),
+(1618, 1, 'Kayo Rodrigues Ferreiro', '2000-04-29', 1, NULL, '28999085238', 'rkayo948@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$YLkzzDPTBM.I668Qhph7p.pYrsMhHL/7cHBKkflvIeNPKw96Myk8C', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:09:06', '2026-03-28 04:09:06', 365, NULL),
+(1619, 0, 'Edite Silva da Cruz Caetano', '1975-02-22', 2, NULL, '22999011219', 'ditinhacaetano810@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$5YvelRQQJG1GjsCrhw.FVuGYZj194fWgi/RGGmak8qjtn9YK4BKem', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:12:32', '2026-03-28 04:12:32', 60, NULL),
+(1620, 0, 'Maria José Cravinho', '1947-04-27', 2, NULL, '22998224478', 'brasilcravinho@yahoo.com.br', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$bAgM9u6RLO95cBrmlkuRKu10H1QzBcX0uf.4bagZHTR.90JmnbtAa', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:15:41', '2026-03-28 04:15:41', 60, NULL),
+(1621, 0, 'Expedito Martins', '1964-01-02', 1, NULL, '22998963216', 'expeditomartins02@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$Fg55DjBpeuG0aqVoaPauPu2lRvzD8R4w1XwxdWg2TzE0imiIqSMcK', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:17:05', '2026-03-28 04:17:05', 60, NULL),
+(1622, 0, 'Cenira Quírino', '1959-01-19', 2, NULL, '22999873151', 'cenigil@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$MVckW9akxKM4UYfNCeqmxO1jH7eLh7VKiQvnd59sZz/Kj.TawFddW', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:18:37', '2026-03-28 04:18:37', 60, NULL),
+(1623, 0, 'Gilberto de Figueiredo Neves', '1958-07-17', 1, NULL, '22999465996', 'gilbertoneves2008@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$dIpWrRZ4YtpTFgyS6SOvJeJHy6WrdUbOlBJqim4Y8F1MMVxTltoqW', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:20:21', '2026-03-28 04:20:21', 60, NULL),
+(1624, 0, 'Tania Margareth Garcia Fiori', '1959-01-11', 2, NULL, '22999029587', 'taniafiori@hotmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$BYYWZmWkPKwNasC1XWUks.oofVANdbyY.Ebs/JlPGrAg8e5.4jtq.', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:22:12', '2026-03-28 04:22:12', 60, NULL),
+(1625, 0, 'Ester Vargas', '1949-12-25', 2, NULL, '22998348317', 'esterrosalbji@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$qA0q3pNj0cGLbbPk1YzqdOjlt5zdT5e6kyYxXXrsVe25ZOIUy6KXG', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:23:57', '2026-03-28 04:23:57', 367, NULL),
+(1626, 0, 'Alessandro Alexandre da Fonseca', '1980-11-19', 1, NULL, '22997691980', 'alefonseca1911@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$wAK6ZRmbiWs5wiAt14brauUphDQPPea5j9ZjUU0Fymc31I7aF186y', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:25:48', '2026-03-28 04:25:48', 367, NULL),
+(1627, 0, 'Leucimar Monteiro do Canto', '1981-04-03', 2, NULL, '22997560958', 'leucimar.canto3@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$BxgcRF9mGCgoMbDsH6eUuujLGH2YEQrisS58to3HyXAqxXC4DQn7i', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:27:35', '2026-03-28 04:27:35', 367, NULL),
+(1628, 0, 'Adriana Salles Gonçalves', '1975-04-07', 2, NULL, '22988614950', 'sallesesalles014@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$hwq/rIBTvo5Q.CM1QVl68.KoeHzarI70jh5LnWLPkPuCT7lqBuvda', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:29:21', '2026-03-28 04:29:21', 60, NULL),
+(1629, 0, 'Luiz Eduardo', '1986-01-17', 1, NULL, '21997846354', 'eduardofpgmn86@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$bT9Ayn11nmJq9PoejsMtcukhW4R4vI0kDWMgO5x80vI2xur/ov9FK', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:31:29', '2026-03-28 04:31:29', 367, NULL),
+(1630, 0, 'Mauricio de Alvarenga', '1971-12-28', 1, NULL, '22999712332', 'drogariabairronovo@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$rkfBOLte70ViORBihvI/DubboD1.PNAOfzvoHp3TyULloGUAGoXtO', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:33:13', '2026-03-28 04:33:13', 60, NULL),
+(1631, 0, 'Clesia Ferreira Vargas', '1966-09-01', 2, NULL, '22998776570', 'clesiafvtinoco01@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$UnQIkolA7luPOOS8TEJeouZ0.ANPT9p7mDDFMdoL4FQa/mBTwrcWC', 1, NULL, NULL, NULL, NULL, '2026-03-28 04:34:45', '2026-03-28 04:34:45', 367, NULL),
+(1632, 1, 'Cleber Ribeiro de Souza', '1980-02-05', 1, NULL, '21988187251', 'cleberdgm7@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$2y$12$C78lMjKgMrlIwF3e.qcj4OVIMp.i3ZgTWBymv8440syTX4utUp9eu', 0, NULL, NULL, NULL, NULL, '2026-04-06 14:06:53', '2026-04-06 16:42:46', 369, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `vouchers`
+--
+
+CREATE TABLE `vouchers` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `training_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `cache`
+--
+ALTER TABLE `cache`
+  ADD PRIMARY KEY (`key`);
+
+--
+-- Índices de tabela `cache_locks`
+--
+ALTER TABLE `cache_locks`
+  ADD PRIMARY KEY (`key`);
+
+--
+-- Índices de tabela `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `category_material`
+--
+ALTER TABLE `category_material`
+  ADD KEY `category_material_category_id_foreign` (`category_id`),
+  ADD KEY `category_material_material_id_foreign` (`material_id`);
+
+--
+-- Índices de tabela `churches`
+--
+ALTER TABLE `churches`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `church_missionary`
+--
+ALTER TABLE `church_missionary`
+  ADD KEY `church_missionary_church_id_foreign` (`church_id`),
+  ADD KEY `church_missionary_user_id_foreign` (`user_id`);
+
+--
+-- Índices de tabela `church_temps`
+--
+ALTER TABLE `church_temps`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `church_temps_resolved_church_id_foreign` (`resolved_church_id`),
+  ADD KEY `church_temps_resolved_by_foreign` (`resolved_by`),
+  ADD KEY `church_temps_status_index` (`status`),
+  ADD KEY `church_temps_normalized_name_index` (`normalized_name`),
+  ADD KEY `church_temps_resolved_at_index` (`resolved_at`);
+
+--
+-- Índices de tabela `courses`
+--
+ALTER TABLE `courses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `courses_ministry_id_foreign` (`ministry_id`);
+
+--
+-- Índices de tabela `course_material`
+--
+ALTER TABLE `course_material`
+  ADD UNIQUE KEY `course_material_unique` (`course_id`,`material_id`),
+  ADD KEY `course_material_material_id_foreign` (`material_id`);
+
+--
+-- Índices de tabela `course_study_material`
+--
+ALTER TABLE `course_study_material`
+  ADD UNIQUE KEY `course_study_material_unique` (`course_id`,`material_id`),
+  ADD KEY `course_study_material_material_id_foreign` (`material_id`);
+
+--
+-- Índices de tabela `course_user`
+--
+ALTER TABLE `course_user`
+  ADD KEY `course_user_course_id_foreign` (`course_id`),
+  ADD KEY `course_user_user_id_foreign` (`user_id`);
+
+--
+-- Índices de tabela `event_dates`
+--
+ALTER TABLE `event_dates`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `event_dates_training_id_date_start_time_unique` (`training_id`,`date`,`start_time`);
+
+--
+-- Índices de tabela `failed_jobs`
+--
+ALTER TABLE `failed_jobs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
+
+--
+-- Índices de tabela `helps`
+--
+ALTER TABLE `helps`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `host_churches`
+--
+ALTER TABLE `host_churches`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `host_churches_church_id_foreign` (`church_id`);
+
+--
+-- Índices de tabela `host_church_admins`
+--
+ALTER TABLE `host_church_admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `host_church_admins_host_church_id_user_id_unique` (`host_church_id`,`user_id`),
+  ADD KEY `host_church_admins_user_id_status_index` (`user_id`,`status`);
+
+--
+-- Índices de tabela `inventories`
+--
+ALTER TABLE `inventories`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `inventories_user_id_foreign` (`user_id`);
+
+--
+-- Índices de tabela `inventory_material`
+--
+ALTER TABLE `inventory_material`
+  ADD KEY `inventory_material_material_id_foreign` (`material_id`),
+  ADD KEY `inventory_material_inventory_id_foreign` (`inventory_id`);
+
+--
+-- Índices de tabela `jobs`
+--
+ALTER TABLE `jobs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `jobs_queue_index` (`queue`);
+
+--
+-- Índices de tabela `job_batches`
+--
+ALTER TABLE `job_batches`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `lessonplans`
+--
+ALTER TABLE `lessonplans`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `lessonplans_section_id_foreign` (`section_id`),
+  ADD KEY `lessonplans_course_id_foreign` (`course_id`);
+
+--
+-- Índices de tabela `materials`
+--
+ALTER TABLE `materials`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `material_components`
+--
+ALTER TABLE `material_components`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `mat_comp_parent_component_unique` (`parent_material_id`,`component_material_id`),
+  ADD KEY `material_components_component_material_id_foreign` (`component_material_id`);
+
+--
+-- Índices de tabela `material_shipping`
+--
+ALTER TABLE `material_shipping`
+  ADD KEY `material_shipping_material_id_foreign` (`material_id`),
+  ADD KEY `material_shipping_shipping_id_foreign` (`shipping_id`);
+
+--
+-- Índices de tabela `material_suppliers`
+--
+ALTER TABLE `material_suppliers`
+  ADD KEY `material_suppliers_material_id_foreign` (`material_id`),
+  ADD KEY `material_suppliers_supplier_id_foreign` (`supplier_id`);
+
+--
+-- Índices de tabela `media`
+--
+ALTER TABLE `media`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `media_training_id_foreign` (`training_id`);
+
+--
+-- Índices de tabela `mentors`
+--
+ALTER TABLE `mentors`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `mentors_training_id_user_id_unique` (`training_id`,`user_id`),
+  ADD KEY `mentors_user_id_index` (`user_id`),
+  ADD KEY `mentors_created_by_index` (`created_by`);
+
+--
+-- Índices de tabela `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `ministries`
+--
+ALTER TABLE `ministries`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`email`);
+
+--
+-- Índices de tabela `receipts`
+--
+ALTER TABLE `receipts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `receipts_training_id_foreign` (`training_id`);
+
+--
+-- Índices de tabela `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `role_user`
+--
+ALTER TABLE `role_user`
+  ADD KEY `role_user_user_id_foreign` (`user_id`),
+  ADD KEY `role_user_role_id_foreign` (`role_id`);
+
+--
+-- Índices de tabela `sections`
+--
+ALTER TABLE `sections`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sections_course_id_foreign` (`course_id`);
+
+--
+-- Índices de tabela `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sessions_user_id_index` (`user_id`),
+  ADD KEY `sessions_last_activity_index` (`last_activity`);
+
+--
+-- Índices de tabela `shippings`
+--
+ALTER TABLE `shippings`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `stock_movements`
+--
+ALTER TABLE `stock_movements`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `stock_movements_material_id_foreign` (`material_id`),
+  ADD KEY `stock_movements_user_id_foreign` (`user_id`),
+  ADD KEY `stock_movements_training_id_foreign` (`training_id`),
+  ADD KEY `stock_movements_reference_type_reference_id_index` (`reference_type`,`reference_id`),
+  ADD KEY `stock_movements_inventory_material_idx` (`inventory_id`,`material_id`),
+  ADD KEY `stock_movements_type_idx` (`movement_type`),
+  ADD KEY `stock_movements_batch_idx` (`batch_uuid`);
+
+--
+-- Índices de tabela `stp_approaches`
+--
+ALTER TABLE `stp_approaches`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `stp_approaches_created_by_user_id_foreign` (`created_by_user_id`),
+  ADD KEY `stp_approaches_reported_by_user_id_foreign` (`reported_by_user_id`),
+  ADD KEY `stp_approaches_reviewed_by_user_id_foreign` (`reviewed_by_user_id`),
+  ADD KEY `stp_approaches_training_id_index` (`training_id`),
+  ADD KEY `stp_approaches_stp_session_id_index` (`stp_session_id`),
+  ADD KEY `stp_approaches_stp_team_id_index` (`stp_team_id`),
+  ADD KEY `stp_approaches_type_index` (`type`),
+  ADD KEY `stp_approaches_status_index` (`status`);
+
+--
+-- Índices de tabela `stp_sessions`
+--
+ALTER TABLE `stp_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `stp_sessions_training_id_sequence_unique` (`training_id`,`sequence`),
+  ADD KEY `stp_sessions_training_id_index` (`training_id`);
+
+--
+-- Índices de tabela `stp_teams`
+--
+ALTER TABLE `stp_teams`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `stp_teams_stp_session_id_index` (`stp_session_id`),
+  ADD KEY `stp_teams_mentor_user_id_index` (`mentor_user_id`);
+
+--
+-- Índices de tabela `stp_team_students`
+--
+ALTER TABLE `stp_team_students`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `stp_team_students_stp_team_id_user_id_unique` (`stp_team_id`,`user_id`),
+  ADD KEY `stp_team_students_user_id_index` (`user_id`);
+
+--
+-- Índices de tabela `suppliers`
+--
+ALTER TABLE `suppliers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `testimonials`
+--
+ALTER TABLE `testimonials`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `testimonials_is_active_position_index` (`is_active`,`position`);
+
+--
+-- Índices de tabela `trainings`
+--
+ALTER TABLE `trainings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainings_course_id_foreign` (`course_id`),
+  ADD KEY `trainings_teacher_id_foreign` (`teacher_id`),
+  ADD KEY `trainings_church_id_foreign` (`church_id`);
+
+--
+-- Índices de tabela `training_assistant_teacher`
+--
+ALTER TABLE `training_assistant_teacher`
+  ADD UNIQUE KEY `training_assistant_teacher_training_id_user_id_unique` (`training_id`,`user_id`),
+  ADD KEY `training_assistant_teacher_user_id_foreign` (`user_id`);
+
+--
+-- Índices de tabela `training_finance_audits`
+--
+ALTER TABLE `training_finance_audits`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `training_finance_audits_training_id_foreign` (`training_id`),
+  ADD KEY `training_finance_audits_user_id_foreign` (`user_id`);
+
+--
+-- Índices de tabela `training_new_churches`
+--
+ALTER TABLE `training_new_churches`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `training_new_churches_training_id_church_id_unique` (`training_id`,`church_id`),
+  ADD KEY `training_new_churches_church_id_foreign` (`church_id`),
+  ADD KEY `training_new_churches_source_church_temp_id_foreign` (`source_church_temp_id`),
+  ADD KEY `training_new_churches_created_by_foreign` (`created_by`);
+
+--
+-- Índices de tabela `training_schedule_items`
+--
+ALTER TABLE `training_schedule_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `training_schedule_items_section_id_foreign` (`section_id`),
+  ADD KEY `training_schedule_items_training_id_date_starts_at_index` (`training_id`,`date`,`starts_at`),
+  ADD KEY `training_schedule_items_training_id_date_type_index` (`training_id`,`date`,`type`),
+  ADD KEY `training_schedule_items_position_index` (`training_id`,`date`,`position`);
+
+--
+-- Índices de tabela `training_user`
+--
+ALTER TABLE `training_user`
+  ADD KEY `training_user_user_id_foreign` (`user_id`),
+  ADD KEY `training_user_training_id_foreign` (`training_id`);
+
+--
+-- Índices de tabela `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD KEY `users_church_id_foreign` (`church_id`),
+  ADD KEY `users_church_temp_id_foreign` (`church_temp_id`);
+
+--
+-- Índices de tabela `vouchers`
+--
+ALTER TABLE `vouchers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `vouchers_training_id_foreign` (`training_id`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `churches`
+--
+ALTER TABLE `churches`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=370;
+
+--
+-- AUTO_INCREMENT de tabela `church_temps`
+--
+ALTER TABLE `church_temps`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `courses`
+--
+ALTER TABLE `courses`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `event_dates`
+--
+ALTER TABLE `event_dates`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=332;
+
+--
+-- AUTO_INCREMENT de tabela `failed_jobs`
+--
+ALTER TABLE `failed_jobs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `helps`
+--
+ALTER TABLE `helps`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `host_churches`
+--
+ALTER TABLE `host_churches`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `host_church_admins`
+--
+ALTER TABLE `host_church_admins`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `inventories`
+--
+ALTER TABLE `inventories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `jobs`
+--
+ALTER TABLE `jobs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `lessonplans`
+--
+ALTER TABLE `lessonplans`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `materials`
+--
+ALTER TABLE `materials`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT de tabela `material_components`
+--
+ALTER TABLE `material_components`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de tabela `media`
+--
+ALTER TABLE `media`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `mentors`
+--
+ALTER TABLE `mentors`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT de tabela `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=309;
+
+--
+-- AUTO_INCREMENT de tabela `ministries`
+--
+ALTER TABLE `ministries`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de tabela `receipts`
+--
+ALTER TABLE `receipts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de tabela `sections`
+--
+ALTER TABLE `sections`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
+
+--
+-- AUTO_INCREMENT de tabela `shippings`
+--
+ALTER TABLE `shippings`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `stock_movements`
+--
+ALTER TABLE `stock_movements`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+
+--
+-- AUTO_INCREMENT de tabela `stp_approaches`
+--
+ALTER TABLE `stp_approaches`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `stp_sessions`
+--
+ALTER TABLE `stp_sessions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `stp_teams`
+--
+ALTER TABLE `stp_teams`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+
+--
+-- AUTO_INCREMENT de tabela `stp_team_students`
+--
+ALTER TABLE `stp_team_students`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+
+--
+-- AUTO_INCREMENT de tabela `suppliers`
+--
+ALTER TABLE `suppliers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `testimonials`
+--
+ALTER TABLE `testimonials`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `trainings`
+--
+ALTER TABLE `trainings`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=337;
+
+--
+-- AUTO_INCREMENT de tabela `training_finance_audits`
+--
+ALTER TABLE `training_finance_audits`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de tabela `training_new_churches`
+--
+ALTER TABLE `training_new_churches`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `training_schedule_items`
+--
+ALTER TABLE `training_schedule_items`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=558;
+
+--
+-- AUTO_INCREMENT de tabela `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1633;
+
+--
+-- AUTO_INCREMENT de tabela `vouchers`
+--
+ALTER TABLE `vouchers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `category_material`
+--
+ALTER TABLE `category_material`
+  ADD CONSTRAINT `category_material_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `category_material_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `church_missionary`
+--
+ALTER TABLE `church_missionary`
+  ADD CONSTRAINT `church_missionary_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `church_missionary_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `church_temps`
+--
+ALTER TABLE `church_temps`
+  ADD CONSTRAINT `church_temps_resolved_by_foreign` FOREIGN KEY (`resolved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `church_temps_resolved_church_id_foreign` FOREIGN KEY (`resolved_church_id`) REFERENCES `churches` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `courses`
+--
+ALTER TABLE `courses`
+  ADD CONSTRAINT `courses_ministry_id_foreign` FOREIGN KEY (`ministry_id`) REFERENCES `ministries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `course_material`
+--
+ALTER TABLE `course_material`
+  ADD CONSTRAINT `course_material_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `course_material_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `course_study_material`
+--
+ALTER TABLE `course_study_material`
+  ADD CONSTRAINT `course_study_material_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `course_study_material_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `course_user`
+--
+ALTER TABLE `course_user`
+  ADD CONSTRAINT `course_user_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `course_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `event_dates`
+--
+ALTER TABLE `event_dates`
+  ADD CONSTRAINT `event_dates_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `host_churches`
+--
+ALTER TABLE `host_churches`
+  ADD CONSTRAINT `host_churches_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `host_church_admins`
+--
+ALTER TABLE `host_church_admins`
+  ADD CONSTRAINT `host_church_admins_host_church_id_foreign` FOREIGN KEY (`host_church_id`) REFERENCES `host_churches` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `host_church_admins_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `inventories`
+--
+ALTER TABLE `inventories`
+  ADD CONSTRAINT `inventories_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `inventory_material`
+--
+ALTER TABLE `inventory_material`
+  ADD CONSTRAINT `inventory_material_inventory_id_foreign` FOREIGN KEY (`inventory_id`) REFERENCES `inventories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `inventory_material_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `lessonplans`
+--
+ALTER TABLE `lessonplans`
+  ADD CONSTRAINT `lessonplans_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `lessonplans_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `material_components`
+--
+ALTER TABLE `material_components`
+  ADD CONSTRAINT `material_components_component_material_id_foreign` FOREIGN KEY (`component_material_id`) REFERENCES `materials` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `material_components_parent_material_id_foreign` FOREIGN KEY (`parent_material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `material_shipping`
+--
+ALTER TABLE `material_shipping`
+  ADD CONSTRAINT `material_shipping_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `material_shipping_shipping_id_foreign` FOREIGN KEY (`shipping_id`) REFERENCES `shippings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `material_suppliers`
+--
+ALTER TABLE `material_suppliers`
+  ADD CONSTRAINT `material_suppliers_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `material_suppliers_supplier_id_foreign` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `media`
+--
+ALTER TABLE `media`
+  ADD CONSTRAINT `media_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `mentors`
+--
+ALTER TABLE `mentors`
+  ADD CONSTRAINT `mentors_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `mentors_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `mentors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `receipts`
+--
+ALTER TABLE `receipts`
+  ADD CONSTRAINT `receipts_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `role_user`
+--
+ALTER TABLE `role_user`
+  ADD CONSTRAINT `role_user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `role_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `sections`
+--
+ALTER TABLE `sections`
+  ADD CONSTRAINT `sections_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `stock_movements`
+--
+ALTER TABLE `stock_movements`
+  ADD CONSTRAINT `stock_movements_inventory_id_foreign` FOREIGN KEY (`inventory_id`) REFERENCES `inventories` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `stock_movements_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `stock_movements_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `stock_movements_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `stp_approaches`
+--
+ALTER TABLE `stp_approaches`
+  ADD CONSTRAINT `stp_approaches_created_by_user_id_foreign` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_approaches_reported_by_user_id_foreign` FOREIGN KEY (`reported_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_approaches_reviewed_by_user_id_foreign` FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_approaches_stp_session_id_foreign` FOREIGN KEY (`stp_session_id`) REFERENCES `stp_sessions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_approaches_stp_team_id_foreign` FOREIGN KEY (`stp_team_id`) REFERENCES `stp_teams` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_approaches_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `stp_sessions`
+--
+ALTER TABLE `stp_sessions`
+  ADD CONSTRAINT `stp_sessions_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `stp_teams`
+--
+ALTER TABLE `stp_teams`
+  ADD CONSTRAINT `stp_teams_mentor_user_id_foreign` FOREIGN KEY (`mentor_user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_teams_stp_session_id_foreign` FOREIGN KEY (`stp_session_id`) REFERENCES `stp_sessions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `stp_team_students`
+--
+ALTER TABLE `stp_team_students`
+  ADD CONSTRAINT `stp_team_students_stp_team_id_foreign` FOREIGN KEY (`stp_team_id`) REFERENCES `stp_teams` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `stp_team_students_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `trainings`
+--
+ALTER TABLE `trainings`
+  ADD CONSTRAINT `trainings_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `trainings_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `trainings_teacher_id_foreign` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `training_assistant_teacher`
+--
+ALTER TABLE `training_assistant_teacher`
+  ADD CONSTRAINT `training_assistant_teacher_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_assistant_teacher_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `training_finance_audits`
+--
+ALTER TABLE `training_finance_audits`
+  ADD CONSTRAINT `training_finance_audits_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_finance_audits_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `training_new_churches`
+--
+ALTER TABLE `training_new_churches`
+  ADD CONSTRAINT `training_new_churches_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_new_churches_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_new_churches_source_church_temp_id_foreign` FOREIGN KEY (`source_church_temp_id`) REFERENCES `church_temps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_new_churches_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `training_schedule_items`
+--
+ALTER TABLE `training_schedule_items`
+  ADD CONSTRAINT `training_schedule_items_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_schedule_items_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `training_user`
+--
+ALTER TABLE `training_user`
+  ADD CONSTRAINT `training_user_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `training_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_church_id_foreign` FOREIGN KEY (`church_id`) REFERENCES `churches` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `users_church_temp_id_foreign` FOREIGN KEY (`church_temp_id`) REFERENCES `church_temps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `vouchers`
+--
+ALTER TABLE `vouchers`
+  ADD CONSTRAINT `vouchers_training_id_foreign` FOREIGN KEY (`training_id`) REFERENCES `trainings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-SET FOREIGN_KEY_CHECKS=1;

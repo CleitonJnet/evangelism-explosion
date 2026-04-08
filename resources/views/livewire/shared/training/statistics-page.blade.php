@@ -4,6 +4,9 @@
     $eventTitle = trim(implode(' ', array_filter([$training->course?->type, $training->course?->name])));
     $ministryName = $training->course?->ministry?->name ?: __('Ministério não informado');
     $baseChurchName = $training->church?->name ?: __('Igreja base não informada');
+    $sessionCreationError = $errors->first('sessionCreation');
+    $teamFormationError = $errors->first('teamFormation');
+    $teamActionError = $errors->first('teamAction');
 @endphp
 
 <div>
@@ -39,90 +42,82 @@
 
     <div
         class="w-full overflow-x-auto bg-linear-to-br from-slate-100 via-white to-slate-200 p-4 rounded-2xl sticky top-0">
-        <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-                <label for="stp-session-select" class="text-xs font-semibold text-slate-700">Sessão STP:</label>
-                <select id="stp-session-select" class="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-                    wire:change="selectSession($event.target.value)">
-                    <option value="">Selecione</option>
-                    @foreach ($sessions as $session)
-                        <option value="{{ $session['id'] }}" @selected($activeSessionId === $session['id'])>
-                            {{ $session['label'] }}
-                        </option>
-                    @endforeach
-                </select>
+        <div class="mb-4 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    @if ($activeSessionId !== null && count($teams) === 0)
+                        <button type="button"
+                            class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            wire:click="formTeams">
+                            Formar equipes
+                        </button>
+                    @endif
 
-                <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    wire:click="createSession" @disabled(!$canCreateSession)
-                    title="{{ $createSessionBlockedReason ?? '' }}">
-                    Criar sessão STP
-                </button>
+                    @if ($activeSessionId !== null && $isLeadershipExecutionTraining && $canRandomizeTeams)
+                        <button type="button"
+                            class="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+                            wire:click="randomizeTeams">
+                            Redefinir equipes
+                        </button>
+                    @endif
 
-                @if ($activeSessionId !== null && count($teams) === 0)
-                    <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                        wire:click="formTeams">
-                        Formar equipes
-                    </button>
-                @endif
-
-                @if ($activeSessionId !== null && $isLeadershipExecutionTraining && $canRandomizeTeams)
-                    <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
-                        wire:click="randomizeTeams">
-                        Redefinir equipes
-                    </button>
-                @endif
-
-                @if ($activeSessionId !== null && count($teams) > 0)
-                    <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
-                        wire:click="createRandomTeam">
-                        Nova equipe
-                    </button>
-                @endif
+                    @if ($activeSessionId !== null)
+                        <button type="button"
+                            class="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+                            wire:click="createRandomTeam">
+                            Nova equipe
+                        </button>
+                    @endif
+                </div>
 
                 @if (count($pendingStudents) > 0)
                     <span
-                        class="inline-flex items-center rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                        class="inline-flex items-center self-start rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 md:ml-auto">
                         Pendências STP: {{ count($pendingStudents) }}
                     </span>
                 @endif
             </div>
 
-            @if ($activeSessionId !== null)
-                <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                    wire:click="requestSessionRemoval({{ $activeSessionId }})">
-                    Remover sessão
-                </button>
-            @endif
+            <div class="overflow-x-auto">
+                <ul class="flex min-w-max items-end gap-1 border-b border-slate-300 px-2 pt-2 text-sm font-medium text-slate-600">
+                    @foreach ($sessions as $session)
+                        @php
+                            $isActiveSession = $activeSessionId === $session['id'];
+                        @endphp
+
+                        <li class="-mb-px shrink-0" wire:key="statistics-session-tab-{{ $session['id'] }}">
+                            <div
+                                class="{{ $isActiveSession ? 'z-10 border-slate-300 border-b-white bg-white text-slate-900 shadow-[0_-1px_0_rgba(255,255,255,0.85),0_10px_18px_rgba(15,23,42,0.08)]' : 'border-slate-300/70 bg-slate-200/80 text-slate-600 hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900' }} relative flex min-w-[11rem] max-w-[16rem] items-center gap-2 rounded-t-md border pl-4 pr-2 py-2 transition">
+                                <button type="button" class="-my-2 -ml-4 min-h-[42px] min-w-0 flex-1 self-stretch px-4 py-2 text-left"
+                                    wire:click="selectSession({{ $session['id'] }})"
+                                    aria-current="{{ $isActiveSession ? 'page' : 'false' }}">
+                                    <span class="block truncate {{ $isActiveSession ? 'font-bold' : 'font-light' }}">{{ $session['label'] }}</span>
+                                </button>
+
+                                <button type="button"
+                                    class="{{ $isActiveSession ? 'hover:bg-slate-100' : 'hover:bg-white/80' }} inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition hover:text-red-600"
+                                    wire:click="requestSessionRemoval({{ $session['id'] }})"
+                                    title="{{ __('Remover sessão') }}"
+                                    aria-label="{{ __('Remover sessão') }}">
+                                    <span class="text-sm leading-none">x</span>
+                                </button>
+                            </div>
+                        </li>
+                    @endforeach
+
+                    <li class="-mb-px ml-1 flex shrink-0 items-stretch">
+                        <button type="button"
+                            class="inline-flex h-[42px] w-[44px] items-center justify-center rounded-t-md border border-slate-950/80 bg-slate-950 text-xl font-bold text-slate-100 transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500"
+                            wire:click="createSession" @disabled(!$canCreateSession)
+                            title="{{ $createSessionBlockedReason ?? __('Criar nova sessão STP') }}"
+                            aria-label="{{ __('Criar nova sessão STP') }}">
+                            +
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
         </div>
-
-        @if (!$canCreateSession && $createSessionBlockedReason)
-            <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                {{ $createSessionBlockedReason }}
-            </div>
-        @endif
-
-        @error('sessionCreation')
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @error('teamFormation')
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @error('teamCreation')
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {{ $message }}
-            </div>
-        @enderror
 
         <div class="min-w-280 overflow-hidden rounded-xl">
             <table
@@ -365,6 +360,25 @@
                 </tfoot>
             </table>
         </div>
+
+        @if ($sessionCreationError && $sessionCreationError !== $createSessionBlockedReason)
+            <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $sessionCreationError }}
+            </div>
+        @endif
+
+        @if ($teamFormationError)
+            <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $teamFormationError }}
+            </div>
+        @endif
+
+        @if ($teamActionError)
+            <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ $teamActionError }}
+            </div>
+        @endif
+
     </div>
 
     <flux:modal name="statistics-mentor-selector" wire:model="showMentorSelectorModal" class="max-w-2xl w-[calc(100%-4px)] mx-auto p-0! max-h-[calc(100vh-4px)]! overflow-hidden">

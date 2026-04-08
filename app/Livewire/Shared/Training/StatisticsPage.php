@@ -173,6 +173,7 @@ abstract class StatisticsPage extends Component
         $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
+        $this->ensureMinimumSessions();
 
         $this->refreshSessionsAndTeams();
     }
@@ -183,6 +184,7 @@ abstract class StatisticsPage extends Component
     public function createSession(array $data = []): void
     {
         $this->authorize('update', $this->training);
+        $this->resetErrorBag('sessionCreation');
         $this->refreshCreateSessionState();
 
         if (! $this->canCreateSession) {
@@ -320,6 +322,7 @@ abstract class StatisticsPage extends Component
     public function formTeams(): void
     {
         $this->authorize('update', $this->training);
+        $this->resetErrorBag('teamFormation');
 
         $session = $this->activeSession();
 
@@ -329,7 +332,6 @@ abstract class StatisticsPage extends Component
 
         try {
             app(StpTeamFormationService::class)->formTeams($session);
-            $this->resetErrorBag('teamFormation');
         } catch (\RuntimeException $exception) {
             $this->addError('teamFormation', $exception->getMessage());
         }
@@ -340,6 +342,7 @@ abstract class StatisticsPage extends Component
     public function randomizeTeams(): void
     {
         $this->authorize('update', $this->training);
+        $this->resetErrorBag('teamFormation');
 
         if (! $this->isLeadershipExecutionTraining) {
             return;
@@ -353,7 +356,6 @@ abstract class StatisticsPage extends Component
 
         try {
             app(StpTeamFormationService::class)->formTeams($session, true);
-            $this->resetErrorBag('teamFormation');
         } catch (\RuntimeException $exception) {
             $this->addError('teamFormation', $exception->getMessage());
         }
@@ -364,6 +366,7 @@ abstract class StatisticsPage extends Component
     public function createRandomTeam(): void
     {
         $this->authorize('update', $this->training);
+        $this->resetErrorBag('teamAction');
 
         $session = $this->activeSession();
 
@@ -378,7 +381,7 @@ abstract class StatisticsPage extends Component
             ->all();
 
         if ($mentorIds === []) {
-            $this->addError('teamCreation', 'Cadastre ao menos 1 mentor para criar uma nova equipe.');
+            $this->addError('teamAction', 'Cadastre ao menos 1 mentor para criar uma nova equipe.');
 
             return;
         }
@@ -888,6 +891,7 @@ abstract class StatisticsPage extends Component
             return;
         }
 
+        $this->resetErrorBag(['sessionCreation', 'teamFormation', 'teamAction']);
         $this->activeSessionId = $sessionId;
         $this->loadTeamsAndStats();
     }
@@ -928,6 +932,31 @@ abstract class StatisticsPage extends Component
         $this->teams = $metrics['teams'];
         $this->columnTotals = $metrics['columnTotals'];
         $this->canRandomizeTeams = $metrics['canRandomizeTeams'];
+    }
+
+    private function ensureMinimumSessions(): void
+    {
+        $this->training->loadMissing('course');
+
+        $minimumSessions = (int) ($this->training->course?->min_stp_sessions ?? 0);
+
+        if ($minimumSessions <= 0 || ! auth()->user()?->can('update', $this->training)) {
+            return;
+        }
+
+        $existingSessions = (int) StpSession::query()
+            ->where('training_id', $this->training->id)
+            ->count();
+
+        if ($existingSessions >= $minimumSessions) {
+            return;
+        }
+
+        $sessionService = app(StpSessionService::class);
+
+        for ($index = $existingSessions; $index < $minimumSessions; $index++) {
+            $sessionService->createNextSession($this->training);
+        }
     }
 
     private function refreshCreateSessionState(): void
