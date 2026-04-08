@@ -52,7 +52,7 @@ it('renders the teacher training statistics page with the livewire component', f
     $response->assertSeeText('Mentores');
 });
 
-it('initializes the minimum required stp sessions from the course when opening the page', function (): void {
+it('does not create minimum stp sessions automatically when opening the page', function (): void {
     $teacher = createTeacherForStatisticsPage();
     $course = Course::factory()->create([
         'min_stp_sessions' => 3,
@@ -62,18 +62,10 @@ it('initializes the minimum required stp sessions from the course when opening t
 
     Livewire::actingAs($teacher)
         ->test(Statistics::class, ['training' => $training])
-        ->assertSet('sessions', [
-            ['id' => 1, 'label' => 'Sessão 1'],
-            ['id' => 2, 'label' => 'Sessão 2'],
-            ['id' => 3, 'label' => 'Sessão 3'],
-        ])
-        ->assertSet('activeSessionId', 3);
+        ->assertSet('sessions', [])
+        ->assertSet('activeSessionId', null);
 
-    expect(StpSession::query()
-        ->where('training_id', $training->id)
-        ->orderBy('sequence')
-        ->pluck('sequence')
-        ->all())->toBe([1, 2, 3]);
+    expect(StpSession::query()->where('training_id', $training->id)->count())->toBe(0);
 });
 
 it('updates mentors count when mentor assignments are updated via event', function (): void {

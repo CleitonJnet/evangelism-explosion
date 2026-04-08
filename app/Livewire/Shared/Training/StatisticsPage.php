@@ -173,7 +173,6 @@ abstract class StatisticsPage extends Component
         $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
-        $this->ensureMinimumSessions();
 
         $this->refreshSessionsAndTeams();
     }
@@ -932,31 +931,6 @@ abstract class StatisticsPage extends Component
         $this->teams = $metrics['teams'];
         $this->columnTotals = $metrics['columnTotals'];
         $this->canRandomizeTeams = $metrics['canRandomizeTeams'];
-    }
-
-    private function ensureMinimumSessions(): void
-    {
-        $this->training->loadMissing('course');
-
-        $minimumSessions = (int) ($this->training->course?->min_stp_sessions ?? 0);
-
-        if ($minimumSessions <= 0 || ! auth()->user()?->can('update', $this->training)) {
-            return;
-        }
-
-        $existingSessions = (int) StpSession::query()
-            ->where('training_id', $this->training->id)
-            ->count();
-
-        if ($existingSessions >= $minimumSessions) {
-            return;
-        }
-
-        $sessionService = app(StpSessionService::class);
-
-        for ($index = $existingSessions; $index < $minimumSessions; $index++) {
-            $sessionService->createNextSession($this->training);
-        }
     }
 
     private function refreshCreateSessionState(): void
