@@ -557,4 +557,23 @@
             </div>
         </div>
     </flux:modal>
+
+    <flux:modal name="statistics-mentor-coverage-alert" wire:model="showMentorCoverageAlertModal" class="max-w-lg w-[calc(100%-4px)] mx-auto">
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <flux:heading size="lg">{{ __('Mentores insuficientes para as sessões STP') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Para cada 2 alunos inscritos, é necessário 1 mentor.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('Este treinamento possui :students alunos inscritos e :mentors mentor(es) cadastrado(s). Para atender a regra de cobertura, são necessários pelo menos :required mentor(es).', ['students' => $mentorCoverageStudentCount, 'mentors' => $mentorCoverageMentorCount, 'required' => $mentorCoverageRequiredMentors]) }}
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <x-src.btn-gold type="button" wire:click="closeMentorCoverageAlert" :label="__('Entendi')" />
+            </div>
+        </div>
+    </flux:modal>
 </div>

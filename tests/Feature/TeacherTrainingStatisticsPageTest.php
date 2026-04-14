@@ -52,7 +52,7 @@ it('renders the teacher training statistics page with the livewire component', f
     $response->assertSeeText('Mentores');
 });
 
-it('does not create minimum stp sessions automatically when opening the page', function (): void {
+it('creates a single empty stp session when opening the page without sessions', function (): void {
     $teacher = createTeacherForStatisticsPage();
     $course = Course::factory()->create([
         'min_stp_sessions' => 3,
@@ -62,10 +62,15 @@ it('does not create minimum stp sessions automatically when opening the page', f
 
     Livewire::actingAs($teacher)
         ->test(Statistics::class, ['training' => $training])
-        ->assertSet('sessions', [])
-        ->assertSet('activeSessionId', null);
+        ->assertSet('sessions.0.label', 'Sessão 1')
+        ->assertSet('activeSessionId', fn ($value): bool => is_int($value) && $value > 0)
+        ->assertSet('teams', []);
 
-    expect(StpSession::query()->where('training_id', $training->id)->count())->toBe(0);
+    expect(StpSession::query()
+        ->where('training_id', $training->id)
+        ->orderBy('sequence')
+        ->pluck('sequence')
+        ->all())->toBe([1]);
 });
 
 it('updates mentors count when mentor assignments are updated via event', function (): void {
@@ -82,6 +87,50 @@ it('updates mentors count when mentor assignments are updated via event', functi
     $component
         ->dispatch('mentor-assignment-updated', trainingId: $training->id)
         ->assertSet('mentorsCount', 1);
+});
+
+it('shows mentor coverage alert modal once on page entry when mentors are insufficient', function (): void {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+    $students = User::factory()->count(5)->create();
+    $mentor = User::factory()->create();
+
+    $training->students()->attach($students->pluck('id')->all());
+    $training->mentors()->attach($mentor->id, ['created_by' => $teacher->id]);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->assertSet('mentorCoverageStudentCount', 5)
+        ->assertSet('mentorCoverageMentorCount', 1)
+        ->assertSet('mentorCoverageRequiredMentors', 3)
+        ->assertSet('showMentorCoverageAlertModal', true)
+        ->assertSeeText('Mentores insuficientes para as sessões STP')
+        ->call('closeMentorCoverageAlert')
+        ->assertSet('showMentorCoverageAlertModal', false);
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->assertSet('showMentorCoverageAlertModal', false);
+});
+
+it('does not show mentor coverage alert modal when mentor coverage is enough', function (): void {
+    $teacher = createTeacherForStatisticsPage();
+    $training = createTrainingForStatisticsPage($teacher);
+    $students = User::factory()->count(4)->create();
+    $mentors = User::factory()->count(2)->create();
+
+    $training->students()->attach($students->pluck('id')->all());
+
+    foreach ($mentors as $mentor) {
+        $training->mentors()->attach($mentor->id, ['created_by' => $teacher->id]);
+    }
+
+    Livewire::actingAs($teacher)
+        ->test(Statistics::class, ['training' => $training])
+        ->assertSet('mentorCoverageStudentCount', 4)
+        ->assertSet('mentorCoverageMentorCount', 2)
+        ->assertSet('mentorCoverageRequiredMentors', 2)
+        ->assertSet('showMentorCoverageAlertModal', false);
 });
 
 it('creates a stp session and sets it as active', function () {
@@ -111,7 +160,7 @@ it('does not create stp session without mentors and students in training', funct
         ->call('createSession')
         ->assertHasErrors(['sessionCreation']);
 
-    expect(StpSession::query()->where('training_id', $training->id)->count())->toBe(0);
+    expect(StpSession::query()->where('training_id', $training->id)->count())->toBe(1);
 });
 
 it('does not create new session when previous session has no teams or students', function () {

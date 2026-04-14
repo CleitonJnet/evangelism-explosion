@@ -168,11 +168,21 @@ abstract class StatisticsPage extends Component
 
     public ?int $pendingTeamRemovalId = null;
 
+    public bool $showMentorCoverageAlertModal = false;
+
+    public int $mentorCoverageStudentCount = 0;
+
+    public int $mentorCoverageMentorCount = 0;
+
+    public int $mentorCoverageRequiredMentors = 0;
+
     public function mount(Training $training): void
     {
         $this->authorizeTrainingAbility('view', $training);
         $this->training = $training;
         $this->initializeTrainingContext($training);
+        $this->ensureInitialSession();
+        $this->refreshMentorCoverageAlertState();
 
         $this->refreshSessionsAndTeams();
     }
@@ -316,6 +326,12 @@ abstract class StatisticsPage extends Component
         $this->closeMentorSelector();
         $this->closeStudentSelector();
         $this->loadTeamsAndStats();
+    }
+
+    public function closeMentorCoverageAlert(): void
+    {
+        $this->showMentorCoverageAlertModal = false;
+        session()->put($this->mentorCoverageAlertSessionKey(), true);
     }
 
     public function formTeams(): void
@@ -903,6 +919,7 @@ abstract class StatisticsPage extends Component
         }
 
         $this->authorizeTrainingAbility('view', $this->training);
+        $this->refreshMentorCoverageAlertState();
         $this->refreshSessionsAndTeams();
     }
 
@@ -941,6 +958,23 @@ abstract class StatisticsPage extends Component
         $this->createSessionBlockedReason = $metrics['createSessionBlockedReason'];
     }
 
+    private function ensureInitialSession(): void
+    {
+        if (! auth()->user()?->can('update', $this->training)) {
+            return;
+        }
+
+        $hasSessions = StpSession::query()
+            ->where('training_id', $this->training->id)
+            ->exists();
+
+        if ($hasSessions) {
+            return;
+        }
+
+        app(StpSessionService::class)->createNextSession($this->training);
+    }
+
     private function loadTeamsAndStats(): void
     {
         $metrics = app(TrainingDiscipleshipMetricsService::class)->buildActiveSessionTeamBoard($this->training, $this->activeSessionId);
@@ -948,6 +982,26 @@ abstract class StatisticsPage extends Component
         $this->teams = $metrics['teams'];
         $this->columnTotals = $metrics['columnTotals'];
         $this->canRandomizeTeams = $metrics['canRandomizeTeams'];
+    }
+
+    private function refreshMentorCoverageAlertState(): void
+    {
+        $training = Training::query()
+            ->withCount(['students', 'mentors'])
+            ->findOrFail($this->training->id);
+
+        $this->mentorCoverageStudentCount = (int) $training->students_count;
+        $this->mentorCoverageMentorCount = (int) $training->mentors_count;
+        $this->mentorCoverageRequiredMentors = (int) ceil($this->mentorCoverageStudentCount / 2);
+        $this->showMentorCoverageAlertModal =
+            $this->mentorCoverageStudentCount > 0
+            && $this->mentorCoverageMentorCount < $this->mentorCoverageRequiredMentors
+            && ! session()->has($this->mentorCoverageAlertSessionKey());
+    }
+
+    private function mentorCoverageAlertSessionKey(): string
+    {
+        return 'training.statistics.mentor_coverage_alert_shown.'.$this->training->id;
     }
 
     private function activeSession(): ?StpSession
